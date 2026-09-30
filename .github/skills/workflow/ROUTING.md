@@ -2,8 +2,10 @@
 
 This is the **only** file in the skill that names vendors or models. `SKILL.md` and `references/`
 speak in seats; this file maps those seats onto *my current* models. Fork the skill, rewrite this
-file for yours, and nothing else needs to change. (Last verified: 2026-09-11 — confirm picker IDs
-for Opus 5 before trusting the reviewer row.)
+file for yours, and nothing else needs to change. (Last verified: 2026-09-30 — picker IDs
+`gpt-6.1-sol`, `claude-opus-5.5`, `claude-sonnet-5.5` confirmed, xhigh/max listed for all three.
+The 2026-09-30 seat change was a direct promotion by the human, without trial runs; the strict
+reviewer's `evals.run reviewer` for Opus 5.5 is still owed.)
 
 **How a model earns a seat — trial runs.** Put the candidate in the seat for one or two real
 runs; the worklog's `Run:` and `Seats:` lines (tickets, review cycles, deviations, findings
@@ -22,8 +24,8 @@ picker* are the CLI's own — `README.md` keeps a per-CLI cheat sheet.
 
 | Vendor | Models in use | Effort scale |
 |---|---|---|
-| OpenAI | GPT-5.6 Sol / Terra / Luna (`gpt-5.6` = family alias); GPT-5.5 as fallback | `low / medium / high / xhigh / max` |
-| Anthropic | Claude Opus 5, Claude Sonnet 5; Fable 5 where available; Haiku 4.5 | `low / medium / high / xhigh` — where a row says `max`, use the highest level the picker lists |
+| OpenAI | GPT-6.1 Sol — the coding workhorse (cache read about half the price of the other models); GPT-5.6 Sol / Terra / Luna as fallback | `low / medium / high / xhigh / max` |
+| Anthropic | Claude Opus 5.5, Claude Sonnet 5.5 (stronger, pricier — judgement and dialogue seats only); Opus 5 / Sonnet 5 as fallback; Fable 5 where available; Haiku 4.5 | 5.5 models: `low / medium / high / xhigh / max`; 5 models: up to `xhigh` — where a row says `max`, use the highest level the picker lists |
 
 Vendor split: Anthropic fills the dialogue and judgement seats (brainstorm, plan, review, wrap);
 OpenAI fills the writing seats (execute). That is what makes review cross-vendor: GPT
@@ -34,11 +36,11 @@ works too.
 
 | Seat | Primary (vendor · model · effort) | Trial (vendor · model · effort, or —) | Fallback chain |
 |---|---|---|---|
-| Brainstorm partner | Anthropic · Sonnet 5 · high | — | OpenAI · GPT-5.6 Terra · medium |
-| Default executor | OpenAI · GPT-5.6 Terra · per phase table | — | GPT-5.5 · closest effort; then Anthropic · Sonnet 5 (breaks the vendor split — reviewer must then be OpenAI, degraded) |
-| Heavy executor | OpenAI · GPT-5.6 Sol · xhigh (P0 fixes: high) | — | GPT-5.5 · xhigh; then Anthropic · Sonnet 5 · xhigh (same caveat) |
-| Mechanical lane | OpenAI · GPT-5.6 Luna · low→medium | — | GPT-5.5 · low; then Anthropic · Sonnet 5 · low |
-| Strict reviewer | Anthropic · Opus 5 · high (review: max) | — | Sonnet 5 · xhigh; then OpenAI · GPT-5.6 Sol (degraded: same-vendor review — note it in `review.md`) |
+| Brainstorm partner | Anthropic · Sonnet 5.5 · high | — | Sonnet 5 · high; then OpenAI · GPT-6.1 Sol · medium |
+| Default executor | OpenAI · GPT-6.1 Sol · per phase table | — | GPT-5.6 Terra · closest effort; then Anthropic · Sonnet 5.5 (breaks the vendor split — reviewer must then be OpenAI, degraded) |
+| Heavy executor | OpenAI · GPT-6.1 Sol · xhigh (P0 fixes: high) | — | GPT-5.6 Sol · xhigh; then Anthropic · Sonnet 5.5 · xhigh (same caveat) |
+| Mechanical lane | OpenAI · GPT-6.1 Sol · low→medium | — | GPT-5.6 Luna · low; then Anthropic · Sonnet 5.5 · low |
+| Strict reviewer | Anthropic · Opus 5.5 · high (review: max) | — | Opus 5 · same effort; then Sonnet 5.5 · xhigh; then OpenAI · GPT-6.1 Sol (degraded: same-vendor review — note it in `review.md`) |
 
 **Trial column:** when a seat has a trial entry, the closing card prints the trial model on its model line,
 marked `(trial)`, and the primary as the fallback; the worklog's `Seats:` line records what actually
@@ -86,10 +88,10 @@ plan, review, bootstrap. Execution runs one ticket at a time and does not
 benefit; dialogue seats don't either. Large costs more per call and dilutes attention on small
 inputs, so it is a per-seat setting, not a default.
 
-**Single-vendor sessions** (only one vendor available today): OpenAI only — Terra for brainstorm,
-Luna/Terra/Sol by ticket lane for execute, Sol for plan and review (degraded same-vendor review).
-Anthropic only — Sonnet 5 for brainstorm and execute (effort scaled the way the
-mechanical→default→heavy lanes would), Opus 5 for plan and review (degraded same-vendor review). Either way, note the degradation in `review.md`.
+**Single-vendor sessions** (only one vendor available today): OpenAI only — GPT-6.1 Sol for every
+seat, effort per the phase table (degraded same-vendor review).
+Anthropic only — Sonnet 5.5 for brainstorm and execute (effort scaled the way the
+mechanical→default→heavy lanes would), Opus 5.5 for plan and review (degraded same-vendor review). Either way, note the degradation in `review.md`.
 
 ## Model and mode notes
 
@@ -101,11 +103,14 @@ mechanical→default→heavy lanes would), Opus 5 for plan and review (degraded 
   modes** (reduced reasoning): default No. An autonomy loop only when explicitly asked, and
   review-each-diff stays on contract tickets even inside it. A speed mode only on mechanical
   auto-approve rows, never logic/contract tickets, plan or review.
-- **Wrap in practice:** wrap usually follows review on the Anthropic side — drop Opus 5 → Sonnet 5
+- **Wrap in practice:** wrap usually follows review on the Anthropic side — drop Opus 5.5 → Sonnet 5.5
   in the same session after the review verdict.
+- **One executor model:** every execute lane runs GPT-6.1 Sol and only the effort changes, so
+  consecutive tickets of different lanes can continue in one session — change the effort, not the model.
 - **Availability:** open the model picker at session start; models are plan/policy/region/rollout
-  dependent. Missing Opus 5 → Sonnet 5 `xhigh` for the reviewer seat; missing Sonnet 5 → Terra for
-  the brainstorm seat; missing GPT-5.6 → GPT-5.5 at the closest effort.
+  dependent. Missing Opus 5.5 → Opus 5, then Sonnet 5.5 `xhigh`, for the plan and reviewer seat;
+  missing Sonnet 5.5 → Sonnet 5 for brainstorm and wrap; missing GPT-6.1 Sol → GPT-5.6 at the
+  closest effort (Terra for logic, Sol for contract, Luna for mechanical).
 - **Fable 5 caveat:** Anthropic's own prompting guide warns that skills written for prior models
   are often too prescriptive for Fable 5 and can degrade output. If seating Fable as the reviewer,
   v2.1's outcome-shaped phase files should hold up, but trim step-level prescription before
