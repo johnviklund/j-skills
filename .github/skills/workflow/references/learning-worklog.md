@@ -94,12 +94,12 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   session). Shape:
 
   ```markdown
-  ## YYYY-MM-DD · <run slug> · <one-line what> · <vendor> · <model>
+  ## YYYY-MM-DD · <run slug> · <one-line what> · <model>
   - <1–4 terse bullets: what shipped / changed>
   - Commits: <sha> <sha> ... (+ <other-repo> <sha> if it spanned repos)
   - Review: <verdict> @ <reviewed sha>   (workflow runs only — omit when no review ran)
   - Run: <tickets> tickets · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned   (workflow runs only)
-  - Seats: 0 <vendor·model> · 2 <vendor·model> · 3 <vendor·model> · 4 <vendor·model>   (workflow runs only — brainstorm · plan · execute · review; suffix "(trial)" where a trial model ran)
+  - Seats: 0 <model> · 2 <model> · 3 <model> · 4 <model>   (workflow runs only — brainstorm · plan · execute · review; suffix "(trial)" where a trial model ran)
   - Skills: workflow@<sha>[, <other skill>@<sha>]   (workflow runs only — the skill versions that ran, so a skill change can be judged like a model)
   - Why: <one line>
   ```

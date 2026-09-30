@@ -3,7 +3,8 @@
 > ⚠️ Read through the `workflow` skill; the phase ends with its closing card.
 
 Seat: **strict reviewer** (`ROUTING.md`), a different vendor from the code's writer. Read the
-`writer:` field and per-ticket `Writer:` lines in `plan.md`; if your vendor matches, this is a
+`writer:` field and per-ticket `Writer:` lines in `plan.md` and look up each model's vendor in
+`ROUTING.md`; if one matches yours, this is a
 degraded same-vendor review and `review.md` says so. Read-only sub-agents may split a wide diff.
 
 Review answers two questions, kept apart so one can't hide the other:
