@@ -67,10 +67,11 @@ deviation the human sees. A `Verify` command that is not found (exit 127) is a f
 ## `## Execution state` (top of the live file, ≤ ~15 lines)
 
 Current ticket and status · one `T# @ <sha>` line per committed ticket (the freshness check reads
-these) · `writer: <vendor> · <model> (self-declared)` · baseline failures that pre-exist · exact
+these) · `writer: <vendor> · <model> (<source>)` · baseline failures that pre-exist · exact
 signatures, column names and contract versions in flight · uncommitted files · pending decision.
 It is a re-ground block: after any reset or compaction, read it before touching the next ticket.
-A contract ticket mid-flight gets finished and committed before a reset.
+A contract ticket mid-flight gets finished and committed before a reset. `<source>` is where the
+model ID was read (*Name the running model from a record* in `SKILL.md`).
 
 Append learnings to `learnings.md` as they happen (`references/learning-worklog.md`).
 

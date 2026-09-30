@@ -94,6 +94,11 @@ Invariants:
   same-vendor review is degraded and says so in `review.md`. One step runs in one session only.
 - **Availability first.** Open the model picker at session start and walk `ROUTING.md`'s fallback
   chain in order; name any switch.
+- **Name the running model from a record, not memory** — a model's recall of its own name lags its
+  version (GPT-6.1 Sol calls itself GPT-6). Use the exact ID the harness context states
+  (`(harness)`); else the CLI config — Codex: `model` in `~/.codex/config.toml` (`(config)`; an
+  in-session `/model` switch overrides it); else `unknown`, and ask. Write it as `ROUTING.md`
+  names it: `Writer:` lines, worklog headings and review's vendor check all read it.
 - **Effort follows risk.** Before raising effort on a struggling ticket, sharpen its acceptance
   lines — a clearer bar beats more thinking.
 - **Approval follows blast radius** (map in `ROUTING.md`): read-only none, mechanical auto, logic
