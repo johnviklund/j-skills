@@ -1,11 +1,11 @@
 {
-  "name": "agent-skills",
+  "name": "j-skills",
   "version": "0.9.1",
   "description": "Global, cross-repo agent skills: capture durable session learnings (memory.remember), periodically compact MEMORY.md (memory.compact), run a personal five-phase dev workflow (workflow), run a read-first workspace health check (checkup), and grade candidate models against eval golden sets (evals).",
   "author": {
     "name": "johnviklund"
   },
-  "repository": "https://github.com/johnviklund/agent-skills",
+  "repository": "https://github.com/johnviklund/j-skills",
   "license": "Unknown",
   "keywords": [
     "memory",

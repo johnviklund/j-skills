@@ -1,4 +1,4 @@
-# agent-skills
+# j-skills
 
 Global, cross-repo agent skills — not tied to any single project. Reachable from every repo,
 from both Codex CLI and GitHub Copilot CLI.
