@@ -32,7 +32,9 @@ without a receipt it is skipped.
    see it fail for the expected reason. (Mechanical and doc tickets skip red and verify by content.)
 3. **Green.** Write the least code that passes, then run `Verify:`, the tests of every file you
    touched, and the typecheck/lint from the baseline.
-4. **Show** the diff where `ROUTING.md` requires approval for this lane; wait for it.
+4. **Show** the diff where `ROUTING.md` requires approval for this lane, as one decision
+   (a ➡️ approve — commit and continue · b request changes), and end the turn there with no
+   closing card; the reply approves.
 5. **Commit** the ticket, then persist before starting the next one: tick its acceptance lines,
    set `Status: done @ <sha>`, add `Writer: <vendor> · <model>` under it, and refresh
    `## Execution state`.

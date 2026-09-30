@@ -113,7 +113,9 @@ costs only warm cache — prefer it to compaction. This skill names verbs (*rese
 ## The closing card — `workflow next`
 
 Every phase ends with this card as the last output of the turn — inside the CLI's summary tool if
-it has one. Open `ROUTING.md` in the closing turn and fill the model line with real values (a
+it has one. **A turn that waits for an answer in chat** — a diff approval, a clarify question, the
+plan's ticket-list round — **ends on the Decisions list, with no card**: the reply is the answer,
+not a command. The card follows once that answer is acted on. Open `ROUTING.md` in the closing turn and fill the model line with real values (a
 *Trial* entry prints instead of the primary, marked `(trial)`); the card exists so the human never
 opens a file to pick a model.
 
@@ -127,7 +129,7 @@ workflow <phase> <slug>
 ---
 
 Reset is `yes` at every handoff, `no` only for same-seat work continuing. When the next step is the
-human's — an operator ticket or an escalation — the model line reads `**Model:** human — <the one
+human's outside the chat — an operator ticket or an escalation — the model line reads `**Model:** human — <the one
 action>` and **Reads:** names the handoff. When the run is done,
 print the ✅ card instead: what shipped (one line); product-doc truth (edited what, or none);
 recommended next (`workflow brainstorm <next ROADMAP item>`, `memory.compact` if `MEMORY.md` grew,
