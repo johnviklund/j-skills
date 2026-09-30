@@ -111,7 +111,7 @@ Verify each cell against the CLI's own `/` menu — these drift.
 
 | CLI | Serves | Reset session | Compact | Context meter | Model picker | Explicit skill invocation | Autonomy / speed / breadth modes |
 |---|---|---|---|---|---|---|---|
-| Codex CLI | OpenAI models | `/new` (`/clear` also works) | `/compact` | `/status` | `/model` (effort also via `model_reasoning_effort` in `~/.codex/config.toml`) | `$workflow` | `/goal` (autonomy), `/fast` (speed), GPT-5.6 `ultra` (breadth) |
+| Codex CLI | OpenAI models | `/new` (`/clear` also works) | `/compact` | `/status` | `/model` (effort also via `model_reasoning_effort` in `~/.codex/config.toml`) | `$workflow` | `/goal` (autonomy), `/fast` (speed), `ultra` where the model offers it (breadth) |
 | Copilot CLI | Both vendors | `/clear` | `/compact` (auto-compacts near ~80% — treat as a deadline, reset at a step boundary first) | `/context` | `/model` (effort also via `--reasoning-effort`) | description-matched; as a plugin, `/<plugin>:workflow` | none sanctioned by default |
 | Claude Code | Anthropic models | `/clear` | `/compact` | `/context` | `/model` | `/workflow` | `/effort ultracode` and the Task/sub-agent tool (breadth, read-only seats only) |
 

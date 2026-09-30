@@ -20,8 +20,8 @@ The current skill instructions remain v2 until the new behavior is implemented.
 
 ### Product direction
 
-The user works through one conversation with a primary reasoning agent, for example
-Astra in the user's GPT desktop app. That agent drives the work: understanding the
+The user works through one conversation with a primary reasoning agent in the user's
+desktop app. That agent drives the work: understanding the
 user, investigating, reasoning, executing or delegating, and communicating results.
 
 `/jflow` is the workflow entry point and a wrapper around a Jev API helper and the
@@ -48,7 +48,7 @@ Small work stays small. Relevant skills and reasoning effort adapt to the work.
 | Component | Owns |
 | --- | --- |
 | Human | Goals, priorities, consequential choices, and authorization. |
-| Primary agent, such as Astra | Investigation, reasoning, execution or delegation, integration, and communication. |
+| Primary agent | Investigation, reasoning, execution or delegation, integration, and communication. |
 | `/jflow` skill and helper | Workflow guidance, context assembly, Jev calls, recommendation assembly, skill selection, and durable records. |
 | Jev | Bounded classifications, scores, and probability distributions over supplied questions and candidates. |
 | Workflow skills | Methods for discovery, specification, planning, implementation, troubleshooting, review, and learning. |
