@@ -6,7 +6,7 @@ file for yours, and nothing else needs to change. (Last verified: 2026-09-11 —
 for Opus 5 before trusting the reviewer row.)
 
 **How a model earns a seat — trial runs.** Put the candidate in the seat for one or two real
-runs; the worklog's `Run:` and `Seats:` lines (steps, review cycles, deviations, findings
+runs; the worklog's `Run:` and `Seats:` lines (tickets, review cycles, deviations, findings
 overturned, model per seat) are the evidence, and `checkup` compares them against the
 incumbent's last runs on that seat. Promote when the candidate ties or beats on cycles and
 deviations at lower cost or effort; demote when it doesn't. The one exception is the strict
@@ -25,8 +25,8 @@ picker* are the CLI's own — `README.md` keeps a per-CLI cheat sheet.
 | OpenAI | GPT-5.6 Sol / Terra / Luna (`gpt-5.6` = family alias); GPT-5.5 as fallback | `low / medium / high / xhigh / max` |
 | Anthropic | Claude Opus 5, Claude Sonnet 5; Fable 5 where available; Haiku 4.5 | `low / medium / high / xhigh` — where a row says `max`, use the highest level the picker lists |
 
-Vendor split: Anthropic fills the dialogue and judgement seats (Phase 0, 2, 4, wrap); OpenAI fills
-the writing seats (Phase 1 when it runs, Phase 3). That is what makes review cross-vendor: GPT
+Vendor split: Anthropic fills the dialogue and judgement seats (brainstorm, plan, review, wrap);
+OpenAI fills the writing seats (execute). That is what makes review cross-vendor: GPT
 writes, Claude audits and reviews. The invariant is the *split*, not the direction — reversed
 works too.
 
@@ -34,13 +34,13 @@ works too.
 
 | Seat | Primary (vendor · model · effort) | Trial (vendor · model · effort, or —) | Fallback chain |
 |---|---|---|---|
-| Brainstorm partner | Anthropic · Sonnet 5 · medium | — | OpenAI · GPT-5.6 Terra · medium |
+| Brainstorm partner | Anthropic · Sonnet 5 · high | — | OpenAI · GPT-5.6 Terra · medium |
 | Default executor | OpenAI · GPT-5.6 Terra · per phase table | — | GPT-5.5 · closest effort; then Anthropic · Sonnet 5 (breaks the vendor split — reviewer must then be OpenAI, degraded) |
 | Heavy executor | OpenAI · GPT-5.6 Sol · xhigh (P0 fixes: high) | — | GPT-5.5 · xhigh; then Anthropic · Sonnet 5 · xhigh (same caveat) |
 | Mechanical lane | OpenAI · GPT-5.6 Luna · low→medium | — | GPT-5.5 · low; then Anthropic · Sonnet 5 · low |
 | Strict reviewer | Anthropic · Opus 5 · high (review: max) | — | Sonnet 5 · xhigh; then OpenAI · GPT-5.6 Sol (degraded: same-vendor review — note it in `review.md`) |
 
-**Trial column:** when a seat has a trial entry, the next-step card prints the trial model in row 2,
+**Trial column:** when a seat has a trial entry, the closing card prints the trial model on its model line,
 marked `(trial)`, and the primary as the fallback; the worklog's `Seats:` line records what actually
 ran. Clear it after promoting or rejecting. One trial per seat, at most two seats in trial at once —
 otherwise a bad run can't be attributed.
@@ -64,16 +64,17 @@ Nothing edits this file but the human; wrap writes evidence, checkup recommends.
 
 | Phase / work | Seat | Effort | Context | Approval |
 |---|---|---|---|---|
-| Phase 0 — brainstorm | Brainstorm partner | medium | standard | — (dialogue) |
-| Phase 1 — spec (optional) | Default executor | xhigh | large | — (read-only) |
-| Phase 2 — audit & plan | Strict reviewer | high; xhigh hardest cases | large | — (read-only) |
-| Phase 3 — mechanical edits | Mechanical lane | low → medium | standard | auto |
-| Phase 3 — logic-bearing edits | Default executor | high | standard | review each diff |
-| Phase 3 — schema/SQL/contract | Heavy executor | xhigh | standard; large if the step spans many files | review each diff |
-| Phase 4 — review | Strict reviewer | max | large | — (read-only) |
-| Patch plan (any severity) | Strict reviewer | high | standard | — |
-| Fix P0s | Heavy executor | high | standard | review each diff |
-| Fix P1/P2/P3s | Default executor | medium | standard | auto |
+| Brainstorm (grill → brief) | Brainstorm partner | high | standard | — (dialogue; human confirms behaviours) |
+| Plan (audit → tickets) | Strict reviewer | high; xhigh hardest cases | large | human approves the ticket list |
+| Execute — mechanical ticket | Mechanical lane | low → medium | standard | auto |
+| Execute — logic ticket | Default executor | high | standard | review each ticket's diff |
+| Execute — contract ticket (schema/SQL/API) | Heavy executor | xhigh | standard; large if the ticket spans many files | review each ticket's diff |
+| Execute — operator ticket (live/irreversible) | Default executor prepares the handoff (Heavy executor if it carries SQL or a contract) | high | standard | the human runs it; review the handoff before running |
+| Review | Strict reviewer | max | large | — (read-only) |
+| Patch plan (fix tickets) | Strict reviewer | high | standard | — |
+| Fix ticket — P0 | Heavy executor | high | standard | review each ticket's diff |
+| Fix ticket — P1 (or a P2/P3 the human chose to fix), logic lane | Default executor | medium | standard | auto |
+| Fix ticket — any severity, contract lane | Heavy executor | high | standard | review each ticket's diff |
 | Final check & wrap-up | Brainstorm partner | medium | standard | auto |
 | TODO intake (`workflow todo`) | Brainstorm partner | medium | standard | auto (writes only `TODO.md`) |
 | Bootstrap (`workflow bootstrap`) | Brainstorm partner (docs) + Strict reviewer (audit) | high | large | propose each doc, confirm before writing |
@@ -81,31 +82,31 @@ Nothing edits this file but the human; wrap writes evidence, checkup recommends.
 
 **Context window:** `standard` = the model's default (256K-class); `large` = the biggest the picker
 offers (1M-class). Large only where the seat must hold the whole repo or a wide diff at once —
-audit, review, spec, bootstrap. Execution runs one scope-locked step at a time and does not
+plan, review, bootstrap. Execution runs one ticket at a time and does not
 benefit; dialogue seats don't either. Large costs more per call and dilutes attention on small
 inputs, so it is a per-seat setting, not a default.
 
-**Single-vendor sessions** (only one vendor available today): OpenAI only — Terra for Phase 0/1,
-Luna/Terra/Sol by step shape for Phase 3, Sol for Phase 2/4 (degraded same-vendor review). Anthropic
-only — Sonnet 5 for Phase 0/1/3 (effort scaled the way the mechanical→default→heavy lanes would),
-Opus 5 for Phase 2/4 (degraded same-vendor review). Either way, note the degradation in `review.md`.
+**Single-vendor sessions** (only one vendor available today): OpenAI only — Terra for brainstorm,
+Luna/Terra/Sol by ticket lane for execute, Sol for plan and review (degraded same-vendor review).
+Anthropic only — Sonnet 5 for brainstorm and execute (effort scaled the way the
+mechanical→default→heavy lanes would), Opus 5 for plan and review (degraded same-vendor review). Either way, note the degradation in `review.md`.
 
 ## Model and mode notes
 
 - **Read-only breadth.** Where the CLI serving a read-only seat offers a fan-out / sub-agent /
   "ultra"-style breadth mode, it is sanctioned only per `SKILL.md`'s read-only-breadth invariant
-  (Phase 2/4, wide problems only). It multiplies token burn — default to the seat's normal effort
+  (plan and review, wide problems only). It multiplies token burn — default to the seat's normal effort
   unless breadth is the bottleneck.
 - **Autonomy loops** (a mode that drives a whole plan without re-prompting each step) and **speed
   modes** (reduced reasoning): default No. An autonomy loop only when explicitly asked, and
-  review-each-diff stays on schema/contract steps even inside it. A speed mode only on mechanical
-  auto-approve rows, never logic/schema or Phase 2/4.
-- **Wrap in practice:** wrap usually follows Phase 4 on the Anthropic side — drop Opus 5 → Sonnet 5
+  review-each-diff stays on contract tickets even inside it. A speed mode only on mechanical
+  auto-approve rows, never logic/contract tickets, plan or review.
+- **Wrap in practice:** wrap usually follows review on the Anthropic side — drop Opus 5 → Sonnet 5
   in the same session after the review verdict.
 - **Availability:** open the model picker at session start; models are plan/policy/region/rollout
   dependent. Missing Opus 5 → Sonnet 5 `xhigh` for the reviewer seat; missing Sonnet 5 → Terra for
   the brainstorm seat; missing GPT-5.6 → GPT-5.5 at the closest effort.
 - **Fable 5 caveat:** Anthropic's own prompting guide warns that skills written for prior models
   are often too prescriptive for Fable 5 and can degrade output. If seating Fable as the reviewer,
-  the outcome-shaped paste blocks here should hold up, but trim step-level prescription before
+  v2.1's outcome-shaped phase files should hold up, but trim step-level prescription before
   trusting it — and run `evals.run reviewer` first, same as any reviewer candidate.

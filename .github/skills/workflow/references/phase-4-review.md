@@ -1,137 +1,111 @@
-# Phase 4 — Review — `workflow review` (+ what happens after)
+# Review — `workflow review` (+ patch cycle)
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the phase ends with its closing card.
 
-Seat: **strict reviewer** — mapping in `ROUTING.md`. Rationale: the strongest hard-engineering
-reasoner *and* an independent set of eyes — the reviewer should be a different vendor from
-whichever model wrote the code. Don't wait to be told which that was — read the plan's
-`## Execution state` `writer` field and its per-step writers, and if your own vendor matches, this
-is a degraded same-vendor review. A CLI's parallel-breadth mode is permitted on a wide diff
-per `SKILL.md`'s read-only-breadth invariant — same P0–P3 output contract either way.
+Seat: **strict reviewer** (`ROUTING.md`), a different vendor from the code's writer. Read the
+`writer:` field and per-ticket `Writer:` lines in `plan.md`; if your vendor matches, this is a
+degraded same-vendor review and `review.md` says so. Read-only sub-agents may split a wide diff.
 
-**Persist as you go — `review.md` is review's only artifact.** Review is read-only against the
-code, so the state machine can only see it happened through `.workflow/<slug>/review.md`, and a finding
-held in context is one context death from gone. Open the file *before* reviewing anything, with
-`Status: drafting`, and grow it in place:
+Review answers two questions, kept apart so one can't hide the other:
+
+- **Acceptance** — does the code do what the brief and tickets agreed? For every ticket, each
+  acceptance line has a test (or receipt) that exists, passes, and asserts the literal the line
+  names; every behaviour (B#) is delivered; every out-of-scope item is untouched; nothing was built
+  that no ticket asked for. Then check the **Outcome** where the brief says the user reaches it —
+  the rendered page, the served snapshot, a live read-only query. Passing acceptance lines are not
+  proof of it: a bar can pass on provenance while the user sees nothing useful.
+- **Defects** — does it break anything? Verify empirically: run the tests, trace producer →
+  consumer, run live queries. Look for missing error handling, data loss, resource leaks, security
+  flaws, and logic that defeats the feature's own guarantee (a gate that can never fire). In any
+  test the run didn't create, count assertions before and after; an unexplained drop is a P1.
+
+## Severity — the bar that keeps cycles short
+
+| | Means | Default disposition |
+|---|---|---|
+| **P0** | data loss, security hole, crash on a normal path, a behaviour inverted, wrong or misleading data shown to users as correct | fix now |
+| **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input | fix now |
+| **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern | defer → `TODO.md` |
+| **P3** | minor; at most five reported, the rest as a count | defer (stays in `review.md`) |
+
+A P0/P1 names its evidence: the B# or acceptance line it breaks, the Outcome and what its surface
+actually shows, or the input that fails. A finding that can't name one is P2 at most. Style,
+naming, generated paths and anything lint/CI enforces are not findings. When a reproduction the
+plan prescribed doesn't reproduce, suspect the finding rather than the harness, and re-price it.
+
+**A repeat is memory.** Before recording a P0–P2, check `MEMORY.md` and `evals/strict-reviewer/`
+for the same class of mistake; a second occurrence adds `[durable→memory]` to `learnings.md`.
+
+## `review.md` — open it first, grow it as you go
+
+The file is the only evidence review happened. Create it before reviewing anything, with the
+provenance header (`Base:` = the HEAD sha reviewed, `Inputs: plan.md @ <its Base>`,
+`Status: drafting`), and append each finding the moment it is confirmed.
 
 ```markdown
 ## Coverage
-- [x] brainstorm.md scope: <item> → delivered by step N | MISSING (P1)
-- [x] brainstorm.md non-goal: <item> → untouched | TOUCHED (P1)
-- [x] plan.md steps 1–6 + Deviations
-- [x] src/domain/mission.ts
-- [ ] src/app/api/…
+- [x] T1 — acceptance 2/2 tested and passing
+- [ ] T2 — …
+- [x] B1…B6 delivered · Outcome observed on <surface> · out of scope untouched
+- [x] .workflow/ dependency check
 Independence: cross-vendor | same-vendor (degraded)
 
 ## Cycle 1 findings
 ### P1 — <title>
-- Evidence: <file:line>, <check output>
-- Disposition: fix now | defer — Approved by human: <who/when, required for P0/P1> | wontfix — <reason>
-- Resolved: — | @ <sha> (cycle N)          ← stamped only by a later cycle that re-verified it
+- Evidence: <B# / acceptance line / failing input> · <file:line> · <command output>
+- Disposition: fix now | defer — Approved by human: <when, required for P0/P1> | wontfix — <reason>
+- Resolved: — | @ <sha> (cycle N)
 
 ## Pre-existing / environmental
 
-## Cycle 1 verdict          <- written last; flips Status to complete
+## Cycle 1 verdict              ← written last; sets Status: complete
 ```
 
-Three rules make this work:
+Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Two
+mechanical checks always run: nothing outside `.workflow/` references it
+(`grep -rn --exclude-dir=.workflow --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
+P1), and the full test suite — unless `git diff --stat <plan Base>..HEAD -- . ':(exclude)*.md'
+':(exclude)*.txt'` is empty, in which case that empty diff is the regression proof.
 
-- **Append each finding the moment it's confirmed**, before moving to the next area — not in one
-  pass at the end.
-- **`## Coverage` is the re-ground block.** Tick each area as it's reviewed. A reset mid-review
-  then costs the diff already read, not the findings; the next session resumes at the first
-  unchecked entry instead of starting over. Same role `## Execution state` plays for Phase 3.
-- **Re-reviews append a new `## Cycle N` section; they never overwrite.** The escalation contract
-  below has to state what was attempted across the cycles and why each attempt failed — if each
-  cycle overwrote the last, that history would live only in context, which is exactly the
-  dependency this removes. `Status` returns to `drafting` when a cycle opens.
+In chat: the verdict, a count per severity, one line per P0/P1, and any disposition the human
+owes as a lettered decision list. Verdict "ship as-is" when nothing needs acting on.
 
-Without this file, `workflow status` and `workflow wrap` will correctly claim review hasn't run.
+## After the verdict
 
-**When a prescribed reproduction step doesn't reproduce, suspect the finding, not the harness.**
-If a planned or patch-cycle step says a specific input should fail (or should not fail) and the
-opposite happens, re-price the finding itself before adjusting the test to match the plan's
-expected shape. Stubbing out the mechanism that produced the unexpected result — to preserve the
-plan's prescribed step shape — destroys the evidence that the plan rested on a false premise, and
-lets a disproven finding still ship as a "fix."
+**Clean** → `workflow wrap <slug>`.
 
-**P3 is capped; noise is excluded.** Report at most five P3s and summarize the rest as a count;
-the count is enough for a disposition of "defer". Do not report generated paths, anything a
-linter or CI check already enforces, or style and naming — those are not findings. **A repeat is
-memory.** Before recording a P0–P2, check `MEMORY.md` and `evals/strict-reviewer/` for the same
-class of mistake; a second occurrence is tagged `[durable→memory]` in `.workflow/<slug>/learnings.md`
-as part of the review, so the next run's grounding carries it and the class is caught earlier.
+**Only P2/P3** → their default dispositions stand unless the human picks "fix now" for one; the
+deferred P2s become `TODO.md` lines at wrap, and deferred P3s stay in `review.md`. No patch cycle
+is needed for defers.
 
-**The chat receipt is the verdict, not the findings.** Findings live in `review.md`; the turn
-reports the verdict, a count per severity, the P0/P1 titles in one line each, and any decision the
-human owes (dispositions on P2/P3 as a lettered list with recommended defaults) — then the card.
+**Any "fix now"** → write `patch_plan.md`: one fix ticket per finding, same ticket shape and
+rules as `plan.md` (lane, seam, acceptance, verify with `pre:`, skills), numbered `C<cycle>-T#`
+so their `@ <sha>` lines never collide with the plan's. The lane decides seat and approval: a fix
+that touches a contract is a contract ticket whatever its severity. A behavioural bug is two
+tickets: first a test that reproduces it, run and seen to fail, committed alone; then the fix,
+which leaves every test file untouched. When the finding is a class that can recur (a field read
+in several places, a call site pattern), the fix ticket's acceptance names every site — list them
+with a search at planning time. The card routes to `workflow execute <slug>`, naming the
+cycle and finding ids (`Patch cycle 1 — fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
-Run it directly, or hand it to a fresh session on the strict-reviewer seat by pasting:
+**Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,
+append `## Cycle N findings` and `## Cycle N verdict`, and move `Base` to the sha reviewed. Its scope is the
+fix diff plus each finding's class: re-verify each finding at every site of its class, not only
+the lines the fix touched (stamp `Resolved: @ <sha> (cycle N)` or reopen it — an incomplete fix
+reopens the finding at its original severity), confirm each bug fix left the tests untouched and
+its reproducing test passes, and look for regressions the fix diff introduced. Something new
+outside that scope is recorded at P2, except a P0 (fix now) or a P1, which goes to the human as a
+decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `TODO.md`.
 
-```text
-Review the changes against .workflow/<slug>/plan.md (<slug> is the run named in my command; every file below lives in that folder) as a strict senior engineer, including any "Deviations" it logged during execution. First read the plan's "## Execution state" writer field and the per-step "Writer:" lines; if your own vendor wrote this code, this is a degraded same-vendor review and you must say so in review.md. Also read .workflow/<slug>/brainstorm.md: its scope items and non-goals are the requirements of record — a scope item no change delivers is a P1, a non-goal the diff touches is a P1, and both go in the Coverage checklist by name; the plan's checklist being complete is not evidence of either. Then check nothing outside .workflow/ imports, reads, or executes anything inside it (grep -rn --exclude-dir=.workflow --exclude='*.md' --exclude='*.txt' '\.workflow/' .): a hit is a P1, code must not depend on a run folder — and a command that is not found is a failed check, never a clean one. If git diff --stat <plan Base>..HEAD -- . ':(exclude)*.md' ':(exclude)*.txt' is empty, the run changed no code: record that empty diff as the regression proof and skip the full test suite; otherwise run it. Verify empirically — compile, run tests, trace producer↔consumer, run live queries. Flag: missing error handling, resource leaks, security flaws, syntax/compile regressions, and logic that defeats the feature's own guarantees (e.g. a gate that can never fire). Output P0 (blocker) / P1 (high) / P2 (medium) / P3 (low), and an explicit verdict — "ship as-is" if there's nothing worth acting on, otherwise the smallest disposition per issue (fix now / defer / wontfix, with a one-line reason; a P0/P1 defer needs my explicit approval, which you ask for — "Approved by human:" is written only after I say so; a fix now stays open — "Resolved: —" — until a later review cycle re-verifies it reason). Report at most five P3s and summarize any further ones as a count; skip generated paths, anything lint/CI already enforces, and style or naming. For every P0–P2, check MEMORY.md and evals/strict-reviewer/ for the same class of mistake; if it has occurred before, add a "[durable→memory]" line to .workflow/<slug>/learnings.md as part of this review. List pre-existing/environmental failures separately so they aren't mistaken for regressions. Write .workflow/<slug>/review.md BEFORE you start reviewing, with a five-line provenance header — Command, Created (date), Base (the HEAD sha reviewed), Inputs (.workflow/<slug>/plan.md @ its own Base sha), Status (drafting) — then a "## Coverage" checklist of every area you intend to review plus an "Independence:" line, then a "## Cycle 1 findings" heading. Append each finding to that section the moment you confirm it, with its evidence and disposition, and tick the Coverage entry as you finish each area; do not hold findings in context to write up at the end. List pre-existing/environmental failures under "## Pre-existing / environmental". Write the "## Cycle 1 verdict" section last, then set Status to complete. In chat report only the verdict, a count per severity, one line per P0/P1, and any dispositions you need from me as a lettered list with your recommended default marked. If you are resuming a drafting review.md, continue from the first unticked Coverage entry rather than starting over.
-```
+**Cycle bound — three.** Stop and escalate after the third cycle, or as soon as a P0 survives a
+cycle. The escalation states the unresolved finding verbatim, each attempt and why it failed, and
+one answerable question; the card routes to the human.
 
-**Optional — quiz before merging:** a diff only gives a light read of what happened, since
-behavior depends on existing code paths too. Before pushing anything not 100% understood, ask
-one question at a time covering intent, what changed, and any non-obvious existing behavior it
-now depends on.
+A finding stays open until a later cycle stamps it. P0/P1 deferral needs the human's explicit
+approval, recorded as `Approved by human:`. Wrap refuses any open "fix now" and any unapproved
+P0/P1 deferral. A confirmed P0/P1 the writer missed may become a reviewer exam case if it passes
+the admission test in `references/learning-worklog.md`: tag it `[durable→eval] code-review — …`
+in `learnings.md`.
 
-## After Phase 4 — three outcomes
-
-**Cycle bound — three, then stop.** One cycle = patch plan → fixes → re-review. Both patched
-outcomes below end in a re-review, and that re-review may open the next cycle — it may not open a
-fourth. Stop and escalate to the human, without starting another cycle, as soon as either is true:
-three cycles have completed, or a P0 survived a cycle unresolved (fixed and still found, or its fix
-failed its own check). The escalation states the unresolved finding verbatim, what was attempted
-across the cycles and why each attempt failed, and one exact answerable question — then closes with
-the next-step card routed to the human. Never a fourth blind cycle.
-
-**Clean / "ship as-is":** no P0/P1/P2/P3, or nothing worth acting on. Skip straight to
-`workflow wrap` — don't manufacture a patch plan for a clean review.
-
-**A finding is open until a later cycle closes it.** `fix now` means work is owed; only a
-re-review that re-verifies the fix stamps `Resolved: @ <sha> (cycle N)`. A P0/P1 may be deferred
-only with an explicit `Approved by human:` line — the reviewer never grants that itself. Wrap
-refuses any open `fix now` and any unapproved P0/P1 deferral.
-
-**P0/P1 present** (models/efforts per the patch-cycle rows in `ROUTING.md`):
-1. **Patch plan**: group P0/P1/P2/P3 into a file-by-file patch plan, core interfaces first, each
-   with a local check — same step shape *and same check rules* as Phase 2 (run before complete,
-   presence over absence, occurrences not lines), including a `Skills:` line per step. The
-   patch plan is executed by **`workflow execute <slug>`**, which runs `patch_plan.md` whenever it
-   has unchecked steps (the original checklist is complete and is not re-run); the card routes
-   there, to the heavy-executor seat for P0 steps. **Patch-cycle cards are scoped:** "You are
-   here" names the cycle and the findings — `Patch cycle 1 — fix C1-1, C1-2, C1-3` on the way
-   out, `Re-review cycle 2 — verify C1-1…C1-3; nothing else is re-implemented` on the way back —
-   so a fresh context never reads the handoff as the original phase restarting. **A P0/P1
-   that is a behavioral bug gets two steps, not one:** first a test that reproduces it — run, seen
-   to fail for the expected reason, committed on its own; then the fix, which may not edit that
-   test or any other test file. The committed failing test is the proof the bug is gone, and a
-   fix that touches tests is rejected at re-review. Scope
-   each check to exactly what that step changes (the phrase removed, the phrase added), not a
-   global count of a substring that can legitimately appear elsewhere (e.g. reserve `wc -l` for a
-   file with a real line budget, not as a stand-in for "did the edit land"); before writing a
-   "count is 0" check, grep the plan's own other steps for a collision. A check that stops a
-   correct edit costs a whole cycle. Save to `.workflow/<slug>/patch_plan.md`.
-2. **Fix P0s** (review each diff): fix only the P0s, one at a time, check + commit after each.
-   Don't touch P1/P2 yet.
-3. **Fix P1/P2/P3s** (auto): fix the rest, verify no regressions.
-4. Re-run Phase 4 review on the fixes before wrap-up (`workflow review <slug>` once every patch
-   step is ticked): append `## Cycle N findings` and `## Cycle N verdict` to the same `review.md`,
-   update its `Base` to the sha reviewed, stamp `Resolved: @ <sha> (cycle N)` on each finding
-   the fix verified, and reopen any it didn't — and on a bug fix, confirm the fix commit touched no
-   test file and the reproducing test now passes. A clean cycle N with every finding resolved or
-   approved-deferred is wrap's entry; `patch_plan.md` stays until wrap archives it. Also: a *confirmed* P0/P1 that the
-   writer missed is a reviewer-exam case only if it passes the admission test in
-   `references/learning-worklog.md` (most don't) — tag it `[durable→eval] code-review — ...` in
-   `.workflow/<slug>/learnings.md` so wrap deposits the diff + finding before scratch is cleared.
-
-**Only P2/P3 (no P0/P1):** worth a lighter patch plan — group into a file-by-file patch plan,
-each with a local check AND a recommended disposition (fix now/defer/wontfix, one-line reason).
-Default to the smallest safe scope. Read the dispositions and decide per item before fixing
-anything — don't auto-fix everything listed, especially anything marked "defer." For items to fix
-now: fix one at a time, check + commit after each; leave "defer"/"wontfix" alone (confirm the
-reasoning still holds, don't implement it). Re-run Phase 4 review on the fixes before wrap-up.
-
-**Close with the next-step card** (format in `SKILL.md`) — mandatory, no substitute. Read `ROUTING.md` now and fill row 2 with the next seat's concrete vendor · model · effort · context window and first fallback; a seat name or "see ROUTING.md" is a defect. A conversational closer ("want me to proceed?") is not the card; if in doubt, print it.
+Optional before merging: for code the human doesn't fully understand yet, quiz them one question
+at a time on intent, what changed, and the existing behaviour it now leans on.

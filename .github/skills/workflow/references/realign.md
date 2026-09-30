@@ -22,7 +22,7 @@ Verify every precondition before creating or resuming the run artifact:
 - `PRODUCT.md` exists. If it does not, refuse and point to `workflow bootstrap`; realignment
   needs an existing north-star document and shipped history to compare.
 - No standard workflow run is active. Refuse when the phase-state artifacts would make
-  `workflow status` recommend spec, plan, execute, review, a patch cycle, or wrap. Completed
+  `workflow status` recommend plan, execute, review, a patch cycle, or wrap. Completed
   historical artifacts that do not affect that calculation are harmless.
 - An existing `.workflow/realign.md` with `Status: drafting` is resumable only when its recorded
   base is still an ancestor of `HEAD` and none of its in-scope canonical docs changed after the

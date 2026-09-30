@@ -151,8 +151,11 @@ git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.p
 - **Runs.** List every `.workflow/<slug>/` with its status. A `drafting`/`complete` run with no
   commit touching it in ~14 days is ⚠️ "stalled -- park it or finish it". A `parked` run older
   than ~90 days is ⚠️ "still wanted?". `done` runs are ✅, counted not listed. A run folder
-  missing `brainstorm.md`, or a `done` run still holding `spec.md`/`patch_plan.md`/an
-  `## Execution state` block, is ⚠️ (wrap didn't archive properly).
+  missing `brainstorm.md`, or a `done` run still holding `patch_plan.md`/an
+  `## Execution state` block, is ⚠️ (wrap didn't archive properly). A ticket `awaiting-human`
+  for more than ~7 days is ⚠️ "operator step pending — run it or park the run".
+- **Review deferrals.** `TODO.md`'s `## Review deferrals` lines older than ~90 days are ⚠️ "still
+  wanted? fold into a run or archive"; more than ~20 open is ⚠️ "triage before the next brainstorm".
 - **v1 leftovers.** Flat `.workflow/*.md` files are ⚠️ "migrate into `.workflow/<slug>/`" (see the
   workflow README); a gitignored `.workflow/` is 🔴 -- runs are the repo's history.
 - **One home per idea.** A `TODO.md` item naming the same thing as a parked run is ⚠️ -- archive
@@ -172,7 +175,7 @@ git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.p
 ### 6. Seat & skill performance, reviewer exam set
 
 Models earn seats on **trial runs**, not exams: every `workflow wrap` appends a `WORKLOG.md`
-entry with a `Run:` line (steps · review cycles · deviations · findings overturned) and a
+entry with a `Run:` line (tickets · review cycles · deviations · findings overturned) and a
 `Seats:` line (vendor·model per phase). Checkup turns those into a per-seat comparison and
 *detects the need* to promote, demote, or run the one exam. It never edits `ROUTING.md`.
 
@@ -192,7 +195,9 @@ tail -20 evals/strict-reviewer/RESULTS.md 2>/dev/null                  # last re
 - **Skill trials.** Entries also carry `Skills: <skill>@<sha>`. For each `trialing` line in the
   skills repo's `SKILL-IMPACT.md`, compare `Run:` numbers for entries at the new sha against the
   entries before it: once the trial count is reached, ⚠️ "trial complete -- better / worse / no
-  signal, N runs"; worse means recommend reverting. Never edit the skill.
+  signal, N runs"; worse means recommend reverting. Never edit the skill. Compare only like with
+  like: v2.02 entries count checklist steps (≤12), v2.1 entries count tickets (≤8), so across that
+  boundary compare review cycles and deviations only.
 - **Trial in progress.** A model on a seat with only one run: ✅ note "trial, 1 run -- needs one
   more before judging".
 - **Promotion candidate.** A non-incumbent with ≥2 runs that ties or beats the incumbent on

@@ -10,7 +10,7 @@ description: >
   Use when the user says "remember this", "save this for later", "update
   memory", "curate learnings", or asks to record a new workflow, repo rule,
   design decision, or important lesson — including at the end of a
-  brainstorm/spec/plan/execute/review workflow pass.
+  brainstorm/plan/execute/review workflow pass.
 ---
 
 # memory.remember

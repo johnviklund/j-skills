@@ -1,78 +1,135 @@
-# Phase 2 — Audit & Plan — `workflow plan`
+# Plan — `workflow plan`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the phase ends with its closing card.
 
-Seat: **strict reviewer** — mapping in `ROUTING.md`. Rationale: this is the deepest-reasoning
-read-only work, and the auditor should be a *different vendor* from whoever wrote the spec or
-brainstorm — cross-vendor scrutiny catches hallucinated signatures and blind spots the generator's
-own family shares. A CLI's parallel-breadth mode is permitted here per `SKILL.md`'s
-read-only-breadth invariant.
+Seat: **strict reviewer** (`ROUTING.md`) — a different vendor from the executor, so the audit
+catches what the writer's model family would miss. Read-only sub-agents may gather facts.
 
-Input is always `.workflow/<slug>/brainstorm.md` — the requirements of record — plus
-`.workflow/<slug>/spec.md` when it exists. Without a spec the audit also does the spec's job:
-verify every interface, signature and column it will touch against the real code before writing
-a step. A spec never replaces the brainstorm: its scope and non-goals are checked for coverage
-regardless, because a constraint dropped during compression would otherwise vanish from every
-downstream check. Either way the plan is the same shape.
+Input: `.workflow/<slug>/brainstorm.md` — the brief — plus the code. Output: `plan.md`, a short
+list of **tracer-bullet tickets**. Each ticket makes one or more behaviours work end to end and
+proves it with tests, so the run is working software after every ticket instead of only at the end.
 
-Five things the plan depends on and a fresh reader won't infer:
+## 1. Audit the brief against the code
 
-- **The plan is a checklist the executor follows, not a report the human reads.** The audit's
-  thinking is unbounded; what lands in `plan.md` is what Phase 3 needs to act and what wrap needs to
-  reconcile. Findings are a **one-line-per-row table**, not paragraphs; a step never restates a
-  finding's rationale — it cites the row (`(F3)`) and moves on. Corrections to the input (a wrong
-  hash, a stale signature) are recorded as a finding row and *used* in the steps; the input
-  artifact is not edited and no step is spent "correcting the spec". Budget: ≤ ~100 lines, ≤ 12 steps.
+Open `plan.md` with `Status: drafting` now and append each part as it settles (shape in step 5).
+Check every decision and seam in the brief against the real code: signatures, columns, config
+keys, call sites, contract versions. Record what you learn as **findings** — one table row each:
+`F# · what is true · what it changes`. A correction to the brief is a finding row and the correct
+value is used in the tickets; the brief itself stays as written.
 
-- **An undecided input stops the audit; it never becomes Step 1.** If the audit finds a question
-  only the human can answer (which fixtures, which of two sources, whether a coverage rule is
-  relaxed), the plan is not written until it is answered: stop, ask it in the *Reporting* shape
-  from `SKILL.md` (lettered options, recommended default), wait, then plan. A checklist step that
-  says "settle X with the user" is an interview disguised as a plan.
+A question only the human can answer stops the phase before any ticket is written: ask it in the
+decision shape from `SKILL.md` and wait. An older brief with no Behaviours section: derive the
+behaviours from its scope, and include them in the step 4 round for the human to confirm.
 
-- **A step is one verifiable unit, not one file.** Group by what one check proves — a module and
-  its tests, a contract and its consumer — and let a step span files. If honest steps exceed 12 the
-  run is too big: propose where to split into two runs and ask, rather than writing a longer plan.
-  Lead with whatever is most likely to need a human tweak (data model, type interfaces,
-  user-facing behavior); mechanical steps last.
+## 2. Look for the prefactor
 
-- **Step shape — four lines, nothing else.** Every step carries a verification check and a
-  `Skills:` line with resolved paths, because Phase 3 has to *open* those files and name-only
-  lookup is not portable across CLIs. **Checks are run, not written:** before the plan is
-  complete, execute every `Check:` command as it stands and record its pre-edit result in the
-  step (`pre: 0`), so the command is known to run and the post-edit expectation is known to
-  differ. A command that does not run — not found, bad syntax — is a defect in the plan, and
-  "not found" is never a pass. **A check asserts presence, not absence:** it names the thing
-  that must land; an absence check is satisfied by deletion, so it appears only as a paired guard
-  beside a presence check, never alone. **Count occurrences, not lines:** `grep -c` counts
-  matching lines; two hits on one line return 1 — use `grep -o <pattern> <file> | wc -l`.
+"Make the change easy, then make the easy change." If a small refactor (extract a function, move
+a seam, add a missing test harness) would make the behaviour tickets simpler, it becomes the first
+ticket — with its own tests proving behaviour is unchanged.
 
-  ```markdown
-  - [ ] Step N — <what, in one line> (<files>) (F<n> if a finding applies)
-    - Check: <the command that proves it> (pre: <its result before the edit>)
-    - Skills: <path/to/SKILL.md>[, <path/to/SKILL.md>] | none
-  ```
+## 3. Slice into tickets
 
-- **`## Coverage` proves nothing was lost.** One line per brainstorm scope item → the step(s)
-  that deliver it, and one per non-goal → `untouched`. A scope item with no step is a gap to
-  fix before the plan is complete (or an explicit `dropped: <why>` the human confirms); review
-  re-checks the same list against the diff.
+Every ticket is a **tracer bullet**:
 
-- **`## Risks` names where the human's attention goes.** Three lines at most: the riskiest step
-  and why, what this change could break outside its own files, and the one option considered and
-  not taken. This is not a findings echo — it is the answer to "where should I actually look".
+- **Vertical.** It cuts a narrow, complete path through every layer the behaviour needs (schema,
+  logic, API, UI, tests), so it is verifiable on its own. "All the models, then all the services,
+  then all the endpoints" is horizontal slicing, and it hides integration errors until review.
+- **Valuable.** It delivers at least one behaviour (B#) — or, for a prefactor, names the ticket it
+  makes easy.
+- **Small.** One seam, 1–4 acceptance lines, a diff the human can read in about five minutes, one
+  fresh session to build. A ticket that needs a paragraph to describe is two tickets.
+- **Testable.** Each acceptance line is one test (or, for an operator ticket, one receipt check)
+  with a literal expected value, observed at the ticket's seam: "`parse_usage({'prompt_tokens': 12.0})` → `12`",
+  not "handles token formats". Three rules keep the bar honest:
+  - **One expected result.** A line with "or" passes on its weaker arm; if one arm is the failure
+    an earlier ticket exists to exclude, the line is wrong. A later ticket never restates an
+    earlier ticket's bar more loosely.
+  - **Something positive.** Each ticket that delivers a behaviour has at least one line asserting
+    the new answer is present — lineage, provenance or "old text gone" alone prove nothing.
+  - **The reached surface.** The seam is where a user or consuming code actually sees the result:
+    a UI line drives a rendered page or component with a live importer; a producer line validates
+    the real output against the consumer's contract model, not the producer's own dict.
 
-- **`## TODO impacts` and `## Product doc impacts` are wrap's input**, which keeps `TODO.md` and
-  the product docs synced to the code instead of drifting. They are lists of *changes*: a doc or
-  item this plan leaves untouched gets one line ("`PRODUCT.md` — no changes"), never an argument
-  for why. A settled principle or boundary the plan would contradict is marked **ESCALATE** —
-  changing it is the human's product decision, not a doc edit. A cheap adjacent TODO item touching
-  the same files is *mentioned* here in one line as optional, never added as a step.
+Give each ticket its **blocked-by** edges — the tickets that genuinely gate it — and its **lane**
+(mechanical · logic · contract · operator), which picks the executor seat.
 
-Run it directly, or hand it to a fresh session on the strict-reviewer seat by pasting:
+**Operator tickets** cover what the agent must not do itself: live or irreversible writes,
+authorizations, paid runs above a ceiling, hosted consoles. The agent prepares the handoff (the
+exact SQL or command, a dry-run first where one exists, and where the receipt goes); the human runs
+it. `Verify:` names the receipt file and the literal values it must show (`receipt: …/ingest.txt —
+rows_written 1,204 · errors 0`). A `(live)` behaviour is delivered by an operator ticket, blocked
+by the tickets that build what it operates.
 
-```text
-Read .workflow/<slug>/brainstorm.md — the requirements of record — and .workflow/<slug>/spec.md if it exists (<slug> is the run named in my command; every file below lives in that folder); read the repo; read PRODUCT.md/DESIGN.md if this touches product or UI. Audit the input against the real code: hallucinated signatures, wrong columns or hashes, circular dependencies, architectural blind spots, and anything the input silently assumes — confirm each against the code, not the input. If you hit a question only I can answer, stop before writing any step and ask it: one decision per question, plain words, the options on their own lines with a recommended default marked; then wait. Otherwise write .workflow/<slug>/plan.md — BEFORE drafting, open it with a five-line provenance header (Command, Created (date), Base (current git sha), Inputs (the input artifact @ its own Base sha), Status (drafting)) and append as you go rather than holding the plan in context. The file has exactly six sections. "## Findings": a table, one row per finding — # · what is true · what it changes — no paragraphs; corrections to the input are rows here and the correct value is simply used downstream, never a step to edit the input. "## Checklist": at most 12 steps, each one verifiable unit (may span files), core interfaces before consumers, the steps most likely to need my tweak first and mechanical ones last; each step is exactly: the [ ] line (what, files, finding refs), "- Check:" (the command that proves it — run it now and record its pre-edit result as "(pre: …)"; it must assert the presence of what lands, with any absence check only as a paired guard; count occurrences with grep -o | wc -l, never grep -c; a command that does not run is a plan defect), and "- Skills:" (resolved SKILL.md paths that genuinely match the step's task shape, or none — enumerate repo skill directories + installed skills by frontmatter first; most steps need none). No rationale under steps. If honest steps exceed 12, write no checklist — propose where to split into two runs and ask. "## Coverage": one line per brainstorm scope item → the step numbers that deliver it (a scope item with no step is a gap — fix the checklist, or write "dropped: <why>" and ask me), and one line per non-goal → "untouched". "## Risks": at most three lines — the riskiest step and why, what this could break outside its own files, the one option considered and not taken. "## TODO impacts": for TODO.md (if present), each item this plan completes, partially completes, obsoletes, or conflicts with, as item → effect; one line "none" if nothing; a cheap adjacent item touching the same files may be mentioned in one line as optional, never added as a step. "## Product doc impacts": for each of PRODUCT.md, DESIGN.md, ROADMAP.md that exists, either "<doc> — no changes" in one line, or the specific statements this plan makes untrue and what replaces them — a stale statement of state/scope/stack, an open decision this resolves, or a settled principle this contradicts, which is marked ESCALATE. Write "## Coverage", "## Risks" and the two impact sections last, then set Status to complete. The whole file stays under ~100 lines; cut prose, never checks. If resuming a drafting plan.md, continue after the last step written. In chat report only: findings count with any that change scope, step count, ESCALATE items, and decisions you need from me — then the next-step card.
+**Wide refactors are the exception.** A rename or retype that breaks every call site at once
+cannot land green as one vertical slice. Sequence it as **expand–contract**: add the new form
+beside the old; migrate call sites in batches (one ticket each, blocked by the expand); delete
+the old form last, blocked by every batch.
+
+## 4. Quiz the human on the breakdown
+
+Show the tickets as a numbered list — `T# — <title> · delivers B# · blocked by T# · lane` — with
+each ticket's acceptance lines indented under it, one line each. The acceptance lines are the bar
+review will hold the code to, so the human sees them here; this is the one round where the chat
+budget yields. Ask one decision: a) approve ➡️ · b) split T# · c) merge T# + T# · d) change an
+acceptance line · e) other. Iterate until approved. The approval completes the phase.
+
+## 5. Finish `plan.md` (≤ ~120 lines, ≤ 8 tickets)
+
+Before setting `complete`, run every `Verify:` command as it stands and record its current result as
+`pre:` — the command must execute. A test file the ticket will create doesn't exist yet: point the
+command at it anyway and record `pre: new file` (the runner's "file or tests not found" exit is
+expected here and only here); the runner itself must be found. A runner that is not found (exit 127)
+is a plan defect. Operator tickets record `pre: no receipt`.
+
+```markdown
+Command: workflow plan <slug>
+Created: <date>
+Base:    <git sha>
+Inputs:  .workflow/<slug>/brainstorm.md @ <its Base>
+Status:  complete
+
+## Execution state
+<filled by execute>
+
+## Findings
+| # | What is true | What it changes |
+|---|---|---|
+
+## Tickets
+
+### T1 — <title: the behaviour it makes work>
+Delivers: B1, B3 · Blocked by: none · Lane: logic
+Seam: <public interface the tests drive>
+Accept:
+- [ ] <input/situation> → <literal expected result> (B1)
+- [ ] <input/situation> → <literal expected result> (B3)
+Verify: `<test command scoped to the seam>` (pre: <e.g. 14 passed | new file>)
+Skills: <path/to/SKILL.md> | none
+Status: todo                              (todo · awaiting-human · done @ <sha>)
+
+## Coverage
+- Outcome → T# (the ticket whose acceptance observes it on the named surface)
+- B1 → T1 · B2 → T2, T3 · …            (every behaviour; one with no ticket is a gap to fix)
+- Out of scope: <item> → untouched      (every item)
+
+## Risks
+<≤3 lines: the riskiest ticket and why · what could break outside its files · the option not taken>
+
+## TODO impacts
+<TODO.md item → completed / partial / obsolete / conflicts; or "none". A cheap adjacent item
+touching the same files is mentioned here as optional — never added as a ticket.>
+
+## Product doc impacts
+<per PRODUCT.md, DESIGN.md, ROADMAP.md that exists: "no changes", or the statement this makes
+untrue and its replacement; a settled principle this contradicts is marked ESCALATE>
 ```
 
-**Close with the next-step card** (format in `SKILL.md`) — mandatory, no substitute. Read `ROUTING.md` now and fill row 2 with the next seat's concrete vendor · model · effort · context window and first fallback; a seat name or "see ROUTING.md" is a defect. A conversational closer ("want me to proceed?") is not the card; if in doubt, print it.
+Ticket order: prefactor first, then tickets whose outcome the human is most likely to want to
+tweak (data model, interfaces, user-facing behaviour), mechanical tickets last. `Skills:` lists
+resolved paths to skills that genuinely match the ticket (enumerate repo and installed skills by
+frontmatter; most tickets need none) — the executor opens them by path on any CLI. A doc or
+config ticket with no test runner verifies by content: assert that the new text is present and
+count occurrences with `grep -o <pattern> <file> | wc -l`.
+
+In chat: findings count (and any that changed scope), the ticket list line by line, ESCALATE
+items, decisions needed — then the closing card. Next: `workflow execute <slug>`.

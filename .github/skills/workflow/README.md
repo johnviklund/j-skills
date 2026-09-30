@@ -1,8 +1,9 @@
-# workflow (v2.02) — a five-phase coding workflow skill for CLI coding agents
+# workflow (v2.1) — a four-phase coding workflow skill for CLI coding agents
 
 A vendor-neutral [agent skill](https://code.claude.com/docs/en/skills) that runs a disciplined
-solo-dev loop across whatever CLI coding agents you use: **brainstorm → (spec) → audit & plan →
-execute → review → wrap** — spec is optional, run only when the brainstorm flags high uncertainty. Models fill **seats** (roles with an output contract); you map seats
+solo-dev loop across whatever CLI coding agents you use: **brainstorm → plan → execute → review →
+wrap**. The brainstorm is a grill that ends in a planning-ready brief; the plan is a short list of
+tracer-bullet tickets, each proven by tests. Models fill **seats** (roles with an output contract); you map seats
 to your own CLIs and models in one file. Born as a personal two-CLI workflow; open-sourced
 because the shape turned out to be portable.
 
@@ -18,35 +19,37 @@ because the shape turned out to be portable.
   declares degraded mode itself instead of relying on being told.
 - **Files are the state machine.** Every phase reads and writes `.workflow/<slug>/*.md`, so any fresh
   session re-grounds from disk instead of trusting its own memory. Every phase persists *as it
-  goes* — findings as they're confirmed, plan steps as they settle, execution state after every
-  step — so running out of context costs warm cache and nothing else.
+  goes* — findings as they're confirmed, tickets as they settle, execution state after every
+  ticket — so running out of context costs warm cache and nothing else.
 - **Learning compounds.** Each run routes durable lessons to memory/skills/design docs, keeps a
   bounded worklog whose `Run:`/`Seats:` lines are the evidence a model is judged on — models
   earn seats on real trial runs, not synthetic exams — and, rarely, deposits a **reviewer exam
   case**: a diff whose P0/P1 a model missed, capped at 8.
 - **Chat is the receipt, files are the record.** Every phase's turn is bounded (~12 lines above
-  the next-step card); artifacts have line budgets and the plan is capped at 12 steps; every
+  the closing card); artifacts have line budgets and the plan is capped at 8 tickets; every
   question is one decision with lettered options and a recommended default. Detail lives in
   `.workflow/`, not in the conversation.
 - **Gates where mistakes are expensive.** Clarifying questions before ambiguous or risky work,
-  diff-by-diff approval on schema/contract edits, review with P0–P3 verdicts, patch loops bounded
-  at three cycles, and a wrap that refuses to ship code the review never saw.
+  diff-by-diff approval on schema/contract edits, operator tickets for live or irreversible steps
+  (the agent prepares the handoff, you run it, a receipt proves it), review with P0–P3 verdicts
+  that checks the outcome on the surface users reach, patch loops bounded at three cycles, and a
+  wrap that refuses to ship code the review never saw.
 
 ## Walkthrough — one run
 
 ```text
-workflow brainstorm auth-refresh      # creates .workflow/auth-refresh/, dialogue → brainstorm.md
-                                      # closing card names the next model + effort + context, and
-                                      # says "Next: plan" (or "spec" for schema/contract-heavy work)
-workflow plan auth-refresh            # cross-vendor audit against real code → plan.md (≤12 steps)
-workflow execute auth-refresh         # one scope-locked step at a time; commit per step
+workflow brainstorm auth-refresh      # creates .workflow/auth-refresh/; grilling rounds → brief:
+                                      # behaviours B1..Bn, decisions, test seams, out of scope
+workflow plan auth-refresh            # cross-vendor audit against real code → ≤8 tracer-bullet
+                                      # tickets, each with acceptance lines + a verify command
+workflow execute auth-refresh         # one ticket at a time: red → green → commit
 workflow review auth-refresh          # P0–P3 verdict → review.md; patch cycle if needed
 workflow wrap auth-refresh            # checks, push, docs reconciled, learnings → memory/,
                                       # worklog entry, folder archived (Status: done)
 ```
 
-Every phase ends with a **next-step card** — reset or continue, the exact vendor · model · effort
-· context to pick, what to read, the line to paste. Reset the session at each handoff; the card
+Every phase ends with a **closing card** — reset or continue, the exact vendor · model · effort
+· context to pick, what to read, the line to send. Reset the session at each handoff; the card
 tells you to. With only one live run the slug is optional.
 
 ## Several runs at once
@@ -54,9 +57,9 @@ tells you to. With only one live run the slug is optional.
 ```text
 workflow brainstorm export-csv        # ... "good idea, not now" → Status: parked
 workflow brainstorm rate-limits       # a second live run
-workflow status                       # auth-refresh · Phase 3 · none · workflow execute auth-refresh
-                                      # rate-limits  · Phase 2 · none · workflow plan rate-limits
-                                      # export-csv   · parked at Phase 0 · unpark: <what would>
+workflow status                       # auth-refresh · execute · none · workflow execute auth-refresh
+                                      # rate-limits  · plan · none · workflow plan rate-limits
+                                      # export-csv   · parked at brainstorm · unpark: <what would>
 workflow park rate-limits             # set aside at any phase; nothing deleted
 workflow plan export-csv              # unpark = invoke the phase it was at
 ```
@@ -69,12 +72,12 @@ stale with the next commit, and the provenance gate will make you re-plan.
 
 ```text
 .workflow/auth-refresh/
-  brainstorm.md    problem, scope, approach, non-goals, "Next: plan|spec"   ← status of record
-  spec.md          optional; deleted at wrap (its content is in plan.md)
-  plan.md          findings · ≤12-step checklist · coverage of brainstorm scope · risks · impacts · deviations
-  patch_plan.md    only during a patch cycle; run by `workflow execute`; deleted at wrap
+  brainstorm.md    the brief: problem · outcome · behaviours · decisions · test seams · out of scope  ← status of record
+  plan.md          findings · ≤8 tickets (acceptance, verify, status) · coverage of behaviours · risks · impacts · deviations
+  patch_plan.md    fix tickets, only during a patch cycle; run by `workflow execute`; deleted at wrap
   review.md        coverage · P0–P3 findings with dispositions and Resolved stamps, one section per cycle
   learnings.md     tagged lines, routed by memory.remember (each marked [routed → …]); kept as the record
+  <handoff/receipt files>  operator tickets only: what the human ran and what it showed; kept as evidence
   wrap.md          wrap's own checkpoint, so an interrupted wrap resumes instead of restarting
 ```
 
@@ -84,7 +87,7 @@ by anyone (or any agent) later. Grounding only ever reads live runs, so the arch
 Two rules keep the archive honest. **Receipts vs code:** `*.md`/`*.txt` are receipts; anything
 else — a script in `.workflow/`, a config in `docs/` — is code, must be reviewed, and can't ship
 through wrap's commit. **Freshness is per file, not per ancestry:** a plan is stale when any file
-it names changed since its `Base` (other than by its own steps), which is exactly what happens to
+it names changed since its `Base` (other than by its own ticket commits), which is exactly what happens to
 a parked plan — it gets re-audited, not executed.
 
 ## Repo layout
@@ -120,7 +123,7 @@ five-line provenance
 header, and the state machine reads it rather than guessing from which files exist:
 
 ```
-Command: workflow spec
+Command: workflow plan
 Created: 2026-07-28
 Base:    <git sha when the file was created>
 Inputs:  .workflow/<slug>/brainstorm.md @ <its own Base sha>
@@ -200,21 +203,20 @@ casual mentions of "plan" or "review" never trigger it.
 
 | Command | What it does |
 |---|---|
-| `workflow brainstorm <slug>` | Creates `.workflow/<slug>/`; interactive dialogue → `brainstorm.md`; reviews `TODO.md` for related items |
+| `workflow brainstorm <slug>` | Creates `.workflow/<slug>/`; grilling rounds with recommended answers → the brief in `brainstorm.md`; reviews `TODO.md` for related items |
 | `workflow improve <feature> - goal: <goal>` | Brainstorm seeded by a real code audit |
-| `workflow spec` | *Optional* — verified interface map → `spec.md`, only when the brainstorm card recommends it |
-| `workflow plan` | Cross-vendor audit of spec or brainstorm against real code → ≤12-step checklist with per-step verification + skills → `plan.md` |
-| `workflow execute` | One step at a time, scope-locked to the step: edit, check, diff, commit, persist state |
-| `workflow review` | Strict senior review, empirical verification, P0–P3 verdict; patch cycle bounded at 3 |
+| `workflow plan` | Cross-vendor audit of the brief against real code → ≤8 tracer-bullet tickets, human-approved → `plan.md` |
+| `workflow execute` | One ticket at a time: acceptance tests red → green, diff, commit, persist state |
+| `workflow review` | Acceptance + defects review, P0–P3 against a written severity bar; re-reviews scoped to the fix diff; patch cycle bounded at 3 |
 | `workflow park [slug]` | Set a run aside at any phase; unpark by invoking the phase it was at |
 | `workflow wrap` | Final checks, commit/push, reconcile product docs, route learnings to `memory/`, deposit eval cases, update `TODO.md` + worklog, archive the run folder |
 | `workflow todo <idea>` | Capture an idea into `TODO.md`, well-placed and well-shaped |
 | `workflow bootstrap` | Stand up `AGENTS.md`/`MEMORY.md`/`TODO.md` and repo conventions in a fresh project |
 | `workflow realign` | Evidence-backed, human-approved re-check of `PRODUCT.md`/`DESIGN.md` against what actually shipped |
-| `workflow status` / `next` / `log` / `learn` | Where am I / what's the next step card / ad-hoc worklog entry / capture a learning |
+| `workflow status` / `next` / `log` / `learn` | Where am I / what's the closing card / ad-hoc worklog entry / capture a learning |
 
-Every phase response ends with a **next-step card**: reset-or-continue, which vendor/model/
-effort (from `ROUTING.md`), what to read, and the exact line to paste. There is no compact
+Every phase response ends with a **closing card**: reset-or-continue, which vendor/model/
+effort (from `ROUTING.md`), what to read, and the exact line to send. There is no compact
 command — resetting is lossless and safe at any context fullness, so it replaced compaction
 entirely.
 
@@ -260,9 +262,24 @@ compatible with it.
 
 Single-voice: no reviewer personas, no self-orchestrated sub-agents (a CLI's parallel mode
 is allowed only on read-only seats, for breadth). Bounded everything: worklog ~15 entries, the
-reviewer eval set 8 cases, patch loops max 3 cycles. The hub stays under ~205 lines; growth
-means a new reference file, not a longer hub. When editing instructions: each rule stated once,
-outcomes over step prescription, absolutes only for true invariants.
+reviewer eval set 8 cases, patch loops max 3 cycles. The hub stays under ~160 lines; growth
+means a new reference file, not a longer hub.
+
+## Maintaining this skill
+
+Rules for editing the skill itself (moved out of `SKILL.md`: an agent running a phase never needs them).
+
+- **Growth:** a new feature is a new or extended reference file plus one command-index line; the
+  hub stays under ~160 lines.
+- **Vendors:** only `ROUTING.md` names vendors or models; no skill file names a CLI product
+  (this README is reader-facing and exempt). Verify model names and efforts in the CLI's own
+  picker before editing `ROUTING.md`.
+- **Writing:** state each rule once, in one place. Phrase rules as the behaviour wanted, not the
+  one banned. Define outcome, constraints and a checkable completion bar rather than every step.
+  Reserve always/never for true invariants. Hunt sentences the model already obeys by default and
+  delete them whole. Prefer a pretrained word (*grill*, *frontier*, *tracer bullet*, *seam*,
+  *red → green*) over a sentence that re-explains it.
+- **Approval:** the principle lives in `SKILL.md`, the phase → approval mapping in `ROUTING.md`.
 
 ## License
 

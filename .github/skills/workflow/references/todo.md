@@ -1,6 +1,6 @@
 # TODO intake — `workflow todo [idea]`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the command ends with its closing card.
 
 Seat: **brainstorm partner** at medium effort — mapping in `ROUTING.md`. Rationale: this is
 knowledge-shaped intake dialogue with no execution payoff — the same seat as brainstorm, and

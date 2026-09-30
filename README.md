@@ -11,11 +11,12 @@ from both Codex CLI and GitHub Copilot CLI.
 - **`memory.compact`** — manual, occasional cleanup of a repo's `MEMORY.md`: groups entries by
   topic, flags stale/duplicate/superseded entries and skill-promotion candidates, and writes
   proposal files for review. Never runs automatically.
-- **`workflow`** — a personal five-phase solo-dev workflow (brainstorm → spec →
-  audit & plan → execute → review → wrap-up) split across Codex CLI and Copilot CLI on purpose
-  (separate token/quota pools). This is the canonical source for that workflow — there is no
-  separate markdown doc to keep in sync; edit this skill directly when the workflow's shape
-  changes.
+- **`workflow`** — a personal four-phase solo-dev workflow (v2.1: brainstorm → plan → execute →
+  review → wrap). The brainstorm is a grill ending in a brief with behaviours and test seams; the plan
+  is ≤8 tracer-bullet tickets with literal acceptance lines; execute runs one ticket red → green
+  (operator tickets for live steps the human runs); review checks the outcome on the surface users
+  reach. Writer and reviewer sit with different vendors. This is the canonical source for that
+  workflow — edit this skill directly when its shape changes.
 - **`checkup`** — manual, read-first workspace health check (inspired by a `/checkup` command):
   audits skill hygiene (plugin name collisions, folder-vs-frontmatter name, description length,
   Codex symlink parity, self-publish drift), memory hygiene (MEMORY.md size/staleness/superseded,
@@ -23,12 +24,9 @@ from both Codex CLI and GitHub Copilot CLI.
   cleanliness (leftover `.workflow` scratch, tracked junk, unpushed work), config health, and
   eval-set health. Reports severity-ranked findings and prioritized fixes; delegates compaction
   to `memory.compact` and eval runs to `evals.run`; applies only opt-in, one-at-a-time safe fixes.
-- **`evals`** — runs model exams against the eval golden sets deposited by the `workflow` skill:
-  `evals.run <seat> [candidate model]` exams a candidate on one seat's cases (seats: spec, plan,
-  reviewer, mechanical), grades with the incumbent strict reviewer plus a human spot check, scores
-  quality and cost/latency, and writes a scorecard to `evals/scorecards/`. `evals.list` shows set
-  and scorecard status. Routing changes are propose-only — recommends fallback-order edits to the
-  `workflow` skill's tables but never applies them.
+- **`evals`** — `evals.run reviewer [candidate model]` is a recall check for strict-reviewer
+  candidates on ≤8 diffs with known P0/P1 findings deposited by `workflow`; `evals.list` shows the
+  set's status. Every other seat is judged on trial runs recorded in `WORKLOG.md`, not exams.
 
 ## How this repo is wired up
 

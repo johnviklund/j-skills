@@ -11,12 +11,12 @@ else.
 - **Decision:** Copilot CLI can load this skill's content from a path like
   `~/.agents/skills/workflow` that has **no `.git` at all** — a plugin-install snapshot, not the
   canonical clone. The canonical, push-able clone lives at
-  `~/Documents/Projects/agent-skills` (see root `README.md`, "How this repo is wired up"). A
+  `~/Documents/Projects/skills/agent-skills` (see root `README.md`, "How this repo is wired up"). A
   workflow run that executes entirely inside the disconnected snapshot has no commits, no diffs,
   and no `Base` shas — every phase that assumes Git must fall back to file-based verification and
   say so explicitly. Before committing/pushing any workflow-skill change, confirm which copy is
   actually being edited (`git -C <dir> rev-parse --is-inside-work-tree`); if it's the snapshot,
-  sync the diff into `~/Documents/Projects/agent-skills/.github/skills/workflow/` and commit
+  sync the diff into `~/Documents/Projects/skills/agent-skills/.github/skills/workflow/` and commit
   there, not in the snapshot.
 - **Supersedes:** —
 - **Superseded by:** —

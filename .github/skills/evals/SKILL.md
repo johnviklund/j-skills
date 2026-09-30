@@ -12,7 +12,7 @@ description: >
 # evals
 
 One exam, one seat. `workflow` deposits a case at wrap only when a reviewer or writer *missed* a
-P0/P1 (`evals/strict-reviewer/code-review-*.md`, cap 8). Every other seat — brainstorm, spec,
+P0/P1 (`evals/strict-reviewer/code-review-*.md`, cap 8). Every other seat — brainstorm, plan,
 execution lanes — is judged on trial runs: the worklog's `Run:`/`Seats:` lines, compared by
 `checkup`. This skill exists because a reviewer miss is the expensive kind, and a diff with known
 findings is a cheap, honest exam of exactly that.
@@ -32,7 +32,7 @@ bill: N cases × one candidate call at the reviewer's review effort, no grader m
 the human. Fewer than 3 usable cases: say the exam is not meaningful and stop.
 
 **2. Run the candidate — one case, fresh context each.** Give the candidate the diff with the
-Phase 4 review instructions from the `workflow` skill, at the seat's review effort, and never the
+The review instructions from the `workflow` skill (`references/phase-4-review.md`), at the seat's review effort, and never the
 findings. Capture its findings list verbatim, plus tokens/latency where the CLI reports them. One
 retry on a mechanical failure; a second failure scores the case as missed.
 

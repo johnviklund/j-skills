@@ -1,6 +1,6 @@
 # Final check & wrap-up — `workflow wrap`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the command ends with its closing card.
 
 Seat: wrap runs on a mid-tier seat at medium effort, auto-approve — mapping
 and the practical after-review model swap in `ROUTING.md`. Rationale: wrap is procedural — the
@@ -16,7 +16,7 @@ to `workflow execute <slug>` (patch plan) or `workflow review <slug>`. Then conf
 since the reviewed `Base`** per `SKILL.md`'s receipt rule (`git diff --stat <Base>..HEAD --
 . ':(exclude)*.md' ':(exclude)*.txt'` is empty) — receipt commits such as the review itself are
 fine, any code commit is not. If it's missing or stale, don't lecture that review "hasn't run" —
-say the evidence is missing/stale and print the next-step card routing to `workflow review`.
+say the evidence is missing/stale and print the closing card routing to `workflow review`.
 
 **Precondition — clean code tree.** Then run `git status --porcelain`. Every modified or untracked
 path must be a receipt file (`*.md`, `*.txt`) or `.gitignore`; a script, config, or data file
@@ -56,7 +56,7 @@ Commit, push, curate, and clean up — in one go:
    Commit those changes, and push.
 5. **Product-doc truth** — answer this explicitly; silence is not an answer. Start from the plan's
    `## Product doc impacts`, then re-derive it from what actually shipped: deviations and patch
-   cycles change scope after Phase 2, so the plan's list is the starting point, not the verdict.
+   cycles change scope after planning, so the plan's list is the starting point, not the verdict.
    For each of `PRODUCT.md`, `DESIGN.md` and `ROADMAP.md` that exists, state either "no statement
    changed" or the edit made — a stale statement of current state/scope/stack corrected, an open
    decision this run resolved moved out of the open list and recorded as decided, a completed
@@ -85,7 +85,9 @@ Commit, push, curate, and clean up — in one go:
    so. One home per idea: TODO (not yet brainstormed) → parked run (brainstormed) → live run.
 
    Boundaries: don't add new ideas on your own initiative (it's the human's scratchpad —
-   only add items the human explicitly deferred during this run, in the right section); and the
+   only add items the human explicitly deferred during this run, in the right section, and every
+   P2 finding `review.md` left as `defer`, under one `## Review deferrals` section as
+   `- <slug> C#-# (P2, <date>) — <one line>`; deferred P3s stay in `review.md`); and the
    TODO entry points at the product docs step 5 just corrected, it never duplicates them.
 7. **Eval deposit** — usually nothing. For each `[durable→eval] code-review` line in
    `.workflow/<slug>/learnings.md` that passes the admission test in `references/learning-worklog.md`
@@ -99,8 +101,8 @@ Commit, push, curate, and clean up — in one go:
 9. **Archive the run — nothing leaves `.workflow/<slug>/`, nothing is deleted from the repo.** Once
    `memory.remember` confirms every line is routed and step 7's cases are deposited:
 
-   **9a. Drop the transient, keep the record.** In the run folder: delete `spec.md` and
-   `patch_plan.md` (their content is in `plan.md`/`review.md`); strip the `## Execution state`
+   **9a. Drop the transient, keep the record.** In the run folder: delete `patch_plan.md`
+   (its content is in `review.md`); strip the `## Execution state`
    block from `plan.md`; keep `brainstorm.md`, `plan.md` (with `## Deviations`), `review.md`,
    `learnings.md` (now fully routed — it stays as the record of *what* was learned here), and
    `wrap.md`. Set `Status: done` in `brainstorm.md` (the run's status of record) and in the kept
@@ -108,8 +110,8 @@ Commit, push, curate, and clean up — in one go:
 
    **9b. Anything else the run left** — receipts, verification JSON, one-off scripts, live
    harnesses — stays in the run folder as evidence. Before moving or renaming any such file, grep
-   the repo *outside* `.workflow/` for its filename and bare module stem (`rg -n -F '<stem>'
-   --glob '!.workflow/**'`); a hit means it is load-bearing — leave it exactly where it is and tell
+   the repo *outside* `.workflow/` for its filename and bare module stem (`grep -rn -F '<stem>'
+   --exclude-dir=.workflow --exclude-dir=.git .`); a hit means it is load-bearing — leave it exactly where it is and tell
    the human. A run folder is history: it is never emptied, never renamed, never reused.
 
    Commit the archive and push it, so the tree the next run re-grounds from is the tree that's

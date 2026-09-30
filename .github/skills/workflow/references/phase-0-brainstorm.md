@@ -1,81 +1,137 @@
-# Phase 0 — Brainstorm — `workflow brainstorm <slug>` / `workflow improve`
+# Brainstorm — `workflow brainstorm <slug>` · `workflow improve` · `workflow park`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the phase ends with its closing card.
 
-Seat: **brainstorm partner** — mapping in `ROUTING.md`. Rationale: knowledge-shaped dialogue
-with no execution payoff — the cheap conversational seat wins; never spend a reviewer- or
-heavy-executor-tier model here.
+Seat: **brainstorm partner** (`ROUTING.md`). The brainstorm is a **grill**: a relentless interview
+that ends in a **brief** — `brainstorm.md` — that planning can slice into tickets without asking
+the human anything new. Everything plan, execute and review check against starts here, so this
+is where "done" gets defined.
 
-**The slug creates the run.** `workflow brainstorm <slug>` (short, kebab-case, e.g. `auth-refresh`)
-creates `.workflow/<slug>/` and everything downstream lives there. Before creating it, run
-`git check-ignore -q .workflow` — if the folder is ignored, stop: v2 runs are tracked history and
-wrap cannot finish otherwise; ask to remove the ignore rule (and `git add` any existing runs) first. No slug given → propose one from
-the idea and confirm it in the first question. A slug that already exists is that run: resume it if
-live, offer to unpark it if parked, refuse if done (a finished run is history — start a new slug).
-**One brainstorm, one slug:** if the dialogue reveals two runs' worth of work, the summary says so
-and the card recommends a second `workflow brainstorm <other-slug>` — never two folders from one dialogue.
+## 1. Open the run
 
-Four things the dialogue depends on and a fresh reader won't infer:
+`workflow brainstorm <slug>` creates `.workflow/<slug>/`. First run `git check-ignore -q .workflow`;
+an ignored folder stops the phase until the ignore rule is removed (runs are tracked history).
+No slug → propose a kebab-case one in the first round. An existing slug is that run: resume it if
+live, offer to unpark it if parked; a done run is history, so start a new slug.
 
-- **`TODO.md` is intake, not truth.** It is the human's scratchpad; `PRODUCT.md` owns product
-  state and TODO entries point at it rather than duplicating it. Scratchpad paths, column names
-  and assumptions drift against the code — which is why seeding from an item means re-verifying
-  it, not trusting it.
-- **Ask `ROADMAP.md` a different question than `TODO.md`.** Intake tells you what has already
-  been *captured*; the roadmap tells you what has already been *committed*. They fail differently:
-  a duplicated todo wastes a brainstorm, while work that quietly contradicts a committed item
-  spends a whole cycle going the wrong way. That asymmetry is why a contradiction stops the phase
-  instead of being brainstormed past — committed direction is the human's to change.
-- **Ask in a way that survives a distracted reader.** This seat is a strong reasoner told to
-  prioritise the questions that most change architecture or scope, and its natural output is one
-  sentence carrying three decisions and two pieces of jargon. That question isn't wrong — it's
-  unanswerable in thirty seconds, and a rushed guess at a scope question costs more than the
-  question was ever worth. Simplify the packaging, never the thinking: same question, one
-  decision, plain words, options on the table.
-- **Downstream reads this file.** Phase 2 and review both work from `.workflow/<slug>/brainstorm.md` and
-  nothing else from this phase. An item considered and rejected here gets quietly re-imported
-  later unless it is named under non-goals. Keep it under ~40 lines: decisions, not the dialogue.
-- **This phase decides whether Phase 1 runs.** Phase 2 audits against real code regardless, so the
-  closing card recommends `workflow plan` by default and `workflow spec` only when the work is
-  schema/SQL/contract-coupled, spans subsystems the brainstorm could not size, or the codebase is
-  unfamiliar — and `brainstorm.md` records which, in one line, so `workflow status` can tell.
+## 2. Ground before the first question
 
-Run the brainstorm directly, or hand it to a fresh session on the brainstorm seat by pasting:
+Read the idea, then the code it touches. Read `PRODUCT.md`/`DESIGN.md` when product or UI is in
+scope, so settled decisions stay settled. Then place the idea against intake and direction:
 
-```text
-Read PRODUCT.md and DESIGN.md first, if they exist and this touches product direction or UI, so we don't relitigate settled decisions. Also read TODO.md at the repo root if present — it's my intake scratchpad, not a roadmap: if this brainstorm matches a listed item, seed from its user story/purpose/DoD and original details but verify every detail against the current code and treat anything stale as a question rather than a fact; otherwise scan Active Initiatives, Small UI Changes and Open Questions for items touching the same feature or files, list the related ones, and ask which to fold into scope and which to leave out. Never treat an item being listed as approval to implement it — confirm scope with me first. Also read ROADMAP.md at the repo root if present, and ask a different question of it than of TODO.md: TODO.md tells you whether this was already captured, ROADMAP.md whether it is already committed. Say explicitly which of three this is — it belongs to a committed roadmap item (name the item, and treat that item's scope as the boundary), it contradicts one (stop and tell me: changing committed direction is my decision, not something to brainstorm past), or it is genuinely new (say so, and say whether it should become a roadmap item or stay intake). Let's brainstorm before we spec anything: [describe the idea, problem, or need]. Ask me clarifying questions one at a time, prioritizing whichever question's answer would change the architecture or scope the most, and make each one easy to answer in a hurry: one decision per question; the question itself first, in plain language, two sentences at most; the realistic options on their own lines where there are any, so I can answer with a letter; and one line on what changes depending on my answer. Don't use a term I haven't used myself unless you define it in the same breath. Keep the depth in your thinking rather than in the sentence — if a question genuinely can't be asked simply without losing the decision, give me two lines of plain background first, then ask it. When misreading my answer would be expensive, play back what you understood in one line before moving on. Explore 2-3 different approaches with tradeoffs, and push back on any assumption that seems shaky or any scope that seems bigger than the actual need. Don't write a spec yet. When we've converged, save a short summary (under ~40 lines — decisions, not the dialogue) to .workflow/<slug>/brainstorm.md (create the folder; the slug is the one in my command, or one you proposed and I confirmed): problem statement and scope (including anything folded in from TODO.md), chosen approach, explicit non-goals (including every excluded TODO item by name), open questions, and one line "Next: plan" or "Next: spec" — spec only if this is schema/SQL/contract-coupled, spans subsystems we could not size, or the code is unfamiliar. If I say the idea is good but not now, set Status to parked instead and close with the ✅ parked line (slug + one line on what would unpark it) rather than a next-step card. Otherwise read ROUTING.md and close with the next-step card, its row 2 filled with the concrete vendor, model, effort and context window for that next seat plus its first fallback — never a pointer to ROUTING.md. Start that file with a five-line provenance header: Command, Created (date), Base (current git sha), Inputs (none — a brainstorm has no upstream artifact), Status (complete).
+- **`TODO.md` answers "already captured?"** Matching item → seed from it, and treat each of its
+  details as a claim to re-verify in the code. Related items touching the same feature or files →
+  list them in round 1 and ask which fold into scope.
+- **`ROADMAP.md` answers "already committed?"** Say which: part of a committed item (its scope is
+  the boundary), contradicting one (stop — changing committed direction is the human's call), or
+  new (say whether it should become a roadmap item or stay intake).
+
+## 3. Grill in rounds
+
+Treat the idea as a **design tree**: every decision branches into the decisions that hang off it.
+The **frontier** is every open decision whose prerequisites are settled. Each round asks the
+frontier — up to 5 questions, the ones that most change scope or architecture first — then waits.
+
+```
+**Q1 — <title>** <the question in ≤2 plain sentences>
+  a) <option>   b) <option>   c) <option>
+  ➡️ <recommended answer, one line on why>
 ```
 
-## Variants
+- **Facts are yours, decisions are the human's.** Anything the code, docs, git or a read-only query
+  of the data can answer, look up (a read-only sub-agent may do it) and state as a finding; only ask
+  a question whose answer is a choice. Questions downstream of an unfinished lookup wait for a later round.
+- **Pin every fuzzy term.** When a word could mean two things ("account", "session", "done"), pin
+  it to one meaning, in the code's and `PRODUCT.md`'s vocabulary, and use only that meaning afterwards.
+- **Push back** on shaky assumptions and on scope bigger than the need; put 2–3 approaches with
+  their trade-offs to the human when the approach itself is open.
+- **Play back** an answer in one line before moving on whenever misreading it would be expensive.
+- **Write as it settles.** After round 1, open `brainstorm.md` with `Status: drafting` and append
+  each decision the moment it is made, so a reset loses nothing.
 
-- **Blind spot pass** (unfamiliar territory, don't know what to ask yet): find unknown unknowns —
-  what would an expert here know that isn't known — and explain them before brainstorming
-  approaches.
-- **Reference instead of prose** (can't describe what's wanted but would recognize it): read the
-  named file/library/component as the reference for shape/behavior, then brainstorm how it adapts
-  here.
-- **Improve** (command: `workflow improve <feature> - goal: <goal>`) — brainstorm seeded by a
-  real code audit instead of a blank idea, scoped to one feature and one pass, no sub-agent fan-out, no multi-file plan backlog. Find and read the
-  named feature's actual code first. Look for concrete, evidence-backed improvement
-  opportunities in it (correctness, tech debt, performance, missing tests, docs/DX) — every
-  finding cites `file:line`, no generic suggestions. Weigh each finding against the stated goal:
-  drop or clearly mark as tangential anything that doesn't serve it. Present the findings as a
-  short table and ask which ones to pursue, same as a normal brainstorm's clarifying-question
-  step — don't assume all of them. Once agreed, save the usual summary (problem statement built
-  from the goal + selected findings, chosen approach, explicit non-goals including the rejected
-  findings and why, open questions) to `.workflow/<slug>/brainstorm.md` — same file, same shape as
-  a regular Phase 0 brainstorm, so the next phase picks it up identically either way.
+Settled answers push the frontier outward; recompute it and ask the next round.
 
-## Parking — `workflow park [slug]`
+Two openings for when round 1 has nothing to grill yet:
 
-A run can be parked at any phase, but it ages: a parked `brainstorm.md` keeps for months, a parked
-`plan.md` goes stale with the next commit to its files — so park before planning when you can.
-Parking sets `Status: parked` in `brainstorm.md` (the run's status of record) and appends one line
-under `## Parked` there: date, the phase it was at, what would unpark it. Nothing is deleted. A
-parked run is not live: `status` lists it, grounding skips it, and it holds no TODO item — the
-folder *is* the item (`TODO.md` keeps only ideas not yet brainstormed). Unparking is
-`workflow <phase> <slug>` on the phase it was at: the freshness check then does its job — any
-commit since the plan's `Base` that touched a file the plan names means the plan is re-audited
-(`workflow plan <slug>`) before anything executes; ancestry alone is not freshness. In chat: `⏸ Parked <slug> at Phase N — <what unparks it>`, then stop.
+- **Blind-spot pass** (unfamiliar territory): first list what an expert here would know that
+  nobody has said yet — the unknown unknowns — explain them, then start the rounds.
+- **Reference instead of prose** (the human can't describe it but would recognise it): read the
+  named file, library or component as the reference for shape and behaviour, then grill how it
+  adapts here.
 
-**Close with the next-step card** (format in `SKILL.md`) — mandatory, no substitute. Read `ROUTING.md` now and fill row 2 with the next seat's concrete vendor · model · effort · context window and first fallback; a seat name or "see ROUTING.md" is a defect. A conversational closer ("want me to proceed?") is not the card; if in doubt, print it.
+## 4. Close the frontier with outcome, behaviours and seams
+
+When no decision is open, draft the sections planning depends on and put them to the human as
+the final round:
+
+- **Outcome** — what the user sees or can do when this ships, on the surface they actually reach
+  (a page, a report, an API response, a CLI output). Review checks it there, so name the surface.
+  When it depends on real data, state the lookup that shows the data can produce it
+  ("5 topics have ≥ 10 countable weekly signals — query in D3").
+- **Behaviours** — what will be observably true when the run is done, each one checkable by a
+  single test or receipt: `B# — <situation/input> → <observable result>`. Name real values where
+  they exist ("a 429 from the provider → the job retries after the Retry-After seconds, max 3 times").
+  At least one behaviour asserts something positively present — the new answer, a supported score —
+  not only that lineage exists or old text is gone. A behaviour only observable in a live system
+  or a hosted console is marked `(live)`; plan gives it an operator ticket.
+  5–15 behaviours; more means two runs.
+- **Test seams** — the public interfaces where tests will observe those behaviours. Prefer seams
+  that already exist; use the highest one that can see the behaviour; fewer is better, one is ideal.
+
+The phase is complete when the human confirms the outcome, behaviours and seams — "shared
+understanding" is that confirmation, not a feeling. Too big for one run? Say so, keep this slug to one run's
+worth, and recommend `workflow brainstorm <other-slug>` for the rest. Live-operation work splits
+naturally at its human gates: build and prove locally in one run, operate and verify live in the next.
+
+## 5. The brief — `brainstorm.md` (≤ ~80 lines)
+
+```markdown
+Command: workflow brainstorm <slug>
+Created: <date>
+Base:    <git sha>
+Inputs:  none
+Status:  complete
+
+## Problem
+<the human's problem, from the user's or caller's side, 1–3 lines>
+
+## Outcome
+<what is true for the user when this ships, on the surface they reach (name it), 1–3 lines>
+
+## Behaviours
+- B1 — <situation/input> → <observable result>
+- B2 — <situation/input> → <observable result> (live)
+
+## Decisions
+- D1 — <decision> — <one-clause why> (code: <path> | product call)
+
+## Test seams
+- <public interface> — observes B1, B2 (existing | new)
+
+## Out of scope
+- <item> — <one-clause why>   (every TODO item considered and excluded, by name)
+```
+
+Rejected ideas go under **Out of scope** by name; anything left unnamed gets quietly re-imported
+by a later phase.
+
+## Improve — `workflow improve <feature> - goal: <goal>`
+
+A brainstorm seeded by a code audit instead of a blank idea: one feature, one pass. Read the
+feature's code and list concrete improvement findings (correctness, tech debt, performance,
+missing tests, DX), each citing `file:line` and weighed against the goal. Show them as a short
+table in round 1 and ask which to pursue. Each chosen finding becomes a behaviour ("<input> no
+longer <bad result>; → <good result>"); rejected ones go under Out of scope with the reason. Same
+brief, same shape.
+
+## Park — `workflow park [slug]`
+
+Set `Status: parked` in `brainstorm.md` and append under `## Parked`: date, the phase it was at,
+what would unpark it. Nothing is deleted; the folder is the idea's home (`TODO.md` keeps only
+ideas not yet brainstormed). Park before planning where possible: a parked brief keeps for
+months, a parked plan goes stale with the next commit to its files. Unpark with
+`workflow <phase> <slug>`; the freshness check decides whether the plan needs redoing. In chat:
+`⏸ Parked <slug> at <phase> — <what unparks it>`, then stop. "Good idea, not now" during a
+brainstorm parks the run the same way.
+
+Close with the closing card from `SKILL.md` — next is `workflow plan <slug>`.

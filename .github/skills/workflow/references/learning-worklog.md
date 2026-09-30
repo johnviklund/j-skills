@@ -1,6 +1,6 @@
 # Learning loop & Worklog — `workflow learn` / `workflow log`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the command ends with its closing card.
 
 ## Learning loop — `workflow learn`
 
@@ -98,8 +98,8 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   - <1–4 terse bullets: what shipped / changed>
   - Commits: <sha> <sha> ... (+ <other-repo> <sha> if it spanned repos)
   - Review: <verdict> @ <reviewed sha>   (workflow runs only — omit when no review ran)
-  - Run: <steps> steps · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned   (workflow runs only)
-  - Seats: 0 <vendor·model> · 2 <vendor·model> · 3 <vendor·model> · 4 <vendor·model>   (workflow runs only; add 1 when spec ran; suffix "(trial)" where a trial model ran)
+  - Run: <tickets> tickets · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned   (workflow runs only)
+  - Seats: 0 <vendor·model> · 2 <vendor·model> · 3 <vendor·model> · 4 <vendor·model>   (workflow runs only — brainstorm · plan · execute · review; suffix "(trial)" where a trial model ran)
   - Skills: workflow@<sha>[, <other skill>@<sha>]   (workflow runs only — the skill versions that ran, so a skill change can be judged like a model)
   - Why: <one line>
   ```
@@ -108,12 +108,9 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   `Commits: none — docs confirmed current`; omit `Review:` because this is not a standard workflow run.
 
   The `Run:` and `Seats:` lines are how models are evaluated: read the numbers from `plan.md`
-  (checklist length, `## Deviations`, `Writer:` lines) and `review.md` (`## Cycle N` count,
+  (ticket count, `## Deviations`, `Writer:` lines) and `review.md` (`## Cycle N` count,
   dispositions marked wrong-by-human) at wrap, so `checkup` can compare a candidate's runs on a
-  seat against the incumbent's without re-reading artifacts that wrap deletes.
-
-  The `Review:` field exists because `.workflow/<slug>/review.md` is deleted at wrap and is not reliably
-  in git, so this line is the only surviving trace that the verdict was reached and against which commit.
+  seat against the incumbent's without opening every archived run folder.
 
 - **When it's written:**
   - `workflow wrap` appends an entry automatically as part of wrap-up.

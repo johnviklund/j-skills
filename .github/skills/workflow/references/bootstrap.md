@@ -1,6 +1,6 @@
 # Bootstrap a new project — `workflow bootstrap [PRD.md]`
 
-> ⚠️ **Invoke the `workflow` skill before acting on this file** — reading it raw is how the closing next-step card gets dropped.
+> ⚠️ Read through the `workflow` skill; the command ends with its closing card.
 
 Turns a finished PRD into a workflow-ready repo: the canonical doc set, the empty growing files,
 and the hygiene wiring — so the first real `workflow brainstorm` starts on solid ground instead
@@ -46,7 +46,7 @@ phase's checks are anchored to: one command each for build, test and lint (wrap 
 sequence in a single target that exits non-zero on failure), each with one line of what healthy
 output looks like, the rule "run these before reporting any step done and paste the result", and
 the rule "a failing test is fixed in the code, never by editing or deleting the test". If the
-repo has no such commands yet, write the block with the targets as TODOs — Phase 3's baseline
+repo has no such commands yet, write the block with the targets as TODOs — execute's baseline
 step will refuse to run without them, which is the point.
 
 **4. Retire the PRD.** The PRD is frozen input, not a living doc — once `PRODUCT.md` exists,
@@ -67,7 +67,7 @@ Check the ownership boundaries don't overlap. Then run `references/direction-str
 against the freshly drafted north-star docs and feed the human's answers back into them. Fix,
 then commit everything as the bootstrap commit, and append the first `WORKLOG.md` entry.
 
-**7. Hand off.** Close with the next-step card recommending `workflow brainstorm <first
+**7. Hand off.** Close with the closing card recommending `workflow brainstorm <first
 ROADMAP.md initiative>`, row 2 resolved from `ROUTING.md` to concrete vendor · model · effort ·
 context — from here on, the normal cycle owns everything.
 
