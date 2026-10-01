@@ -284,4 +284,4 @@ Rules for editing the skill itself (moved out of `SKILL.md`: an agent running a 
 
 ## License
 
-Add your license of choice before publishing (MIT is a natural fit for a skill like this).
+MIT — see `LICENSE` at the repo root.

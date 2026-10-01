@@ -91,3 +91,7 @@ editing a skill, verify it actually registered —
 `copilot skill list --json | grep -A2 '"name": "<your-skill>"'` (current sources report as
 `inherited` or `personal-agents`) — don't just trust a success message, since one could print
 even when a skill was silently dropped.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
