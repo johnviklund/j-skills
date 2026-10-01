@@ -1,22 +1,25 @@
 # j-skills
 
 Global, cross-repo agent skills — not tied to any single project. Reachable from every repo,
-from both Codex CLI and GitHub Copilot CLI.
+from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin manifest).
 
 ## Skills
 
-- **`memory.remember`** — capture durable learnings from the current session and write them
-  into the target repo's `MEMORY.md`/`AGENTS.md`/`README.md`, an existing or new skill, and
-  `DESIGN.md` (when the repo has one), in one pass.
-- **`memory.compact`** — manual, occasional cleanup of a repo's `MEMORY.md`: groups entries by
-  topic, flags stale/duplicate/superseded entries and skill-promotion candidates, and writes
-  proposal files for review. Never runs automatically.
-- **`workflow`** — a personal four-phase solo-dev workflow (v2.1: brainstorm → plan → execute →
-  review → wrap). The brainstorm is a grill ending in a brief with behaviours and test seams; the plan
+- **`memory.remember`** — capture durable learnings from the current session as one page per
+  lesson in the target repo's `memory/` (indexed by `MEMORY.md`); a repeat bumps the page's
+  occurrence count, and three occurrences promote it into a skill. Also updates related
+  repo docs and `DESIGN.md` (when the repo has one) in one pass.
+- **`memory.compact`** — manual, occasional cleanup of a repo's memory pages: merges pages that
+  make the same claim, splits legacy inline `MEMORY.md` entries into pages, flags
+  stale/superseded pages and skill-promotion candidates, and writes proposal files for review.
+  Never runs automatically.
+- **`workflow`** — a personal solo-dev workflow of four phases and a wrap (v2.1: brainstorm →
+  plan → execute → review → wrap). The brainstorm is a grill ending in a brief with behaviours and test seams; the plan
   is ≤8 tracer-bullet tickets with literal acceptance lines; execute runs one ticket red → green
   (operator tickets for live steps the human runs); review checks the outcome on the surface users
-  reach. Writer and reviewer sit with different vendors. This is the canonical source for that
-  workflow — edit this skill directly when its shape changes.
+  reach. Writer and reviewer sit with different vendors (a same-vendor review is allowed but
+  flagged as degraded). Seats map to models in `workflow/ROUTING.md`. This is the canonical
+  source for that workflow — edit this skill directly when its shape changes.
 - **`checkup`** — manual, read-first workspace health check (inspired by a `/checkup` command):
   audits skill hygiene (plugin name collisions, folder-vs-frontmatter name, description length,
   Codex symlink parity, self-publish drift), memory hygiene (MEMORY.md size/staleness/superseded,
@@ -30,39 +33,41 @@ from both Codex CLI and GitHub Copilot CLI.
 
 ## How this repo is wired up
 
-**Both Codex CLI and Copilot CLI (and other agent CLIs) read the same shared directory:
-`~/.agents/skills/`.** It's managed by a separate, multi-source skill installer that also pulls
-third-party skills (e.g. `last30days` from someone else's repo) — its state lives in
-`~/.agents/.skill-lock.json`. Because that directory is shared infrastructure for *any* skill
-source, it is not simply `git clone`-able as this repo.
+This repo is `johnviklund/j-skills`. The plugin manifest (`.claude-plugin/plugin.json`) is named
+`j-skills`, and Codex prefixes skills with that name (`j-skills:workflow`). The local clone's
+folder is still called `agent-skills` (from before the rename) — paths below use that folder name.
 
-`.github/skills/` is still the canonical source for this repo's own skill content (`checkup`,
-`evals`, `memory.compact`, `memory.remember`, `workflow`). **The clone lives at
-`~/Documents/Projects/skills/agent-skills`** — inside a dedicated `~/Documents/Projects/skills/`
-folder that also holds one flat convenience symlink per owned skill
-(`~/Documents/Projects/skills/<name>` → `agent-skills/.github/skills/<name>`), so the skill
-content is browsable at a short path without duplicating it.
+`.github/skills/` is the canonical source for the skill content (`checkup`, `evals`,
+`memory.compact`, `memory.remember`, `workflow`). The clone lives at
+`~/Documents/projects/skills/agent-skills`, and every consumer is a symlink straight to it — no
+copies, no reinstall, no drift:
 
-`~/.agents/skills/<name>` is then itself a symlink to `~/Documents/Projects/skills/<name>` — one
-per owned skill. This means both Codex and Copilot resolve straight through to the git clone with
-**no separate per-tool install step, no reinstall, and no drift between copies**: edit under
-`.github/skills/<name>/`, commit, push — done. (An older setup used per-tool Codex symlinks plus
-a separately-installed Copilot plugin snapshot requiring reinstall after every change; that's
-gone now in favor of the single shared directory both tools already read.)
+| Where | Read by | Link |
+|---|---|---|
+| `~/.agents/skills/<name>` | Copilot CLI | → `~/Documents/projects/skills/agent-skills/.github/skills/<name>` |
+| `~/.codex/skills/<name>` | Codex CLI (it does not read `~/.agents/skills/`) | same target |
+| `~/Documents/projects/skills/<name>` | convenience, for browsing | → `agent-skills/.github/skills/<name>` |
+| `skills/<name>` in this repo | Claude Code plugin discovery | → `../.github/skills/<name>` |
 
-**Caveat:** the multi-source skill installer that owns `~/.agents/skills/` could in principle
-overwrite one of these symlinks with a fresh directory copy during some future "update" pass
-across all installed skills. If a skill stops picking up edits, check
-`ls -la ~/.agents/skills/<name>` — if it's a plain directory again instead of a symlink, re-run:
-`ln -sf ~/Documents/Projects/skills/<name> ~/.agents/skills/<name>`.
+Edit under `.github/skills/<name>/`, commit, push — both CLIs see the change immediately.
+`~/.agents/skills/` is shared with a separate multi-source skill installer (state in
+`~/.agents/.skill-lock.json`) that also manages third-party skills, so it is not simply a clone of
+this repo.
+
+**Caveat:** that installer could in principle replace one of these symlinks with a plain directory
+during an "update all" pass. If a skill stops picking up edits, run `ls -la ~/.agents/skills/<name>`;
+if it's a directory again, restore it with
+`ln -sfn ~/Documents/projects/skills/agent-skills/.github/skills/<name> ~/.agents/skills/<name>`
+(and the same for `~/.codex/skills/<name>`).
 
 ### Updating a skill
 
-1. Edit under `.github/skills/<name>/` in `~/Documents/Projects/skills/agent-skills` (or via
-   either symlink path — same files).
-2. Commit and push. Both Codex and Copilot are live immediately; no reinstall needed.
-3. Verify: `readlink ~/.agents/skills/<name>` resolves through
-   `~/Documents/Projects/skills/<name>` to `.github/skills/<name>`.
+1. Edit under `.github/skills/<name>/` in `~/Documents/projects/skills/agent-skills` (or via
+   any symlink path — same files).
+2. Commit and push. Both Codex and Copilot are live immediately; no reinstall needed (restart an
+   already-open session to reload).
+3. Verify: `readlink ~/.agents/skills/<name>` and `readlink ~/.codex/skills/<name>` point at
+   `.github/skills/<name>` in the clone.
 
 ## Adding a new global skill
 
@@ -71,13 +76,13 @@ across all installed skills. If a skill stops picking up edits, check
    for Claude Code's plugin discovery (`.claude-plugin/plugin.json`), unrelated to the local dev
    setup below.
 3. Commit and push.
-4. Add the two local convenience symlinks so Codex/Copilot pick it up immediately:
-   `ln -s agent-skills/.github/skills/<name> ~/Documents/Projects/skills/<name>` then
-   `ln -s ~/Documents/Projects/skills/<name> ~/.agents/skills/<name>`.
+4. Link it into both CLIs so it is picked up immediately:
+   `ln -s ~/Documents/projects/skills/agent-skills/.github/skills/<name> ~/.agents/skills/<name>`
+   and the same into `~/.codex/skills/<name>`.
 
 **Known gotcha — Copilot's skill loader can silently drop a skill with a long `description`.**
-Confirmed empirically (under the old `copilot plugin install` mechanism, since replaced by the
-symlink setup above): a description field somewhere between ~1033 and ~1078 characters caused
+Confirmed empirically (under an older `copilot plugin install` setup, since replaced by the
+symlinks above): a description field somewhere between ~1033 and ~1078 characters caused
 Copilot to load successfully (no error) but silently omit that one skill from `copilot skill
 list` — the skill name and content weren't the cause (tested independently), only description
 length was. Not re-tested against the current `~/.agents/skills/` discovery path, but the safe

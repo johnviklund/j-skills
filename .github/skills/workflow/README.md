@@ -48,7 +48,7 @@ workflow wrap auth-refresh            # checks, push, docs reconciled, learnings
                                       # worklog entry, folder archived (Status: done)
 ```
 
-Every phase ends with a **closing card** — reset or continue, the exact vendor · model · effort
+Every phase ends with a **closing card** — reset or continue, the exact model · effort
 · context to pick, what to read, the line to send. Reset the session at each handoff; the card
 tells you to. With only one live run the slug is optional.
 
@@ -177,7 +177,7 @@ Then:
 **Verify locally before trusting the paths above.** Skill discovery has moved before and is
 version-dependent — some builds gated skills behind a feature flag. `/skills` (Codex, Copilot)
 and `/doctor` (Claude Code) are the ground truth on your machine; the tables above were verified
-against Codex CLI 0.145.0 and Copilot CLI 1.0.75. If a
+against Codex CLI 0.159 and Copilot CLI 1.0.91. If a
 skill loads but never triggers, check its description isn't being shortened out by a crowded
 skill list; if Codex ignores it, check `~/.codex/config.toml` for a `[[skills.config]]` entry
 disabling it.
@@ -192,7 +192,7 @@ Keep your own `ROUTING.md` and `SKILL-IMPACT.md` — they are the files you edit
 should never overwrite them. Copy the incoming `ROUTING.md` only to pick up new *sections*, then re-enter your own mappings. After updating, run `/skills reload` in Copilot CLI, or restart
 the session in Codex and Claude Code, then re-run the smoke test.
 
-If you edit the skill itself: keep `SKILL.md` under ~205 lines, keep vendor names out of
+If you edit the skill itself: keep `SKILL.md` under ~180 lines, keep vendor names out of
 `SKILL.md` and `references/`, and grep the **whole** folder — `ROUTING.md` and this README
 included — when you retire a command, or you will leave dangling references behind.
 
@@ -215,7 +215,8 @@ casual mentions of "plan" or "review" never trigger it.
 | `workflow realign` | Evidence-backed, human-approved re-check of `PRODUCT.md`/`DESIGN.md` against what actually shipped |
 | `workflow status` / `next` / `log` / `learn` | Where am I / what's the closing card / ad-hoc worklog entry / capture a learning |
 
-Every phase response ends with a **closing card**: reset-or-continue, which vendor/model/
+Every phase response ends with a **closing card** (except a turn that waits for your in-chat
+answer, such as a diff approval, which ends on its lettered options): reset-or-continue, which model/
 effort (from `ROUTING.md`), what to read, and the exact line to send. There is no compact
 command — resetting is lossless and safe at any context fullness, so it replaced compaction
 entirely.
@@ -262,7 +263,7 @@ compatible with it.
 
 Single-voice: no reviewer personas, no self-orchestrated sub-agents (a CLI's parallel mode
 is allowed only on read-only seats, for breadth). Bounded everything: worklog ~15 entries, the
-reviewer eval set 8 cases, patch loops max 3 cycles. The hub stays under ~160 lines; growth
+reviewer eval set 8 cases, patch loops max 3 cycles. The hub stays under ~180 lines; growth
 means a new reference file, not a longer hub.
 
 ## Maintaining this skill
@@ -270,7 +271,7 @@ means a new reference file, not a longer hub.
 Rules for editing the skill itself (moved out of `SKILL.md`: an agent running a phase never needs them).
 
 - **Growth:** a new feature is a new or extended reference file plus one command-index line; the
-  hub stays under ~160 lines.
+  hub stays under ~180 lines.
 - **Vendors:** only `ROUTING.md` names vendors or models; no skill file names a CLI product
   (this README is reader-facing and exempt). Verify model names and efforts in the CLI's own
   picker before editing `ROUTING.md`.
