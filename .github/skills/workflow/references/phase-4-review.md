@@ -41,7 +41,8 @@ for the same class of mistake; a second occurrence adds `[durable→memory]` to 
 
 The file is the only evidence review happened. Create it before reviewing anything, with the
 provenance header (`Base:` = the HEAD sha reviewed, `Inputs: plan.md @ <its Base>`,
-`Status: drafting`), and append each finding the moment it is confirmed.
+`Status: drafting`), and append each finding the moment it is confirmed. Budget ≤ ~100 lines: evidence
+is a pointer plus the number that proves it (`file:line`, command, count) — never pasted output.
 
 ```markdown
 ## Coverage
@@ -50,6 +51,11 @@ provenance header (`Base:` = the HEAD sha reviewed, `Inputs: plan.md @ <its Base
 - [x] B1…B6 delivered · Outcome observed on <surface> · out of scope untouched
 - [x] .workflow/ dependency check
 Independence: cross-vendor | same-vendor (degraded)
+
+## Resolved                    ← from cycle 2: a finding moves here once stamped or settled
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | <title> | fix now | @ <sha> (cycle 2) |
 
 ## Cycle 1 findings
 ### P1 — <title>
@@ -90,7 +96,10 @@ with a search at planning time. The card routes to `workflow execute <slug>`, na
 cycle and finding ids (`Patch cycle 1 — fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
 **Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,
-append `## Cycle N findings` and `## Cycle N verdict`, and move `Base` to the sha reviewed. Its scope is the
+append `## Cycle N findings` and `## Cycle N verdict`, and move `Base` to the sha reviewed. As each
+earlier finding is stamped (or its defer/wontfix is settled) it folds into `## Resolved` as one row —
+the full text stays in git; a finding still open keeps its section. Read only `## Resolved`, open
+findings and the current cycle, never settled older sections. Its scope is the
 fix diff plus each finding's class: re-verify each finding at every site of its class, not only
 the lines the fix touched (stamp `Resolved: @ <sha> (cycle N)` or reopen it — an incomplete fix
 reopens the finding at its original severity), confirm each bug fix left the tests untouched and
@@ -100,7 +109,7 @@ decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `T
 
 **Cycle bound — three.** Stop and escalate after the third cycle, or as soon as a P0 survives a
 cycle. The escalation states the unresolved finding verbatim, each attempt and why it failed, and
-one answerable question; the card routes to the human.
+one answerable question; the card routes to the human (`**Model:** human — <the one action>`).
 
 A finding stays open until a later cycle stamps it. P0/P1 deferral needs the human's explicit
 approval, recorded as `Approved by human:`. Wrap refuses any open "fix now" and any unapproved

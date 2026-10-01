@@ -16,15 +16,19 @@ live, offer to unpark it if parked; a done run is history, so start a new slug.
 
 ## 2. Ground before the first question
 
-Read the idea, then the code it touches. Read `PRODUCT.md`/`DESIGN.md` when product or UI is in
-scope, so settled decisions stay settled. Then place the idea against intake and direction:
+Read the idea, then the code it touches. When product or UI is in scope, read `PRODUCT.md`/`DESIGN.md`
+by heading and open the sections the idea touches, plus vocabulary and principles, so settled
+decisions stay settled; read them in full when the idea sets new product direction. Then place the
+idea against intake and direction — by heading and `grep` of the idea's key words, not whole files:
 
 - **`TODO.md` answers "already captured?"** Matching item → seed from it, and treat each of its
   details as a claim to re-verify in the code. Related items touching the same feature or files →
-  list them in round 1 and ask which fold into scope.
+  list them in round 1 and ask which fold into scope. A hit in `TODO_ARCHIVE.md` means it was
+  already handled — read that line and the run or commit it points to.
 - **`ROADMAP.md` answers "already committed?"** Say which: part of a committed item (its scope is
   the boundary), contradicting one (stop — changing committed direction is the human's call), or
-  new (say whether it should become a roadmap item or stay intake).
+  new (say whether it should become a roadmap item or stay intake). A hit in
+  `ROADMAP_ARCHIVE.md` means it already shipped.
 
 ## 3. Grill in rounds
 
@@ -110,6 +114,8 @@ Status:  complete
 
 ## Out of scope
 - <item> — <one-clause why>   (every TODO item considered and excluded, by name)
+
+Docs read: <PRODUCT.md §…, DESIGN.md §… — the sections checked, or "none in scope">
 ```
 
 Rejected ideas go under **Out of scope** by name; anything left unnamed gets quietly re-imported

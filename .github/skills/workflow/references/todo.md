@@ -5,52 +5,45 @@
 Seat: **brainstorm partner** at medium effort — mapping in `ROUTING.md`. Rationale: this is
 knowledge-shaped intake dialogue with no execution payoff — the same seat as brainstorm, and
 it's a quick command; never spend a heavy or reviewer seat on it. Runs anytime, in any
-session — it doesn't read or change `.workflow/` state.
+session — it doesn't change `.workflow/` state.
 
-Capture the idea into repo-root `TODO.md` well-placed and well-shaped — intake only, never the
-start of implementation. `TODO.md` holds ideas *not yet brainstormed*; an idea that has been
-brainstormed lives as a `.workflow/<slug>/` run (live or parked) and is not listed here twice.
-Check `grep -l 'Status: parked' .workflow/*/brainstorm.md` before adding: a match means "that's
-parked as `<slug>` — unpark it or leave it," not a new item. If the idea is clearly run-sized and
-the human wants it now, offer `workflow brainstorm <slug>` instead of an intake line.
+Capture the idea into repo-root `TODO.md` as **one short line** — intake only, never the start of
+a spec or of implementation. `TODO.md` is a scratch pad (target ~10 KB; sections such as the
+idea areas, `## Open Questions`, `## Review deferrals`, and a one-line `## Archived` pointer to
+`<repo>/TODO_ARCHIVE.md`) holding ideas *not yet brainstormed*; an idea that has been brainstormed
+lives as a `.workflow/<slug>/` run (live or parked) and is not listed here twice. Check
+`grep -l 'Status: parked' .workflow/*/brainstorm.md` before adding: a match means "that's parked as
+`<slug>` — unpark it or leave it," not a new item. If the idea is clearly run-sized and the human
+wants it now, offer `workflow brainstorm <slug>` instead of an intake line.
 
-**1. Read before writing.** Read `TODO.md` in full (if missing, create it with a short header
-stating it's the human's intake scratchpad, not a roadmap). If the idea touches product
-direction, skim the relevant `PRODUCT.md` sections too — don't add an item that contradicts or
-duplicates settled product truth; point at it instead.
+**1. Read before writing.** Read `TODO.md`'s headings, then the section the idea belongs in and
+anything `grep -i` finds for its key words (read the whole file only if it is under ~15 KB and the
+fit is unclear). `grep -i` the key words in `TODO_ARCHIVE.md` too — never read it whole. If the idea
+touches product direction, `grep` the relevant `PRODUCT.md` headings and read only that section —
+don't add an item that contradicts or duplicates settled product truth; point at it instead.
 
-**2. Analyze fit against existing items.** Decide, with a stated reason:
+**2. Decide fit, with a stated reason:**
 
-- **Duplicate / near-duplicate** of an existing item → propose merging or updating that item
-  instead of adding a new one.
-- **Extends an Active Initiative** → propose folding into that initiative's Details (and DoD if
-  it changes the finish line).
-- **New initiative-sized idea** → new Active Initiative in the file's standard shape (user
-  story / purpose / definition of done / details — intentionally light, not a spec).
-- **Small, concrete UI tweak** → checkbox under the right Small UI Changes subsection.
-- **Genuine unknown needing a decision first** → Open Questions — unless it is a *product*
+- **Duplicate / near-duplicate** of an open item → propose updating that line instead.
+- **Already shipped or archived** (a hit in `TODO_ARCHIVE.md`, or the code) → say so; nothing to add.
+- **Genuine unknown needing a decision first** → `## Open Questions` — unless it is a *product*
   decision (scope, direction, a stated boundary, the stack), which belongs in `PRODUCT.md`'s
   open-decisions list instead. Two lists of open decisions is how one of them goes stale.
-- **Raw note that doesn't fit yet** → Misc / Scratchpad (Unsorted).
-- **Already shipped or archived** (check Archived and, if cheap, the code) → say so; nothing to
-  add.
+- **Anything else** → one line in the right section: `- <short title> — <one clause: what / why>`
+  (≤ ~160 characters, no user story, no definition of done, no sub-bullets).
 
-**3. Ask about the idea** — one round, max 2–3 questions, sized to the item: for
-initiative-sized ideas, ask what's needed to write an honest user story / purpose / DoD (who is
-it for, what problem, what does done look like); for a small tweak, at most placement/scope. A
-one-line UI fix does not get an interrogation.
+**3. Ask only what placement needs** — at most one round of 1–2 questions (which section, is it a
+duplicate). Never interrogate for a story, purpose or definition of done: an idea that needs more
+than a line is brainstorm material, and the answer is `workflow brainstorm`, not a longer entry.
 
-**4. Propose, confirm, write.** Show the exact entry text and placement (and any existing item
-being updated/merged) before touching the file; on confirmation, write it following the file's
-existing conventions — initiative shape, checkbox style, section order, TOC only if a new
-section was added, merged/subsumed leftovers noted in Archived per the file's traceability
-style.
+**4. Propose, confirm, write.** Show the exact line and placement (and any existing line being
+updated) before touching the file; on confirmation write it following the file's conventions.
 
-**Boundaries:** capture only — no code, no spec-writing (an entry stays light per the file's
-own header; when it's ripe, it goes through `workflow brainstorm`); `PRODUCT.md` stays the
-source of truth for product state — TODO entries point, never duplicate; and the file remains
-the human's scratchpad — record their idea faithfully, don't grow it into your own.
+**Boundaries:** capture only — no code, no spec; refuse to grow an idea into a spec or merge detail
+from the conversation into the line (the human's wording stays, shortened if needed). `PRODUCT.md`
+stays the source of truth for product state — entries point, never duplicate. This command writes
+only `TODO.md`; archiving is wrap's job.
 
-Close by showing the entry as written. No next-step phase card — this command doesn't change
+Close by showing the line as written. No next-step phase card — this command doesn't change
 workflow state — but if the idea is clearly ripe for immediate work, suggest
-`workflow brainstorm <initiative name>` in one line.
+`workflow brainstorm <idea>` in one line.

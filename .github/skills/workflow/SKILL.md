@@ -14,28 +14,25 @@ description: >
 Four phases and a wrap: **brainstorm → plan → execute → review → wrap**. Each phase is a **seat**
 (a job with an output contract) filled by whatever model currently earns it. Writer and reviewer
 sit with different vendors on purpose — independence is the point. `ROUTING.md` maps seats to
-vendors, models and efforts and is the only file that names them; which CLI serves a model is not
-this skill's concern.
+vendors, models and efforts; which CLI serves a model is not this skill's concern.
 
-**Invocation:** `workflow <command> [slug]`; if the CLI swallows the slash, drop it, and where the
-CLI invokes skills with its own prefix, send the card's line with that prefix. Only a message
-that starts with `workflow` invokes the skill.
+**Invocation:** `workflow <command> [slug]` — only a message starting with `workflow` (or `/workflow`)
+invokes the skill; the card's line carries the CLI's own skill prefix if it has one.
 
 ## The run — `.workflow/<slug>/`
 
-One run = one folder, tracked in git, kept forever. The files are the state machine: any fresh
-session picks the run up from its files alone.
+One run = one folder, tracked in git, kept forever; its files are the state machine.
 
 | Artifact | Written by | Holds |
 |---|---|---|
 | `brainstorm.md` | brainstorm | the **brief**: problem, behaviours (B#), decisions, test seams, out of scope — status of record for the run |
 | `plan.md` | plan, then execute | findings + **tickets** (T#), each with acceptance lines and a verify command; execution state |
 | `patch_plan.md` | review | fix tickets for the current patch cycle |
-| `review.md` | review | coverage, findings per cycle, verdicts |
-| `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's own checkpoint |
+| `review.md` | review | coverage, the current cycle's findings and verdict, a `## Resolved` table of earlier cycles |
+| `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's checkpoint, then the run's ≤ ~40-line summary |
 
-Every artifact header carries `Status:` — `drafting` · `complete` · `parked` · `done`.
-**`drafting` means resume that phase.** A run whose `brainstorm.md` is `parked` or `done` is not live.
+Every artifact header carries `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
+`done`. A run whose `brainstorm.md` is `parked` or `done` is not live.
 
 | State of a live run | Next |
 |---|---|
@@ -48,19 +45,31 @@ Every artifact header carries `Status:` — `drafting` · `complete` · `parked`
 
 **Slug:** the command names one, or exactly one run is live — otherwise list the live runs,
 lettered, and ask. Live runs: `grep -l 'Status: \(drafting\|complete\)' .workflow/*/brainstorm.md`.
-`workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`;
-an `awaiting-human` ticket is the blocker, named with the action it waits on.
-A command that doesn't fit the run's state (e.g. `execute` with no `plan.md`) gets named and asked
-about. `workflow spec` was retired in v2.1: say so and route to `workflow plan <slug>`.
+`workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`
+(an `awaiting-human` ticket is the blocker, with its action). A command that doesn't fit the run's
+state gets named and asked about; `workflow spec` is retired — route to `workflow plan <slug>`.
 
-**Grounding** reads the run folder, `ROUTING.md`, `AGENTS.md`, `MEMORY.md` (index of `memory/`),
-`PRODUCT.md`/`DESIGN.md` when product or UI is in scope, repo-root `TODO.md` and `ROADMAP.md`
-when the phase says so, `git log --oneline -15`, `git status`.
+## Grounding — tiered reads
+
+- **Always:** the run's live artifacts (`brainstorm.md`, `plan.md`, `patch_plan.md`, the *current*
+  cycle of `review.md` plus its `## Resolved` table); `ROUTING.md` (the card's rows); `AGENTS.md`;
+  the `MEMORY.md` index — open a `memory/<slug>.md` page only when its "Applies when" matches;
+  `git log --oneline -15`; `git status`.
+- **Targeted — `PRODUCT.md`, `DESIGN.md`** when product or UI is in scope: read the headings, then
+  only the sections the brief or ticket touches (vocabulary, principles, current phase, the surface
+  being changed). Record them in the artifact as `Docs read: PRODUCT.md §Vocabulary, §Principles ·
+  DESIGN.md §Tables`. These docs are the anti-drift guard: read in full for brainstorming new product
+  direction, `realign` and design-departure proposals, and before any ticket that might contradict them.
+- **Targeted — `TODO.md`, `ROADMAP.md`:** only brainstorm ("already captured? already committed?"),
+  wrap (hygiene) and `todo`. Plan, execute and review get what they need from the brief and plan.
+- **Never by default:** `*_ARCHIVE.md` (`MEMORY_`, `TODO_`, `ROADMAP_`), `WORKLOG.md` beyond its
+  latest entry, other runs' folders, `.workflow/archive/`. `grep` them on demand and read only the
+  matching lines. A `done` run is history: if one matters, read its `wrap.md` alone.
 
 ## Talking to the human (every phase)
 
-**The artifact is the record; chat is the receipt.** The human runs many projects and reads on a
-phone. Above the closing card, a phase prints at most ~12 lines:
+**The artifact is the record; chat is the receipt** (the human reads on a phone). Above the closing
+card, a phase prints at most ~12 lines:
 
 - **Result** — what the phase did, ≤3 plain lines.
 - **Decisions needed** — a numbered list; each item is one decision in plain words, options
@@ -68,61 +77,49 @@ phone. Above the closing card, a phase prints at most ~12 lines:
   Every question in every phase uses this shape.
 - A negative result is one line ("`PRODUCT.md` — no changes").
 
-**Clarify gate** (every phase except brainstorm, which is all questions): before the first edit,
-if something material is unclear or a misread is expensive — ambiguous scope, a command/state
-mismatch, schema/contract/deletion work, a silent assumption doing heavy lifting — ask one round
-of ≤3 questions and wait. Mechanical, clearly specified work proceeds.
+**Clarify gate** (every phase except brainstorm): before the first edit, if something material is
+unclear or a misread is expensive — ambiguous scope, a command/state mismatch, schema/contract/
+deletion work, a silent assumption — ask one round of ≤3 questions and wait. Clear mechanical work
+proceeds.
 
 **Budgets** — thinking is unbounded, files are not: `brainstorm.md` ≤ ~80 lines and ≤ 15
-behaviours; `plan.md` ≤ ~120 lines and ≤ 8 tickets. Over budget = the run is two runs: propose
-the split and ask. Meet a budget by cutting prose, never acceptance lines or checks.
+behaviours; `plan.md` ≤ ~120 lines and ≤ 8 tickets; `review.md` ≤ ~100 lines; a finished run's
+`wrap.md` ≤ ~40. Over budget = the run is two runs: propose the split and ask. Meet a budget by
+cutting prose, never acceptance lines or checks.
 
 ## Seats
 
-| Seat | Job | Used by |
-|---|---|---|
-| Brainstorm partner | the grill: dialogue that ends in a planning-ready brief | brainstorm, todo, wrap |
-| Default executor | logic tickets; best quality per cost | execute (logic), P1–P3 fixes |
-| Heavy executor | schema/SQL/contract tickets, hardest multi-file work | execute (contract), P0 fixes |
-| Mechanical lane | tickets with an explicit expected text result | execute (mechanical) |
-| Operator (the human) | runs what the agent must not: live or irreversible writes, authorizations, hosted consoles | execute (operator tickets) |
-| Strict reviewer | the skeptic; read-only except `realign` | plan, review, patch plans, realign |
+**Brainstorm partner** (the grill; also `todo`, wrap) · **default executor** (logic tickets, P1–P3
+fixes) · **heavy executor** (schema/SQL/contract tickets, P0 fixes, hardest multi-file work) ·
+**mechanical lane** (tickets with an explicit expected text result) · **operator** (the human: live
+or irreversible writes, authorizations, hosted consoles) · **strict reviewer** (the skeptic — plan,
+review, patch plans, `realign`; read-only except `realign`).
 
 Invariants:
 
 - **Cross-vendor review.** The strict reviewer is a different vendor from the code's writer; a
   same-vendor review is degraded and says so in `review.md`. One step runs in one session only.
-- **Availability first.** Open the model picker at session start and walk `ROUTING.md`'s fallback
-  chain in order; name any switch.
-- **Name the running model from a record, not memory** — a model's recall of its own name lags its
-  version (GPT-6.1 Sol calls itself GPT-6). Read the exact ID the harness context states; else the
-  CLI config (Codex: `model` in `~/.codex/config.toml`; an in-session `/model` switch overrides
-  it); else ask. Write only the model, as `ROUTING.md`'s seat mapping names it (`GPT-6.1 Sol`,
-  `Opus 5.5`) — never the CLI, product or vendor. Review looks the vendor up in `ROUTING.md`.
-- **Effort follows risk.** Before raising effort on a struggling ticket, sharpen its acceptance
-  lines — a clearer bar beats more thinking.
+- **Availability first.** Open the model picker at session start, walk `ROUTING.md`'s fallback chain
+  in order, and name any switch.
+- **Name the running model from a record, not memory** — read the ID from the harness context or CLI
+  config, write only the model (`references/phase-3-execute.md`).
 - **Approval follows blast radius** (map in `ROUTING.md`): read-only none, mechanical auto, logic
   and contract tickets shown to the human ticket by ticket, operator tickets executed by the human.
-  The lane sets the seat and approval for fix tickets too — a fix that touches a contract is a
-  contract ticket whatever its severity.
-- **Sub-agents do read-only breadth**: fact-finding in brainstorm and plan, wide diffs in review.
-  Their findings are verified before use. Anything that writes runs in the main session.
+  The lane — not the severity — sets seat and approval, fix tickets included.
+- **Sub-agents are read-only breadth** (fact-finding, wide diffs), their findings verified; writing
+  runs in the main session.
 
-## Context hygiene
-
-Every phase starts in a fresh context, re-grounded from the run folder and git; the handoff is
-where the model swap happens. Artifacts are written as the phase goes, so a mid-phase **reset**
-costs only warm cache — prefer it to compaction. This skill names verbs (*reset*, *compact*,
-*context meter*, *model picker*); each CLI's literal commands are in `README.md`.
+Every phase starts fresh, re-grounded from the run folder and git; the handoff is where the model
+swap happens, and a **reset** (not compaction) is how. The CLI's literal commands for *reset*,
+*context meter* and *model picker* are in `README.md`.
 
 ## The closing card — `workflow next`
 
-Every phase ends with this card as the last output of the turn — inside the CLI's summary tool if
-it has one. **A turn that waits for an answer in chat** — a diff approval, a clarify question, the
-plan's ticket-list round — **ends on the Decisions list, with no card**: the reply is the answer,
-not a command. The card follows once that answer is acted on. Open `ROUTING.md` in the closing turn and fill the model line with real values (a
-*Trial* entry prints instead of the primary, marked `(trial)`); the card exists so the human never
-opens a file to pick a model.
+Every phase ends with this card as the last output of the turn. **A turn that waits for an answer in
+chat** — a diff approval, a clarify question, the plan's ticket-list round — **ends on the Decisions
+list, with no card**: the reply is the answer. Fill the model line from `ROUTING.md`'s rows (a
+*Trial* entry prints instead of the primary, marked `(trial)`) so the human never opens a file to
+pick a model.
 
 ---
 **▶ Next: <phase>** · <run slug> · <one-line why, or the cycle and finding ids for a patch cycle>
@@ -133,33 +130,27 @@ workflow <phase> <slug>
 ```
 ---
 
-Reset is `yes` at every handoff, `no` only for same-seat work continuing. When the next step is the
-human's outside the chat — an operator ticket or an escalation — the model line reads `**Model:** human — <the one
-action>` and **Reads:** names the handoff. When the run is done,
-print the ✅ card instead: what shipped (one line); product-doc truth (edited what, or none);
-recommended next (`workflow brainstorm <next ROADMAP item>`, `memory.compact` if `MEMORY.md` grew,
-PR if not on `main`).
+Reset is `yes` at every handoff, `no` only for same-seat work continuing. A step only the human can
+take (an operator ticket, an escalation) reads `**Model:** human — <the one action>`, **Reads:**
+naming the handoff. A finished run gets wrap's ✅ card instead (`references/wrap.md`).
 
 ## Ground rules
 
 - **Verify against the code — and the data.** Every interface, signature and column a phase relies on
-  is checked in the real code; anything the brief says about code is a hypothesis until then. When
-  the Outcome depends on real data (volumes, thresholds, coverage), a read-only query confirms the
-  data can produce it before the behaviours are confirmed.
-- **Contracts move in lockstep** producer → validator → consumer; backward-compat shims only when
-  the human asks.
-- **Provenance header** — every run artifact opens with five lines: `Command:`, `Created:` (date),
-  `Base:` (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the
-  input is `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows
-  only this run's own ticket commits. Stale → name it and route to the phase that must rerun.
-- **Receipts vs code.** `*.md` and `*.txt` are receipts; every other file, in any folder, is code.
-  "Code changed since X" = `git diff --stat X..HEAD -- . ':(exclude)*.md' ':(exclude)*.txt'` is
-  non-empty. Code outside `.workflow/` never reads anything inside it.
+  is checked in the real code; the brief's claims about code are hypotheses until then. An Outcome
+  that depends on real data gets a read-only query before its behaviours are confirmed.
+- **Provenance header** — every run artifact opens with five lines: `Command:`, `Created:`, `Base:`
+  (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
+  `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
+  run's own ticket commits. Stale → name it and route to the phase that must rerun.
+- **Receipts vs code.** `*.md`/`*.txt` are receipts; every other file is code. "Code changed since X"
+  = `git diff --stat X..HEAD -- . ':(exclude)*.md' ':(exclude)*.txt'` is non-empty. Code outside
+  `.workflow/` never reads anything inside it.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
 
 ## Command index
 
-Read the one reference for the invoked command; `status` and `next` need only this file and `ROUTING.md`.
+Read the one reference for the command; `status` and `next` need only this file and `ROUTING.md`.
 
 | Command | Reference |
 |---|---|

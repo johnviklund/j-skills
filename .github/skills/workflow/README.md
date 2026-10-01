@@ -75,10 +75,10 @@ stale with the next commit, and the provenance gate will make you re-plan.
   brainstorm.md    the brief: problem · outcome · behaviours · decisions · test seams · out of scope  ← status of record
   plan.md          findings · ≤8 tickets (acceptance, verify, status) · coverage of behaviours · risks · impacts · deviations
   patch_plan.md    fix tickets, only during a patch cycle; run by `workflow execute`; deleted at wrap
-  review.md        coverage · P0–P3 findings with dispositions and Resolved stamps, one section per cycle
+  review.md        coverage · the current cycle's P0–P3 findings and verdict · a `## Resolved` table of earlier cycles (≤ ~100 lines)
   learnings.md     tagged lines, routed by memory.remember (each marked [routed → …]); kept as the record
   <handoff/receipt files>  operator tickets only: what the human ran and what it showed; kept as evidence
-  wrap.md          wrap's own checkpoint, so an interrupted wrap resumes instead of restarting
+  wrap.md          wrap's checkpoint (an interrupted wrap resumes), then the run's ≤ ~40-line summary — the only file later runs read
 ```
 
 Runs are tracked in git and never deleted: after wrap the folder is the run's history, readable
@@ -95,7 +95,8 @@ a parked plan — it gets re-audited, not executed.
 | File | Role | You edit it? |
 |---|---|---|
 | `SKILL.md` | The hub: invocation, runs & state machine, seats & invariants, reporting rule, per-command index | No |
-| `ROUTING.md` | **Your mapping**: seat → (vendor · model · effort · context), trial column, fallbacks, how models earn seats | **Yes — this is the whole setup** |
+| `ROUTING.md` | **Your mapping**: seat → (vendor · model · effort · context), trial column, fallbacks, phase → effort/approval. Small on purpose: the closing card reads it every phase | **Yes — this is the whole setup** |
+| `ROUTING-NOTES.md` | How models earn seats, the upkeep loop, mode notes — read only by `checkup` | Yes (rarely) |
 | `references/*.md` | Full instructions per command, loaded one-per-invocation | No |
 | `SKILL-IMPACT.md` | Log of every change to these skills and what the runs after it showed; `Mode:` line sets whether skill edits are autonomous or approved | Yes (mode line; accept/reject rows) |
 
@@ -188,11 +189,11 @@ disabling it.
 cd .agents/skills/workflow && git pull      # or re-copy the folder
 ```
 
-Keep your own `ROUTING.md` and `SKILL-IMPACT.md` — they are the files you edit, and an update
+Keep your own `ROUTING.md`, `ROUTING-NOTES.md` and `SKILL-IMPACT.md` — they are the files you edit, and an update
 should never overwrite them. Copy the incoming `ROUTING.md` only to pick up new *sections*, then re-enter your own mappings. After updating, run `/skills reload` in Copilot CLI, or restart
 the session in Codex and Claude Code, then re-run the smoke test.
 
-If you edit the skill itself: keep `SKILL.md` under ~180 lines, keep vendor names out of
+If you edit the skill itself: keep `SKILL.md` under ~180 lines and ~10 KB (see *Context budget*), keep vendor names out of
 `SKILL.md` and `references/`, and grep the **whole** folder — `ROUTING.md` and this README
 included — when you retire a command, or you will leave dangling references behind.
 
@@ -209,7 +210,7 @@ casual mentions of "plan" or "review" never trigger it.
 | `workflow execute` | One ticket at a time: acceptance tests red → green, diff, commit, persist state |
 | `workflow review` | Acceptance + defects review, P0–P3 against a written severity bar; re-reviews scoped to the fix diff; patch cycle bounded at 3 |
 | `workflow park [slug]` | Set a run aside at any phase; unpark by invoking the phase it was at |
-| `workflow wrap` | Final checks, commit/push, reconcile product docs, route learnings to `memory/`, deposit eval cases, update `TODO.md` + worklog, archive the run folder |
+| `workflow wrap` | Final checks, commit/push, reconcile product docs, route learnings to `memory/`, deposit eval cases, archive done TODO/roadmap items, worklog, run summary; archive the run folder |
 | `workflow todo <idea>` | Capture an idea into `TODO.md`, well-placed and well-shaped |
 | `workflow bootstrap` | Stand up `AGENTS.md`/`MEMORY.md`/`TODO.md` and repo conventions in a fresh project |
 | `workflow realign` | Evidence-backed, human-approved re-check of `PRODUCT.md`/`DESIGN.md` against what actually shipped |
@@ -259,6 +260,34 @@ persistent thread hand runs to delegated agents, even several at once, with git 
 folders as the only shared state. Nothing in v2 depends on that future; everything in it is
 compatible with it.
 
+## Context budget
+
+A run's grounding is the cost that repeats every phase, so the skill keeps it small and targeted —
+without weakening `PRODUCT.md`/`DESIGN.md` as the anti-drift guard (targeted, never skipped).
+
+**Tiered reads** (the rule lives in `SKILL.md` *Grounding*):
+
+| Tier | Files |
+|---|---|
+| Always | the run's live artifacts (current `review.md` cycle + its `## Resolved` table only), `ROUTING.md`, `AGENTS.md`, the `MEMORY.md` index (a `memory/` page only when its "Applies when" matches), `git log --oneline -15`, `git status` |
+| Targeted | `PRODUCT.md`/`DESIGN.md` — headings first, then only the sections the brief or ticket touches; the sections read are recorded as `Docs read:`. Full read only for new product direction, `realign`, a design-departure proposal, or a ticket that might contradict them. `TODO.md`/`ROADMAP.md` — brainstorm, wrap and `todo` only |
+| Never by default | `MEMORY_ARCHIVE.md`, `TODO_ARCHIVE.md`, `ROADMAP_ARCHIVE.md`, `WORKLOG.md` beyond its latest entry, other runs' folders, `.workflow/archive/` — `grep` and read matching lines. A `done` run is read through its `wrap.md` alone |
+
+**Targets** (check with `wc -c`; flag a regression when a file passes its budget):
+
+| File | Budget |
+|---|---|
+| `SKILL.md` | ≤ ~10 KB |
+| `ROUTING.md` | ≤ ~5.5 KB (trial and upkeep notes belong in `ROUTING-NOTES.md`) |
+| one phase reference | ≤ ~10 KB |
+| `brainstorm.md` / `plan.md` / `review.md` / finished `wrap.md` | ~80 / ~120 / ~100 / ~40 lines |
+| repo `TODO.md` / `ROADMAP.md` | ~15 KB / ~12 KB — wrap flags and proposes archiving, never deletes |
+| a committed receipt | a few KB: numbers and checksums, not data |
+
+Default grounding for plan, execute or review is therefore `SKILL.md` + `ROUTING.md` + one
+phase reference (about 22–25 KB) plus the repo's `AGENTS.md`, the `MEMORY.md` index and the run's
+live artifacts. When a change adds an always-read rule, remove or move another.
+
 ## Design constraints (on purpose)
 
 Single-voice: no reviewer personas, no self-orchestrated sub-agents (a CLI's parallel mode
@@ -272,7 +301,7 @@ Rules for editing the skill itself (moved out of `SKILL.md`: an agent running a 
 
 - **Growth:** a new feature is a new or extended reference file plus one command-index line; the
   hub stays under ~180 lines.
-- **Vendors:** only `ROUTING.md` names vendors or models; no skill file names a CLI product
+- **Vendors:** only `ROUTING.md` and `ROUTING-NOTES.md` name vendors or models; no skill file names a CLI product
   (this README is reader-facing and exempt). Verify model names and efforts in the CLI's own
   picker before editing `ROUTING.md`.
 - **Writing:** state each rule once, in one place. Phrase rules as the behaviour wanted, not the

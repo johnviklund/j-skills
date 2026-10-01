@@ -13,7 +13,8 @@ proves it with tests, so the run is working software after every ticket instead 
 
 Open `plan.md` with `Status: drafting` now and append each part as it settles (shape in step 5).
 Check every decision and seam in the brief against the real code: signatures, columns, config
-keys, call sites, contract versions. Record what you learn as **findings** — one table row each:
+keys, call sites, contract versions. Read `PRODUCT.md`/`DESIGN.md` by heading — only the
+sections the brief and tickets touch — and, before a ticket that could contradict one, that section in full. Record what you learn as **findings** — one table row each:
 `F# · what is true · what it changes`. A correction to the brief is a finding row and the correct
 value is used in the tickets; the brief itself stays as written.
 
@@ -65,6 +66,9 @@ cannot land green as one vertical slice. Sequence it as **expand–contract**: a
 beside the old; migrate call sites in batches (one ticket each, blocked by the expand); delete
 the old form last, blocked by every batch.
 
+Contracts move in lockstep, producer → validator → consumer; compatibility shims only when the
+human asks.
+
 ## 4. Quiz the human on the breakdown
 
 Show the tickets as a numbered list — `T# — <title> · delivers B# · blocked by T# · lane` — with
@@ -87,6 +91,8 @@ Created: <date>
 Base:    <git sha>
 Inputs:  .workflow/<slug>/brainstorm.md @ <its Base>
 Status:  complete
+
+Docs read: <PRODUCT.md §…, DESIGN.md §… — sections opened for this audit, or "none in scope">
 
 ## Execution state
 <filled by execute>
@@ -116,8 +122,9 @@ Status: todo                              (todo · awaiting-human · done @ <sha
 <≤3 lines: the riskiest ticket and why · what could break outside its files · the option not taken>
 
 ## TODO impacts
-<TODO.md item → completed / partial / obsolete / conflicts; or "none". A cheap adjacent item
-touching the same files is mentioned here as optional — never added as a ticket.>
+<the TODO.md items the brief names or seeded from → completed / partial / obsolete / conflicts; or
+"none". A cheap adjacent item touching the same files is mentioned here as optional — never added
+as a ticket. Plan does not open `TODO.md` or `ROADMAP.md`; wrap re-derives the rest.>
 
 ## Product doc impacts
 <per PRODUCT.md, DESIGN.md, ROADMAP.md that exists: "no changes", or the statement this makes

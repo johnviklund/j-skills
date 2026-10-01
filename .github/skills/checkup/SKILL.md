@@ -160,6 +160,9 @@ git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.p
   workflow README); a gitignored `.workflow/` is 🔴 -- runs are the repo's history.
 - **One home per idea.** A `TODO.md` item naming the same thing as a parked run is ⚠️ -- archive
   the TODO line with a pointer to the run.
+- **Context weight.** `TODO.md` over ~15 KB or `ROADMAP.md` over ~12 KB, a finished run's `wrap.md`
+  over ~60 lines or its `review.md` over ~150, `SKILL.md` over ~10 KB or `ROUTING.md` over ~5.5 KB
+  (`wc -c`) is ⚠️ -- grounding cost repeats every phase; propose what to archive or move, never delete.
 - **Tracked junk / secrets.** A committed `.DS_Store`, `.env`, virtualenv, build output, or `.pyc`
   is 🔴 (secrets) or ⚠️ (junk). A tracked `.env` is always 🔴 -- flag loudly.
 - **Uncommitted or unpushed work.** If the repo treats push as its archive/safety net, unpushed

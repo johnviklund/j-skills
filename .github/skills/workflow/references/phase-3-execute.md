@@ -47,6 +47,9 @@ and the receipt path — commit it, set `Status: awaiting-human`, and close with
 the human: the one action, the handoff path, the receipt path. On resume, read the receipt and
 check every acceptance line against its literal values; a mismatch is a failed `Verify`, reported
 like any other. A human-run step that failed gets a new receipt, never an edited one.
+Receipts hold the numbers that prove an acceptance line (counts, checksums, the command and its
+exit), not the data: bulk output stays outside the repo and the receipt names its path, row count
+and checksum — later phases never read a receipt larger than a few KB.
 
 Then the next ready ticket, in the same session while the context meter is under about half and
 the ticket's lane maps to the model already running. Otherwise close with the card naming that
@@ -70,8 +73,17 @@ Current ticket and status · one `T# @ <sha>` line per committed ticket (the fre
 these) · `writer: <model>` · baseline failures that pre-exist · exact
 signatures, column names and contract versions in flight · uncommitted files · pending decision.
 It is a re-ground block: after any reset or compaction, read it before touching the next ticket.
-A contract ticket mid-flight gets finished and committed before a reset. `<model>` is read, not
-recalled (*Name the running model from a record* in `SKILL.md`).
+A contract ticket mid-flight gets finished and committed before a reset.
+
+**Name the running model from a record, not memory** — a model's recall of its own name lags its
+version (GPT-6.1 Sol calls itself GPT-6). Read the exact ID the harness context states; else the
+CLI config (Codex: `model` in `~/.codex/config.toml`; an in-session `/model` switch overrides it);
+else ask. Write only the model, as `ROUTING.md`'s seat mapping names it (`GPT-6.1 Sol`,
+`Opus 5.5`) — never the CLI, product or vendor. `Writer:` lines, worklog headings and the vendor
+check in review all read it.
+
+**Effort follows risk.** Before raising effort on a struggling ticket, sharpen its acceptance
+lines — a clearer bar beats more thinking.
 
 Append learnings to `learnings.md` as they happen (`references/learning-worklog.md`).
 
@@ -79,4 +91,5 @@ An autonomy loop (a CLI mode that drives every ticket without re-prompting) runs
 human asks for it, and contract tickets still get their diff approved inside it.
 
 Close with the closing card from `SKILL.md`: the next ready ticket (`workflow execute <slug>`),
-the human's action for an `awaiting-human` ticket, or `workflow review <slug>` once every ticket is done.
+the human's action for an `awaiting-human` ticket (`**Model:** human — <the one action>`, **Reads:**
+the handoff), or `workflow review <slug>` once every ticket is done.

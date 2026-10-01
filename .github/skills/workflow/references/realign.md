@@ -65,7 +65,7 @@ Use only verifiable evidence:
 
 - commits in the range, opening their diffs when subjects are not sufficient;
 - relevant `WORKLOG.md` entries as leads, confirmed against a commit or shipped behavior;
-- `TODO.md`'s Archived section as another lead, likewise confirmed;
+- `grep` of `TODO_ARCHIVE.md` and `ROADMAP_ARCHIVE.md` for the in-scope docs' terms as another lead, likewise confirmed;
 - observable current behavior in source, tests, configuration, and user-facing documentation.
 
 Every proposed statement or redline must cite a commit SHA, a worklog entry plus its confirming
@@ -124,7 +124,7 @@ the worklog receipt is committed, record the final outcome and set the artifact 
 
 ## Boundaries and completion output
 
-This command never writes `ROADMAP.md`, `TODO.md`, implementation code, or any workflow phase
+This command never writes `ROADMAP.md`, `TODO.md`, the `*_ARCHIVE.md` files, implementation code, or any workflow phase
 artifact other than its own receipt. It neither invents direction nor turns deferred questions
 into commitments.
 

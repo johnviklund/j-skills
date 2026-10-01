@@ -28,10 +28,11 @@ questions can wait; identity questions cannot.
 |---|---|---|
 | `PRODUCT.md` | **The north star**: current state + desired end state, product purpose, users, core objects, workflows, principles, vocabulary, anti-goals | Synthesized from the PRD — the PRD's durable truth lands here |
 | `DESIGN.md` | The UI/design system | Synthesized if the PRD implies a UI; otherwise a two-line stub ("no UI yet; create on first UI work") |
-| `AGENTS.md` | Operating rules for coding agents: the doc-layer model (this table), write scopes, command contracts, and a **Verifying your work** block | Written fresh; includes this ownership table and the verification block below |
-| `ROADMAP.md` | **The sequence**: phased initiatives to implement the PRD, each sized to be one future workflow run (brainstorm→wrap) | Derived from the PRD's scope; items point at `PRODUCT.md`, never restate it |
+| `AGENTS.md` | Operating rules for coding agents: the doc-layer model (this table), write scopes, command contracts, and a **Verifying your work** block | Written fresh; includes this ownership table (with each doc's read tier from `SKILL.md` Grounding — `*_ARCHIVE.md` are grep-only) and the verification block below |
+| `ROADMAP.md` | **The sequence**: open and next initiatives only (target ≤ ~12 KB), each sized to be one future workflow run (brainstorm→wrap) | Derived from the PRD's scope; items point at `PRODUCT.md`, never restate it. Completed steps move to `ROADMAP_ARCHIVE.md` at wrap |
 | `MEMORY.md` + `memory/` | `MEMORY.md` is the index; each durable pattern is a page in `memory/<slug>.md` (shape in `references/learning-worklog.md`) | **Created empty** except a header explaining the entry schema and what does/doesn't belong |
-| `TODO.md` | Intake scratchpad for ideas between runs — never a roadmap | **Created empty** except its header rule ("don't implement just because it's listed") and section skeleton |
+| `TODO.md` | Intake scratch pad for ideas between runs, one short line each (target ≤ ~10 KB) — never a roadmap | **Created empty** except its header rule ("don't implement just because it's listed") and skeleton: idea sections, `## Open Questions`, `## Review deferrals`, and `## Archived` holding one line — `Archived items: see TODO_ARCHIVE.md (grep it).` |
+| `TODO_ARCHIVE.md`, `ROADMAP_ARCHIVE.md` | Where wrap moves completed/brainstormed TODO items and completed roadmap steps, original wording kept with a pointer to the run or commit | **Created empty** with a header: "history; never read by default — `grep` it" |
 | `README.md` | Short orientation: what this is + a pointer table to the docs above | A page, not a spec |
 
 Boundary rules that make the set stable: `PRODUCT.md` holds *what and why* (current + desired
@@ -73,7 +74,7 @@ context — from here on, the normal cycle owns everything.
 
 ## Afterwards
 
-- ROADMAP.md status updates belong to wrap's product-doc step: items a run completed get
-  checked off there, with the same boundaries (point at commits, don't grow prose).
+- ROADMAP.md status updates belong to wrap's product-doc step: steps a run completed move to
+  `ROADMAP_ARCHIVE.md` there, with the same boundaries (point at commits, don't grow prose).
 - Re-running bootstrap on a bootstrapped repo is an error — refuse and point at `workflow
   brainstorm` / `workflow todo` instead.
