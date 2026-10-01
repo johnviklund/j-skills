@@ -7,8 +7,8 @@ oldest when appending would exceed that.
 
 ## 2026-10-01 · docs refresh, MIT license, workflow v2.1.1 context budget · Sonnet 5.5
 - READMEs brought in line with the real wiring (direct symlinks into both CLIs, `j-skills` plugin
-  name, lowercase paths, memory pages); MIT `LICENSE` added; the v3 roadmap emptied after `jflow`
-  moved to its own repo.
+  name, lowercase paths, memory pages); MIT `LICENSE` added; the roadmap emptied (no
+  planned work).
 - v2.1.1 cut per-run grounding cost: tiered reads, short `wrap.md` for done runs, `review.md`
   `## Resolved` table, one-line TODO intake, `TODO_ARCHIVE.md`/`ROADMAP_ARCHIVE.md` convention with
   size flags, `ROUTING.md` split into card rows and `ROUTING-NOTES.md`. Trialing (see `SKILL-IMPACT.md`).

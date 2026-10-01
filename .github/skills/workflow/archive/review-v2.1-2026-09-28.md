@@ -139,8 +139,7 @@ plan derive them and put them to you in the ticket round.
 - Skill descriptions are always loaded. The `workflow` one is shorter now; `checkup` and
   `memory.remember` carry long trigger lists. Matt's `disable-model-invocation` would zero them, but
   the README notes Copilot invokes skills by description match, so shortening is the portable fix.
-- `ROADMAP.md` v3 already says "plan → testable work units, implement one ticket". v2.1 builds that
-  ticket shape now, so it carries into jflow rather than being thrown away.
+- v2.1 builds the "plan → testable work units, implement one ticket" shape now.
 
 ## Amendments after a history review (2026-09-28)
 
