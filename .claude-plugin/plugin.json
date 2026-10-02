@@ -1,7 +1,7 @@
 {
   "name": "j-skills",
-  "version": "0.9.1",
-  "description": "Global, cross-repo agent skills: capture durable session learnings (memory.remember), periodically compact MEMORY.md (memory.compact), run a personal five-phase dev workflow (workflow), run a read-first workspace health check (checkup), and grade candidate models against eval golden sets (evals).",
+  "version": "0.10.0",
+  "description": "Global, cross-repo agent skills: capture durable session learnings (memory.remember), periodically compact MEMORY.md (memory.compact), run a personal five-phase dev workflow (workflow), run a read-first workspace health check (checkup), grade candidate models against eval golden sets (evals), and run a session retrospective that proposes environment fixes (retro).",
   "author": {
     "name": "johnviklund"
   },
@@ -12,6 +12,7 @@
     "learnings",
     "skills",
     "workflow",
-    "evals"
+    "evals",
+    "retro"
   ]
 }

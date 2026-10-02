@@ -267,6 +267,8 @@ reviewer exam (`evals.run reviewer`), or removing anything that could carry unsa
   and recommends routing edits it never applies.
 - `evals.run reviewer` — owns the one exam (reviewer recall on ≤8 diffs); checkup only audits
   that set and flags an unchecked reviewer.
+- `retro` — owns the per-session look at friction (what one run or session cost); checkup owns the
+  standing state of the workspace. A retro hands hygiene it notices to `checkup`.
 
 Keep this skill's `description` under ~900 characters (it enforces that rule on others -- it must
 pass its own check).

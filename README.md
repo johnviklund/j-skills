@@ -30,6 +30,13 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
 - **`evals`** — `evals.run reviewer [candidate model]` is a recall check for strict-reviewer
   candidates on ≤8 diffs with known P0/P1 findings deposited by `workflow`; `evals.list` shows the
   set's status. Every other seat is judged on trial runs recorded in `WORKLOG.md`, not exams.
+- **`retro`** — `retro [slug | session id]`: a retrospective on one session or `.workflow` run.
+  Finds where the agent lost time and proposes environment fixes (navigation pointers,
+  guardrails, review rules, steering weight, tool economy, information access, skill friction),
+  ranked, each routed to its owner (`memory.remember`, `workflow todo`, `checkup`, or you for
+  global files). Adapted from [Matt Pocock's `retro`](https://github.com/mattpocock/skills/tree/main/skills/engineering/retro)
+  (MIT, © 2026 Matt Pocock). Depends on his `writing-for-agents` skill, installed separately
+  from upstream (see *External dependencies*).
 
 ## How this repo is wired up
 
@@ -38,7 +45,7 @@ This repo is `johnviklund/j-skills`. The plugin manifest (`.claude-plugin/plugin
 folder is still called `agent-skills` (from before the rename) — paths below use that folder name.
 
 `.github/skills/` is the canonical source for the skill content (`checkup`, `evals`,
-`memory.compact`, `memory.remember`, `workflow`). The clone lives at
+`memory.compact`, `memory.remember`, `retro`, `workflow`). The clone lives at
 `~/Documents/projects/skills/agent-skills`, and every consumer is a symlink straight to it — no
 copies, no reinstall, no drift:
 
@@ -59,6 +66,15 @@ during an "update all" pass. If a skill stops picking up edits, run `ls -la ~/.a
 if it's a directory again, restore it with
 `ln -sfn ~/Documents/projects/skills/agent-skills/.github/skills/<name> ~/.agents/skills/<name>`
 (and the same for `~/.codex/skills/<name>`).
+
+### External dependencies
+
+`retro` invokes `writing-for-agents` from
+[`mattpocock/skills`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents).
+It is not vendored here: the multi-source installer keeps it in `~/.agents/skills/writing-for-agents`
+and updates it from upstream, so there is one copy and no name collision. Codex gets it through a
+symlink: `ln -s ~/.agents/skills/writing-for-agents ~/.codex/skills/writing-for-agents`. Without
+it, `retro` still runs and says the guide is missing.
 
 ### Updating a skill
 
