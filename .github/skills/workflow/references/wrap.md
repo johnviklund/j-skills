@@ -104,7 +104,7 @@ Commit, push, curate, and clean up — in one go:
    (a P0/P1 missed by the writer or by the reviewer), write one self-contained case to
    `evals/strict-reviewer/code-review-<YYYY-MM-DD>-<slug>.md` — the diff copied in (never a
    `.workflow/` path), the P0/P1 findings a pass must name (one line each), and provenance (date,
-   sha, which model missed it). **Cap 8, rolling:** if the set is full, replace the weakest case
+   sha, which model missed it). **Cap 10, rolling:** if the set is full, replace the weakest case
    or skip — never append past the cap. Commit with the rest.
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.

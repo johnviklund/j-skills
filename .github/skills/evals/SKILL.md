@@ -3,7 +3,7 @@ name: evals
 description: >
   A recall check for strict-reviewer candidates, run only before swapping that seat: "evals.run
   reviewer [vendor model effort]" shows the candidate each diff in evals/strict-reviewer/ (at
-  most 8) and records which planted P0/P1 findings it named; "evals.list" shows the set's
+  most 10) and records which planted P0/P1 findings it named; "evals.list" shows the set's
   status. No other seat is examined — models earn every other seat on trial runs recorded in
   WORKLOG.md. Trigger only on explicit "evals.run ..." or "evals.list" invocations, never on
   casual mentions of evals or testing. Never edits the workflow skill or product code.
@@ -12,7 +12,7 @@ description: >
 # evals
 
 One exam, one seat. `workflow` deposits a case at wrap only when a reviewer or writer *missed* a
-P0/P1 (`evals/strict-reviewer/code-review-*.md`, cap 8). Every other seat — brainstorm, plan,
+P0/P1 (`evals/strict-reviewer/code-review-*.md`, cap 10). Every other seat — brainstorm, plan,
 execution lanes — is judged on trial runs: the worklog's `Run:`/`Seats:` lines, compared by
 `checkup`. This skill exists because a reviewer miss is the expensive kind, and a diff with known
 findings is a cheap, honest exam of exactly that.
@@ -22,7 +22,7 @@ Run it before giving a new model the strict-reviewer seat, and not otherwise. Th
 ## Commands
 
 - `evals.run reviewer [<vendor> <model> <effort>]` — ask for the candidate if not given.
-- `evals.list` — read-only: cases present (≤8), any that are not self-contained, last exam result.
+- `evals.list` — read-only: cases present (≤10), any that are not self-contained, last exam result.
 
 ## Procedure — `evals.run reviewer`
 
@@ -49,5 +49,5 @@ convinces them, and only a 100% recall on a set of ≥3 cases should.
 ## Ground rules
 
 - **Writes only `evals/strict-reviewer/RESULTS.md`.** Never edits cases, the workflow skill, or code.
-- **Bounded.** ≤8 cases, one seat, one candidate per invocation.
+- **Bounded.** ≤10 cases, one seat, one candidate per invocation.
 - **Provenance.** Exact model and effort, never a family name.

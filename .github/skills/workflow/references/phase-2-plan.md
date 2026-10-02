@@ -50,6 +50,9 @@ Every ticket is a **tracer bullet**:
   - **The reached surface.** The seam is where a user or consuming code actually sees the result:
     a UI line drives a rendered page or component with a live importer; a producer line validates
     the real output against the consumer's contract model, not the producer's own dict.
+  - **Inherited semantics.** A ticket adding a read surface over existing records asserts, per
+    existing consumer, each state and label it honours (archived, knowledge/authority) and every
+    error exit it must keep.
 
 Give each ticket its **blocked-by** edges — the tickets that genuinely gate it — and its **lane**
 (mechanical · logic · contract · operator), which picks the executor seat.
