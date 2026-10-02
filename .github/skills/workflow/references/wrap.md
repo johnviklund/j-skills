@@ -49,6 +49,10 @@ Commit, push, curate, and clean up — in one go:
    doc/scratch paths. **Commit discipline:** use session-level messages that read as a
    worklog line on their own (what shipped + why), not terse "fix" stubs — the commit log is the
    portable backtrack record, so make it carry the narrative.
+3a. **Capture gate** — if `review.md`/`plan.md` or the run folder records two or more failed
+   receipts (failed attempts, reruns, repair tickets), and `learnings.md` is missing, write
+   `[durable→memory]` lines for the cause of each before step 4; "nothing to route" is valid only
+   with no failed receipt.
 4. Invoke `memory.remember` to route every tagged line in `.workflow/<slug>/learnings.md` not yet
    marked `[routed → …]` to its destination (a `memory/` page, `AGENTS.md`, `README.md`, an
    existing or new skill, `DESIGN.md`); it marks each routed line and never counts a run twice.
