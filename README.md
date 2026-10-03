@@ -40,6 +40,8 @@ Use it after a finished run, or when you want to learn one part of a codebase.
 - When a run changed what users see, the page shows before and after screenshots. Changes nobody
   asked for come first, marked in red.
 - Every claim links to a line of code or a commit, and a checker confirms each link.
+- To explain why code looks the way it does, it also reads the review comments on the pull
+  requests that shaped it.
 - The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
   an area.
 

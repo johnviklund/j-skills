@@ -46,6 +46,12 @@ depends on another open question in the round (density before layout) waits for 
   ➡️ <recommended answer, one line on why>
 ```
 
+- **Restate first.** Round 1 opens with **Problem, as I read it**: 2–3 plain lines, in your own
+  words, on what is wrong or wanted and for whom: the symptom, who meets it, how to see it. It
+  comes before any finding or question, so a misread is caught before it shapes the round. A
+  pasted thread, issue or bug report is compressed to that, red herrings dropped. The human's
+  guesses about cause or fix are hypotheses: leave them out of the restatement and check them
+  like any claim. A correction to it is the first answer of round 1.
 - **Facts are yours, decisions are the human's.** Anything the code, docs, git or a read-only query
   of the data can answer, look up (a read-only sub-agent may do it) and state as a finding; only ask
   a question whose answer is a choice. A fact you can only get by running something (how it
@@ -102,7 +108,9 @@ costs the human a round and asks the question twice. A prototype needs the run f
   `screens/p#-<variant>.jpg`, through the repo's verify skill (`.agents/skills/verify-*/`) when
   the sketch runs in the app. With no way to take a screenshot, the question names the file to
   open and the switcher's keys (`open prototypes/P1-density/index.html` · keys 1–3). Behaviour or timing: the printed output, or the measured number
-  and how many runs it took. The observation is the test.
+  and how many runs it took. The observation is the test. For a web page, a headless browser is
+  the matching surface (`chromium --headless`, `google-chrome --headless`, Playwright): run
+  `command -v` for each before calling a measurement impossible.
 - **Bounded.** Two attempts that show nothing → report it inconclusive with what it did show,
   and ask the question plainly. At most three prototypes per brainstorm; more means two runs.
 - **Recorded.** `notes/P#-<topic>.md`, ≤ 10 lines: the question, the variants, evidence paths,

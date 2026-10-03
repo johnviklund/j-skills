@@ -23,6 +23,12 @@ Review answers two questions, kept apart so one can't hide the other:
   consumer, run live queries. Look for missing error handling, data loss, resource leaks, security
   flaws, and logic that defeats the feature's own guarantee (a gate that can never fire). In any
   test the run didn't create, count assertions before and after; an unexplained drop is a P1.
+  **Escape hatches are design evidence:** a new `any`, forced cast, non-null assertion or
+  suppressed type or lint check, the same workaround at two or more unrelated call sites, or an
+  optional field that is always set in practice says the design is wrong where the code is
+  merely awkward. Report it as a P2 naming the design flaw, not the line (the type that should
+  carry the fact, the boundary that should parse it); P1 when it breaks a behaviour. A hatch at a
+  boundary that parses outside data is fine.
 
 ## Severity — the bar that keeps cycles short
 
@@ -76,8 +82,11 @@ After setting `Status: complete` (and after writing a `patch_plan.md`), run `pyt
 ERROR: dispositions, P0/P1 deferral approvals, the verdict and the patch tickets are all checked
 there.
 
-Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Two
-mechanical checks always run: nothing outside `.workflow/` references it
+Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Three
+mechanical checks always run. The escape-hatch scan lists every hatch the diff adds; read each
+hit against the rule under *Defects*:
+`git diff <plan Base>..HEAD -U0 -- . ':(exclude).workflow' | grep -nE '^\+[^+].*(: any\b|<any>|as any\b|as unknown as|@ts-(ignore|expect-error|nocheck)|eslint-disable|# type: ignore|# noqa|\bcast\(|\bunsafe\b|\.unwrap\(\)|//\s*nolint|[A-Za-z0-9_)\]]!\.)'`.
+Second, nothing outside `.workflow/` references it
 (`grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
 P1), and the full test suite — unless the receipt-rule diff `<plan Base>..HEAD` (`SKILL.md`) is
 empty, in which case that empty diff is the regression proof.

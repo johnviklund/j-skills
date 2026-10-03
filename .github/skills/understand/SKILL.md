@@ -47,9 +47,17 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
      behaviours. This skill reads a done run in full; the workflow's "`wrap.md` alone" rule
      governs later runs' grounding, not this.
    - **Area:** entry points and the path a request or record takes through them; the tests that pin
-     the behaviour; `git log --oneline -20 -- <paths>`; done runs that touched it
+     the behaviour; `git log --oneline -20 -- <paths>`, traced back past the latest commit
+     (`git log --follow`), because the current shape is often several decisions old; done runs that touched it
      (`grep -l '<path>' .workflow/*/wrap.md`, their `wrap.md` only); `PRODUCT.md`/`DESIGN.md` by
      heading, the sections naming the area; `memory/` pages whose `Applies when` matches.
+   - **Why, from review** (both): for the commits that shaped the cited code, find their PRs (`(#N)`
+     in the subject, or `gh pr list --state merged --search <sha>`) and read the body and review
+     discussion with `gh pr view N --json title,body,comments,reviews`. Reviewers often wrote down
+     the trade-off the code never states. Cite a PR by its merge commit (`data-sha`) with `href`
+     to the PR, so the checker still verifies it. A reason found only in discussion is stated as
+     the author's stated intent, not as fact. No `gh`, no remote, or no PR: say "PR discussion
+     not searched" under *Open questions & risks*.
    - **Screens changed** (slug): UI files in the run's diff — components, pages, styles, templates;
      tests excluded. Map each to the screen a user reaches and to the B# or ticket that asked for
      it. A visible change no behaviour or acceptance line asked for is **unrequested**.
@@ -96,8 +104,8 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
      one diagram and two short paragraphs.
    - **What changed** (slug only) — before/after in behaviour terms (from the B# list, as shipped),
      then a table of ticket → what it did → commit cite.
-   - **Decisions** — from the brief, `## Deviations` and review: the choice, why, the rejected
-     alternative.
+   - **Decisions** — from the brief, `## Deviations`, review and PR discussion: the choice, why,
+     the rejected alternative.
    - **Open questions & risks** — review deferrals, related `TODO.md` lines, out-of-scope items,
      known fragility, any claim you could not verify, and any doc statement the code contradicts.
    - **Glossary** — every repo term the page uses, `PRODUCT.md` vocabulary first.
