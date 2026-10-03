@@ -81,8 +81,8 @@ state gets named and asked about; `workflow spec` is retired — route to `workf
 ## Talking to the human (every phase)
 
 **The artifact is the record; chat is the receipt** (the human reads on a phone). Everything the
-human reads, in chat and in run artifacts, follows the `plain` skill's
-[`rules.md`](../plain/rules.md); ids, commands, paths and the artifacts' fixed line formats stay as
+human reads, in chat and in run artifacts, follows the Rules of the `plain` skill: invoke it
+once per phase before writing. Ids, commands, paths and the artifacts' fixed line formats stay as
 they are. Above the closing card, a phase prints at most ~12 lines:
 
 - **Result** — what the phase did, ≤3 plain lines.

@@ -5,7 +5,7 @@ Errors (exit 1): leftover {{placeholders}}; a network-loaded resource; no citati
 whose commit, file or line range does not exist in the repo; a diagram that is not well-formed
 SVG or has no viewBox; a local <img> whose file is missing.
 Warnings: images over ~400 KB, sentences over 25 words, paragraphs over 6 sentences, em dashes or
-parentheses in prose (limits from the plain skill's rules.md), file size,
+parentheses in prose (limits from the plain skill's Rules), file size,
 diagram shapes outside their viewBox, a viewBox wider than the text column, or a width
 attribute that does not match the viewBox.
 

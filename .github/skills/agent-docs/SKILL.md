@@ -8,9 +8,9 @@ description: >
 
 Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.
 
-When the document you're writing is a skill, read [`SKILL-MECHANICS.md`](SKILL-MECHANICS.md) for frontmatter, invocation choice, router skills, and the j-skills conventions.
+When the document you're writing is a skill, also read *Skill mechanics* at the end: frontmatter, invocation choice, router skills, and the j-skills conventions.
 
-Text a **person** reads (a report, a card, a decision, an explainer, a README) follows the `plain` skill's `rules.md` instead. A document with both audiences, such as a skill's output template, applies this skill to the instructions and `plain` to the template.
+Text a **person** reads (a report, a card, a decision, an explainer, a README) follows the Rules of the `plain` skill instead. A document with both audiences, such as a skill's output template, applies this skill to the instructions and `plain` to the template.
 
 ## Context pointers
 
@@ -61,7 +61,7 @@ The strongest criteria are both checkable and exhaustive.
 Splitting one document into two spends one of the two loads, so split only when the cut earns it:
 
 - **By sequence**: split a run of steps where the post-completion steps tempt the agent to rush the one in front of it. Keeping them out of view drives more legwork on the current task. Beware the reverse: merging sequences exposes each step's later steps to what follows, inviting premature completion.
-- **By invocation**, skill-specific: see [`SKILL-MECHANICS.md`](SKILL-MECHANICS.md).
+- **By invocation**, skill-specific: see *Skill mechanics*.
 
 ## Leading words
 
@@ -84,3 +84,36 @@ You win twice: fewer tokens, and a sharper hook for the agent to hang its thinki
 - The **environment** is a source of truth too (`package.json` scripts, config files, the directory layout, `--help` output), and a document that restates it is a **cache**: a copy of a lookup, earning its load only when the lookup is expensive. Cache what the agent cannot find by looking: the unwritten convention, the reason behind a choice, the gotcha no config confesses. Leave the one-file, one-command lookups to the environment, where they cannot go stale.
 - Check every line for **relevance**: does it still bear on what the document does? A line loses relevance by never bearing on the task (mere exposition, or a branch that should be disclosed) or by going stale as the behaviour or world it describes changes. Shorter documents are easier to keep relevant. Without a pruning discipline the default fate is **sediment**: stale layers that settle because adding feels safe and removing feels risky, until you must core down through them to find what is still live.
 - Hunt **no-ops** sentence by sentence: an instruction the model already obeys by default pays load to say nothing. The test (does it change behaviour versus the default?) is model-relative, not reader-relative: two people disagreeing about a no-op disagree about the default, and settle it by running the document, not by debate. When a sentence fails, delete the whole sentence rather than trim words from it. The test also grades leading words: a word too weak to beat the default (_be thorough_ when the agent is already thorough-ish) is a no-op, and the fix is a stronger word (_relentless_), not a different technique.
+
+## Skill mechanics
+
+What changes when the document is a skill.
+
+### Invocation
+
+Two choices, trading the two loads:
+
+- A **model-invoked** skill keeps a `description`, so the agent can fire it autonomously, and other skills can reach it. You can still type its name: model-invocation always _includes_ user reach; a description only ever adds agent discovery, never removes the human's. The description is the skill's top-level context pointer, forced to stay loaded at all times: permanent context load in exchange for discoverability. A model-invoked skill whose content is all reference is also one home for shared reference: another skill can invoke it, so reference needed by several skills lives in one place. Mechanics: omit `disable-model-invocation`, and write a model-facing description carrying the trigger branches (the pointer-writing rules above apply in full).
+- A **user-invoked** skill strips the description from the agent's reach: only the human typing its name can invoke it, and no other skill can. Zero context load, but it spends cognitive load: you are the index that must remember it exists. Mechanics: set `disable-model-invocation: true`; the `description` becomes human-facing: a one-line summary, trigger lists stripped.
+
+Pick model-invocation only when the agent must reach the skill on its own, or another skill must. If it only ever fires by hand, make it user-invoked and pay no context load.
+
+Shared reference that two user-invoked skills both need can live in neither: with no descriptions, neither can fire the other. Push it to a plain file outside the skill system: external reference any skill can point at.
+
+### Splitting by invocation
+
+The invocation cut of splitting (the sequence cut is in *When to split*): split off a model-invoked skill when you have a distinct leading word that should trigger it on its own (a trigger word you actually use in your prompts), or another skill must reach it. You pay context load for the new always-loaded description, so that independent reach has to be worth it.
+
+### Router skills
+
+When user-invoked skills multiply past what you can remember, that piled-up cognitive load is cured by a **router skill**: one user-invoked skill that names the others and when to reach for each, so the human has one skill to remember instead of many. It can only hint, never fire them: user-invoked skills have no description, so nothing but the human can reach them.
+
+### j-skills conventions
+
+What this repo has measured or settled, on top of the reference above:
+
+- **Explicit-trigger descriptions.** A j-skill that should fire only when typed still keeps a model-facing description and ends it with "Run only on an explicit `<name>` message; never on casual mentions of ...". It does not set `disable-model-invocation`, so for a j-skill this replaces the user-invoked choice in *Invocation*. A skill meant to fire on phrases, like `plain`, lists those phrases instead.
+- **Description under ~900 characters.** Copilot CLI silently dropped a skill whose description was around 1033 to 1078 characters: it loaded with no error and left that one skill out of `copilot skill list`. After adding or editing a skill, check that it registered with `copilot skill list --json`.
+- **Shared reference lives in one skill's `SKILL.md`.** When several skills need the same rules, one skill owns them and the others invoke it by name, as every skill that writes for a person invokes `plain`. No skill keeps a copy. Keep the shared part in `SKILL.md` itself, not a sibling file: measured 2026-10-03 on Copilot CLI 1.0.91, the skill tool loads another skill's `SKILL.md` freely, but reading a sibling file in the skill folder needs a path permission, which a non-interactive run cannot ask for.
+- **No external skills.** A j-skill names only j-skills. `checkup` flags any other skill name as a dead reference.
+- **Every change is logged.** A skill change gets a row in `workflow/SKILL-IMPACT.md` and is judged on the runs that follow, not by review alone.

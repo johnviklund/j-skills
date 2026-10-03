@@ -19,9 +19,9 @@ scope; the friction it hit is the subject.
 
 ## Steps
 
-1. **Load the writing guides.** Read the `agent-docs` skill: its vocabulary (context pointer,
-   no-op, sprawl, cache, single source of truth) is how candidates are judged and worded. The
-   report to the human follows the `plain` skill's [`rules.md`](../plain/rules.md).
+1. **Load the writing guides.** Invoke the `agent-docs` skill: its vocabulary (context pointer,
+   no-op, sprawl, cache, single source of truth) is how candidates are judged and worded. Invoke
+   the `plain` skill too: the report to the human follows its Rules.
 
 2. **Read the primary sources.** Done when every **friction point** is located with an evidence
    pointer (transcript turn, `file:line`, or sha): a retried or failed command, a search that took

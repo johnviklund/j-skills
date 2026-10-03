@@ -124,15 +124,14 @@ the human) · `open <path>` to read it.
 
 ## Writing
 
-Prose follows the `plain` skill's [`rules.md`](../plain/rules.md): read it before step 5 and apply
-every rule. Two additions for this page:
+Prose follows the Rules of the `plain` skill: invoke it before step 5 and apply every rule. Two additions for this page:
 
 - Put each term the page keeps in the Glossary, `PRODUCT.md` vocabulary first.
 - Technical names stay in `code`; the rules apply to the prose around them.
 
 `scripts/check-explainer.py` enforces the rules it can count: 25 words per sentence, six
 sentences per paragraph, no em dashes, no parentheses in prose. If those limits change in
-`rules.md`, change the checker's constants in the same commit.
+`plain`, change the checker's constants in the same commit.
 
 ## Look — simple and beautiful
 

@@ -43,14 +43,14 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   risks, and for a run a what-changed summary. Every claim cites `file:line` or a commit, and a checker
   verifies each cite against git. Written to `.workflow/<slug>/understand/explainer.html` or
   `docs/understand/<topic>/explainer.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
-- **`plain`** is the single source of the plain-language rules, in `plain/rules.md`. Every
-  skill that writes for a person points there. Typed or triggered on "in simple terms", "plain
+- **`plain`** is the single source of the plain-language rules, in the *Rules* section of its
+  `SKILL.md`. Every skill that writes for a person invokes it. Typed or triggered on "in simple terms", "plain
   English" or "wait, what?", it explains the topic or the last message for someone who just
   switched into the project. On "remove AI patterns" or "unslop", it rewrites text or a file and
   keeps every fact. Rules adapted from `unslop` and from `understand`'s STE section.
 - **`agent-docs`** is the reference for writing documents agents read: skills, `AGENTS.md`,
   `CLAUDE.md` and memory pages. It covers context pointers, the two loads, progressive
-  disclosure, leading words and pruning, plus the j-skills conventions in `SKILL-MECHANICS.md`.
+  disclosure, leading words and pruning, plus skill mechanics and the j-skills conventions.
   Ported from [Matt Pocock's `writing-for-agents`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents)
   (MIT, © 2026 Matt Pocock).
 
@@ -67,7 +67,7 @@ is nothing to reinstall and nothing to drift:
 | Where | Read by | Link |
 |---|---|---|
 | `~/.agents/skills/<name>` | Copilot CLI | → `~/Work/j-skills/.github/skills/<name>` |
-| `~/.codex/skills/<name>` | Codex CLI, which does not read `~/.agents/skills/` | same target |
+| `~/.codex/skills/<name>` | Codex CLI. Codex 0.160 also reads `~/.agents/skills/`, but keep the link | same target |
 | `~/.claude/skills/<name>` | Claude Code | same target |
 | `skills/<name>` in this repo | Claude Code plugin discovery | → `../.github/skills/<name>` |
 
