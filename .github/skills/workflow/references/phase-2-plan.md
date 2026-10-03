@@ -96,7 +96,10 @@ Before setting `complete`, run every `Verify:` command as it stands and record i
 `pre:` — the command must execute. A test file the ticket will create doesn't exist yet: point the
 command at it anyway and record `pre: new file` (the runner's "file or tests not found" exit is
 expected here and only here); the runner itself must be found. A runner that is not found (exit 127)
-is a plan defect. Operator tickets record `pre: no receipt`.
+is a plan defect. Operator tickets record `pre: no receipt`. Then set `Status: complete` and run
+`python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder): fix every ERROR and rerun until none is left. It checks the ticket fields, budgets, that
+every behaviour has a ticket and that blocked-by has no cycle, so the audit spends its attention
+on judgement.
 
 ```markdown
 Command: workflow plan <slug>

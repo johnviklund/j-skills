@@ -16,6 +16,9 @@ is empty) — receipt commits such as the review itself are
 fine, any code commit is not. If it's missing or stale, don't lecture that review "hasn't run" —
 say the evidence is missing/stale and print the closing card routing to `workflow review`.
 
+**Precondition — the run checks out.** `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR and no open `fix now` finding
+(its note on `review.md` says which). An ERROR names the artifact to fix and the phase that owns it.
+
 **Precondition — clean code tree.** Then run `git status --porcelain`. Every modified or untracked
 path must be a receipt (per `SKILL.md`'s receipt rule) or `.gitignore`; a script, config, or data file
 anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never saw: stop,
@@ -143,7 +146,8 @@ Commit, push, curate, and clean up — in one go:
    --exclude-dir=.workflow --exclude-dir=.git .`); a hit means it is load-bearing — leave it exactly where it is and tell
    the human. A run folder is history: it is never emptied, never renamed, never reused.
 
-   Commit the archive and push it, so the tree the next run re-grounds from is the tree that's
+   Rerun the checker after 9a (the run is now `done`): no ERROR, and its warnings named in the
+   receipt. Commit the archive and push it, so the tree the next run re-grounds from is the tree that's
    in git. `.workflow/` is tracked — if this repo ignores it, stop and say so; a run archive that
    lives on one machine is not an archive.
 

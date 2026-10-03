@@ -92,8 +92,8 @@ The top level holds only the artifacts; subfolders appear when first needed.
 Runs are tracked in git and never deleted: after wrap the folder is the run's history, readable
 by anyone (or any agent) later. Grounding only ever reads live runs, so the archive costs nothing.
 
-Two rules keep the archive honest. **Receipts vs code:** `*.md`/`*.txt` and a run's `screens/` and
-`understand/` are receipts; anything
+Two rules keep the archive honest. **Receipts vs code:** `*.md`/`*.txt` and a run's `screens/`,
+`prototypes/` and `understand/` are receipts; anything
 else — a script in `.workflow/`, a config in `docs/` — is code, must be reviewed, and can't ship
 through wrap's commit. **Freshness is per file, not per ancestry:** a plan is stale when any file
 it names changed since its `Base` (other than by its own ticket commits), which is exactly what happens to
@@ -107,6 +107,7 @@ a parked plan — it gets re-audited, not executed.
 | `ROUTING.md` | **Your mapping**: seat → (vendor · model · effort · context), trial column, fallbacks, phase → effort/approval. Small on purpose: the closing card reads it every phase | **Yes — this is the whole setup** |
 | `ROUTING-NOTES.md` | How models earn seats, the upkeep loop, mode notes — read only by `checkup` | Yes (rarely) |
 | `references/*.md` | Full instructions per command, loaded one-per-invocation | No |
+| `scripts/check-run.py` | Checks a run folder against the shapes in `SKILL.md` and `references/`: headers, budgets, ticket fields, behaviour coverage, review dispositions, layout. Phases run it before marking an artifact `complete`; `checkup` runs it with `--all` | No |
 | `SKILL-IMPACT.md` | Log of every change to these skills and what the runs after it showed; `Mode:` line sets whether skill edits are autonomous or approved | Yes (mode line; accept/reject rows) |
 
 `SKILL.md` and `references/` contain no vendor names by design, and no file in the skill names a

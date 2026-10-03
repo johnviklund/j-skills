@@ -72,6 +72,10 @@ Independence: cross-vendor | same-vendor (degraded)
 ## Cycle 1 verdict              ← written last; sets Status: complete
 ```
 
+After setting `Status: complete` (and after writing a `patch_plan.md`), run `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) and fix every
+ERROR: dispositions, P0/P1 deferral approvals, the verdict and the patch tickets are all checked
+there.
+
 Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Two
 mechanical checks always run: nothing outside `.workflow/` references it
 (`grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is

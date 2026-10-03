@@ -160,6 +160,9 @@ git log @{u}.. --oneline 2>/dev/null                                      # unpu
 git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.pyc$' 2>/dev/null
 ```
 
+- **Run shape.** In a repo with `.workflow/`, run the workflow skill's checker over every run:
+  `python3 <workflow skill folder>/scripts/check-run.py --all`. Each ERROR on a live run is 🔴;
+  ERRORs and warnings on done runs are ⚠️, counted per run, not listed.
 - **Runs.** List every `.workflow/<slug>/` with its status. A `drafting`/`complete` run with no
   commit touching it in ~14 days is ⚠️ "stalled -- park it or finish it". A `parked` run older
   than ~90 days is ⚠️ "still wanted?". `done` runs are ✅, counted not listed. A run folder

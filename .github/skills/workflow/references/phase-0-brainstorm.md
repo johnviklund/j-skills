@@ -137,7 +137,8 @@ the final round:
   that already exist; use the highest one that can see the behaviour; fewer is better, one is ideal.
 
 The phase is complete when the human confirms the outcome, behaviours and seams — "shared
-understanding" is that confirmation, not a feeling. Too big for one run? Say so, keep this slug to one run's
+understanding" is that confirmation, not a feeling — and, after `Status: complete` is set,
+`python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR. Too big for one run? Say so, keep this slug to one run's
 worth, and recommend `workflow brainstorm <other-slug>` for the rest. Live-operation work splits
 naturally at its human gates: build and prove locally in one run, operate and verify live in the next.
 

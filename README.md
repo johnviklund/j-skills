@@ -55,7 +55,9 @@ Use it for any coding task bigger than a quick fix.
 | Review | Checks the result where users see it. A model from another vendor reviews the code |
 | Wrap | Updates docs and memory, then closes the run |
 
-Each step ends with a card that names the next command and the model to use.
+Each step ends with a card that names the next command and the model to use. Before a step marks
+its file complete, `workflow/scripts/check-run.py` checks the run folder's format, so mistakes
+in headers, tickets or review notes are caught by a script.
 `workflow/ROUTING.md` sets the models, and `workflow/README.md` has the full guide.
 
 ### retro
