@@ -1,7 +1,7 @@
 # understand: the video
 
 Read in step 7 of `SKILL.md`, when the human chose a video in step 2. The video retells the verified page
-as a 3Blue1Brown-style animation: a dark stage, one idea at a time, shapes that move to show
+as a 3Blue1Brown-style animation in the page's own palette: one idea at a time, shapes that move to show
 cause and change, and a calm voice over it. The page stays the source of truth. The video makes
 no claim the page does not make, so the page's cites and fidelity pass cover it too.
 
@@ -32,8 +32,9 @@ that `video/` folder.
    - **Motion means something.** A `flow` pulse is data or a request moving; a `Transform` is a
      state change; `self.swap(before, after)` is the before/after moment on a screenshot, with
      `focus()` boxing the changed region and `tag("unrequested", "risk")` beside it.
-   - **Colour keeps the page's meaning:** blue for structure and the main path, green for new,
-     red for risk or unrequested, gray for the rest. Labels on screen stay at three words or
+   - **Colour keeps the page's meaning:** the kit uses the page's palette and diagram styles,
+     navy for structure and the main path, green for new, red for risk or unrequested, gray for
+     the rest. Use the kit's names (`BLUE`, `GREEN`, ...), never Manim's own colours. Labels on screen stay at three words or
      fewer; the voice carries the sentences.
    - Screenshots come from the output folder's `screens/`, the same files the page shows:
      `screen("screens/x-after.jpg")`.

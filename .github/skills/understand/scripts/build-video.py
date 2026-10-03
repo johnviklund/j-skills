@@ -251,7 +251,7 @@ def stills(video, spans, build, poster):
     rows = -(-len(spans) // cols)
     sheet = build / "contact.jpg"
     run(["ffmpeg", "-y", "-v", "error", "-framerate", "1", "-i", str(frames / "%02d.png"),
-         "-vf", f"tile={cols}x{rows}:padding=8:color=white", "-frames:v", "1", "-q:v", "3",
+         "-vf", f"tile={cols}x{rows}:padding=8:color=0xd3d6d8", "-frames:v", "1", "-q:v", "3",
          str(sheet)], "tiling the contact sheet")
     return sheet
 

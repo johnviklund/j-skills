@@ -13,18 +13,24 @@ import pathlib
 import textwrap
 
 from manim import (DOWN, LEFT, RIGHT, UP, Arrow, Code, FadeIn, FadeOut, Group, ImageMobject,
-                   LaggedStart, Rectangle, RoundedRectangle, Scene, ShowPassingFlash, Text, VGroup,
+                   LaggedStart, Line, Rectangle, RoundedRectangle, Scene, ShowPassingFlash, Text, VGroup,
                    Write, config)
 
-# Dark, calm ground in the 3Blue1Brown manner; each colour keeps the explainer page's meaning.
-BG = "#14181c"
-INK = "#ececec"     # text
-BLUE = "#58c4dd"    # structure and the main path
-GREEN = "#83c167"   # new or better
-RED = "#fc6255"     # risk or an unrequested change
-GRAY = "#8a9196"    # secondary
-KIND = {"plain": GRAY, "main": BLUE, "new": GREEN, "risk": RED}
-FONT = "Sans"       # Pango's generic sans: present on every system Manim runs on
+# The explainer page's palette and diagram styles (assets/explainer.html :root and svg.diagram),
+# so the video reads as part of the page: white ground, navy structure, iron text.
+BG = "#ffffff"
+INK = "#2c3539"     # iron: text
+BLUE = "#003057"    # structure and the main path
+SKY = "#5b8fa3"     # a pulse moving along an arrow
+GREEN = "#00a758"   # new or better
+RED = "#c8102e"     # risk or an unrequested change
+GRAY = "#707b7c"    # secondary
+RULE = "#d3d6d8"    # frames and muted lines
+TINT = "#f4f5f6"    # card backgrounds
+KIND = {"plain": BLUE, "main": BLUE, "new": GREEN, "risk": RED}
+FILL = {"plain": BG, "main": BLUE, "new": "#eaf6ef", "risk": "#fbeef0"}
+EDGE = {"plain": GRAY, "main": BLUE, "new": GREEN, "risk": RED}
+FONT = "Arial"      # the page's font; fontconfig maps it to Liberation Sans where Arial is absent
 
 VIDEO_DIR = pathlib.Path(os.environ.get("UNDERSTAND_VIDEO_DIR", "."))
 BUILD_DIR = pathlib.Path(os.environ.get("UNDERSTAND_BUILD_DIR", "."))
@@ -35,12 +41,12 @@ def label(text, size=30, color=INK, weight="NORMAL"):
 
 
 def node(text, kind="plain", width=2.6, height=1.0):
-    """A box with a short label: plain, main (blue), new (green) or risk (red)."""
-    color = KIND[kind]
-    box = RoundedRectangle(corner_radius=0.12, width=width, height=height, color=color,
-                           stroke_width=3 if kind != "plain" else 2)
-    box.set_fill(color, opacity=0.12 if kind != "plain" else 0)
-    return VGroup(box, label(text, size=24).move_to(box))
+    """A box with a short label: plain, main (filled navy), new (green) or risk (red)."""
+    box = RoundedRectangle(corner_radius=0.06, width=width, height=height, color=KIND[kind],
+                           stroke_width=3)
+    box.set_fill(FILL[kind], opacity=1)
+    ink = BG if kind == "main" else INK
+    return VGroup(box, label(text, size=24, color=ink, weight="BOLD").move_to(box))
 
 
 def row(*nodes, gap=0.9):
@@ -54,7 +60,7 @@ def column(*nodes, gap=0.6):
 
 def arrow(a, b, kind="plain"):
     """Edge from box a to box b, picking the facing sides."""
-    color = KIND[kind]
+    color = EDGE[kind]
     return Arrow(a.get_critical_point(_side(a, b)), b.get_critical_point(_side(b, a)),
                  buff=0.08, color=color, stroke_width=4 if kind == "main" else 3,
                  max_tip_length_to_length_ratio=0.15)
@@ -65,7 +71,7 @@ def _side(a, b):
     return (RIGHT if dx > 0 else LEFT) if abs(dx) >= abs(dy) else (UP if dy > 0 else DOWN)
 
 
-def flow(*arrows, color=BLUE):
+def flow(*arrows, color=SKY):
     """A pulse travelling along the arrows in order: data or a request moving."""
     return LaggedStart(*(ShowPassingFlash(a.copy().set_color(color).set_stroke(width=8),
                                           time_width=0.5) for a in arrows), lag_ratio=0.6)
@@ -74,7 +80,7 @@ def flow(*arrows, color=BLUE):
 def screen(path, height=5.6):
     """A screenshot from the output folder, with a thin frame. Path is relative to that folder."""
     img = ImageMobject(str(VIDEO_DIR.parent / path)).set_height(height)
-    frame = Rectangle(width=img.width, height=img.height, color=GRAY, stroke_width=2).move_to(img)
+    frame = Rectangle(width=img.width, height=img.height, color=RULE, stroke_width=2).move_to(img)
     return Group(img, frame)
 
 
@@ -97,10 +103,10 @@ def tag(text, kind="new"):
 def code(snippet, language="python", size=28):
     """A code card. Keep it to the few lines the narration names."""
     return Code(code_string=textwrap.dedent(snippet).strip("\n"), language=language,
-                formatter_style="monokai", add_line_numbers=False,
+                formatter_style="friendly", add_line_numbers=False,
                 paragraph_config={"font_size": size, "font": "Monospace"},
-                background="rectangle", background_config={"fill_color": "#1d2227",
-                                                           "stroke_color": GRAY})
+                background="rectangle", background_config={"fill_color": TINT,
+                                                           "stroke_color": RULE})
 
 
 class Kit(Scene):
@@ -158,8 +164,9 @@ class Kit(Scene):
         cap = VGroup(*(label(line, size=26) for line in lines)).arrange(DOWN, buff=0.12)
         cap.to_edge(DOWN, buff=0.6)  # above a web player's control bar
         back = Rectangle(width=config.frame_width, height=cap.height + 0.4, stroke_width=0)
-        back.set_fill(BG, opacity=0.85).move_to(cap)
-        group = VGroup(back, cap)
+        back.set_fill(BG, opacity=0.92).move_to(cap)
+        group = VGroup(back, Line(back.get_corner(UP + LEFT), back.get_corner(UP + RIGHT),
+                                  color=RULE, stroke_width=1.5), cap)
         self.add_foreground_mobject(group)
         return group
 
@@ -171,4 +178,4 @@ class Kit(Scene):
 
 
 __all__ = ["Kit", "label", "node", "row", "column", "arrow", "flow", "screen", "focus", "tag",
-           "code", "BG", "INK", "BLUE", "GREEN", "RED", "GRAY"]
+           "code", "BG", "INK", "BLUE", "SKY", "GREEN", "RED", "GRAY", "RULE", "TINT"]
