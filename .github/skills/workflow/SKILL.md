@@ -91,8 +91,8 @@ cutting prose, never acceptance lines or checks.
 
 **Brainstorm partner** (the grill; also `todo`, wrap) · **default executor** (logic tickets, P1–P3
 fixes) · **heavy executor** (schema/SQL/contract tickets, P0 fixes, hardest multi-file work) ·
-**mechanical lane** (tickets with an explicit expected text result) · **operator** (the human: live
-or irreversible writes, authorizations, hosted consoles) · **strict reviewer** (the skeptic — plan,
+**mechanical lane** (tickets with an explicit expected text result) · **operator** (live or irreversible
+writes, authorizations, hosted consoles: the human runs them, or approves and the agent runs them) · **strict reviewer** (the skeptic — plan,
 review, patch plans, `realign`; read-only except `realign`).
 
 Invariants:
@@ -104,7 +104,7 @@ Invariants:
 - **Name the running model from a record, not memory** — read the ID from the harness context or CLI
   config, write only the model (`references/phase-3-execute.md`).
 - **Approval follows blast radius** (map in `ROUTING.md`): read-only none, mechanical auto, logic
-  and contract tickets shown to the human ticket by ticket, operator tickets executed by the human.
+  and contract tickets shown to the human ticket by ticket, operator tickets run or approved by the human.
   The lane — not the severity — sets seat and approval, fix tickets included.
 - **Sub-agents are read-only breadth** (fact-finding, wide diffs), their findings verified; writing
   runs in the main session.

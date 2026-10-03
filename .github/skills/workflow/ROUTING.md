@@ -43,7 +43,7 @@ fallback. One trial per seat, at most two seats at once.
 | Execute — mechanical ticket | Mechanical lane | medium | standard | auto |
 | Execute — logic ticket | Default executor | high | standard | review each ticket's diff |
 | Execute — contract ticket (schema/SQL/API) | Heavy executor | xhigh | standard; large if the ticket spans many files | review each ticket's diff |
-| Execute — operator ticket (live/irreversible) | Default executor prepares the handoff (Heavy executor if it carries SQL or a contract) | high | standard | the human runs it; review the handoff before running |
+| Execute — operator ticket (live/irreversible) | Default executor prepares the handoff (Heavy executor if it carries SQL or a contract) | high | standard | the human runs it, or approves the exact scope and the agent runs it; review the handoff before running |
 | Review | Strict reviewer | xhigh | large | — (read-only) |
 | Patch plan (fix tickets) | Strict reviewer | high | standard | — |
 | Fix ticket — P0 | Heavy executor | high | standard | review each ticket's diff |

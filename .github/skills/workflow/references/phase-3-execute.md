@@ -44,7 +44,9 @@ without a receipt it is skipped.
 **Operator tickets** replace red → green with handoff → receipt. Write the handoff into the run
 folder — what to run, where (the console or CLI), the dry-run to run first and what it must show,
 and the receipt path — commit it, set `Status: awaiting-human`, and close with the card routed to
-the human: the one action, the handoff path, the receipt path. On resume, read the receipt and
+the human: the one action, the handoff path, the receipt path. When the ticket's runner is `agent
+after approval`, the card's one action is approving that exact scope; on approval the agent runs
+it (dry-run first, no paid retry without a new approval) and writes the receipt itself. On resume, read the receipt and
 check every acceptance line against its literal values; a mismatch is a failed `Verify`, reported
 like any other. A human-run step that failed gets a new receipt, never an edited one.
 Receipts hold the numbers that prove an acceptance line (counts, checksums, the command and its

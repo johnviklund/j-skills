@@ -50,6 +50,9 @@ Every ticket is a **tracer bullet**:
   - **The reached surface.** The seam is where a user or consuming code actually sees the result:
     a UI line drives a rendered page or component with a live importer; a producer line validates
     the real output against the consumer's contract model, not the producer's own dict.
+  - **Data that exists.** A `(live)` line observes a state the plan saw in the live data (a count,
+    a named record from a read-only probe). A state with no live instance is checked at a non-live
+    seam instead; the live line would otherwise end unverifiable.
   - **Inherited semantics.** A ticket adding a read surface over existing records asserts, per
     existing consumer, each state and label it honours (archived, knowledge/authority) and every
     error exit it must keep.
@@ -59,8 +62,11 @@ Give each ticket its **blocked-by** edges — the tickets that genuinely gate it
 
 **Operator tickets** cover what the agent must not do itself: live or irreversible writes,
 authorizations, paid runs above a ceiling, hosted consoles. The agent prepares the handoff (the
-exact SQL or command, a dry-run first where one exists, and where the receipt goes); the human runs
-it. `Verify:` names the receipt file and the literal values it must show (`receipt: …/ingest.txt —
+exact SQL or command, a dry-run first where one exists, and where the receipt goes). Each names its
+**runner**: `agent after approval` when the repo's steering lets the agent run that step — the
+human approves the exact bounded scope, the agent runs it and writes the receipt — otherwise
+`human`, with a handoff short enough to paste as one block. Prefer `agent after approval` where
+steering allows; a long human-run handoff is the signal to split the ticket. `Verify:` names the receipt file and the literal values it must show (`receipt: …/ingest.txt —
 rows_written 1,204 · errors 0`). A `(live)` behaviour is delivered by an operator ticket, blocked
 by the tickets that build what it operates.
 
