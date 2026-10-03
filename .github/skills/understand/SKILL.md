@@ -53,13 +53,14 @@ Every claim is pinned to code, so the page stays honest after its author is gone
    diagram answers one question the prose asks: what the parts are, the order of steps, who calls
    whom, where data moves, or which states a thing passes through.
    - Hand-write inline SVG with the template's diagram kit (classes listed in its `How it works`
-     comment); the CSS themes it for light and dark. Copy the example `<figure>` and grow it.
+     comment); the template's CSS styles it. Copy the example `<figure>` and grow it.
    - Lay nodes on a grid before writing coordinates: 150×52 boxes, columns 190 px apart, rows
      90 px apart, at most 10 nodes. Keep the `viewBox` at most 760 wide, the page's text column,
      so labels render at full size: that fits four columns, and a longer chain wraps to a second
      row. Edges are straight or right-angled `path`s from box edge to box edge; the main path uses
      `.edge.main`. Labels stay under ~18 characters per line.
-   - Give every `<svg>` a `viewBox` that contains all of its shapes, and a `<title>`.
+   - Give every `<svg>` a `viewBox` that contains all of its shapes, a `width` equal to the
+     viewBox width (so it renders 1:1 and shrinks only on narrow screens), and a `<title>`.
 
 4. **Write the page** from `<skill>/assets/explainer.html`. Done when no placeholder is left and
    each section meets its line below. Prose follows *Writing* and *Look*; every factual claim about code,
@@ -88,7 +89,7 @@ Every claim is pinned to code, so the page stays honest after its author is gone
      SVG); fix every `WARN`, except a long sentence whose split would hide a cause and its effect.
    - **Fidelity pass:** re-open every cited range and confirm the sentence says what the lines
      show. Correct a claim that fails, or move it to Open questions as "not verified".
-   - With a browser tool, screenshot the page once in each colour scheme and look at it.
+   - With a browser tool, screenshot the page at desktop width and look at it against *Look*.
 
 6. **Commit.** `git add <page>` only, then commit `understand: <slug|topic> — <what it explains>`
    and push when the branch tracks a remote. Leave other dirt in the tree alone.
@@ -111,16 +112,20 @@ The 20% you relax: technical names (in `code`) and domain terms beyond the STE d
 
 ## Look — simple and beautiful
 
-The page is a quiet document, not a dashboard. Keep the template's palette, type and spacing;
-add no CSS beyond small layout tweaks.
+The page is a calm, light document in a Scandinavian report style: white space does the
+separating, one blue carries the structure, and colour appears only where it means something.
+Keep the template's palette, type and spacing; add no CSS beyond small layout tweaks.
 
+- Colour has one meaning each: blue for titles, structure and the main path; red for a risk;
+  green for what is new or better; gray for everything secondary. Use no other colours.
 - Prose in paragraphs of two to six related sentences; a run of one-sentence paragraphs reads as
   a list, so make it one.
-- Cites trail the sentence they support; the template styles them as quiet marks.
-- One callout per section at most; the `In short` box is the only tinted block in the top half.
-  Open questions & risks is the exception: one `.risk` block per item.
-- Diagrams: few nodes, generous space, one emphasis colour on the main path; every label legible
-  at the page's width. A diagram that needs a legend is two diagrams.
+- Cites are numbered `[n]` in reading order and trail the sentence they support; the `title`
+  attribute carries the path.
+- Open questions & risks: `.risk` for what can go wrong, `.question` for what is unknown or
+  unverified. Red stays rare enough to mean something.
+- Diagrams: few nodes, generous space, at most one `.main` node; every label legible at the
+  page's width. A diagram that needs a legend is two diagrams.
 
 ## Boundaries
 

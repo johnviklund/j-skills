@@ -5,7 +5,8 @@ Errors (exit 1): leftover {{placeholders}}; a network-loaded resource; no citati
 whose commit, file or line range does not exist in the repo; a diagram that is not well-formed
 SVG or has no viewBox.
 Warnings: sentences over the STE-ish limit (25 words), paragraphs over 6 sentences, file size,
-diagram shapes outside their viewBox, or a viewBox wider than the text column.
+diagram shapes outside their viewBox, a viewBox wider than the text column, or a width
+attribute that does not match the viewBox.
 
 Usage: check-explainer.py <explainer.html> [--repo <git root>]   (default repo: cwd)
 """
@@ -106,6 +107,8 @@ def check_diagrams(page, errors, warnings):
         x0, y0, w, h = map(float, box)
         if w > MAX_DIAGRAM_WIDTH:
             warnings.append(f"diagram {n}: viewBox {w:g} wide shrinks its labels; keep it <= {MAX_DIAGRAM_WIDTH}")
+        if (root.get("width") or "").removesuffix("px") != f"{w:g}":
+            warnings.append(f'diagram {n}: set width="{w:g}" to match the viewBox, so labels render at 1:1')
         for el in root.iter():
             for ax, ay, dx, dy in (("x", "y", "width", "height"), ("cx", "cy", "r", "r"),
                                    ("x1", "y1", None, None), ("x2", "y2", None, None)):
