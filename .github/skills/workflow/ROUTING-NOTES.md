@@ -54,8 +54,8 @@ inputs, so it is a per-seat setting, not a default.
   unless breadth is the bottleneck.
 - **Autonomy loops** (a mode that drives a whole plan without re-prompting each step) and **speed
   modes** (reduced reasoning): default No. An autonomy loop only when explicitly asked, and
-  review-each-diff stays on contract tickets even inside it. A speed mode only on mechanical
-  auto-approve rows, never logic/contract tickets, plan or review.
+  UI and operator tickets still stop for the human inside it. A speed mode only on mechanical
+  rows, never logic/contract tickets, plan or review.
 - **Wrap in practice:** wrap usually follows review on the Anthropic side — drop Opus 5.5 → Sonnet 5.5
   in the same session after the review verdict.
 - **One executor model:** every execute lane runs GPT-6.1 Sol and only the effort changes, so

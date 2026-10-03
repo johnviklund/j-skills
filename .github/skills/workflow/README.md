@@ -30,7 +30,7 @@ because the shape turned out to be portable.
   question is one decision with lettered options and a recommended default. Detail lives in
   `.workflow/`, not in the conversation.
 - **Gates where mistakes are expensive.** Clarifying questions before ambiguous or risky work,
-  diff-by-diff approval on schema/contract edits, operator tickets for live or irreversible steps
+  a hands-on check of every UI change before it is committed, operator tickets for live or irreversible steps
   (the agent prepares the handoff, you run it, a receipt proves it), review with P0–P3 verdicts
   that checks the outcome on the surface users reach, patch loops bounded at three cycles, and a
   wrap that refuses to ship code the review never saw.
@@ -225,7 +225,7 @@ casual mentions of "plan" or "review" never trigger it.
 | `workflow status` / `next` / `log` / `learn` | Where am I / what's the closing card / ad-hoc worklog entry / capture a learning |
 
 Every phase response ends with a **closing card** (except a turn that waits for your in-chat
-answer, such as a diff approval, which ends on its lettered options): reset-or-continue, which model/
+answer, such as a UI check, which ends on its lettered options): reset-or-continue, which model/
 effort (from `ROUTING.md`), what to read, and the exact line to send. There is no compact
 command — resetting is lossless and safe at any context fullness, so it replaced compaction
 entirely.

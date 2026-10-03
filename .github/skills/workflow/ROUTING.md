@@ -41,18 +41,22 @@ fallback. One trial per seat, at most two seats at once.
 | Brainstorm (grill → brief) | Brainstorm partner | high | standard | — (dialogue; human confirms behaviours) |
 | Plan (audit → tickets) | Strict reviewer | high; xhigh hardest cases | large | human approves the ticket list |
 | Execute — mechanical ticket | Mechanical lane | medium | standard | auto |
-| Execute — logic ticket | Default executor | high | standard | review each ticket's diff |
-| Execute — contract ticket (schema/SQL/API) | Heavy executor | xhigh | standard; large if the ticket spans many files | review each ticket's diff |
+| Execute — logic ticket | Default executor | high | standard | auto |
+| Execute — UI ticket (any lane) | the lane's seat | the lane's | standard | the human tries it, then approves the commit |
+| Execute — contract ticket (schema/SQL/API) | Heavy executor | xhigh | standard; large if the ticket spans many files | auto |
 | Execute — operator ticket (live/irreversible) | Default executor prepares the handoff (Heavy executor if it carries SQL or a contract) | high | standard | the human runs it, or approves the exact scope and the agent runs it; review the handoff before running |
 | Review | Strict reviewer | xhigh | large | — (read-only) |
 | Patch plan (fix tickets) | Strict reviewer | high | standard | — |
-| Fix ticket — P0 | Heavy executor | high | standard | review each ticket's diff |
+| Fix ticket — P0 | Heavy executor | high | standard | auto |
 | Fix ticket — P1 (or a P2/P3 the human chose to fix), logic lane | Default executor | medium | standard | auto |
-| Fix ticket — any severity, contract lane | Heavy executor | high | standard | review each ticket's diff |
+| Fix ticket — any severity, contract lane | Heavy executor | high | standard | auto |
 | Final check & wrap-up | Brainstorm partner | medium | standard | auto |
 | TODO intake (`workflow todo`) | Brainstorm partner | medium | standard | auto (writes only `TODO.md`) |
 | Bootstrap (`workflow bootstrap`) | Brainstorm partner (docs) + Strict reviewer (audit) | high | large | propose each doc, confirm before writing |
 | Realign (`workflow realign`) | Strict reviewer | high | large | human approval per candidate before canonical-doc write |
+
+`auto` = no human step. Execute still stops after every ticket but a run of mechanical ones, so the
+human can reset, and before a UI ticket's commit (`references/phase-3-execute.md`).
 
 `standard` context = the model's default; `large` = the biggest the picker offers, used only where the
 seat holds the whole repo or a wide diff (plan, review, bootstrap).

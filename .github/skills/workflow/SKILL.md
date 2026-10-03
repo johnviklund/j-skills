@@ -117,9 +117,10 @@ Invariants:
   in order, and name any switch.
 - **Name the running model from a record, not memory** — read the ID from the harness context or CLI
   config, write only the model (`references/phase-3-execute.md`).
-- **Approval follows blast radius** (map in `ROUTING.md`): read-only none, mechanical auto, logic
-  and contract tickets shown to the human ticket by ticket, operator tickets run or approved by the human.
-  The lane — not the severity — sets seat and approval, fix tickets included.
+- **The human acts only where a human adds something** (map in `ROUTING.md`): code tickets are
+  checked by tests and the cross-vendor review, not by diff reading; a ticket that changes what a
+  user sees is tried by the human before its commit; operator tickets are run or approved by the
+  human. The lane — not the severity — sets the seat, fix tickets included.
 - **Sub-agents are read-only breadth** (fact-finding, wide diffs), their findings verified; writing
   runs in the main session.
 
@@ -130,7 +131,7 @@ swap happens, and a **reset** (not compaction) is how. The CLI's literal command
 ## The closing card — `workflow next`
 
 Every phase ends with this card as the last output of the turn. **A turn that waits for an answer in
-chat** — a diff approval, a clarify question, the plan's ticket-list round — **ends on the Decisions
+chat** — a UI check before a commit, a clarify question, the plan's ticket-list round — **ends on the Decisions
 list, with no card**: the reply is the answer. Fill the model line from `ROUTING.md`'s rows (a
 *Trial* entry prints instead of the primary, marked `(trial)`) so the human never opens a file to
 pick a model.

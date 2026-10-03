@@ -37,7 +37,7 @@ Every ticket is a **tracer bullet**:
   then all the endpoints" is horizontal slicing, and it hides integration errors until review.
 - **Valuable.** It delivers at least one behaviour (B#) — or, for a prefactor, names the ticket it
   makes easy.
-- **Small.** One seam, 1–4 acceptance lines, a diff the human can read in about five minutes, one
+- **Small.** One seam, 1–4 acceptance lines, a diff a reviewer can read in about five minutes, one
   fresh session to build. A ticket that needs a paragraph to describe is two tickets.
 - **Testable.** Each acceptance line is one test (or, for an operator ticket, one receipt check)
   with a literal expected value, observed at the ticket's seam: "`parse_usage({'prompt_tokens': 12.0})` → `12`",

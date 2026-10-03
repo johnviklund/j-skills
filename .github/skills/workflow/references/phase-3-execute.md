@@ -38,15 +38,27 @@ without a receipt it is skipped.
    green, the same view into `…-after.jpg`. Same route, viewport (1280×800) and data both times;
    crop to the changed region when the change is local; JPEG. Save them without opening them
    unless the ticket needs a visual check: an unopened image costs no context. Any visible change
-   the ticket did not ask for is named in the report's `Verify:` line, so it reaches review.
-4. **Show** the diff where `ROUTING.md` requires approval for this lane, as one decision
-   (a ➡️ approve — commit and continue · b request changes), and end the turn there with no
-   closing card; the reply approves.
-5. **Commit** the ticket, then persist before starting the next one: tick its acceptance lines,
-   set `Status: done @ <sha>`, add `Writer: <model>` under it, and refresh
-   `## Execution state`.
-6. **Report** in three lines: `T# · <title>` · `Verify: <pass/fail + the number that proves it>` ·
-   `Commit: <sha>`.
+   the ticket did not ask for is named in the report's `Noticed:` line, so it reaches review.
+4. **Commit** the ticket, then persist before anything else: tick its acceptance lines, set
+   `Status: done @ <sha>`, add `Writer: <model>` under it, and refresh `## Execution state`.
+   **A UI ticket stops before its commit:** post the report below with `Commit: not yet` and one
+   decision (a ➡️ looks right — commit · b change something: say what), and end the turn there with
+   no closing card; on a it commits, persists and carries on at 6. No other ticket waits for approval — its tests and the
+   cross-vendor review are the check, and the human doesn't read diffs.
+5. **Report** in plain words, at most five lines:
+
+   ```text
+   T# · <title> · Commit: <sha | not yet>
+   Changed: <what now works differently, in the user's terms — no code>
+   Proof: <Verify pass/fail + the number that proves it>
+   Try it: none | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
+   Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed>
+   ```
+6. **Continue or stop.** A mechanical ticket rolls straight into the next ready ticket when that
+   one is mechanical too. Every other ticket — and a mechanical run reaching a non-mechanical
+   ticket — ends the turn with the closing card, `Reset: yes`, naming the next ticket's model: one
+   ticket per session, so the context never fills and the human clears at every card. The state is
+   on disk, so the reset costs nothing.
 
 **Operator tickets** replace red → green with handoff → receipt. Write the handoff into the run
 folder's `receipts/` — what to run, where (the console or CLI), the dry-run to run first and what it must show,
@@ -60,21 +72,17 @@ Receipts hold the numbers that prove an acceptance line (counts, checksums, the 
 exit), not the data: bulk output stays outside the repo and the receipt names its path, row count
 and checksum — later phases never read a receipt larger than a few KB.
 
-Then the next ready ticket, in the same session while the context meter is under about half and
-the ticket's lane maps to the model already running. Otherwise close with the card naming that
-ticket's model — the state is on disk, so a reset costs nothing.
-
 **The ticket is the whole job.** Build what its acceptance lines describe, at its seam. Extra
 tests are welcome where they pin behaviour the acceptance lines already imply. Everything else —
 a nearby bug, a tempting refactor, a missing feature — is one line under `## Deviations` and the
 ticket continues. **Existing tests keep their assertions:** changing or removing an assertion in a
 test the ticket didn't create is a deviation, logged with the assertion count before and after,
-and the diff shows it to the human.
+and the report's `Noticed:` line names it.
 
 **Acceptance lines are the contract.** When an acceptance line can't pass as written, or the plan
 turns out wrong about the code, stop and report it: what the line says, what the code does, and
 the conservative options. A test gets fixed only when the test itself is wrong, and that is a
-deviation the human sees. A `Verify` command that is not found (exit 127) is a failure.
+deviation named in `Noticed:`. A `Verify` command that is not found (exit 127) is a failure.
 
 ## `## Execution state` (top of the live file, ≤ ~15 lines)
 
@@ -97,7 +105,7 @@ lines — a clearer bar beats more thinking.
 Append learnings to `learnings.md` as they happen (`references/learning-worklog.md`).
 
 An autonomy loop (a CLI mode that drives every ticket without re-prompting) runs only when the
-human asks for it, and contract tickets still get their diff approved inside it.
+human asks for it, and UI and operator tickets still stop for the human inside it.
 
 Close with the closing card from `SKILL.md`: the next ready ticket (`workflow execute <slug>`),
 the human's action for an `awaiting-human` ticket (`**Model:** human · <the one action>`, **Reads:**
