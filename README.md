@@ -48,31 +48,28 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
 ## How this repo is wired up
 
 This repo is `johnviklund/j-skills`. The plugin manifest (`.claude-plugin/plugin.json`) is named
-`j-skills`, and Codex prefixes skills with that name (`j-skills:workflow`). The local clone's
-folder is still called `agent-skills` (from before the rename) — paths below use that folder name.
+`j-skills`, and Codex prefixes skills with that name (`j-skills:workflow`). The repo was once
+called `agent-skills`. GitHub redirects the old name, but use `j-skills` everywhere.
 
-`.github/skills/` is the canonical source for the skill content (`checkup`, `evals`,
-`memory.compact`, `memory.remember`, `retro`, `understand`, `workflow`). The clone lives at
-`~/Documents/projects/skills/agent-skills`, and every consumer is a symlink straight to it — no
-copies, no reinstall, no drift:
+`.github/skills/` is the canonical source for the skill content. The clone lives at
+`~/Work/j-skills`, and every consumer is a symlink straight to it. There are no copies, so there
+is nothing to reinstall and nothing to drift:
 
 | Where | Read by | Link |
 |---|---|---|
-| `~/.agents/skills/<name>` | Copilot CLI | → `~/Documents/projects/skills/agent-skills/.github/skills/<name>` |
-| `~/.codex/skills/<name>` | Codex CLI (it does not read `~/.agents/skills/`) | same target |
-| `~/Documents/projects/skills/<name>` | convenience, for browsing | → `agent-skills/.github/skills/<name>` |
+| `~/.agents/skills/<name>` | Copilot CLI | → `~/Work/j-skills/.github/skills/<name>` |
+| `~/.codex/skills/<name>` | Codex CLI, which does not read `~/.agents/skills/` | same target |
+| `~/.claude/skills/<name>` | Claude Code | same target |
 | `skills/<name>` in this repo | Claude Code plugin discovery | → `../.github/skills/<name>` |
 
-Edit under `.github/skills/<name>/`, commit, push — both CLIs see the change immediately.
-`~/.agents/skills/` is shared with a separate multi-source skill installer (state in
-`~/.agents/.skill-lock.json`) that also manages third-party skills, so it is not simply a clone of
-this repo.
+Edit under `.github/skills/<name>/`, commit, push. All three CLIs see the change at once.
+`~/.agents/skills/` can also hold skills from other sources, so it is not simply a clone of this
+repo.
 
-**Caveat:** that installer could in principle replace one of these symlinks with a plain directory
-during an "update all" pass. If a skill stops picking up edits, run `ls -la ~/.agents/skills/<name>`;
-if it's a directory again, restore it with
-`ln -sfn ~/Documents/projects/skills/agent-skills/.github/skills/<name> ~/.agents/skills/<name>`
-(and the same for `~/.codex/skills/<name>`).
+**Caveat:** a skill installer could replace one of these symlinks with a plain directory. If a
+skill stops picking up edits, run `ls -la ~/.agents/skills/<name>`. If it is a directory again,
+restore it with `ln -sfn ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>`, and the
+same for `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
 
 ### External dependencies
 
@@ -85,12 +82,12 @@ it, `retro` still runs and says the guide is missing.
 
 ### Updating a skill
 
-1. Edit under `.github/skills/<name>/` in `~/Documents/projects/skills/agent-skills` (or via
-   any symlink path — same files).
+1. Edit under `.github/skills/<name>/` in `~/Work/j-skills`. Any symlink path reaches the same
+   files.
 2. Commit and push. Both Codex and Copilot are live immediately; no reinstall needed (restart an
    already-open session to reload).
-3. Verify: `readlink ~/.agents/skills/<name>` and `readlink ~/.codex/skills/<name>` point at
-   `.github/skills/<name>` in the clone.
+3. Verify: `readlink -f ~/.agents/skills/<name>`, `~/.codex/skills/<name>` and
+   `~/.claude/skills/<name>` all point at `~/Work/j-skills/.github/skills/<name>`.
 
 ## Adding a new global skill
 
@@ -99,9 +96,9 @@ it, `retro` still runs and says the guide is missing.
    for Claude Code's plugin discovery (`.claude-plugin/plugin.json`), unrelated to the local dev
    setup below.
 3. Commit and push.
-4. Link it into both CLIs so it is picked up immediately:
-   `ln -s ~/Documents/projects/skills/agent-skills/.github/skills/<name> ~/.agents/skills/<name>`
-   and the same into `~/.codex/skills/<name>`.
+4. Link it into all three CLIs so it is picked up at once:
+   `ln -s ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>`, and the same into
+   `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
 
 **Known gotcha — Copilot's skill loader can silently drop a skill with a long `description`.**
 Confirmed empirically (under an older `copilot plugin install` setup, since replaced by the

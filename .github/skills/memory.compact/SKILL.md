@@ -38,7 +38,7 @@ Reduce memory to its essential active pages without losing audit trail or search
 - **Archive memory:** `MEMORY_ARCHIVE.md`, searched by memory workflows but not loaded by default.
   Store superseded pages, long evidence, historical baselines, and superseded decisions here.
 - **Reusable principle:** a skill under `.github/skills/<name>/SKILL.md` (repo-local) or the
-  shared `agent-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo).
+  shared `j-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo).
   Checked for pages already promoted (`Promoted to:`), and for pages that are candidates
   (`Occurrences: 3` or more, reusable beyond one feature, stripped of schema-specific detail).
 - **Design doctrine:** `DESIGN.md`, when the repo has one. Checked for duplicated UI/design-system
@@ -82,7 +82,7 @@ Read all of these before starting analysis:
 - **`AGENTS.md`** — check for pages already promoted.
 - **`README.md`** — check for operator-facing pages already promoted.
 - **Existing skill frontmatter** — the `name` + `description` of every skill under
-  `.github/skills/*/SKILL.md` and the shared `agent-skills` repo's `.github/skills/*/SKILL.md`.
+  `.github/skills/*/SKILL.md` and the shared `j-skills` repo's `.github/skills/*/SKILL.md`.
   Use this to spot pages whose principle already belongs in one of them, and to avoid proposing a
   new skill that duplicates an existing one.
 - **Installed plugin skill names** — `ls ~/.copilot/installed-plugins/*/*/skills/` and

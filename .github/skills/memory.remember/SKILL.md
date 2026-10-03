@@ -24,8 +24,8 @@ This is a global skill, available from any repo via both Codex CLI and Copilot C
 Default target:
 - the repo in the current working directory
 
-Also update the shared `agent-skills` repo when the learning changes:
-- a shared skill itself (this one, `memory.compact`, or any other skill living in `agent-skills`)
+Also update the shared `j-skills` repo when the learning changes:
+- a shared skill itself (this one, `memory.compact`, or any other skill living in `j-skills`)
 - a cross-repo convention or workflow step that applies beyond the current repo
 
 ## Memory Layers
@@ -46,7 +46,7 @@ Treat repo memory as separate layers with different owners:
   is fine; duplicated doctrine is drift.
 - **Archive memory:** `MEMORY_ARCHIVE.md`, searched on demand. Use it for superseded decisions, stale baselines, source-list history, long explanations, and evidence-heavy details that should not load by default.
 - **Detailed solution notes:** `docs/solutions/`, used for postmortems, durable patterns, implementation reasoning, and evidence-heavy write-ups that need more detail than startup memory.
-- **Reusable principle:** a **skill** under `.github/skills/<name>/SKILL.md` (repo-local) or the shared `agent-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo). Use it for a transferable "how to design/review/build X" practice that has proven itself beyond this one feature or schema — not a repo-specific decision or gotcha. This is the layer active `MEMORY.md` should hand off to instead of accumulating principle prose indefinitely.
+- **Reusable principle:** a **skill** under `.github/skills/<name>/SKILL.md` (repo-local) or the shared `j-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo). Use it for a transferable "how to design/review/build X" practice that has proven itself beyond this one feature or schema — not a repo-specific decision or gotcha. This is the layer active `MEMORY.md` should hand off to instead of accumulating principle prose indefinitely.
 - **Design doctrine:** `DESIGN.md`, when the repo has one. Use it for durable UI/design-system decisions — a new component convention, token usage, or layout pattern. Unlike every other layer here, it is a living reference doc, not an append-only log: refine the relevant section in place rather than tacking on a dated entry.
 - **Session breadcrumbs:** `~/.ai-memory/<repo-id>/sessions.log`, written by hooks. Use it as deterministic recent-session evidence only.
 
@@ -125,7 +125,7 @@ When the user invokes `/remember`:
 
 1. **Read context**
    - Read `MEMORY.md` (the index) and `AGENTS.md` in the current repo; open only the `memory/` pages whose index line plausibly matches a candidate.
-   - Read the `name` + `description` frontmatter of every skill under `.github/skills/*/SKILL.md` (repo-local) and the shared `agent-skills` repo's `.github/skills/*/SKILL.md` — just the frontmatter, not the full body — so you know what already exists before proposing a new skill or a new bullet in one.
+   - Read the `name` + `description` frontmatter of every skill under `.github/skills/*/SKILL.md` (repo-local) and the shared `j-skills` repo's `.github/skills/*/SKILL.md` — just the frontmatter, not the full body — so you know what already exists before proposing a new skill or a new bullet in one.
    - **Also list every installed plugin's skill names** — e.g. `ls ~/.copilot/installed-plugins/*/*/skills/` and `~/.copilot/installed-plugins/_direct/*/skills/` (Copilot), and `ls ~/.codex/skills/` (Codex, which mirrors plugin-provided skills alongside repo-local symlinks). You need these names for one reason only: never propose a new repo-local skill whose name collides with one of them (see the naming-collision rule in step 2).
    - Check whether the repo has a `DESIGN.md` and, if this session was a `workflow` run, which `.workflow/<slug>/` folder it was (see step 3).
    - Read `~/.ai-memory/<repo-id>/sessions.log` for recent session entries (last 10). If it does not exist, skip it gracefully.
@@ -181,7 +181,7 @@ When the user invokes `/remember`:
      - `README.md` only when the user-facing setup or workflow changed
      - the relevant skill's `SKILL.md` for any promoted principle (new or existing skill), plus its `SKILL-IMPACT.md` line, in their own commit
      - `DESIGN.md` for any refined design-system section, when the repo has one
-   - Also update the shared `agent-skills` repo when the change affects a shared skill or another cross-repo convention.
+   - Also update the shared `j-skills` repo when the change affects a shared skill or another cross-repo convention.
 
 7. **Optional wrap-up, when finishing a workflow pass**
    - If `.workflow/<slug>/learnings.md` exists and every tagged line in it has now been routed, say so in one line (`routed N lines → M pages, K skill edits`) — the `workflow` wrap step owns the checks, commit, push, and archiving of the run folder. Never delete or empty anything under `.workflow/`; run folders are kept.
@@ -239,6 +239,6 @@ Everything else routes to its owner in the same pass (do not stage it in memory)
 - Strip concrete schema, object/field names, and business logic out of anything written into a skill; skills hold principles, code and `MEMORY.md` hold specifics.
 - `DESIGN.md` is refined in place, section by section — never append a dated log entry to it the way you would to a memory page.
 - Never delete, empty, or rename anything under `.workflow/` — run folders are the repo's history; the `workflow` skill's wrap step archives them.
-- When a shared skill itself changes (this one, `memory.compact`, or any other skill in `agent-skills`), update that skill's own docs as part of the same remember pass.
+- When a shared skill itself changes (this one, `memory.compact`, or any other skill in `j-skills`), update that skill's own docs as part of the same remember pass.
 - Every page uses the page shape; `MEMORY.md` holds index lines only. No flat bullets, no inline entries.
 - Every `Evidence` entry names a run slug or commit, is unique per page, and `Occurrences` equals the number of entries; a routed learnings line carries its `[routed → …]` mark and is never routed again.
