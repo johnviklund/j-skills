@@ -57,6 +57,10 @@ Every ticket is a **tracer bullet**:
     existing consumer, each state and label it honours (archived, knowledge/authority) and every
     error exit it must keep.
 
+A decision marked `(prototype: P#)` is settled by evidence; the prototype is reference for shape
+only. Its code stays in the run folder, and tickets build the chosen direction at their seam,
+test first.
+
 Give each ticket its **blocked-by** edges — the tickets that genuinely gate it — and its **lane**
 (mechanical · logic · contract · operator), which picks the executor seat.
 

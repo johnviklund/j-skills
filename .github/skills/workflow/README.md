@@ -83,6 +83,7 @@ stale with the next commit, and the provenance gate will make you re-plan.
   notes/           investigations, audits, runbooks, drafts
   scripts/         one-off scripts and harnesses (code — reviewed)
   data/            small frozen inputs/outputs; bulk data stays outside the repo
+  prototypes/      brainstorm's throwaway sketches (P1-density/), evidence for a decision; never shipped
   understand/      explainer.html, written by the `understand` skill after wrap
 ```
 

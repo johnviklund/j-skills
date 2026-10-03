@@ -35,6 +35,10 @@ idea against intake and direction — by heading and `grep` of the idea's key wo
 Treat the idea as a **design tree**: every decision branches into the decisions that hang off it.
 The **frontier** is every open decision whose prerequisites are settled. Each round asks the
 frontier — up to 5 questions, the ones that most change scope or architecture first — then waits.
+A round is ready to send only when every question in it passed the **prototype test** (§3a):
+empirical ones are already answered as findings, and questions of feel carry their variants'
+evidence. "I can prototype this if you want" is never a line in a round. A question of feel that
+depends on another open question in the round (density before layout) waits for the next round.
 
 ```
 **Q1 · <title>** <the question in ≤2 plain sentences>
@@ -44,11 +48,13 @@ frontier — up to 5 questions, the ones that most change scope or architecture 
 
 - **Facts are yours, decisions are the human's.** Anything the code, docs, git or a read-only query
   of the data can answer, look up (a read-only sub-agent may do it) and state as a finding; only ask
-  a question whose answer is a choice. Questions downstream of an unfinished lookup wait for a later round.
+  a question whose answer is a choice. A fact you can only get by running something (how it
+  behaves, how fast it is, what it outputs) is still yours: settle it with a prototype (§3a). Questions downstream of an unfinished lookup wait for a later round.
 - **Pin every fuzzy term.** When a word could mean two things ("account", "session", "done"), pin
   it to one meaning, in the code's and `PRODUCT.md`'s vocabulary, and use only that meaning afterwards.
 - **Push back** on shaky assumptions and on scope bigger than the need; put 2–3 approaches with
-  their trade-offs to the human when the approach itself is open.
+  their trade-offs to the human when the approach itself is open, sketched as prototypes first
+  when they differ in what a user would see or what you could measure (§3a).
 - **Play back** an answer in one line before moving on whenever misreading it would be expensive.
 - **Write as it settles.** After round 1, open `brainstorm.md` with `Status: drafting` and append
   each decision the moment it is made, so a reset loses nothing.
@@ -62,6 +68,54 @@ Two openings for when round 1 has nothing to grill yet:
 - **Reference instead of prose** (the human can't describe it but would recognise it): read the
   named file, library or component as the reference for shape and behaviour, then grill how it
   adapts here.
+
+## 3a. Settle it with a prototype
+
+A **prototype** is a throwaway sketch that answers one question by observation instead of
+debate. Reach for it when a frontier question is:
+
+- **Empirical:** the answer is a fact you could observe by running something: behaviour, timing,
+  output, perf, whether a library handles the case. It is yours: build, observe, and state the
+  result as a finding. The human never gets the question.
+- **A matter of feel:** layout, density, interaction, on-screen wording, where people choose
+  better by seeing than by reading. Build 2–3 genuinely different variants, not flavours of one,
+  and put the pictures in the question. The human still decides.
+
+Skip it when the codebase already has the pattern, the constraints leave one viable option, or
+the question is a product call no experiment can settle.
+
+**The prototype test**, run on each question before a round goes out: is it empirical, or a
+matter of feel, with no skip reason above? Then the prototype is built now, inside this round:
+build, observe, and send the question with its evidence. Waiting for permission to prototype
+costs the human a round and asks the question twice. A prototype needs the run folder, so create
+`.workflow/<slug>/` first.
+
+- **One question each.** A prototype's note opens with `P# — <the question it settles>`. No
+  question, no prototype.
+- **Throwaway and isolated.** Code goes in `prototypes/P#-<topic>/`: the lightest thing that
+  shows the answer. For a visual question, static HTML/CSS/JS with CDN dependencies; for a
+  behavioural one, the smallest script. No tests, no abstractions, product source untouched.
+  Variants sit behind one switcher (buttons or a key), each labelled. When the answer only shows
+  inside the real app, sketch on a throwaway branch `proto/<slug>-P#`, collect the evidence, and
+  delete the branch, so the run's branch never carries prototype edits.
+- **Observe on the matching surface.** Visual: screenshot each variant to
+  `screens/p#-<variant>.jpg`, through the repo's verify skill (`.agents/skills/verify-*/`) when
+  the sketch runs in the app. With no way to take a screenshot, the question names the file to
+  open and the switcher's keys (`open prototypes/P1-density/index.html` · keys 1–3). Behaviour or timing: the printed output, or the measured number
+  and how many runs it took. The observation is the test.
+- **Bounded.** Two attempts that show nothing → report it inconclusive with what it did show,
+  and ask the question plainly. At most three prototypes per brainstorm; more means two runs.
+- **Recorded.** `notes/P#-<topic>.md`, ≤ 10 lines: the question, the variants, evidence paths,
+  the result. The decision it settles is written `(prototype: P#)`. Commit the prototype folder,
+  its screens and its note with the brief, so the evidence can be rerun.
+
+A question with pictures keeps the round shape:
+
+```
+**Q2 · Row density** The task list can be compact or roomy. I built both (P1).
+  a) compact · screens/p1-compact.jpg   b) roomy · screens/p1-roomy.jpg
+  ➡️ a, it shows twice as many rows above the fold at 1280×800
+```
 
 ## 4. Close the frontier with outcome, behaviours and seams
 
@@ -107,7 +161,7 @@ Status:  complete
 - B2 — <situation/input> → <observable result> (live)
 
 ## Decisions
-- D1 — <decision> — <one-clause why> (code: <path> | product call)
+- D1 — <decision> — <one-clause why> (code: <path> | product call | prototype: P#)
 
 ## Test seams
 - <public interface> — observes B1, B2 (existing | new)

@@ -31,8 +31,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-`.github/skills/verify/` is based on `create-verification-skill` and `maintain-verification-skill`
-from pstack, https://github.com/cursor/plugins/tree/main/pstack, under the MIT License:
+`.github/skills/verify/` is based on `create-verification-skill` and `maintain-verification-skill`,
+and the prototype step in `.github/skills/workflow/references/phase-0-brainstorm.md` on the
+`prototype` playbook and `principle-exhaust-the-design-space`, all from pstack,
+https://github.com/cursor/plugins/tree/main/pstack, under the MIT License:
 
 ```text
 MIT License

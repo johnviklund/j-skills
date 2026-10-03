@@ -35,8 +35,8 @@ One run = one folder, tracked in git, kept forever; its files are the state mach
 kind, created when first needed: `receipts/` (verification output, diffs, handoffs:
 `t3-verification.md`) · `screens/` (UI before/after: `t3-topic-page-before.jpg`) · `notes/`
 (investigations, audits, runbooks, drafts) · `scripts/` (one-off code, reviewed like any other) ·
-`data/` (small frozen `*.json`/`*.csv`; bulk data stays outside the repo) · `understand/` (written
-only by the `understand` skill).
+`data/` (small frozen `*.json`/`*.csv`; bulk data stays outside the repo) · `prototypes/`
+(throwaway sketches) · `understand/` (written only by the `understand` skill).
 
 Every artifact header carries `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
 `done`. A run whose `brainstorm.md` is `parked` or `done` is not live.
@@ -144,10 +144,10 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
   `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
   run's own ticket commits. Stale → name it and route to the phase that must rerun.
-- **Receipts vs code.** Receipts are `*.md`, `*.txt`, and everything in a run's `screens/` and
-  `understand/`; every other file is code. "Code changed since X" = `git diff --stat X..HEAD -- .
+- **Receipts vs code.** Receipts are `*.md`, `*.txt`, and all of a run's `screens/`,
+  `prototypes/`, `understand/`; every other file is code. "Code changed since X" = `git diff --stat X..HEAD -- .
   ':(exclude)*.md' ':(exclude)*.txt' ':(exclude,glob).workflow/*/screens/**'
-  ':(exclude,glob).workflow/*/understand/**'` is non-empty — the **receipt-rule diff**. Code
+  ':(exclude,glob).workflow/*/prototypes/**' ':(exclude,glob).workflow/*/understand/**'` is non-empty — the **receipt-rule diff**. Code
   outside `.workflow/` never reads anything inside it.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
 

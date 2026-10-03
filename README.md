@@ -49,7 +49,7 @@ Use it for any coding task bigger than a quick fix.
 
 | Step | What happens |
 |---|---|
-| Brainstorm | The agent asks questions until the task is clear, then writes a short brief |
+| Brainstorm | The agent asks questions until the task is clear, then writes a short brief. It builds quick throwaway sketches when trying beats asking |
 | Plan | Up to eight small tickets, each with lines that say when it is done |
 | Execute | One ticket at a time, test first. Steps only you can take become operator tickets |
 | Review | Checks the result where users see it. A model from another vendor reviews the code |
