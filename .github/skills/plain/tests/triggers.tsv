@@ -1,0 +1,6 @@
+# Trigger cases for plain. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/plain/tests/triggers.tsv
+plain	Explain in simple terms what a git rebase does.
+plain	wait, what? I don't follow. What is a race condition, in plain English?
+plain	Remove AI patterns from this text: Additionally, our robust platform seamlessly leverages cutting-edge AI to foster a vibrant ecosystem, empowering teams to delve into pivotal insights.
+!plain	Give me the output as plain text, no markdown: list the three primary colors.
+!plain	Write a Python function that strips HTML tags and returns plain text.

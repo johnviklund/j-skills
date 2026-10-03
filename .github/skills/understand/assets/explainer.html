@@ -1,0 +1,271 @@
+<!doctype html>
+<!--
+  understand explainer template. Replace every {{...}} placeholder, delete the sections the mode
+  does not use (marked "slug only"), and delete these comments. Keep the page self-contained:
+  no <script src>, <link rel=stylesheet>, web fonts or remote images.
+
+  Citation markup (check-explainer.py verifies every one):
+    code:   <a class="cite" data-sha="{{sha}}" data-path="src/x.py" data-lines="10-24" title="src/x.py:10-24" href="{{permalink}}">[1]</a>
+    commit: <a class="cite" data-sha="{{sha}}" title="commit abc1234" href="{{commit url}}">[2]</a>
+  Number cites in reading order; the title carries the path for hover. The header's commit cite
+  shows the short sha as its text.
+  href: a GitHub permalink pinned at the sha when the repo has a GitHub remote, else a path
+  relative to this file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="understand">
+<title>{{Title}} · understand</title>
+<style>
+  /* Light only. Blue anchors titles and structure; iron carries the text; gray supports.
+     Red is risk, green is new or positive; use each only for that meaning. */
+  :root {
+    color-scheme: light;
+    --blue: #003057; --iron: #2c3539; --gray: #707b7c; --rule: #d3d6d8; --tint: #f4f5f6;
+    --sky: #5b8fa3; --red: #c8102e; --red-tint: #fbeef0; --green: #00a758; --green-tint: #eaf6ef;
+    --bg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--iron);
+    font: 17px/1.6 Arial, "Helvetica Neue", Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout { display: grid; grid-template-columns: 200px minmax(0, 760px); gap: 64px;
+            max-width: 1088px; margin: 0 auto; padding: 64px 32px 96px; }
+  nav { position: sticky; top: 32px; align-self: start; font-size: 14px; }
+  nav ol { list-style: none; padding: 0; margin: 0; }
+  nav a { display: block; padding: 6px 0 6px 16px; color: var(--gray); text-decoration: none;
+          border-left: 2px solid var(--rule); }
+  nav a:hover { color: var(--blue); }
+  nav a.active { color: var(--blue); border-left-color: var(--blue); font-weight: 700; }
+  nav button { margin: 24px 0 0 16px; font: inherit; font-size: 13px; color: var(--blue);
+               background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline;
+               text-underline-offset: 3px; }
+  @media (max-width: 880px) { .layout { grid-template-columns: 1fr; gap: 32px; } nav { position: static; } }
+  header .kicker { color: var(--gray); font-size: 13px; font-weight: 700; letter-spacing: .12em;
+                   text-transform: uppercase; }
+  h1 { color: var(--blue); font-size: 40px; line-height: 1.15; letter-spacing: -.01em; margin: 8px 0 16px; }
+  h2 { color: var(--blue); font-size: 26px; line-height: 1.25; margin: 64px 0 16px; }
+  h3 { color: var(--iron); font-size: 19px; margin: 32px 0 8px; }
+  main p, main li { max-width: 68ch; }
+  .meta { color: var(--gray); font-size: 14px; }
+  .tldr { border-left: 4px solid var(--blue); padding: 4px 0 4px 24px; margin: 32px 0;
+          font-size: 20px; line-height: 1.5; }
+  .tldr p { margin: 0 0 8px; }
+  a { color: var(--blue); text-underline-offset: 3px; }
+  a.cite { font-size: 12px; color: var(--gray); text-decoration: none; vertical-align: super;
+           line-height: 0; margin-left: 2px; }
+  a.cite:hover { color: var(--blue); text-decoration: underline; }
+  .meta a.cite { font-size: inherit; vertical-align: baseline; line-height: inherit; }
+  code { font: .86em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--tint);
+         border-radius: 3px; padding: 1px 4px; }
+  details { border-top: 1px solid var(--rule); padding: 16px 0; margin: 0; }
+  details:last-of-type { border-bottom: 1px solid var(--rule); }
+  details > summary { cursor: pointer; font-weight: 700; color: var(--iron); list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::before { content: "+"; display: inline-block; width: 24px; color: var(--blue); }
+  details[open] > summary::before { content: "2"; }
+  details[open] > summary { margin-bottom: 8px; }
+  details > :not(summary) { margin-left: 24px; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .compare > div { border-top: 3px solid var(--rule); padding-top: 8px; }
+  .compare .after { border-top-color: var(--green); }
+  .compare h3 { margin-top: 0; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--gray); }
+  .compare .after h3 { color: var(--green); }
+  .compare ul { padding-left: 20px; }
+  @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 16px 0; }
+  th { background: var(--blue); color: #fff; font-weight: 700; }
+  th, td { text-align: left; padding: 8px 12px; vertical-align: top; }
+  tbody tr:nth-child(even) { background: var(--tint); }
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  .risk, .question { border-left: 3px solid var(--red); padding: 2px 0 2px 16px; margin: 16px 0; }
+  .question { border-left-color: var(--rule); }
+  .risk > :first-child, .question > :first-child { margin-top: 0; }
+  .risk > :last-child, .question > :last-child { margin-bottom: 0; }
+  dl.glossary dt { font-weight: 700; margin-top: 16px; } dl.glossary dd { margin: 0; color: var(--iron); }
+  footer { margin-top: 96px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--gray); font-size: 13px; }
+  /* Screens: before/after pairs. Side by side for crops under ~400 px; add .stack otherwise. */
+  figure.screen { margin: 32px 0 48px; }
+  .screen-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .screen-head h3 { margin: 0; }
+  .tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+         padding: 2px 8px; border-radius: 2px; }
+  .tag.requested { color: var(--blue); background: var(--tint); }
+  .tag.unrequested { color: #fff; background: var(--red); }
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .shots.stack { grid-template-columns: 1fr; }
+  .shot { display: block; text-decoration: none; }
+  .shot span { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+  .shot.after span { color: var(--green); }
+  .shot img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
+  .shot .none { border: 1px dashed var(--rule); color: var(--gray); font-size: 14px; padding: 32px 16px; text-align: center; }
+  figure.screen figcaption { margin-top: 12px; font-size: 16px; }
+  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } }
+  /* Diagram kit: hand-written inline SVG. */
+  figure.diagram { margin: 32px 0; }
+  figure.diagram figcaption { margin-top: 8px; font-size: 14px; color: var(--gray); }
+  svg.diagram { display: block; max-width: 100%; height: auto; font-family: inherit; font-size: 14px; }
+  svg.diagram text { fill: var(--iron); text-anchor: middle; dominant-baseline: middle; }
+  svg.diagram .node text:first-of-type { font-weight: 700; }
+  svg.diagram .sub { fill: var(--gray); font-size: 12px; font-weight: 400; }
+  svg.diagram .node rect { fill: #fff; stroke: var(--blue); stroke-width: 1.5; }
+  svg.diagram .node.main rect { fill: var(--blue); }
+  svg.diagram .node.main text { fill: #fff; }
+  svg.diagram .node.muted rect { stroke: var(--rule); }
+  svg.diagram .node.warn rect { fill: var(--red-tint); stroke: var(--red); }
+  svg.diagram .node.new rect { fill: var(--green-tint); stroke: var(--green); }
+  svg.diagram .group rect { fill: var(--tint); stroke: none; }
+  svg.diagram .group text { fill: var(--gray); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-anchor: start; }
+  svg.diagram .edge { fill: none; stroke: var(--gray); stroke-width: 1.5; marker-end: url(#arrow); }
+  svg.diagram .edge.main { stroke: var(--blue); stroke-width: 2; marker-end: url(#arrow-main); }
+  svg.diagram .edge.dashed { stroke-dasharray: 5 4; }
+  svg.diagram .edge-label { fill: var(--gray); font-size: 12px; }
+  #arrow path { fill: var(--gray); } #arrow-main path { fill: var(--blue); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+    <marker id="arrow-main" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+  </defs>
+</svg>
+<div class="layout">
+<nav>
+  <ol>
+    <li><a href="#tldr">In short</a></li>
+    <li><a href="#screens">Screens</a></li><!-- UI changes only -->
+    <li><a href="#why">Why it exists</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#changed">What changed</a></li><!-- slug only -->
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#open">Open questions &amp; risks</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+  <button type="button" id="toggle-all">Expand all</button>
+</nav>
+<main>
+<header>
+  <div class="kicker">{{Run · <slug>  |  Area · <topic>}}</div>
+  <h1>{{Title: what this is, in plain words}}</h1>
+  <p class="meta">Generated {{YYYY-MM-DD}} at <a class="cite" data-sha="{{HEAD sha}}" href="{{commit url}}">{{short sha}}</a> · {{repo}} · Facts are as of this commit.</p>
+</header>
+
+<section id="tldr" class="tldr">
+  <!-- Three sentences: what it is, what it does for the user, the one thing to remember. -->
+  <p>{{...}}</p>
+</section>
+
+<section id="screens"><!-- UI changes only; delete otherwise. One figure per changed screen,
+  unrequested changes first. Image paths are relative to this file (../screens/ for the run's
+  own captures, screens/ for ones this skill took). A missing side gets <div class="none">. -->
+  <h2>Screens</h2>
+  <figure class="screen">
+    <div class="screen-head"><h3>{{Screen name}}</h3><span class="tag unrequested">Unrequested</span></div>
+    <div class="shots">
+      <a class="shot before" href="{{../screens/t3-screen-before.jpg}}"><span>Before</span><img src="{{../screens/t3-screen-before.jpg}}" alt="{{what the before shows}}" loading="lazy"></a>
+      <a class="shot after" href="{{../screens/t3-screen-after.jpg}}"><span>After</span><img src="{{../screens/t3-screen-after.jpg}}" alt="{{what the after shows}}" loading="lazy"></a>
+    </div>
+    <figcaption>{{One sentence: what changed on this screen.}} {{code cite}}</figcaption>
+  </figure>
+  <figure class="screen">
+    <div class="screen-head"><h3>{{Screen name}}</h3><span class="tag requested">Requested · {{B2 · T3}}</span></div>
+    <div class="shots stack">{{before and after, as above}}</div>
+    <figcaption>{{...}}</figcaption>
+  </figure>
+</section>
+
+<section id="why">
+  <h2>Why it exists</h2>
+  <!-- slug: the brief's problem. area: what the area is for and who uses it. -->
+  <p>{{...}}</p>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <!-- One <figure class="diagram"> per diagram, each followed by the prose it illustrates.
+       Classes: g.node (+ .main for the one node to notice first, .muted, .warn for risk, .new for added), g.group, path.edge (+ .main .dashed), text.sub,
+       text.edge-label. The example is a three-step flow on a 190 px column grid; label edges with
+       text.edge-label only where the arrow alone is ambiguous. -->
+  <figure class="diagram">
+    <svg class="diagram" viewBox="0 0 570 92" width="570" role="img" aria-labelledby="d1-title">
+      <title id="d1-title">{{One-line description of the diagram}}</title>
+      <g class="node"><rect x="20" y="20" width="150" height="52" rx="4"/><text x="95" y="39">{{Input}}</text><text class="sub" x="95" y="57">{{file or role}}</text></g>
+      <g class="node new"><rect x="210" y="20" width="150" height="52" rx="4"/><text x="285" y="39">{{Step}}</text><text class="sub" x="285" y="57">{{what it does}}</text></g>
+      <g class="node muted"><rect x="400" y="20" width="150" height="52" rx="4"/><text x="475" y="39">{{Output}}</text><text class="sub" x="475" y="57">{{where it lands}}</text></g>
+      <path class="edge main" d="M170,46 H208"/>
+      <path class="edge dashed" d="M360,46 H398"/>
+    </svg>
+    <figcaption>{{Caption: the question this diagram answers.}}</figcaption>
+  </figure>
+  <p>{{...}}</p>
+  <details>
+    <summary>{{Deeper detail a first read can skip}}</summary>
+    <p>{{...}}</p>
+  </details>
+</section>
+
+<section id="changed"><!-- slug only -->
+  <h2>What changed</h2>
+  <div class="compare">
+    <div class="before"><h3>Before</h3><ul><li>{{behaviour before}}</li></ul></div>
+    <div class="after"><h3>After</h3><ul><li>{{behaviour after}}</li></ul></div>
+  </div>
+  <h3>Shipped</h3>
+  <table>
+    <thead><tr><th>Ticket</th><th>What it did</th><th>Commit</th></tr></thead>
+    <tbody><tr><td>{{T1}}</td><td>{{...}}</td><td>{{commit cite}}</td></tr></tbody>
+  </table>
+</section>
+
+
+<section id="decisions">
+  <h2>Decisions</h2>
+  <details>
+    <summary>{{Decision}}</summary>
+    <p><strong>Why:</strong> {{...}}</p>
+    <p><strong>Rejected:</strong> {{alternative, and why}}</p>
+  </details>
+</section>
+
+<section id="open">
+  <h2>Open questions &amp; risks</h2>
+  <div class="risk">{{A risk: what can go wrong, where it is tracked}}</div>
+  <div class="question">{{An open question or unverified claim, where it is tracked}}</div>
+</section>
+
+<section id="glossary">
+  <h2>Glossary</h2>
+  <dl class="glossary"><dt>{{Term}}</dt><dd>{{Meaning in this repo}}</dd></dl>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <ul><li>{{every artifact and doc read, with a cite}}</li></ul>
+</section>
+
+<footer>Made with the <code>understand</code> skill. Regenerate it after the code changes; git keeps earlier versions.</footer>
+</main>
+</div>
+<script>
+  const btn = document.getElementById('toggle-all');
+  btn.addEventListener('click', () => {
+    const open = btn.textContent === 'Expand all';
+    document.querySelectorAll('details').forEach(d => { d.open = open; });
+    btn.textContent = open ? 'Collapse all' : 'Expand all';
+  });
+  const links = [...document.querySelectorAll('nav a')];
+  const observer = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) links.forEach(a => a.classList.toggle('active', a.hash === '#' + e.target.id));
+  }), { rootMargin: '0px 0px -70% 0px' });
+  document.querySelectorAll('main section[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
