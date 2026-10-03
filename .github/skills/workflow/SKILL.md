@@ -167,4 +167,4 @@ Read the one reference for the command; `status` and `next` need only this file 
 | `bootstrap [PRD.md]` | `bootstrap.md` |
 | `realign` | `realign.md` |
 
-Maintaining this skill is covered in `README.md`.
+Maintaining this skill is covered in `MAINTAINING.md`.
