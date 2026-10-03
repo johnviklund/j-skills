@@ -31,6 +31,18 @@ One run = one folder, tracked in git, kept forever; its files are the state mach
 | `review.md` | review | coverage, the current cycle's findings and verdict, a `## Resolved` table of earlier cycles |
 | `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's checkpoint, then the run's ≤ ~40-line summary |
 
+**Layout.** The run folder's top level holds only the artifacts above. Everything else goes in a
+subfolder by kind, created when first needed, so a human can find things later:
+
+| Subfolder | Holds |
+|---|---|
+| `receipts/` | verification output, diffs, handoffs and operator receipts (`t3-verification.md`) |
+| `screens/` | before/after screenshots of UI tickets (`t3-topic-page-before.jpg`) |
+| `notes/` | longer working documents: investigations, audits, runbooks, drafts |
+| `scripts/` | one-off scripts and harnesses (code: reviewed like any other) |
+| `data/` | small frozen inputs and outputs (`*.json`, `*.csv`); bulk data stays outside the repo |
+| `understand/` | the human explainer, written only by the `understand` skill |
+
 Every artifact header carries `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
 `done`. A run whose `brainstorm.md` is `parked` or `done` is not live.
 
@@ -143,9 +155,11 @@ naming the handoff. A finished run gets wrap's ✅ card instead (`references/wra
   (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
   `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
   run's own ticket commits. Stale → name it and route to the phase that must rerun.
-- **Receipts vs code.** `*.md`/`*.txt` are receipts; every other file is code. "Code changed since X"
-  = `git diff --stat X..HEAD -- . ':(exclude)*.md' ':(exclude)*.txt'` is non-empty. Code outside
-  `.workflow/` never reads anything inside it.
+- **Receipts vs code.** Receipts are `*.md`, `*.txt`, and everything in a run's `screens/` and
+  `understand/`; every other file is code. "Code changed since X" = `git diff --stat X..HEAD -- .
+  ':(exclude)*.md' ':(exclude)*.txt' ':(exclude,glob).workflow/*/screens/**'
+  ':(exclude,glob).workflow/*/understand/**'` is non-empty — the **receipt-rule diff**. Code
+  outside `.workflow/` never reads anything inside it.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
 
 ## Command index

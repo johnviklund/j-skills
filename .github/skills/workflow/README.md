@@ -77,14 +77,22 @@ stale with the next commit, and the provenance gate will make you re-plan.
   patch_plan.md    fix tickets, only during a patch cycle; run by `workflow execute`; deleted at wrap
   review.md        coverage · the current cycle's P0–P3 findings and verdict · a `## Resolved` table of earlier cycles (≤ ~100 lines)
   learnings.md     tagged lines, routed by memory.remember (each marked [routed → …]); kept as the record
-  <handoff/receipt files>  operator tickets only: what the human ran and what it showed; kept as evidence
   wrap.md          wrap's checkpoint (an interrupted wrap resumes), then the run's ≤ ~40-line summary — the only file later runs read
+  receipts/        verification output, diffs, operator handoffs and receipts; kept as evidence
+  screens/         before/after screenshots of UI tickets (t3-topic-page-before.jpg)
+  notes/           investigations, audits, runbooks, drafts
+  scripts/         one-off scripts and harnesses (code — reviewed)
+  data/            small frozen inputs/outputs; bulk data stays outside the repo
+  understand/      explainer.html, written by the `understand` skill after wrap
 ```
+
+The top level holds only the artifacts; subfolders appear when first needed.
 
 Runs are tracked in git and never deleted: after wrap the folder is the run's history, readable
 by anyone (or any agent) later. Grounding only ever reads live runs, so the archive costs nothing.
 
-Two rules keep the archive honest. **Receipts vs code:** `*.md`/`*.txt` are receipts; anything
+Two rules keep the archive honest. **Receipts vs code:** `*.md`/`*.txt` and a run's `screens/` and
+`understand/` are receipts; anything
 else — a script in `.workflow/`, a config in `docs/` — is code, must be reviewed, and can't ship
 through wrap's commit. **Freshness is per file, not per ancestry:** a plan is stale when any file
 it names changed since its `Base` (other than by its own ticket commits), which is exactly what happens to
@@ -231,7 +239,7 @@ entirely.
 | `checkup` | Read-only health report: skill wiring, memory pages, docs, runs (stalled/parked), config, and the per-seat and per-skill-change comparison of worklog numbers that decides promotions |
 | `evals` | The one exam: `evals.run reviewer`, a ≤8-case recall check run only before swapping the strict reviewer |
 | `retro` | Manual retrospective on a run or session: where the agent lost time → ranked environment fixes, routed through `memory.remember`, `workflow todo` and `checkup` |
-| `understand` | After wrap: `understand <slug>` writes `.workflow/<slug>/explainer.html`, a cited, human-friendly page (prose, diagrams, code tour, before/after); `understand <area>` does the same for a part of the codebase |
+| `understand` | After wrap: `understand <slug>` writes `.workflow/<slug>/understand/explainer.html`, a cited, human-friendly page (prose, diagrams, before/after screenshots from `screens/`, unrequested UI changes flagged); `understand <area>` does the same for a part of the codebase |
 
 ## How models and skills earn their place
 

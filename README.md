@@ -39,10 +39,11 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   from upstream (see *External dependencies*).
 - **`understand`** — `understand <slug>` (after `workflow wrap`) or `understand <area>`: a
   human-friendly explainer as one self-contained HTML page — controlled-English prose (~80%
-  ASD-STE100), hand-drawn inline SVG diagrams, a guided code tour, decisions, open questions and
-  risks, and for a run a before/after view. Every claim cites `file:line` or a commit, and a checker
-  verifies each cite against git. Written to `.workflow/<slug>/explainer.html` or
-  `docs/understand/<topic>.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
+  ASD-STE100), hand-drawn inline SVG diagrams, before/after screenshots of every changed screen
+  with unrequested UI changes flagged, decisions, open questions and
+  risks, and for a run a what-changed summary. Every claim cites `file:line` or a commit, and a checker
+  verifies each cite against git. Written to `.workflow/<slug>/understand/explainer.html` or
+  `docs/understand/<topic>/explainer.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
 
 ## How this repo is wired up
 

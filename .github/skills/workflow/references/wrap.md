@@ -11,13 +11,13 @@ exists with `Status: complete` and **no open finding** (read the `## Resolved` t
 cycle only): every `fix now` carries `Resolved: @ <sha>` from a later review cycle, every `defer` on a P0/P1 carries `Approved by human:`, and `wontfix`
 carries a reason. A `fix now` without `Resolved:` is intended work, not done work — stop and route
 to `workflow execute <slug>` (patch plan) or `workflow review <slug>`. Then confirm **no code changed
-since the reviewed `Base`** per `SKILL.md`'s receipt rule (`git diff --stat <Base>..HEAD --
-. ':(exclude)*.md' ':(exclude)*.txt'` is empty) — receipt commits such as the review itself are
+since the reviewed `Base`** per `SKILL.md`'s receipt rule (the receipt-rule diff `<Base>..HEAD`
+is empty) — receipt commits such as the review itself are
 fine, any code commit is not. If it's missing or stale, don't lecture that review "hasn't run" —
 say the evidence is missing/stale and print the closing card routing to `workflow review`.
 
 **Precondition — clean code tree.** Then run `git status --porcelain`. Every modified or untracked
-path must be a receipt file (`*.md`, `*.txt`) or `.gitignore`; a script, config, or data file
+path must be a receipt (per `SKILL.md`'s receipt rule) or `.gitignore`; a script, config, or data file
 anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never saw: stop,
 name the paths, and route to `workflow review`. Wrap does not launder unreviewed code through its
 own commit. Receipt dirt is wrap's normal input and gets committed in step 3.
@@ -127,8 +127,11 @@ Commit, push, curate, and clean up — in one go:
 
    **9b. Anything else the run left** — receipts, verification output, one-off scripts, live
    harnesses — stays in the run folder as evidence, listed in `wrap.md` and never read by later
-   runs. Flag any file over ~100 KB to the human as a lettered decision (move it out of git, or keep
-   it); never move it unasked. Before moving or renaming any such file, grep
+   runs. **Tidy the top level** to `SKILL.md`'s *Layout*: a stray receipt (`*.md`, `*.txt`, an
+   image) moves into its subfolder, and the run's own artifacts that name it get the new path. A
+   stray script or data file stays put and is named in `wrap.md`: moving it is a code change the
+   review never saw. Flag any file over ~100 KB to the human as a lettered decision (move it out of git, or keep
+   it); never move it unasked. Before moving or renaming any file, grep
    the repo *outside* `.workflow/` for its filename and bare module stem (`grep -rn -F '<stem>'
    --exclude-dir=.workflow --exclude-dir=.git .`); a hit means it is load-bearing — leave it exactly where it is and tell
    the human. A run folder is history: it is never emptied, never renamed, never reused.

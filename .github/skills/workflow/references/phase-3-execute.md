@@ -32,6 +32,13 @@ without a receipt it is skipped.
    see it fail for the expected reason. (Mechanical and doc tickets skip red and verify by content.)
 3. **Green.** Write the least code that passes, then run `Verify:`, the tests of every file you
    touched, and the typecheck/lint from the baseline.
+
+   **UI tickets** — a ticket that changes what a user sees — also leave pictures. Before the first
+   edit, screenshot each screen the ticket touches into `screens/<T#>-<screen>-before.jpg`; at
+   green, the same view into `…-after.jpg`. Same route, viewport (1280×800) and data both times;
+   crop to the changed region when the change is local; JPEG. Save them without opening them
+   unless the ticket needs a visual check: an unopened image costs no context. Any visible change
+   the ticket did not ask for is named in the report's `Verify:` line, so it reaches review.
 4. **Show** the diff where `ROUTING.md` requires approval for this lane, as one decision
    (a ➡️ approve — commit and continue · b request changes), and end the turn there with no
    closing card; the reply approves.
@@ -42,8 +49,8 @@ without a receipt it is skipped.
    `Commit: <sha>`.
 
 **Operator tickets** replace red → green with handoff → receipt. Write the handoff into the run
-folder — what to run, where (the console or CLI), the dry-run to run first and what it must show,
-and the receipt path — commit it, set `Status: awaiting-human`, and close with the card routed to
+folder's `receipts/` — what to run, where (the console or CLI), the dry-run to run first and what it must show,
+and the receipt path (also in `receipts/`) — commit it, set `Status: awaiting-human`, and close with the card routed to
 the human: the one action, the handoff path, the receipt path. When the ticket's runner is `agent
 after approval`, the card's one action is approving that exact scope; on approval the agent runs
 it (dry-run first, no paid retry without a new approval) and writes the receipt itself. On resume, read the receipt and

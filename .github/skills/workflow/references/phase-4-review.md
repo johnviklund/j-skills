@@ -70,9 +70,9 @@ Independence: cross-vendor | same-vendor (degraded)
 
 Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Two
 mechanical checks always run: nothing outside `.workflow/` references it
-(`grep -rn --exclude-dir=.workflow --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
-P1), and the full test suite — unless `git diff --stat <plan Base>..HEAD -- . ':(exclude)*.md'
-':(exclude)*.txt'` is empty, in which case that empty diff is the regression proof.
+(`grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
+P1), and the full test suite — unless the receipt-rule diff `<plan Base>..HEAD` (`SKILL.md`) is
+empty, in which case that empty diff is the regression proof.
 
 In chat: the verdict, a count per severity, one line per P0/P1, and any disposition the human
 owes as a lettered decision list. Verdict "ship as-is" when nothing needs acting on.

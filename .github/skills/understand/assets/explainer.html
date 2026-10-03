@@ -78,11 +78,6 @@
   .compare .after h3 { color: var(--green); }
   .compare ul { padding-left: 20px; }
   @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
-  ol.tour { counter-reset: stop; list-style: none; padding: 0; }
-  ol.tour > li { counter-increment: stop; position: relative; padding-left: 48px; margin: 24px 0; }
-  ol.tour > li::before { content: counter(stop); position: absolute; left: 0; top: 0;
-                         width: 30px; height: 30px; border-radius: 50%; background: var(--blue);
-                         color: #fff; font-size: 14px; font-weight: 700; text-align: center; line-height: 30px; }
   table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 16px 0; }
   th { background: var(--blue); color: #fff; font-weight: 700; }
   th, td { text-align: left; padding: 8px 12px; vertical-align: top; }
@@ -94,6 +89,24 @@
   .risk > :last-child, .question > :last-child { margin-bottom: 0; }
   dl.glossary dt { font-weight: 700; margin-top: 16px; } dl.glossary dd { margin: 0; color: var(--iron); }
   footer { margin-top: 96px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--gray); font-size: 13px; }
+  /* Screens: before/after pairs. Side by side for crops under ~400 px; add .stack otherwise. */
+  figure.screen { margin: 32px 0 48px; }
+  .screen-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .screen-head h3 { margin: 0; }
+  .tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+         padding: 2px 8px; border-radius: 2px; }
+  .tag.requested { color: var(--blue); background: var(--tint); }
+  .tag.unrequested { color: #fff; background: var(--red); }
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .shots.stack { grid-template-columns: 1fr; }
+  .shot { display: block; text-decoration: none; }
+  .shot span { display: block; font-size: 12px; font-weight: 700; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--gray); margin-bottom: 6px; }
+  .shot.after span { color: var(--green); }
+  .shot img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); }
+  .shot .none { border: 1px dashed var(--rule); color: var(--gray); font-size: 14px; padding: 32px 16px; text-align: center; }
+  figure.screen figcaption { margin-top: 12px; font-size: 16px; }
+  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } }
   /* Diagram kit: hand-written inline SVG. */
   figure.diagram { margin: 32px 0; }
   figure.diagram figcaption { margin-top: 8px; font-size: 14px; color: var(--gray); }
@@ -127,10 +140,10 @@
 <nav>
   <ol>
     <li><a href="#tldr">In short</a></li>
+    <li><a href="#screens">Screens</a></li><!-- UI changes only -->
     <li><a href="#why">Why it exists</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#changed">What changed</a></li><!-- slug only -->
-    <li><a href="#tour">Code tour</a></li>
     <li><a href="#decisions">Decisions</a></li>
     <li><a href="#open">Open questions &amp; risks</a></li>
     <li><a href="#glossary">Glossary</a></li>
@@ -148,6 +161,25 @@
 <section id="tldr" class="tldr">
   <!-- Three sentences: what it is, what it does for the user, the one thing to remember. -->
   <p>{{...}}</p>
+</section>
+
+<section id="screens"><!-- UI changes only; delete otherwise. One figure per changed screen,
+  unrequested changes first. Image paths are relative to this file (../screens/ for the run's
+  own captures, screens/ for ones this skill took). A missing side gets <div class="none">. -->
+  <h2>Screens</h2>
+  <figure class="screen">
+    <div class="screen-head"><h3>{{Screen name}}</h3><span class="tag unrequested">Unrequested</span></div>
+    <div class="shots">
+      <a class="shot before" href="{{../screens/t3-screen-before.jpg}}"><span>Before</span><img src="{{../screens/t3-screen-before.jpg}}" alt="{{what the before shows}}" loading="lazy"></a>
+      <a class="shot after" href="{{../screens/t3-screen-after.jpg}}"><span>After</span><img src="{{../screens/t3-screen-after.jpg}}" alt="{{what the after shows}}" loading="lazy"></a>
+    </div>
+    <figcaption>{{One sentence: what changed on this screen.}} {{code cite}}</figcaption>
+  </figure>
+  <figure class="screen">
+    <div class="screen-head"><h3>{{Screen name}}</h3><span class="tag requested">Requested · {{B2 · T3}}</span></div>
+    <div class="shots stack">{{before and after, as above}}</div>
+    <figcaption>{{...}}</figcaption>
+  </figure>
 </section>
 
 <section id="why">
@@ -193,13 +225,6 @@
   </table>
 </section>
 
-<section id="tour">
-  <h2>Code tour</h2>
-  <p>Read these files in this order.</p>
-  <ol class="tour">
-    <li><strong>{{file or symbol}}</strong> {{code cite}}<br>{{What to look at. Why it matters.}}</li>
-  </ol>
-</section>
 
 <section id="decisions">
   <h2>Decisions</h2>

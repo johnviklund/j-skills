@@ -3,13 +3,14 @@
 
 Errors (exit 1): leftover {{placeholders}}; a network-loaded resource; no citations; a citation
 whose commit, file or line range does not exist in the repo; a diagram that is not well-formed
-SVG or has no viewBox.
-Warnings: sentences over the STE-ish limit (25 words), paragraphs over 6 sentences, file size,
+SVG or has no viewBox; a local <img> whose file is missing.
+Warnings: images over ~400 KB, sentences over the STE-ish limit (25 words), paragraphs over 6 sentences, file size,
 diagram shapes outside their viewBox, a viewBox wider than the text column, or a width
 attribute that does not match the viewBox.
 
 Usage: check-explainer.py <explainer.html> [--repo <git root>]   (default repo: cwd)
 """
+import os
 import re
 import subprocess
 import sys
@@ -20,6 +21,7 @@ SENTENCE_WORDS = 25
 PARAGRAPH_SENTENCES = 6
 SIZE_WARN = 150_000
 MAX_DIAGRAM_WIDTH = 760
+IMAGE_WARN = 400_000
 PROSE_TAGS = {"p", "li", "dd", "td", "summary", "figcaption"}
 SKIP_TAGS = {"style", "script", "svg", "code", "pre", "nav"}
 REMOTE = [
@@ -86,6 +88,21 @@ def check_cite(repo, a):
         if not 1 <= start <= end <= total:
             return f"cite {path}:{lines}: outside 1-{total} at {sha[:10]}"
     return None
+
+
+def check_images(page, page_dir, errors, warnings):
+    """Every local <img src> exists next to the page; big files are warned."""
+    srcs = re.findall(r'<img\b[^>]*\ssrc="([^"]+)"', page)
+    for src in srcs:
+        if src.startswith(("data:", "http:", "https:")) or "{{" in src:
+            continue
+        path = os.path.normpath(os.path.join(page_dir, src))
+        if not os.path.isfile(path):
+            errors.append(f"image missing: {src}")
+        elif os.path.getsize(path) > IMAGE_WARN:
+            warnings.append(f"image {src} is {os.path.getsize(path) // 1000} KB "
+                            f"(crop it or lower the JPEG quality; budget ~{IMAGE_WARN // 1000} KB)")
+    return len(srcs)
 
 
 def check_diagrams(page, errors, warnings):
@@ -157,13 +174,14 @@ def main():
     if size > SIZE_WARN:
         warnings.append(f"file is {size // 1000} KB (budget ~{SIZE_WARN // 1000} KB)")
     diagrams = check_diagrams(live, errors, warnings)
+    images = check_images(live, os.path.dirname(os.path.abspath(path)), errors, warnings)
 
     for e in errors:
         print(f"ERROR   {e}")
     for w in warnings:
         print(f"WARN    {w}")
-    print(f"cites: {len(parser.cites)} checked · diagrams: {diagrams} · errors: {len(errors)} · "
-          f"warnings: {len(warnings)} · size: {size // 1000} KB")
+    print(f"cites: {len(parser.cites)} checked · diagrams: {diagrams} · images: {images} · "
+          f"errors: {len(errors)} · warnings: {len(warnings)} · size: {size // 1000} KB")
     sys.exit(1 if errors else 0)
 
 

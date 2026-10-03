@@ -66,7 +66,7 @@ exact SQL or command, a dry-run first where one exists, and where the receipt go
 **runner**: `agent after approval` when the repo's steering lets the agent run that step — the
 human approves the exact bounded scope, the agent runs it and writes the receipt — otherwise
 `human`, with a handoff short enough to paste as one block. Prefer `agent after approval` where
-steering allows; a long human-run handoff is the signal to split the ticket. `Verify:` names the receipt file and the literal values it must show (`receipt: …/ingest.txt —
+steering allows; a long human-run handoff is the signal to split the ticket. `Verify:` names the receipt file and the literal values it must show (`receipt: receipts/t4-ingest.txt —
 rows_written 1,204 · errors 0`). A `(live)` behaviour is delivered by an operator ticket, blocked
 by the tickets that build what it operates.
 
