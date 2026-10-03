@@ -15,7 +15,7 @@ read them from this one clone.
 | [`memory.compact`](#memorycompact) | Cleans up memory pages that overlap or have gone stale | `memory.compact` |
 | [`checkup`](#checkup) | Gives a health report on the repo and the skill setup | `checkup` |
 | [`evals`](#evals) | Tests a model before it takes the reviewer seat | `evals.run reviewer <model>` |
-| [`agent-docs`](#agent-docs) | Guides the writing of skills, `AGENTS.md` and other docs agents read | other skills load it |
+| [`agent-docs`](#agent-docs) | Guides the writing and testing of skills, `AGENTS.md` and other docs agents read | other skills load it |
 
 Codex shows each skill with the plugin name in front, for example `j-skills:workflow`.
 
@@ -101,7 +101,9 @@ You rarely start this one yourself. `retro` and `memory.remember` load it when t
 agents.
 
 - It explains how to write skills, `AGENTS.md` files and memory pages that agents follow reliably.
-- It ends with the conventions every j-skill follows.
+- It covers the format limits, scripts, testing, and a checklist to run before you ship a skill.
+- Its `scripts/trigger-test.py` runs test prompts on all three CLIs and reports which skill each
+  one loaded. A skill keeps its test prompts in `tests/triggers.tsv`.
 
 ## Setup
 
@@ -133,7 +135,13 @@ The clone lives at `~/Work/j-skills`. Each CLI reads the skills through a symlin
    ```
 
 4. Check that Copilot registered it: `copilot skill list --json | grep '"name": "<name>"'`.
-5. Commit and push.
+5. Write `tests/triggers.tsv` in the skill folder and run the trigger test:
+
+   ```sh
+   python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/<name>/tests/triggers.tsv
+   ```
+
+6. Commit and push.
 
 ### If a skill stops picking up edits
 

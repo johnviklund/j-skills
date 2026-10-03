@@ -4,8 +4,8 @@ description: >
   Human-friendly explainer for a finished workflow run or an area of a codebase: one HTML page
   with plain-English prose, inline SVG diagrams, before/after screenshots
   of every changed screen with unrequested UI changes flagged, decisions, and open questions and
-  risks; every claim cites a file:line or commit. Run only on an explicit "understand <slug>" or
-  "understand <area>" message, typically after "workflow wrap"; never on casual mentions of
+  risks; every claim cites a file:line or commit. Run only on an explicit "understand SLUG" or
+  "understand AREA" message, typically after "workflow wrap"; never on casual mentions of
   understanding something.
 ---
 

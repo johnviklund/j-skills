@@ -1,9 +1,9 @@
 ---
 name: agent-docs
 description: >
-  Writing documents agents read. Use when creating or editing a skill, an AGENTS.md or CLAUDE.md,
-  a memory page, or any doc an agent reaches through a pointer, and when judging such a document
-  in a retro or checkup.
+  Writing and testing documents agents read. Use when creating, editing or testing a skill, an
+  AGENTS.md or CLAUDE.md, a memory page, or any doc an agent reaches through a pointer, and when
+  judging such a document in a retro or checkup.
 ---
 
 Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.
@@ -45,6 +45,8 @@ Push too little down and the top bloats; push too much and you hide material the
 
 **Co-location** is the within-file companion: where the ladder decides _how far down_ a piece sits, co-location decides _what sits beside it_ once there. Keep a concept's definition, rules, and caveats under one heading rather than scattered, so reading one part brings its neighbours with it. The test: the document should read like documentation written for the agent. Grouped material reads that way; scattered material does not. (Distinct from duplication: that repeats one meaning in two places; scattering fragments one meaning across many.)
 
+**One level deep.** Link every disclosed file from the main document, never only from another disclosed file: an agent that reaches a file through a second hop tends to preview it with `head` and miss the rest. A disclosed file over ~100 lines opens with a short contents list, so even a partial read shows its full scope.
+
 **Sprawl** is the failure mode here: a document simply too long, even when every line is live and unique. Attention thins across the excess, and every extra line is one more to keep relevant. The cure is the ladder: disclose reference behind pointers, and split by branch or sequence so each path carries only what it needs.
 
 ## Steps and completion criteria
@@ -55,6 +57,16 @@ Every step ends on a **completion criterion**, the condition that tells the agen
 - **Demand**: how much it requires. "Every modified model accounted for" forces thorough work where "produce a change list" does not. Demand drives **legwork** (the digging the agent does within the work, latent in the wording rather than written as its own step), and it is not step-bound: "every rule applied" binds a body of flat reference just as "every step done" binds a sequence, which is how an all-reference document still carries an exhaustiveness bar.
 
 The strongest criteria are both checkable and exhaustive.
+
+## Degrees of freedom
+
+Match how tightly a step is specified to how fragile it is:
+
+- **Open work**, where several approaches are valid and context decides (a review, a design): give the goal and the heuristics, and trust the agent's judgement.
+- **Patterned work**, where a preferred shape exists but details vary (a report, a commit message): give a template or one concrete input/output example to adapt. One example carries a style better than a paragraph describing it.
+- **Fragile work**, where one wrong flag costs data or a release (a migration, a destructive command): give the exact command and say to run it unchanged.
+
+Over-specifying open work spends load and boxes out good judgement; under-specifying fragile work invites a creative variant of a command that had to be exact. Mark each output template as **exact** when a person or a script parses it, or as a **default** when the agent should adapt it. When several tools would do, name one default and the one case that needs another, not a menu.
 
 ## When to split
 
@@ -78,6 +90,19 @@ You win twice: fewer tokens, and a sharper hook for the agent to hang its thinki
 
 **Negation** is the failure mode beside this lever: steering by prohibition drags the forbidden behaviour into context and makes it _more_ available, not less. _Don't think of an elephant_, and the elephant is all there is; the negation is a weak modifier the strongly-activated concept overruns, so the ban half-reads as an instruction to do the thing. Prompt the **positive**: state the target behaviour ("write one-line comments") so the banned one is never spoken. A prohibition earns its place only as a hard guardrail you cannot phrase positively; even then, pair it with the positive target so attention lands on what to do.
 
+**Give the reason.** A rule with its why lets the agent handle the case the rule did not foresee; a bare MUST covers only the cases it names. Keep capitals and MUST for hard guardrails, and state the reason there too.
+
+## Scripts
+
+When a step is deterministic, ship a script and have the agent run it instead of writing the logic each time: a script gives the same result every run and costs no context to read.
+
+- **Run or read.** Say which: "Run `scripts/check.py PAGE`" executes it; "See `scripts/check.py` for the algorithm" loads it as reference. Running is the default.
+- **Solve, don't defer.** The script handles its own errors: a fallback, or a message that names the exact problem and the valid options ("field `date` not found; fields: `name`, `total`"), never a bare traceback for the agent to decode.
+- **No unexplained constants.** Every number carries a comment saying why it has that value. A value the author cannot justify is one the agent cannot either.
+- **Name the dependencies**: the interpreter, packages or CLIs the script needs, and how to get them.
+- **Plan, check, do** for batch or destructive changes: the agent writes its plan to a file, a script validates the plan, and only then does the change run. The validator is the feedback loop: run, fix, rerun until it passes.
+- **Portable references**: forward slashes in paths, and MCP tools by their full `Server:tool` name.
+
 ## Pruning
 
 - Keep each meaning in a **single source of truth**: one authoritative place, so changing the behaviour is a one-place edit. **Duplication** (the same meaning in more than one place) costs maintenance and tokens, and inflates a meaning's prominence on the ladder past its real rank. (The accidental inverse of a leading word, which repeats a token on purpose, never the meaning.)
@@ -88,6 +113,12 @@ You win twice: fewer tokens, and a sharper hook for the agent to hang its thinki
 ## Skill mechanics
 
 What changes when the document is a skill.
+
+### Frontmatter limits
+
+- `name`: at most 64 characters, only lowercase letters, digits and hyphens, no "anthropic" or "claude", and the same as the folder name. `memory.compact` and `memory.remember` predate this rule and keep their dots: all three CLIs load them, but a claude.ai or API upload would refuse them.
+- `description`: at most 1,024 characters, with the stricter Copilot limit in *j-skills conventions*. No XML tags or angle brackets: write a placeholder as `SLUG`, not `<slug>`. Write in the third person ("Explains...", not "I explain" or "You can use this"), and say both what the skill does and when to reach it.
+- `SKILL.md` body under 500 lines; past that, disclose.
 
 ### Invocation
 
@@ -112,8 +143,31 @@ When user-invoked skills multiply past what you can remember, that piled-up cogn
 
 What this repo has measured or settled, on top of the reference above:
 
-- **Explicit-trigger descriptions.** A j-skill that should fire only when typed still keeps a model-facing description and ends it with "Run only on an explicit `<name>` message; never on casual mentions of ...". It does not set `disable-model-invocation`, so for a j-skill this replaces the user-invoked choice in *Invocation*. A skill meant to fire on phrases, like `plain`, lists those phrases instead.
+- **Explicit-trigger descriptions.** A j-skill that should fire only when typed still keeps a model-facing description and ends it with "Run only on an explicit `NAME` message; never on casual mentions of ...". It does not set `disable-model-invocation`, so for a j-skill this replaces the user-invoked choice in *Invocation*. A skill meant to fire on phrases, like `plain`, lists those phrases instead.
 - **Description under ~900 characters.** Copilot CLI silently dropped a skill whose description was around 1033 to 1078 characters: it loaded with no error and left that one skill out of `copilot skill list`. After adding or editing a skill, check that it registered with `copilot skill list --json`.
 - **Shared reference lives in one skill's `SKILL.md`.** When several skills need the same rules, one skill owns them and the others invoke it by name, as every skill that writes for a person invokes `plain`. No skill keeps a copy. Keep the shared part in `SKILL.md` itself, not a sibling file: measured 2026-10-03 on Copilot CLI 1.0.91, the skill tool loads another skill's `SKILL.md` freely, but reading a sibling file in the skill folder needs a path permission, which a non-interactive run cannot ask for.
 - **No external skills.** A j-skill names only j-skills. `checkup` flags any other skill name as a dead reference.
 - **Every change is logged.** A skill change gets a row in `workflow/SKILL-IMPACT.md` and is judged on the runs that follow, not by review alone.
+
+### Testing a skill
+
+A skill is done when it has been run, not when it reads well. Before shipping a new skill or a change to one:
+
+1. **Write the cases.** At least three realistic prompts the skill should handle, worded the way you actually type, plus near-misses that share its words but need something else (for `plain`: "give me the output as plain text"). Keep them in the skill folder as `tests/triggers.tsv`; the format is in the script's header.
+2. **Test the triggers** on every CLI: `python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/SKILL/tests/triggers.tsv`. Done when every case passes on Claude Code, Codex and Copilot.
+3. **Compare against a baseline.** Run a real task with the skill and without it, or against the previous version for a change. The skill earns its place only where the run with it is better.
+4. **Cover the models** the skill runs on, as listed in `workflow/ROUTING.md`: a smaller model may need more guidance, a larger one is slowed by over-explaining. The script's `--model` flag picks one per CLI.
+5. **Read the transcripts**, not only the answers: which files the agent opened, in what order, and what it skipped. A file never opened is unneeded or badly pointed at; a file opened every time belongs in `SKILL.md`.
+
+### Before you ship
+
+- [ ] Name and description within *Frontmatter limits* and under 900 characters; description in the third person, saying what and when
+- [ ] Body under 500 lines; disclosed files one level deep, with a contents list over ~100 lines
+- [ ] Every step ends on a completion criterion
+- [ ] Every instruction changes behaviour versus the default and gives its reason
+- [ ] One term per concept; no dated facts except measurements marked with their date and version
+- [ ] Freedom matches fragility; fragile steps give the exact command
+- [ ] Scripts handle their own errors and explain their constants
+- [ ] Trigger test passes on all three CLIs, near-misses included
+- [ ] The run with the skill beats the baseline on at least three prompts
+- [ ] Row added to `workflow/SKILL-IMPACT.md`, skill linked into all three CLIs, and `copilot skill list` shows it

@@ -1,8 +1,8 @@
 ---
 name: workflow
 description: >
-  Personal solo-dev coding workflow, run only on an explicit "workflow <command>" or
-  "/workflow <command>" message; never on casual mentions of brainstorm, plan, execute, review
+  Personal solo-dev coding workflow, run only on an explicit "workflow COMMAND" or
+  "/workflow COMMAND" message; never on casual mentions of brainstorm, plan, execute, review
   or learn elsewhere in a message. Commands: brainstorm, improve, plan, execute, review, park,
   wrap, status, next, learn, log, todo, bootstrap, realign; bare "workflow" = next.
 ---
