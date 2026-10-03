@@ -59,6 +59,11 @@ Added: <date> · missed by <model> | planted by <model>
   off-by-one, a flipped comparison, a stale constant). The shipped diff is the clean twin. They
   make the exam runnable before any real miss exists; the generator that built them is in
   `scripts/` so they can be rebuilt.
+- **Context is the spec.** The reviewer sees only `## Context` and the diff, so a gap in the
+  context reads as a defect. Restate the run's own rule for every behaviour the diff touches,
+  copied from its brief or plan findings, not paraphrased from memory, and name each changed
+  file left out of the diff with one line on what it does. Measured 2026-10-04: two of five
+  seeded cases drew P1s on their clean twins for exactly these two gaps, and none once fixed.
 - **Cap: 10, rolling.** When full, a new missed case displaces the oldest seeded case first,
   then the weakest missed one.
 
