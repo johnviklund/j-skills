@@ -14,7 +14,11 @@ Review answers two questions, kept apart so one can't hide the other:
   names; every behaviour (B#) is delivered; every out-of-scope item is untouched; nothing was built
   that no ticket asked for. Then check the **Outcome** where the brief says the user reaches it —
   the rendered page, the served snapshot, a live read-only query. Passing acceptance lines are not
-  proof of it: a bar can pass on provenance while the user sees nothing useful.
+  proof of it: a bar can pass on provenance while the user sees nothing useful. When the repo
+  has a verify skill (`.agents/skills/verify-*/`), drive the Outcome with it along every entry
+  point its feature file lists, evidence in `receipts/`. A run with a user surface and no verify
+  skill notes `no verify skill` on the Outcome coverage line and recommends `verify.create` in
+  the verdict.
 - **Defects** — does it break anything? Verify empirically: run the tests, trace producer →
   consumer, run live queries. Look for missing error handling, data loss, resource leaks, security
   flaws, and logic that defeats the feature's own guarantee (a gate that can never fire). In any
@@ -48,7 +52,7 @@ is a pointer plus the number that proves it (`file:line`, command, count) — ne
 ## Coverage
 - [x] T1 — acceptance 2/2 tested and passing
 - [ ] T2 — …
-- [x] B1…B6 delivered · Outcome observed on <surface> · out of scope untouched
+- [x] B1…B6 delivered · Outcome observed on <surface> via <verify-APP | manual, no verify skill> · out of scope untouched
 - [x] .workflow/ dependency check
 Independence: cross-vendor | same-vendor (degraded)
 

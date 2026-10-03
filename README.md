@@ -15,6 +15,7 @@ read them from this one clone.
 | [`memory.compact`](#memorycompact) | Cleans up memory pages that overlap or have gone stale | `memory.compact` |
 | [`checkup`](#checkup) | Gives a health report on the repo and the skill setup | `checkup` |
 | [`evals`](#evals) | Tests a model before it takes the reviewer seat | `evals.run reviewer <model>` |
+| [`verify`](#verify) | Gives a repo a scripted way to drive its app, plus a map of its features | `verify.create`, `verify.maintain` |
 | [`agent-docs`](#agent-docs) | Guides the writing and testing of skills, `AGENTS.md` and other docs agents read | other skills load it |
 
 Codex shows each skill with the plugin name in front, for example `j-skills:workflow`.
@@ -94,6 +95,20 @@ Use it before you let a new model review code.
 
 - It shows the model up to ten diffs that hide known serious bugs, and records which bugs it finds.
 - Only the reviewer seat is tested this way. Other seats are judged on real runs in `WORKLOG.md`.
+
+### verify
+
+Use it once per repo that has something a user touches: a web page, an app, a CLI or an API.
+
+- `verify.create` builds a skill inside the repo, named `verify-<app>`. It has a small command
+  that starts the app, checks it is healthy, clicks or types through it, and takes screenshots.
+- It also writes a feature map: for each feature, how a user gets to it and what proves it works.
+- `workflow` uses it for before and after screenshots and to check the result in review. Wrap
+  updates the map for the features a run changed.
+- `verify.maintain` drives every feature again and fixes the map where the app has moved on.
+  `checkup` tells you when it is due.
+- The skill lives in `.agents/skills/verify-<app>/` with a link in `.claude/skills/`, so all
+  three CLIs find it. It is based on pstack's verification skills.
 
 ### agent-docs
 

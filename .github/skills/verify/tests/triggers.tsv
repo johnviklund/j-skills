@@ -1,0 +1,6 @@
+# Trigger cases for verify. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/verify/tests/triggers.tsv
+verify	verify.create
+verify	verify.maintain
+verify	run verify.maintain on this repo, the feature map is probably stale
+!verify	Can you verify that this regex matches email addresses? ^[\w.+-]+@[\w-]+\.[\w.]+$
+!verify	Write a unit test that verifies the add(a, b) function returns the sum.

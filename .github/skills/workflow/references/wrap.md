@@ -73,6 +73,13 @@ Commit, push, curate, and clean up — in one go:
    code**: that inverts the source of truth. Stop, name the contradiction, and print the card
    routing it to the human as a product decision — the code may be the thing that's wrong. Commit
    doc edits before step 6 so `TODO.md` points at truth rather than duplicating a stale claim.
+5a. **Feature-map truth** — only when the repo has `.agents/skills/verify-*/features/`. For
+   each user-facing feature this run added or changed, update its feature file (or add one and
+   its index line in `features/README.md`) so it says how a user reaches the feature now and what
+   proves it, and drive the new recipe once with the skill's control CLI. Feature files are
+   receipts; a fix the control CLI itself needs is code, so it becomes one `TODO.md` line
+   ("`verify.maintain`: <gap>"), never a wrap edit. Leave the `Last maintained` stamp alone:
+   only `verify.maintain` checks every feature. No user-facing change → "no feature changed".
 6. **TODO hygiene** — `TODO.md` is a small scratch pad (one line per idea) and its full history lives
    in `<repo>/TODO_ARCHIVE.md`; both are read by `grep` and section, never whole-file by default.
    Update `TODO.md` (if present) from the plan's `## TODO impacts` plus anything done in passing:
@@ -148,7 +155,7 @@ if not committing straight to `main`.
 **Wrap's chat receipt is fixed, one line per step:** final checks (pass / known-environmental);
 shortcut grep (clean / what was found); commits + push (shas); learnings routed (count → where);
 product-doc truth (per doc: no changes, or the edit — one line each, ESCALATE items as a lettered
-decision list); TODO hygiene (items archived/rewritten, or none); eval cases deposited (count);
+decision list); feature map (files updated, `no feature changed`, or `no verify skill`); TODO hygiene (items archived/rewritten, or none); eval cases deposited (count);
 worklog entry (yes); run archived (`<slug>` · done); size flags (`TODO.md`/`ROADMAP.md` over budget, or
 none); parked runs still open (slugs, or none). Anything that needs a decision is a lettered item
 with a recommended default. Then the ✅ done card, not a next-phase card: what shipped (one line);

@@ -36,7 +36,9 @@ without a receipt it is skipped.
    **UI tickets** — a ticket that changes what a user sees — also leave pictures. Before the first
    edit, screenshot each screen the ticket touches into `screens/<T#>-<screen>-before.jpg`; at
    green, the same view into `…-after.jpg`. Same route, viewport (1280×800) and data both times;
-   crop to the changed region when the change is local; JPEG. Save them without opening them
+   crop to the changed region when the change is local; JPEG. When the repo has a verify skill
+   (`.agents/skills/verify-*/`), take both with its control CLI (`doctor` first) and drive the
+   screen by its feature file, so the shots are reproducible. Save them without opening them
    unless the ticket needs a visual check: an unopened image costs no context. Any visible change
    the ticket did not ask for is named in the report's `Noticed:` line, so it reaches review.
 4. **Commit** the ticket, then persist before anything else: tick its acceptance lines, set

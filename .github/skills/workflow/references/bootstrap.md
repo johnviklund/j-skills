@@ -48,7 +48,9 @@ sequence in a single target that exits non-zero on failure), each with one line 
 output looks like, the rule "run these before reporting any step done and paste the result", and
 the rule "a failing test is fixed in the code, never by editing or deleting the test". If the
 repo has no such commands yet, write the block with the targets as TODOs — execute's baseline
-step will refuse to run without them, which is the point.
+step will refuse to run without them, which is the point. When the product has a user surface
+(UI, CLI, API), add the line "Drive the app: TODO — run `verify.create` once the app starts";
+`verify.create` replaces it with a pointer to the repo's verify skill.
 
 **4. Retire the PRD.** The PRD is frozen input, not a living doc — once `PRODUCT.md` exists,
 maintaining both guarantees drift. Move it to `docs/archive/PRD-<date>.md` (or delete it if the

@@ -96,6 +96,7 @@ Then check:
   every skill a j-skill invokes, reads or routes to must be a folder under `.github/skills/`. Match
   backticked names used *as skills* ("the `x` skill", "invoke `x`", "read `x`'s") against that folder
   list, not every backticked word. A name that is not a j-skill is 🔴: port it or drop the reference.
+  Exception: `verify-*` (and `verify-APP`) names the repo-local skill that `verify.create` generates.
 - **Self-publish drift.** For a skill packaged as its own plugin (e.g. a `.github/copilot-plugins/<name>/`
   whose `skills/<name>` symlinks back to `.github/skills/<name>`), confirm it is still a symlink (single
   source) and that the installed snapshot matches the repo source. A materialized copy or a stale
@@ -140,6 +141,13 @@ ls -d MEMORY.proposed.md memory.proposed MEMORY_ARCHIVE.proposed.md skill-promot
   `git log -1 --format=%cs -- DESIGN.md` and `git log --since=... --oneline -- web-ui | wc -l`.
   If a doc is untouched while its area changed a lot, say "worth a human skim" -- never assert it's wrong.
 - **Broken internal links.** Doc references to repo paths that don't exist are ⚠️.
+- **Verify skill.** When the repo has `.agents/skills/verify-*/`: a missing or dangling
+  `.claude/skills/verify-*` symlink is 🔴 (Claude Code cannot see the skill); a
+  `features/README.md` without a `Last maintained: DATE @ SHA` line is ⚠️. Count commits since
+  that sha outside `.workflow/` and `*.md` (`git log --oneline SHA..HEAD -- . ':(exclude).workflow'
+  ':(exclude)*.md' | wc -l`): a stamp older than ~30 days with 20 or more such commits is ⚠️
+  "feature map may have drifted -- `verify.maintain`". A repo with a user surface (UI, CLI, API)
+  and no verify skill is ⚠️ "no scripted way to drive the app -- `verify.create`".
 
 ### 4. Workspace cleanliness
 
@@ -273,6 +281,8 @@ reviewer exam (`evals.run reviewer`), or removing anything that could carry unsa
   that set and flags an unchecked reviewer.
 - `retro` — owns the per-session look at friction (what one run or session cost); checkup owns the
   standing state of the workspace. A retro hands hygiene it notices to `checkup`.
+- `verify` — builds (`verify.create`) and maintains (`verify.maintain`) the repo's verify skill and
+  feature map; checkup only flags a missing skill, a broken symlink or a stale `Last maintained` stamp.
 - `understand` — writes human-facing explainers (`.workflow/<slug>/understand/`,
   `docs/understand/<topic>/`); checkup treats them as tracked docs, not `.workflow` scratch.
 
