@@ -115,11 +115,13 @@ Commit, push, curate, and clean up — in one go:
    at the product docs step 5 just corrected, never duplicate them.
 7. **Eval deposit** — usually nothing. For each `[durable→eval] code-review` line in
    `.workflow/<slug>/learnings.md` that passes the admission test in `references/learning-worklog.md`
-   (a P0/P1 missed by the writer or by the reviewer), write one self-contained case to
-   `evals/strict-reviewer/code-review-<YYYY-MM-DD>-<slug>.md` — the diff copied in (never a
-   `.workflow/` path), the P0/P1 findings a pass must name (one line each), and provenance (date,
-   sha, which model missed it). **Cap 10, rolling:** if the set is full, replace the weakest case
-   or skip — never append past the cap. Commit with the rest.
+   (a P0/P1 missed by the writer or by the reviewer), write one `Kind: missed` case to
+   the exam set (`j-skills-evals/strict-reviewer/`, a private repo cloned beside j-skills; the `evals` skill says how to find it), as `missed-<topic>.md` in the shape the `evals` skill defines: context, the diff
+   copied in (never a `.workflow/` path), the fixed diff as its clean twin when there is one, the
+   P0/P1 a pass must name, and provenance (date, repo, run, sha range, which model missed it).
+   **Cap 10, rolling:** a full set drops its oldest seeded case first, then the weakest missed
+   one; never append past the cap. Commit and push in `j-skills-evals`, which is private because
+   cases copy code: never write a case into this repo or any public one.
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
 9. **Archive the run — nothing leaves `.workflow/<slug>/`, nothing is deleted from the repo.** Once
@@ -153,7 +155,7 @@ Commit, push, curate, and clean up — in one go:
 
 **Why this order:** code → learnings routed, evals deposited, committed → **push** → archive the run.
 Archiving is last because it is the only step that removes anything (the transient files), and by
-then everything worth keeping is in git, `evals/`, `memory/` or the kept artifacts. Open a PR only
+then everything worth keeping is in git, the exam set, `memory/` or the kept artifacts. Open a PR only
 if not committing straight to `main`.
 
 **Wrap's chat receipt is fixed, one line per step:** final checks (pass / known-environmental);

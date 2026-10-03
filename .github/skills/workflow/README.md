@@ -147,7 +147,7 @@ never ran. `Inputs` and `Base` let a phase notice its input went stale and ask, 
 silently building on it.
 
 Durable output goes to the repo: commits, `WORKLOG.md`, `MEMORY.md` + `memory/` pages, `TODO.md`, product docs, and
-reviewer exam cases at `evals/strict-reviewer/code-review-<YYYY-MM-DD>-<slug>.md` (the only eval set).
+reviewer exam cases in the private `j-skills-evals` repo (`strict-reviewer/missed-<topic>.md`, the only eval set; private because cases copy code).
 
 ## Install
 
@@ -239,7 +239,7 @@ entirely.
 | `memory.remember` | Routes a run's `learnings.md` at wrap: repeats bump an existing `memory/` page's occurrence count; new lessons become pages; `Occurrences: 3` promotes a principle into a skill (logged in `SKILL-IMPACT.md`, trialed) |
 | `memory.compact` | Manual, proposal-only cleanup of `memory/`: merges same-claim pages, splits legacy inline `MEMORY.md` entries into pages, archives stale ones |
 | `checkup` | Read-only health report: skill wiring, memory pages, docs, runs (stalled/parked), config, and the per-seat and per-skill-change comparison of worklog numbers that decides promotions |
-| `evals` | The one exam: `evals.run reviewer`, a ≤8-case recall check run only before swapping the strict reviewer |
+| `evals` | The one exam: `evals.run reviewer`, recall and false alarms on ≤10 cases, run before swapping the strict reviewer or keeping a change to the review instructions |
 | `retro` | Manual retrospective on a run or session: where the agent lost time → ranked environment fixes, routed through `memory.remember`, `workflow todo` and `checkup` |
 | `understand` | After wrap: `understand <slug>` writes `.workflow/<slug>/understand/explainer.html`, a cited, human-friendly page (prose, diagrams, before/after screenshots from `screens/`, unrequested UI changes flagged); `understand <area>` does the same for a part of the codebase |
 

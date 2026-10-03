@@ -44,8 +44,8 @@ actually shows, or the input that fails. A finding that can't name one is P2 at 
 naming, generated paths and anything lint/CI enforces are not findings. When a reproduction the
 plan prescribed doesn't reproduce, suspect the finding rather than the harness, and re-price it.
 
-**A repeat is memory.** Before recording a P0–P2, check `MEMORY.md` and `evals/strict-reviewer/`
-for the same class of mistake; a second occurrence adds `[durable→memory]` to `learnings.md`.
+**A repeat is memory.** Before recording a P0–P2, check `MEMORY.md` and the `## Must name` lines
+of the exam set (`j-skills-evals/strict-reviewer/`, a private repo cloned beside j-skills; the `evals` skill says how to find it) for the same class of mistake; a second occurrence adds `[durable→memory]` to `learnings.md`.
 
 ## `review.md` — open it first, grow it as you go
 

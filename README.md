@@ -95,9 +95,15 @@ Use it when something feels off, or before a cleanup.
 
 ### evals
 
-Use it before you let a new model review code.
+Use it before you let a new model review code, or before you keep a change to the review rules.
 
 - It shows the model up to ten diffs that hide known serious bugs, and records which bugs it finds.
+- Each diff also has a clean twin with no bug. A serious bug reported on a clean twin counts as a
+  false alarm, so a model that flags everything does not score well.
+- Some cases are real bugs a review missed. Others are planted in diffs that already shipped, so
+  the exam can run before any real miss happens.
+- The cases live in a separate private repo, `j-skills-evals`, because they copy code from your
+  repos. See *Setup*.
 - Only the reviewer seat is tested this way. Other seats are judged on real runs in `WORKLOG.md`.
 
 ### verify
@@ -135,6 +141,13 @@ The clone lives at `~/Work/j-skills`. Each CLI reads the skills through a symlin
 | `~/.codex/skills/<name>` | Codex CLI |
 | `~/.claude/skills/<name>` | Claude Code |
 | `skills/<name>` in this repo | Claude Code plugin discovery, through `.claude-plugin/plugin.json` |
+
+The reviewer exam cases live in a private repo, cloned next to this one. They copy code from
+private repos, so they must never go into this public repo:
+
+```sh
+gh repo clone johnviklund/j-skills-evals ~/Work/j-skills-evals
+```
 
 ### Change a skill
 

@@ -1,0 +1,6 @@
+# Trigger cases for evals. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/evals/tests/triggers.tsv
+evals	evals.list
+evals	evals.run reviewer
+evals	evals.run reviewer openai gpt-6-sol high
+!evals	Write an eval harness in Python that scores a classifier's accuracy on a test set.
+!evals	Our CI evals are flaky, what are common causes of flaky tests?

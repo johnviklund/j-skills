@@ -12,8 +12,8 @@ runs; the worklog's `Run:` and `Seats:` lines (tickets, review cycles, deviation
 overturned, model per seat) are the evidence, and `checkup` compares them against the
 incumbent's last runs on that seat. Promote when the candidate ties or beats on cycles and
 deviations at lower cost or effort; demote when it doesn't. The one exception is the strict
-reviewer: before a candidate takes that seat, run `evals.run reviewer` — a recall check on ≤8
-diffs with known P0/P1s — because a reviewer miss is the expensive kind. No other seat is examined.
+reviewer: before a candidate takes that seat, run `evals.run reviewer` — recall and false alarms on ≤10
+diffs with known P0/P1s and their clean twins — because a reviewer miss is the expensive kind. No other seat is examined.
 
 **The CLI is not part of the mapping.** Some environments expose one CLI that serves both vendors;
 others need one CLI per vendor. Either way this file is the same: pick the model, and use

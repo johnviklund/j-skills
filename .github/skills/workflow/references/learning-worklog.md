@@ -25,7 +25,7 @@ any time something worth keeping gets solved — don't wait for wrap-up:
 Models earn seats on **trial runs**, not exams (protocol in `ROUTING.md`): a candidate takes a
 seat for a real run, and the worklog's `Run:`/`Seats:` lines are the evidence. The one exception
 is the strict reviewer, because a reviewer miss is expensive and a diff with known findings is a
-cheap, honest exam. So the only case shape is `code-review`, filed under `evals/strict-reviewer/`:
+cheap, honest exam. So the only case shape is `code-review`, filed in the exam set (`j-skills-evals/strict-reviewer/`, a private repo cloned beside j-skills; the `evals` skill says how to find it):
 
 | Case shape | Seat directory | Input → what a pass must name |
 |---|---|---|
@@ -33,9 +33,10 @@ cheap, honest exam. So the only case shape is `code-review`, filed under `evals/
 
 **Admission test:** a case is deposited only when a P0/P1 was *missed by the writer and caught by
 the reviewer*, or *missed by the reviewer and caught later* (the most discriminating kind — file it
-when the miss surfaces, even in a later run). Routine findings teach nothing. **Cap: 8 cases,
-rolling** — when full, a new case displaces the weakest, never appends past the cap; a set under
-the cap is fine, an empty one is fine. There are no spec, plan, or mechanical sets: an approved
+when the miss surfaces, even in a later run). Routine findings teach nothing. Seeded cases
+(a planted slip in a shipped diff) fill the set until real misses arrive; a missed case
+outranks them. **Cap: 10 cases, rolling** — when full, a new case displaces the oldest seeded
+one first, then the weakest; never append past the cap. There are no spec, plan, or mechanical sets: an approved
 plan or spec is not a reusable exam, and those seats prove themselves on trial runs.
 
 Tag the line `[durable→eval] code-review — <what was missed, by whom>` any time during the run;
