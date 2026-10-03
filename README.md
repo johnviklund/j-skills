@@ -44,6 +44,11 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   risks, and for a run a what-changed summary. Every claim cites `file:line` or a commit, and a checker
   verifies each cite against git. Written to `.workflow/<slug>/understand/explainer.html` or
   `docs/understand/<topic>/explainer.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
+- **`plain`** is the single source of the plain-language rules, in `plain/rules.md`. Every
+  skill that writes for a person points there. Typed or triggered on "in simple terms", "plain
+  English" or "wait, what?", it explains the topic or the last message for someone who just
+  switched into the project. On "remove AI patterns" or "unslop", it rewrites text or a file and
+  keeps every fact. Rules adapted from `unslop` and from `understand`'s STE section.
 
 ## How this repo is wired up
 
