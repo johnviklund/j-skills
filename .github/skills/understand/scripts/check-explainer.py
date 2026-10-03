@@ -4,7 +4,8 @@
 Errors (exit 1): leftover {{placeholders}}; a network-loaded resource; no citations; a citation
 whose commit, file or line range does not exist in the repo; a diagram that is not well-formed
 SVG or has no viewBox; a local <img> whose file is missing.
-Warnings: images over ~400 KB, sentences over the STE-ish limit (25 words), paragraphs over 6 sentences, file size,
+Warnings: images over ~400 KB, sentences over 25 words, paragraphs over 6 sentences, em dashes or
+parentheses in prose (limits from the plain skill's rules.md), file size,
 diagram shapes outside their viewBox, a viewBox wider than the text column, or a width
 attribute that does not match the viewBox.
 
@@ -163,6 +164,10 @@ def main():
     errors += [e for e in (check_cite(repo, a) for a in parser.cites) if e]
 
     for block in parser.blocks:
+        if "\u2014" in block:
+            warnings.append(f"em dash in prose: \"{block[:60]}...\"")
+        if re.search(r"\([^)]*[a-z]{2}[^)]*\)", block):
+            warnings.append(f"parentheses in prose: \"{block[:60]}...\"")
         sentences = [s for s in re.split(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(])", block) if s.strip()]
         if len(sentences) > PARAGRAPH_SENTENCES:
             warnings.append(f"{len(sentences)} sentences in one block: \"{block[:60]}...\"")

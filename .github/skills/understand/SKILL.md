@@ -2,7 +2,7 @@
 name: understand
 description: >
   Human-friendly explainer for a finished workflow run or an area of a codebase: one HTML page
-  with controlled-English prose (~80% ASD-STE100), inline SVG diagrams, before/after screenshots
+  with plain-English prose, inline SVG diagrams, before/after screenshots
   of every changed screen with unrequested UI changes flagged, decisions, and open questions and
   risks; every claim cites a file:line or commit. Run only on an explicit "understand <slug>" or
   "understand <area>" message, typically after "workflow wrap"; never on casual mentions of
@@ -122,18 +122,17 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
 why none) · cites checked · `WARN`s left · commit sha · contradictions found (lettered, routed to
 the human) · `open <path>` to read it.
 
-## Writing — ~80% ASD-STE100
+## Writing
 
-ASD-STE100 is the controlled English of aerospace maintenance manuals. Keep its discipline:
+Prose follows the `plain` skill's [`rules.md`](../plain/rules.md): read it before step 5 and apply
+every rule. Two additions for this page:
 
-- One topic per sentence: at most 20 words in a procedure, 25 in a description.
-- At most six sentences per paragraph, main point first.
-- Active voice, present tense: "The loader reads the file."
-- One word, one meaning: choose a term per concept, keep it, put it in the Glossary.
-- Common words; keep articles; cut filler ("basically", "in order to", "note that").
-- A list for three or more steps; a table for a comparison.
+- Put each term the page keeps in the Glossary, `PRODUCT.md` vocabulary first.
+- Technical names stay in `code`; the rules apply to the prose around them.
 
-The 20% you relax: technical names (in `code`) and domain terms beyond the STE dictionary.
+`scripts/check-explainer.py` enforces the rules it can count: 25 words per sentence, six
+sentences per paragraph, no em dashes, no parentheses in prose. If those limits change in
+`rules.md`, change the checker's constants in the same commit.
 
 ## Look — simple and beautiful
 

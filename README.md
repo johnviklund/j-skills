@@ -38,8 +38,8 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   (MIT, © 2026 Matt Pocock). Depends on his `writing-for-agents` skill, installed separately
   from upstream (see *External dependencies*).
 - **`understand`** — `understand <slug>` (after `workflow wrap`) or `understand <area>`: a
-  human-friendly explainer as one self-contained HTML page — controlled-English prose (~80%
-  ASD-STE100), hand-drawn inline SVG diagrams, before/after screenshots of every changed screen
+  human-friendly explainer as one self-contained HTML page — prose by the `plain` rules,
+  hand-drawn inline SVG diagrams, before/after screenshots of every changed screen
   with unrequested UI changes flagged, decisions, open questions and
   risks, and for a run a what-changed summary. Every claim cites `file:line` or a commit, and a checker
   verifies each cite against git. Written to `.workflow/<slug>/understand/explainer.html` or
