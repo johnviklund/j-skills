@@ -35,8 +35,7 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   guardrails, review rules, steering weight, tool economy, information access, skill friction),
   ranked, each routed to its owner (`memory.remember`, `workflow todo`, `checkup`, or you for
   global files). Adapted from [Matt Pocock's `retro`](https://github.com/mattpocock/skills/tree/main/skills/engineering/retro)
-  (MIT, © 2026 Matt Pocock). Depends on his `writing-for-agents` skill, installed separately
-  from upstream (see *External dependencies*).
+  (MIT, © 2026 Matt Pocock). Judges candidates with `agent-docs` and writes its report by `plain`.
 - **`understand`** — `understand <slug>` (after `workflow wrap`) or `understand <area>`: a
   human-friendly explainer as one self-contained HTML page — prose by the `plain` rules,
   hand-drawn inline SVG diagrams, before/after screenshots of every changed screen
@@ -80,15 +79,6 @@ repo.
 skill stops picking up edits, run `ls -la ~/.agents/skills/<name>`. If it is a directory again,
 restore it with `ln -sfn ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>`, and the
 same for `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
-
-### External dependencies
-
-`retro` invokes `writing-for-agents` from
-[`mattpocock/skills`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents).
-It is not vendored here: the multi-source installer keeps it in `~/.agents/skills/writing-for-agents`
-and updates it from upstream, so there is one copy and no name collision. Codex gets it through a
-symlink: `ln -s ~/.agents/skills/writing-for-agents ~/.codex/skills/writing-for-agents`. Without
-it, `retro` still runs and says the guide is missing.
 
 ### Updating a skill
 

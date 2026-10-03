@@ -92,6 +92,10 @@ Then check:
   `~/.codex/skills/<name>` entry exists and resolves. Missing ones are ⚠️ (Copilot-only until linked).
 - **Broken Codex symlinks.** Dangling links whose target no longer exists:
   `find ~/.codex/skills -maxdepth 1 -type l ! -exec test -e {} \; -print`. Each is 🔴.
+- **Skills stand alone.** In the j-skills repo (its `.claude-plugin/plugin.json` is named `j-skills`),
+  every skill a j-skill invokes, reads or routes to must be a folder under `.github/skills/`. Match
+  backticked names used *as skills* ("the `x` skill", "invoke `x`", "read `x`'s") against that folder
+  list, not every backticked word. A name that is not a j-skill is 🔴: port it or drop the reference.
 - **Self-publish drift.** For a skill packaged as its own plugin (e.g. a `.github/copilot-plugins/<name>/`
   whose `skills/<name>` symlinks back to `.github/skills/<name>`), confirm it is still a symlink (single
   source) and that the installed snapshot matches the repo source. A materialized copy or a stale
