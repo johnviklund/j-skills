@@ -49,6 +49,11 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   English" or "wait, what?", it explains the topic or the last message for someone who just
   switched into the project. On "remove AI patterns" or "unslop", it rewrites text or a file and
   keeps every fact. Rules adapted from `unslop` and from `understand`'s STE section.
+- **`agent-docs`** is the reference for writing documents agents read: skills, `AGENTS.md`,
+  `CLAUDE.md` and memory pages. It covers context pointers, the two loads, progressive
+  disclosure, leading words and pruning, plus the j-skills conventions in `SKILL-MECHANICS.md`.
+  Ported from [Matt Pocock's `writing-for-agents`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents)
+  (MIT, © 2026 Matt Pocock).
 
 ## How this repo is wired up
 
