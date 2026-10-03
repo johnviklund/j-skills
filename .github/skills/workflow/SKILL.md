@@ -80,8 +80,10 @@ state gets named and asked about; `workflow spec` is retired — route to `workf
 
 ## Talking to the human (every phase)
 
-**The artifact is the record; chat is the receipt** (the human reads on a phone). Above the closing
-card, a phase prints at most ~12 lines:
+**The artifact is the record; chat is the receipt** (the human reads on a phone). Everything the
+human reads, in chat and in run artifacts, follows the `plain` skill's
+[`rules.md`](../plain/rules.md); ids, commands, paths and the artifacts' fixed line formats stay as
+they are. Above the closing card, a phase prints at most ~12 lines:
 
 - **Result** — what the phase did, ≤3 plain lines.
 - **Decisions needed** — a numbered list; each item is one decision in plain words, options
@@ -135,7 +137,7 @@ pick a model.
 
 ---
 **▶ Next: <phase>** · <run slug> · <one-line why, or the cycle and finding ids for a patch cycle>
-**Reset:** yes | no · **Model:** <model> · <effort> · <context> — fallback <model> <effort>
+**Reset:** yes | no · **Model:** <model> · <effort> · <context> · fallback <model> <effort>
 **Reads:** <files the next phase opens first>
 ```text
 workflow <phase> <slug>
@@ -143,7 +145,7 @@ workflow <phase> <slug>
 ---
 
 Reset is `yes` at every handoff, `no` only for same-seat work continuing. A step only the human can
-take (an operator ticket, an escalation) reads `**Model:** human — <the one action>`, **Reads:**
+take (an operator ticket, an escalation) reads `**Model:** human · <the one action>`, **Reads:**
 naming the handoff. A finished run gets wrap's ✅ card instead (`references/wrap.md`).
 
 ## Ground rules

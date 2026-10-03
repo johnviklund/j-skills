@@ -45,7 +45,7 @@ without a receipt it is skipped.
 5. **Commit** the ticket, then persist before starting the next one: tick its acceptance lines,
    set `Status: done @ <sha>`, add `Writer: <model>` under it, and refresh
    `## Execution state`.
-6. **Report** in three lines: `T# — <title>` · `Verify: <pass/fail + the number that proves it>` ·
+6. **Report** in three lines: `T# · <title>` · `Verify: <pass/fail + the number that proves it>` ·
    `Commit: <sha>`.
 
 **Operator tickets** replace red → green with handoff → receipt. Write the handoff into the run
@@ -100,5 +100,5 @@ An autonomy loop (a CLI mode that drives every ticket without re-prompting) runs
 human asks for it, and contract tickets still get their diff approved inside it.
 
 Close with the closing card from `SKILL.md`: the next ready ticket (`workflow execute <slug>`),
-the human's action for an `awaiting-human` ticket (`**Model:** human — <the one action>`, **Reads:**
+the human's action for an `awaiting-human` ticket (`**Model:** human · <the one action>`, **Reads:**
 the handoff), or `workflow review <slug>` once every ticket is done.

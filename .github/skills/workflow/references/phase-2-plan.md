@@ -80,7 +80,7 @@ human asks.
 
 ## 4. Quiz the human on the breakdown
 
-Show the tickets as a numbered list — `T# — <title> · delivers B# · blocked by T# · lane` — with
+Show the tickets as a numbered list — `T# · <title> · delivers B# · blocked by T# · lane` — with
 each ticket's acceptance lines indented under it, one line each. The acceptance lines are the bar
 review will hold the code to, so the human sees them here; this is the one round where the chat
 budget yields. Ask one decision: a) approve ➡️ · b) split T# · c) merge T# + T# · d) change an

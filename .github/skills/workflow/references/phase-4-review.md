@@ -93,7 +93,7 @@ tickets: first a test that reproduces it, run and seen to fail, committed alone;
 which leaves every test file untouched. When the finding is a class that can recur (a field read
 in several places, a call site pattern), the fix ticket's acceptance names every site — list them
 with a search at planning time. The card routes to `workflow execute <slug>`, naming the
-cycle and finding ids (`Patch cycle 1 — fix C1-1, C1-2`); P0 tickets go to the heavy executor.
+cycle and finding ids (`Patch cycle 1 · fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
 **Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,
 append `## Cycle N findings` and `## Cycle N verdict`, and move `Base` to the sha reviewed. As each
@@ -109,7 +109,7 @@ decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `T
 
 **Cycle bound — three.** Stop and escalate after the third cycle, or as soon as a P0 survives a
 cycle. The escalation states the unresolved finding verbatim, each attempt and why it failed, and
-one answerable question; the card routes to the human (`**Model:** human — <the one action>`).
+one answerable question; the card routes to the human (`**Model:** human · <the one action>`).
 
 A finding stays open until a later cycle stamps it. P0/P1 deferral needs the human's explicit
 approval, recorded as `Approved by human:`. Wrap refuses any open "fix now" and any unapproved

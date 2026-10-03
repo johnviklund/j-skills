@@ -37,7 +37,7 @@ The **frontier** is every open decision whose prerequisites are settled. Each ro
 frontier — up to 5 questions, the ones that most change scope or architecture first — then waits.
 
 ```
-**Q1 — <title>** <the question in ≤2 plain sentences>
+**Q1 · <title>** <the question in ≤2 plain sentences>
   a) <option>   b) <option>   c) <option>
   ➡️ <recommended answer, one line on why>
 ```
@@ -137,7 +137,7 @@ what would unpark it. Nothing is deleted; the folder is the idea's home (`TODO.m
 ideas not yet brainstormed). Park before planning where possible: a parked brief keeps for
 months, a parked plan goes stale with the next commit to its files. Unpark with
 `workflow <phase> <slug>`; the freshness check decides whether the plan needs redoing. In chat:
-`⏸ Parked <slug> at <phase> — <what unparks it>`, then stop. "Good idea, not now" during a
+`⏸ Parked <slug> at <phase> · unparks when <what unparks it>`, then stop. "Good idea, not now" during a
 brainstorm parks the run the same way.
 
 Close with the closing card from `SKILL.md` — next is `workflow plan <slug>`.
