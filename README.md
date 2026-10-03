@@ -37,6 +37,12 @@ from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin mani
   global files). Adapted from [Matt Pocock's `retro`](https://github.com/mattpocock/skills/tree/main/skills/engineering/retro)
   (MIT, © 2026 Matt Pocock). Depends on his `writing-for-agents` skill, installed separately
   from upstream (see *External dependencies*).
+- **`understand`** — `understand <slug>` (after `workflow wrap`) or `understand <area>`: a
+  human-friendly explainer as one self-contained HTML page — controlled-English prose (~80%
+  ASD-STE100), hand-drawn inline SVG diagrams, a guided code tour, decisions, open questions and
+  risks, and for a run a before/after view. Every claim cites `file:line` or a commit, and a checker
+  verifies each cite against git. Written to `.workflow/<slug>/explainer.html` or
+  `docs/understand/<topic>.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
 
 ## How this repo is wired up
 
@@ -45,7 +51,7 @@ This repo is `johnviklund/j-skills`. The plugin manifest (`.claude-plugin/plugin
 folder is still called `agent-skills` (from before the rename) — paths below use that folder name.
 
 `.github/skills/` is the canonical source for the skill content (`checkup`, `evals`,
-`memory.compact`, `memory.remember`, `retro`, `workflow`). The clone lives at
+`memory.compact`, `memory.remember`, `retro`, `understand`, `workflow`). The clone lives at
 `~/Documents/projects/skills/agent-skills`, and every consumer is a symlink straight to it — no
 copies, no reinstall, no drift:
 

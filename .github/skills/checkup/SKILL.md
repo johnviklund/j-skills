@@ -269,6 +269,8 @@ reviewer exam (`evals.run reviewer`), or removing anything that could carry unsa
   that set and flags an unchecked reviewer.
 - `retro` — owns the per-session look at friction (what one run or session cost); checkup owns the
   standing state of the workspace. A retro hands hygiene it notices to `checkup`.
+- `understand` — writes human-facing explainers (`.workflow/<slug>/explainer.html`,
+  `docs/understand/*.html`); checkup treats them as tracked docs, not `.workflow` scratch.
 
 Keep this skill's `description` under ~900 characters (it enforces that rule on others -- it must
 pass its own check).

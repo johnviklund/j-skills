@@ -150,4 +150,5 @@ worklog entry (yes); run archived (`<slug>` · done); size flags (`TODO.md`/`ROA
 none); parked runs still open (slugs, or none). Anything that needs a decision is a lettered item
 with a recommended default. Then the ✅ done card, not a next-phase card: what shipped (one line);
 product-doc truth (edited what, or none); recommended next (`workflow brainstorm <next ROADMAP
-item>`, `memory.compact` if `MEMORY.md` grew, PR if not on `main`).
+item>`, `memory.compact` if `MEMORY.md` grew, PR if not on `main`), plus one optional line:
+`understand <slug>` for a cited HTML explainer of this run.

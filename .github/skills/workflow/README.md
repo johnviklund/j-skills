@@ -231,6 +231,7 @@ entirely.
 | `checkup` | Read-only health report: skill wiring, memory pages, docs, runs (stalled/parked), config, and the per-seat and per-skill-change comparison of worklog numbers that decides promotions |
 | `evals` | The one exam: `evals.run reviewer`, a ≤8-case recall check run only before swapping the strict reviewer |
 | `retro` | Manual retrospective on a run or session: where the agent lost time → ranked environment fixes, routed through `memory.remember`, `workflow todo` and `checkup` |
+| `understand` | After wrap: `understand <slug>` writes `.workflow/<slug>/explainer.html`, a cited, human-friendly page (prose, diagrams, code tour, before/after); `understand <area>` does the same for a part of the codebase |
 
 ## How models and skills earn their place
 
