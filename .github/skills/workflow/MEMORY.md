@@ -11,7 +11,7 @@ else.
 - **Decision:** Copilot CLI can load this skill's content from a path like
   `~/.agents/skills/workflow` that has **no `.git` at all** — a plugin-install snapshot, not the
   canonical clone. The canonical, push-able clone lives at
-  `~/Work/j-skills` (see root `README.md`, "How this repo is wired up"). A
+  `~/Work/j-skills` (see root `README.md`, "Setup"). A
   workflow run that executes entirely inside the disconnected snapshot has no commits, no diffs,
   and no `Base` shas — every phase that assumes Git must fall back to file-based verification and
   say so explicitly. Before committing/pushing any workflow-skill change, confirm which copy is

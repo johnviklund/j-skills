@@ -1,117 +1,158 @@
 # j-skills
 
-Global, cross-repo agent skills — not tied to any single project. Reachable from every repo,
-from both Codex CLI and GitHub Copilot CLI (and Claude Code, via the plugin manifest).
+Personal agent skills that work in every repo. Claude Code, Codex CLI and GitHub Copilot CLI all
+read them from this one clone.
 
-## Skills
+## Skills at a glance
 
-- **`memory.remember`** — capture durable learnings from the current session as one page per
-  lesson in the target repo's `memory/` (indexed by `MEMORY.md`); a repeat bumps the page's
-  occurrence count, and three occurrences promote it into a skill. Also updates related
-  repo docs and `DESIGN.md` (when the repo has one) in one pass.
-- **`memory.compact`** — manual, occasional cleanup of a repo's memory pages: merges pages that
-  make the same claim, splits legacy inline `MEMORY.md` entries into pages, flags
-  stale/superseded pages and skill-promotion candidates, and writes proposal files for review.
-  Never runs automatically.
-- **`workflow`** — a personal solo-dev workflow of four phases and a wrap (v2.1: brainstorm →
-  plan → execute → review → wrap). The brainstorm is a grill ending in a brief with behaviours and test seams; the plan
-  is ≤8 tracer-bullet tickets with literal acceptance lines; execute runs one ticket red → green
-  (operator tickets for live steps the human runs); review checks the outcome on the surface users
-  reach. Writer and reviewer sit with different vendors (a same-vendor review is allowed but
-  flagged as degraded). Seats map to models in `workflow/ROUTING.md`. This is the canonical
-  source for that workflow — edit this skill directly when its shape changes.
-- **`checkup`** — manual, read-first workspace health check (inspired by a `/checkup` command):
-  audits skill hygiene (plugin name collisions, folder-vs-frontmatter name, description length,
-  Codex symlink parity, self-publish drift), memory hygiene (MEMORY.md size/staleness/superseded,
-  leftover proposals), doc freshness (canonical docs, dead skill references), workspace
-  cleanliness (leftover `.workflow` scratch, tracked junk, unpushed work), config health, and
-  eval-set health. Reports severity-ranked findings and prioritized fixes; delegates compaction
-  to `memory.compact` and eval runs to `evals.run`; applies only opt-in, one-at-a-time safe fixes.
-- **`evals`** — `evals.run reviewer [candidate model]` is a recall check for strict-reviewer
-  candidates on ≤8 diffs with known P0/P1 findings deposited by `workflow`; `evals.list` shows the
-  set's status. Every other seat is judged on trial runs recorded in `WORKLOG.md`, not exams.
-- **`retro`** — `retro [slug | session id]`: a retrospective on one session or `.workflow` run.
-  Finds where the agent lost time and proposes environment fixes (navigation pointers,
-  guardrails, review rules, steering weight, tool economy, information access, skill friction),
-  ranked, each routed to its owner (`memory.remember`, `workflow todo`, `checkup`, or you for
-  global files). Adapted from [Matt Pocock's `retro`](https://github.com/mattpocock/skills/tree/main/skills/engineering/retro)
-  (MIT, © 2026 Matt Pocock). Judges candidates with `agent-docs` and writes its report by `plain`.
-- **`understand`** — `understand <slug>` (after `workflow wrap`) or `understand <area>`: a
-  human-friendly explainer as one self-contained HTML page — prose by the `plain` rules,
-  hand-drawn inline SVG diagrams, before/after screenshots of every changed screen
-  with unrequested UI changes flagged, decisions, open questions and
-  risks, and for a run a what-changed summary. Every claim cites `file:line` or a commit, and a checker
-  verifies each cite against git. Written to `.workflow/<slug>/understand/explainer.html` or
-  `docs/understand/<topic>/explainer.html`. Inspired by [Karpathy on understanding LLM output](https://x.com/karpathy/status/2105819303471976479).
-- **`plain`** is the single source of the plain-language rules, in the *Rules* section of its
-  `SKILL.md`. Every skill that writes for a person invokes it. Typed or triggered on "in simple terms", "plain
-  English" or "wait, what?", it explains the topic or the last message for someone who just
-  switched into the project. On "remove AI patterns" or "unslop", it rewrites text or a file and
-  keeps every fact. Rules adapted from `unslop` and from `understand`'s STE section.
-- **`agent-docs`** is the reference for writing documents agents read: skills, `AGENTS.md`,
-  `CLAUDE.md` and memory pages. It covers context pointers, the two loads, progressive
-  disclosure, leading words and pruning, plus skill mechanics and the j-skills conventions.
-  Ported from [Matt Pocock's `writing-for-agents`](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents)
-  (MIT, © 2026 Matt Pocock).
-
-## How this repo is wired up
-
-This repo is `johnviklund/j-skills`. The plugin manifest (`.claude-plugin/plugin.json`) is named
-`j-skills`, and Codex prefixes skills with that name (`j-skills:workflow`). The repo was once
-called `agent-skills`. GitHub redirects the old name, but use `j-skills` everywhere.
-
-`.github/skills/` is the canonical source for the skill content. The clone lives at
-`~/Work/j-skills`, and every consumer is a symlink straight to it. There are no copies, so there
-is nothing to reinstall and nothing to drift:
-
-| Where | Read by | Link |
+| Skill | What it does | Start it with |
 |---|---|---|
-| `~/.agents/skills/<name>` | Copilot CLI | → `~/Work/j-skills/.github/skills/<name>` |
-| `~/.codex/skills/<name>` | Codex CLI. Codex 0.160 also reads `~/.agents/skills/`, but keep the link | same target |
-| `~/.claude/skills/<name>` | Claude Code | same target |
-| `skills/<name>` in this repo | Claude Code plugin discovery | → `../.github/skills/<name>` |
+| [`plain`](#plain) | Explains something in simple terms, or rewrites text so it reads plainly | "in simple terms", "wait, what?", "remove AI patterns" |
+| [`understand`](#understand) | Writes a cited HTML page that explains a finished run or a part of the code | `understand <slug>` or `understand <area>` |
+| [`workflow`](#workflow) | Takes a coding task through brainstorm, plan, execute, review and wrap | `workflow <command>` |
+| [`retro`](#retro) | Looks back at a session and suggests fixes so the next one goes faster | `retro` |
+| [`memory.remember`](#memoryremember) | Saves lessons from the session into the repo's memory pages | "remember this" |
+| [`memory.compact`](#memorycompact) | Cleans up memory pages that overlap or have gone stale | `memory.compact` |
+| [`checkup`](#checkup) | Gives a health report on the repo and the skill setup | `checkup` |
+| [`evals`](#evals) | Tests a model before it takes the reviewer seat | `evals.run reviewer <model>` |
+| [`agent-docs`](#agent-docs) | Guides the writing of skills, `AGENTS.md` and other docs agents read | other skills load it |
 
-Edit under `.github/skills/<name>/`, commit, push. All three CLIs see the change at once.
-`~/.agents/skills/` can also hold skills from other sources, so it is not simply a clone of this
-repo.
+Codex shows each skill with the plugin name in front, for example `j-skills:workflow`.
 
-**Caveat:** a skill installer could replace one of these symlinks with a plain directory. If a
-skill stops picking up edits, run `ls -la ~/.agents/skills/<name>`. If it is a directory again,
-restore it with `ln -sfn ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>`, and the
-same for `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
+## The skills
 
-### Updating a skill
+### plain
 
-1. Edit under `.github/skills/<name>/` in `~/Work/j-skills`. Any symlink path reaches the same
-   files.
-2. Commit and push. Both Codex and Copilot are live immediately; no reinstall needed (restart an
-   already-open session to reload).
-3. Verify: `readlink -f ~/.agents/skills/<name>`, `~/.codex/skills/<name>` and
-   `~/.claude/skills/<name>` all point at `~/Work/j-skills/.github/skills/<name>`.
+Use it when you switch into a project and need something explained without the jargon.
 
-## Adding a new global skill
+- **Explain mode** answers a question or re-explains the last message. It starts with one line
+  on where you are, then gives the short answer, then more detail only if needed.
+- **Rewrite mode** rewrites text or a file so it has no AI patterns. Every fact stays.
+- It holds the writing rules that every other skill uses for text you read: short sentences,
+  plain words, no em dashes and no parentheses.
 
-1. Add a new folder under `.github/skills/<name>/SKILL.md`.
-2. Symlink it from `skills/<name>` at the repo root (`../.github/skills/<name>`) — this is only
-   for Claude Code's plugin discovery (`.claude-plugin/plugin.json`), unrelated to the local dev
-   setup below.
-3. Commit and push.
-4. Link it into all three CLIs so it is picked up at once:
-   `ln -s ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>`, and the same into
-   `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
+### understand
 
-**Known gotcha — Copilot's skill loader can silently drop a skill with a long `description`.**
-Confirmed empirically (under an older `copilot plugin install` setup, since replaced by the
-symlinks above): a description field somewhere between ~1033 and ~1078 characters caused
-Copilot to load successfully (no error) but silently omit that one skill from `copilot skill
-list` — the skill name and content weren't the cause (tested independently), only description
-length was. Not re-tested against the current `~/.agents/skills/` discovery path, but the safe
-margin still applies: keep each skill's `description` under ~900 characters, and after adding or
-editing a skill, verify it actually registered —
-`copilot skill list --json | grep -A2 '"name": "<your-skill>"'` (current sources report as
-`inherited` or `personal-agents`) — don't just trust a success message, since one could print
-even when a skill was silently dropped.
+Use it after a finished run, or when you want to learn one part of a codebase.
+
+- It writes one self-contained HTML page with diagrams, decisions and open questions.
+- When a run changed what users see, the page shows before and after screenshots. Changes nobody
+  asked for come first, marked in red.
+- Every claim links to a line of code or a commit, and a checker confirms each link.
+- The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
+  an area.
+
+### workflow
+
+Use it for any coding task bigger than a quick fix.
+
+| Step | What happens |
+|---|---|
+| Brainstorm | The agent asks questions until the task is clear, then writes a short brief |
+| Plan | Up to eight small tickets, each with lines that say when it is done |
+| Execute | One ticket at a time, test first. Steps only you can take become operator tickets |
+| Review | Checks the result where users see it. A model from another vendor reviews the code |
+| Wrap | Updates docs and memory, then closes the run |
+
+Each step ends with a card that names the next command and the model to use.
+`workflow/ROUTING.md` sets the models, and `workflow/README.md` has the full guide.
+
+### retro
+
+Use it after a session that felt slow.
+
+- It finds where the agent lost time: failed commands, long searches, corrections from you.
+- It suggests fixes, ranked by how much time they would save.
+- Each fix you approve goes to the skill or file that owns it.
+- Run `retro` for the current session, `retro <slug>` for a workflow run, or `retro <session id>`.
+
+### memory.remember
+
+Use it at the end of a session, or whenever you say "remember this".
+
+- Each lesson gets its own page in the repo's `memory/` folder, listed in `MEMORY.md`.
+- When a lesson comes up again, its page counts it. At three times, the lesson moves into a skill.
+- It also updates related docs, such as `DESIGN.md` when the repo has one.
+
+### memory.compact
+
+Use it now and then, when memory feels bloated.
+
+- It merges pages that say the same thing and flags pages that are stale.
+- It writes proposals for you to accept. It never changes the memory pages itself.
+
+### checkup
+
+Use it when something feels off, or before a cleanup.
+
+- It checks skills, memory, docs, the workspace, config and how each model performs.
+- It only reads. Safe fixes are offered one at a time, and you choose.
+
+### evals
+
+Use it before you let a new model review code.
+
+- It shows the model up to ten diffs that hide known serious bugs, and records which bugs it finds.
+- Only the reviewer seat is tested this way. Other seats are judged on real runs in `WORKLOG.md`.
+
+### agent-docs
+
+You rarely start this one yourself. `retro` and `memory.remember` load it when they write for
+agents.
+
+- It explains how to write skills, `AGENTS.md` files and memory pages that agents follow reliably.
+- It ends with the conventions every j-skill follows.
+
+## Setup
+
+The clone lives at `~/Work/j-skills`. Each CLI reads the skills through a symlink to
+`.github/skills/<name>` in that clone, so there are no copies to keep in sync.
+
+| Link | Read by |
+|---|---|
+| `~/.agents/skills/<name>` | Copilot CLI, and Codex 0.160 or newer |
+| `~/.codex/skills/<name>` | Codex CLI |
+| `~/.claude/skills/<name>` | Claude Code |
+| `skills/<name>` in this repo | Claude Code plugin discovery, through `.claude-plugin/plugin.json` |
+
+### Change a skill
+
+1. Edit the files under `.github/skills/<name>/`.
+2. Commit and push. Every CLI sees the change in its next session.
+
+### Add a skill
+
+1. Create `.github/skills/<name>/SKILL.md`.
+2. Link it for plugin discovery: `ln -s ../.github/skills/<name> skills/<name>`.
+3. Link it into each CLI:
+
+   ```sh
+   for d in ~/.agents/skills ~/.codex/skills ~/.claude/skills; do
+     ln -s ~/Work/j-skills/.github/skills/<name> "$d/<name>"
+   done
+   ```
+
+4. Check that Copilot registered it: `copilot skill list --json | grep '"name": "<name>"'`.
+5. Commit and push.
+
+### If a skill stops picking up edits
+
+A skill installer can replace a symlink with a plain folder. Run `ls -la ~/.agents/skills/<name>`.
+If it shows a folder, put the link back:
+
+```sh
+ln -sfn ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>
+```
+
+Do the same for `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
+
+### Keep descriptions short
+
+Copilot silently drops a skill whose `description` is over about 1,000 characters. It shows no
+error, and the skill is just missing from `copilot skill list`. Keep each description under 900
+characters, and check the list after every change.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+MIT, see [`LICENSE`](LICENSE). Notices for adapted work are in
+[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
