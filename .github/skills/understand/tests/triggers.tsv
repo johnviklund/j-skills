@@ -1,0 +1,6 @@
+# Trigger cases for understand. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/understand/tests/triggers.tsv
+understand	understand checkout-redesign
+understand	understand src/billing --video
+understand	understand the session token refresh flow --no-video
+!understand	I don't understand this error: TypeError: undefined is not a function. What does it mean?
+!understand	Make me a short animated video explaining how a hash map works.

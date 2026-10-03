@@ -107,6 +107,10 @@
   .shot .none { border: 1px dashed var(--rule); color: var(--gray); font-size: 14px; padding: 32px 16px; text-align: center; }
   figure.screen figcaption { margin-top: 12px; font-size: 16px; }
   @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } }
+  /* Watch: build-video.py --embed adds the section and its nav link. */
+  figure.video { margin: 32px 0 48px; }
+  figure.video video { display: block; width: 100%; height: auto; background: #14181c; }
+  figure.video figcaption { margin-top: 12px; font-size: 16px; }
   /* Diagram kit: hand-written inline SVG. */
   figure.diagram { margin: 32px 0; }
   figure.diagram figcaption { margin-top: 8px; font-size: 14px; color: var(--gray); }

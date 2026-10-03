@@ -1,0 +1,10 @@
+{
+  "title": "Why saving got fast",
+  "beats": [
+    {"id": "hook", "say": "Saving a document used to take two seconds. Here is why, and what changed."},
+    {"id": "parts", "say": "Three parts take part in a save: the editor, the save API and the database."},
+    {"id": "flow", "say": "Every keystroke sent the whole document through the API to the database."},
+    {"id": "change", "say": "The change puts a cache beside the API, so only the edited lines travel."},
+    {"id": "screens", "say": "Saving now takes one round trip."}
+  ]
+}

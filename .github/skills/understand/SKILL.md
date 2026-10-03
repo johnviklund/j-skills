@@ -4,9 +4,9 @@ description: >
   Human-friendly explainer for a finished workflow run or an area of a codebase: one HTML page
   with plain-English prose, inline SVG diagrams, before/after screenshots
   of every changed screen with unrequested UI changes flagged, decisions, and open questions and
-  risks; every claim cites a file:line or commit. Run only on an explicit "understand SLUG" or
-  "understand AREA" message, typically after "workflow wrap"; never on casual mentions of
-  understanding something.
+  risks; every claim cites a file:line or commit; optionally a narrated 3Blue1Brown-style video
+  of the same story. Run only on an explicit "understand SLUG" or "understand AREA" message,
+  typically after "workflow wrap"; never on casual mentions of understanding something.
 ---
 
 # understand
@@ -26,7 +26,8 @@ for or not. Every claim is pinned to code, so the page stays honest after its au
 | `understand` | — | list the three most recently wrapped runs, lettered, and ask |
 
 The page is `explainer.html` in the output folder; screenshots this skill takes go in its
-`screens/`. `<skill>` below is this skill's folder.
+`screens/`, a video in its `video/`. `--video` or `--no-video` after the target answers the
+video question in advance. `<skill>` below is this skill's folder.
 
 ## Steps
 
@@ -35,11 +36,14 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
    - **Slug:** `brainstorm.md` must carry `Status: done`; a live run routes to `workflow wrap <slug>`.
    - **Area:** resolve it to files with grep/glob. More than one plausible reading: list them
      lettered with a recommended default and ask.
-   - An existing explainer is regenerated from scratch; git keeps the old version.
+   - An existing explainer is regenerated from scratch; git keeps the old version. Exception:
+     with `--video` and an existing page pinned at `HEAD`, build the video for that page: step 7,
+     then step 8.
 
 2. **Gather evidence.** Done when every section of the template has evidence, or is marked n/a
-   with a reason. The run's artifacts say what was *intended*; code and tests say what *is*: every
-   behaviour the page states is seen at a line you can cite.
+   with a reason, and the video question is settled. The run's artifacts say what was
+   *intended*; code and tests say what *is*: every behaviour the page states is seen at a line
+   you can cite.
    - **Slug:** `wrap.md` (outcome, ticket → sha), `brainstorm.md` (problem, behaviours B#,
      decisions, out of scope), `plan.md` (tickets, `## Deviations`, `Base:`), `review.md` (verdict,
      deferrals, `## Resolved`), `learnings.md`, and the file list of `receipts/` and `screens/`.
@@ -61,6 +65,16 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
    - **Screens changed** (slug): UI files in the run's diff — components, pages, styles, templates;
      tests excluded. Map each to the screen a user reaches and to the B# or ticket that asked for
      it. A visible change no behaviour or acceptance line asked for is **unrequested**.
+   - **Video question:** settle it now, so the rest runs without stopping. A video retells the
+     page in motion and earns its cost when the story moves: screens changed, or the work spans
+     several parts or steps, such as three or more behaviours or tickets, or a flow or states
+     to draw. A small fix, a rename or config change, or a page whose point is one fact does not
+     fit. When it fits, ask once, lettered, recommending a when `ELEVENLABS_API_KEY` is set and
+     b otherwise: a) video with voice, b) video with on-screen captions, c) no video. Each option
+     names its cost: roughly how many characters go to ElevenLabs, whether the key is set, and a
+     one-time Manim install when `build-video.py` finds none. `--video` means a, or b without a
+     key; `--no-video` or no fit means c. With no human to ask, c, and the receipt names
+     `understand <target> --video`.
 
 3. **Pictures.** Done when every changed screen has a before and an after picture, or a stated
    reason for each one missing. Skip this step when no screen changed. Take the cheapest source
@@ -122,13 +136,16 @@ The page is `explainer.html` in the output folder; screenshots this skill takes 
      show. Correct a claim that fails, or move it to Open questions as "not verified".
    - With a browser tool, screenshot the page at desktop width and look at it against *Look*.
 
-7. **Commit.** `git add <output folder>` only, then commit
+7. **Video** (a or b only). Follow `<skill>/video.md`. Done when its build exits 0, the page's
+   Watch section plays it, and the checker of step 6 still exits 0.
+
+8. **Commit.** `git add <output folder>` only, then commit
    `understand: <slug|topic> — <what it explains>` and push when the branch tracks a remote.
    Leave other dirt in the tree alone.
 
 **Receipt:** path · size · screens (changed / unrequested / pictures missing) · diagrams (count, or
-why none) · cites checked · `WARN`s left · commit sha · contradictions found (lettered, routed to
-the human) · `open <path>` to read it.
+why none) · video (the line from `video.md`, or why none) · cites checked · `WARN`s left ·
+commit sha · contradictions found (lettered, routed to the human) · `open <path>` to read it.
 
 ## Writing
 
@@ -164,4 +181,7 @@ Keep the template's palette, type and spacing; add no CSS beyond small layout tw
 - Writes only its output folder. Run artifacts, the run's `screens/`, product docs, `memory/` and
   `TODO.md` stay untouched: a contradiction goes to Open questions and the receipt, and the human
   decides who fixes it (`memory.remember`, `workflow todo`, a doc edit).
-- Budget: page ~150 KB, each screenshot ≤ ~400 KB; one explainer per run or topic.
+- Budget: page ~150 KB, each screenshot ≤ ~400 KB, a video ≤ ~25 MB; one explainer per run or
+  topic.
+- Narration text leaves the machine only for ElevenLabs, and only after the human chose a voiced
+  video or typed `--video` with the key set: it describes code that may be private.

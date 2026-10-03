@@ -44,6 +44,13 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   requests that shaped it.
 - The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
   an area.
+- When the story moves, such as a UI change or a larger feature, it asks whether you also want a
+  short animated video in the style of 3Blue1Brown. The video plays at the top of the page.
+  Add `--video` or `--no-video` to the command to answer in advance.
+- The video is narrated with ElevenLabs when `ELEVENLABS_API_KEY` is set. Without a key, the
+  narration shows as captions on screen. Set `ELEVENLABS_VOICE_ID` to pick another voice.
+- Videos need `ffmpeg` and the cairo and pango libraries. Manim, the animation library, installs
+  itself on first use into `~/.cache/j-skills/manim-venv`, after you agree.
 
 ### workflow
 

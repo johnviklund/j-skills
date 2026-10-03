@@ -3,8 +3,8 @@
 
 Errors (exit 1): leftover {{placeholders}}; a network-loaded resource; no citations; a citation
 whose commit, file or line range does not exist in the repo; a diagram that is not well-formed
-SVG or has no viewBox; a local <img> whose file is missing.
-Warnings: images over ~400 KB, sentences over 25 words, paragraphs over 6 sentences, em dashes or
+SVG or has no viewBox; a local <img>, <source> or poster whose file is missing.
+Warnings: images over ~400 KB, a video over ~25 MB, sentences over 25 words, paragraphs over 6 sentences, em dashes or
 parentheses in prose (limits from the plain skill's Rules), file size,
 diagram shapes outside their viewBox, a viewBox wider than the text column, or a width
 attribute that does not match the viewBox.
@@ -23,6 +23,7 @@ PARAGRAPH_SENTENCES = 6
 SIZE_WARN = 150_000
 MAX_DIAGRAM_WIDTH = 760
 IMAGE_WARN = 400_000
+VIDEO_WARN = 25_000_000  # the same budget as build-video.py
 PROSE_TAGS = {"p", "li", "dd", "td", "summary", "figcaption"}
 SKIP_TAGS = {"style", "script", "svg", "code", "pre", "nav"}
 REMOTE = [
@@ -92,16 +93,21 @@ def check_cite(repo, a):
 
 
 def check_images(page, page_dir, errors, warnings):
-    """Every local <img src> exists next to the page; big files are warned."""
+    """Every local <img src>, <source src> and poster exists next to the page; big files are
+    warned."""
     srcs = re.findall(r'<img\b[^>]*\ssrc="([^"]+)"', page)
-    for src in srcs:
+    media = re.findall(r'<source\b[^>]*\ssrc="([^"]+)"', page) + re.findall(r'\sposter="([^"]+)"', page)
+    for src in srcs + media:
         if src.startswith(("data:", "http:", "https:")) or "{{" in src:
             continue
         path = os.path.normpath(os.path.join(page_dir, src))
-        if not os.path.isfile(path):
-            errors.append(f"image missing: {src}")
-        elif os.path.getsize(path) > IMAGE_WARN:
-            warnings.append(f"image {src} is {os.path.getsize(path) // 1000} KB "
+        size = os.path.getsize(path) if os.path.isfile(path) else None
+        if size is None:
+            errors.append(f"{'image' if src in srcs else 'video file'} missing: {src}")
+        elif src.endswith(".mp4") and size > VIDEO_WARN:
+            warnings.append(f"video {src} is {size // 1_000_000} MB (budget ~{VIDEO_WARN // 1_000_000} MB)")
+        elif not src.endswith(".mp4") and size > IMAGE_WARN:
+            warnings.append(f"image {src} is {size // 1000} KB "
                             f"(crop it or lower the JPEG quality; budget ~{IMAGE_WARN // 1000} KB)")
     return len(srcs)
 
