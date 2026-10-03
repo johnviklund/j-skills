@@ -45,10 +45,23 @@ Use it after a finished run, or when you want to learn one part of a codebase.
 - The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
   an area.
 - When the story moves, such as a UI change or a larger feature, it asks whether you also want a
-  short animated video in the style of 3Blue1Brown. The video plays at the top of the page.
+  short animated video: shapes that move one idea at a time, as in 3Blue1Brown, drawn in the
+  page's own colours and diagram style. The video plays at the top of the page.
   Add `--video` or `--no-video` to the command to answer in advance.
 - The video is narrated with ElevenLabs when `ELEVENLABS_API_KEY` is set. Without a key, the
   narration shows as captions on screen. Set `ELEVENLABS_VOICE_ID` to pick another voice.
+- To set the key, keep it in its own file and load it near the top of `~/.bashrc`, above any
+  line that stops for non-interactive shells. Agents run commands in non-interactive shells,
+  so a key loaded below that line never reaches them:
+
+  ```bash
+  read -rs KEY && umask 077 && echo "export ELEVENLABS_API_KEY=$KEY" > ~/.config/elevenlabs.env
+  unset KEY
+  # near the top of ~/.bashrc:
+  [[ -f ~/.config/elevenlabs.env ]] && . ~/.config/elevenlabs.env
+  ```
+
+  Then restart your agent so it picks up the key.
 - Videos need `ffmpeg` and the cairo and pango libraries. Manim, the animation library, installs
   itself on first use into `~/.cache/j-skills/manim-venv`, after you agree.
 
