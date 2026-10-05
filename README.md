@@ -156,59 +156,61 @@ agents.
 
 ## Setup
 
-The clone lives at `~/Work/j-skills`. Each CLI reads the skills through a symlink to
-`.github/skills/<name>` in that clone, so there are no copies to keep in sync.
+Each skill is installed once, as a real folder in `~/.agents/skills/<name>`. The `skills`
+installer copies it from GitHub and records it in `~/.agents/.skill-lock.json`. Copilot CLI reads
+that folder; Codex reads the same folder through a link in `~/.codex/skills`. No CLI reads a
+working clone, so a clone can live anywhere and be deleted safely.
 
-| Link | Read by |
+| Path | What it is |
 |---|---|
-| `~/.agents/skills/<name>` | Copilot CLI, and Codex 0.160 or newer |
-| `~/.codex/skills/<name>` | Codex CLI |
-| `~/.claude/skills/<name>` | Claude Code |
-| `skills/<name>` in this repo | Claude Code plugin discovery, through `.claude-plugin/plugin.json` |
+| `~/.agents/skills/<name>` | The installed skill. Copilot CLI and Codex 0.160 or newer read it |
+| `~/.codex/skills/<name>` | A link to `~/.agents/skills/<name>`, for Codex |
+| `skills/<name>` in this repo | A link for Claude Code plugin discovery, through `.claude-plugin/plugin.json` |
+
+Install every skill:
+
+```sh
+npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
+for n in agent-docs checkup evals memory.compact memory.remember plain retro understand verify workflow; do
+  ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
+done
+```
+
+Copilot started inside a clone of this repo reads the clone's `.github/skills` instead of the
+installed copies. That is how to try an edit before installing it.
 
 The reviewer exam cases live in a private repo, cloned next to this one. They copy code from
 private repos, so they must never go into this public repo:
 
 ```sh
-gh repo clone johnviklund/j-skills-evals ~/Work/j-skills-evals
+gh repo clone johnviklund/j-skills-evals ../j-skills-evals
 ```
 
 ### Change a skill
 
-1. Edit the files under `.github/skills/<name>/`.
-2. Commit and push. Every CLI sees the change in its next session.
+1. Edit the files under `.github/skills/<name>/` in a clone of this repo.
+2. Commit and push.
+3. Run `npx skills update -g`. It copies the new version into `~/.agents/skills`, and every CLI
+   sees it in its next session.
 
 ### Add a skill
 
 1. Create `.github/skills/<name>/SKILL.md`.
 2. Link it for plugin discovery: `ln -s ../.github/skills/<name> skills/<name>`.
-3. Link it into each CLI:
-
-   ```sh
-   for d in ~/.agents/skills ~/.codex/skills ~/.claude/skills; do
-     ln -s ~/Work/j-skills/.github/skills/<name> "$d/<name>"
-   done
-   ```
-
-4. Check that Copilot registered it: `copilot skill list --json | grep '"name": "<name>"'`.
-5. Write `tests/triggers.tsv` in the skill folder and run the trigger test:
+3. Write `tests/triggers.tsv` in the skill folder and run the trigger test:
 
    ```sh
    python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/<name>/tests/triggers.tsv
    ```
 
-6. Commit and push.
+4. Commit and push. Install it and link it for Codex, then add its name to the loop above:
 
-### If a skill stops picking up edits
+   ```sh
+   npx skills add johnviklund/j-skills -g -a codex github-copilot -s <name> -y
+   ln -s ~/.agents/skills/<name> ~/.codex/skills/<name>
+   ```
 
-A skill installer can replace a symlink with a plain folder. Run `ls -la ~/.agents/skills/<name>`.
-If it shows a folder, put the link back:
-
-```sh
-ln -sfn ~/Work/j-skills/.github/skills/<name> ~/.agents/skills/<name>
-```
-
-Do the same for `~/.codex/skills/<name>` and `~/.claude/skills/<name>`.
+5. Check that Copilot registered it: `copilot skill list --json | grep '"name": "<name>"'`.
 
 ### Keep descriptions short
 
