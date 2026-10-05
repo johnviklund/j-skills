@@ -2,9 +2,10 @@
 """Build an understand explainer video from a video folder holding script.json, scene.py, kit.py.
 
 Steps: lint script.json, narrate each beat (ElevenLabs when ELEVENLABS_API_KEY is set, else
-on-screen captions), render scene.py with Manim, lay each beat's voice at the second its beat
-starts, and write explainer.mp4, explainer.vtt, poster.jpg into the folder. A contact sheet with
-one still per beat goes to the build folder for checking the look.
+on-screen captions) with a time for every word, render scene.py with Manim, lay each beat's voice
+at the second its beat starts, and write explainer.mp4, explainer.vtt, poster.jpg into the
+folder. A contact sheet with one still per beat goes to the build folder for checking the look,
+and a motion check reports every hold (the picture standing still) and pop (a jump in one frame).
 
 Usage:
     build-video.py VIDEO_DIR [--silent] [--draft] [--embed PAGE]
@@ -18,7 +19,8 @@ Usage:
 
 Needs: Python 3.10+, ffmpeg and ffprobe, and Manim Community Edition (cairo and pango libraries).
 Narration: ELEVENLABS_API_KEY; optional ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL_ID. Voice files are
-cached by text, voice and model in ~/.cache/j-skills/understand-tts, so a rebuild costs nothing.
+cached by text, voice and model in ~/.cache/j-skills/understand-tts, so a rebuild costs nothing;
+word times are cached beside each clip, and estimated from its length for a clip that has none.
 Exit code 0 on success, 1 on a failed step, 2 on bad input.
 """
 import argparse
@@ -51,9 +53,20 @@ BREATH = 0.6           # quiet after each voiced beat, so beats do not run toget
 READ_WPS = 2.5         # silent beats: ~150 words a minute, a relaxed reading pace beside motion
 MIN_BEAT = 3.0         # a beat shorter than this flashes past before the eye settles
 SENTENCE_WORDS = 25    # the plain skill's sentence limit, so narration reads as the page does
+KINDS = ("built", "feature")  # the two stories in video.md: what a run built, how a feature works
 LENGTH_OK = (45, 180)  # seconds: under 45 says too little to beat the page, over 180 loses people
 VIDEO_WARN = 25_000_000  # bytes: a 26 s 1080p test build was 0.6 MB (2026-10-04); 25 MB leaves
                          # room for 3 minutes with many screenshots
+MAX_HOLD = 2.0         # s: a still picture longer than this reads as the video stalling, while
+                       # 2 s still lets the eye read a three-word label after it lands
+MAX_HOLD_READ = 3.0    # s: the same in a captioned video, where the eye is busy reading the caption
+STILL_DIFF = 0.05      # mean luma change (0-255) under which two frames count as the same; a
+                       # 1080p test showed text anti-aliasing noise at 0.00-0.02 (2026-10-05)
+POP_RATIO = 3          # a frame changing 3x more than both neighbours appeared all at once
+POP_MIN = 0.15         # ...measured at 64 px wide, where Manim's edge flicker between moving and
+                       # still frames (up to 8.7 at 320 px) reads 0.00-0.01, a counter's last
+                       # two-digit tick 0.14, and a three-word label appearing about 0.2 (2026-10-05)
+MOTION_FPS = 15        # the check samples at the draft's rate, so its thresholds hold for both
 FINAL = ["-r", "1920,1080", "--fps", "30"]
 DRAFT = ["-r", "854,480", "--fps", "15"]
 
@@ -98,6 +111,9 @@ def lint(script):
     beats = script.get("beats")
     if not script.get("title"):
         errors.append('script.json: missing "title"')
+    if script.get("kind") not in KINDS:
+        warnings.append(f'script.json: "kind" should be one of {", ".join(KINDS)}; it picks the '
+                        'story arc in video.md')
     if not isinstance(beats, list) or not beats:
         errors.append('script.json: "beats" must be a non-empty list')
         return errors, warnings, []
@@ -111,6 +127,9 @@ def lint(script):
         seen.add(bid)
         if not say:
             errors.append(f"beat {bid or n}: empty \"say\"")
+        if not (b.get("show") or "").strip():
+            warnings.append(f'beat {bid}: no "show"; write what is on screen when it ends and '
+                            'what it carries into the next beat')
         if "—" in say:
             warnings.append(f"beat {bid}: em dash in narration; use a full stop")
         for s in re.split(r"(?<=[.!?])\s+", say):
@@ -127,12 +146,46 @@ def duration(path):
     return float(out.strip())
 
 
+def words_from(alignment):
+    """[[word, start, end], ...] from ElevenLabs' per-character alignment."""
+    out, cur = [], None
+    for ch, a, b in zip(alignment["characters"], alignment["character_start_times_seconds"],
+                        alignment["character_end_times_seconds"]):
+        if ch.isspace():
+            cur = None
+        elif cur is None:
+            cur = [ch, a, b]
+            out.append(cur)
+        else:
+            cur[0] += ch
+            cur[2] = b
+    return [[w, round(a, 3), round(b, 3)] for w, a, b in out]
+
+
+def estimate_words(text, seconds, start=0.0):
+    """Word times spread by character count over `seconds`: for a clip cached before word times
+    were kept, and for captioned beats, which are read rather than heard."""
+    words = text.split()
+    total = sum(len(w) + 1 for w in words) or 1
+    out, t = [], start
+    for w in words:
+        d = seconds * (len(w) + 1) / total
+        out.append([w, round(t, 3), round(t + d, 3)])
+        t += d
+    return out
+
+
 def tts(text, prev_text, next_text, key):
-    """One beat's voice as mp3, from the cache when the same text, voice and model ran before."""
+    """One beat's voice as mp3 plus its word times, from the cache when the same text, voice and
+    model ran before."""
     digest = hashlib.sha256(f"{VOICE}\n{MODEL}\n{prev_text}\n{text}\n{next_text}".encode()).hexdigest()
     path = TTS_CACHE / f"{digest[:24]}.mp3"
+    times = path.with_suffix(".words.json")
     if path.exists():
-        return path, True
+        if times.exists():
+            return path, json.loads(times.read_text()), True
+        # ElevenLabs pads a clip with ~0.1 s of quiet at each end (measured 2026-10-05).
+        return path, estimate_words(text, max(duration(path) - 0.2, 0.5), 0.1), True
     body = {"text": text, "model_id": MODEL}
     # Neighbouring beats let the voice keep one intonation across separately voiced clips.
     if prev_text:
@@ -140,12 +193,14 @@ def tts(text, prev_text, next_text, key):
     if next_text:
         body["next_text"] = next_text
     req = urllib.request.Request(
-        f"{API}/v1/text-to-speech/{VOICE}?output_format=mp3_44100_128",
+        f"{API}/v1/text-to-speech/{VOICE}/with-timestamps?output_format=mp3_44100_128",
         data=json.dumps(body).encode(), method="POST",
-        headers={"xi-api-key": key, "Content-Type": "application/json", "Accept": "audio/mpeg"})
+        headers={"xi-api-key": key, "Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=120) as resp:
-            audio = resp.read()
+            reply = json.loads(resp.read())
+        audio = base64.b64decode(reply["audio_base64"])
+        words = words_from(reply["alignment"])
     except urllib.error.HTTPError as e:
         detail = e.read().decode(errors="replace")[:300]
         hint = {401: "the key was rejected; check ELEVENLABS_API_KEY",
@@ -155,9 +210,12 @@ def tts(text, prev_text, next_text, key):
         fail(f"ElevenLabs answered {e.code}. {hint}\n{detail}")
     except urllib.error.URLError as e:
         fail(f"ElevenLabs unreachable ({e.reason}); check the network, or build with --silent")
+    except (KeyError, ValueError) as e:
+        fail(f"ElevenLabs' reply had no audio or alignment ({e}); check ELEVENLABS_BASE_URL")
     TTS_CACHE.mkdir(parents=True, exist_ok=True)
     path.write_bytes(audio)
-    return path, False
+    times.write_text(json.dumps(words))
+    return path, words, False
 
 
 def narrate(beats, voiced, build):
@@ -167,13 +225,16 @@ def narrate(beats, voiced, build):
         if voiced:
             prev = beats[i - 1]["say"] if i else ""
             nxt = beats[i + 1]["say"] if i + 1 < len(beats) else ""
-            audio, cached = tts(b["say"], prev, nxt, key)
+            audio, words, cached = tts(b["say"], prev, nxt, key)
             paid += 0 if cached else len(b["say"])
             secs = duration(audio) + BREATH
-            timings["beats"][b["id"]] = {"seconds": round(secs, 3), "audio": str(audio)}
+            timings["beats"][b["id"]] = {"seconds": round(secs, 3), "audio": str(audio),
+                                         "words": words}
         else:
-            secs = max(MIN_BEAT, len(b["say"].split()) / READ_WPS + 1.0)
-            timings["beats"][b["id"]] = {"seconds": round(secs, 3)}
+            read = len(b["say"].split()) / READ_WPS
+            secs = max(MIN_BEAT, read + 1.0)
+            timings["beats"][b["id"]] = {"seconds": round(secs, 3),
+                                         "words": estimate_words(b["say"], read)}
     (build / "timings.json").write_text(json.dumps(timings, indent=1))
     return timings, paid
 
@@ -254,6 +315,53 @@ def stills(video, spans, build, poster):
          "-vf", f"tile={cols}x{rows}:padding=8:color=0xd3d6d8", "-frames:v", "1", "-q:v", "3",
          str(sheet)], "tiling the contact sheet")
     return sheet
+
+
+def motion(video, spans, voiced):
+    """Holds (still runs over MAX_HOLD) and pops (one-frame jumps), each as (seconds, beat id).
+    The last beat's closing still is the poster moment and is left out; so are a captioned
+    video's caption swaps at beat edges."""
+    fps = MOTION_FPS
+    def frame_diffs(scale):
+        res = run(["ffmpeg", "-v", "error", "-i", str(video), "-vf",
+                   f"fps={MOTION_FPS},scale={scale},tblend=all_mode=difference,signalstats,"
+                   "metadata=print:key=lavfi.signalstats.YAVG:file=-", "-f", "null", "-"],
+                  "measuring motion")
+        return [float(x) for x in re.findall(r"YAVG=([\d.]+)", res.stdout)]
+    # Both passes sample at MOTION_FPS whatever the render rate: a frame-to-frame change halves
+    # when the frame rate doubles, so the same thresholds hold for the draft and the final film.
+    # Holds at 320 px, where a thin pulse still counts as motion; pops at 64 px averaged, which
+    # erases compression and anti-aliasing noise but keeps a label that appears.
+    diff, coarse = frame_diffs("320:-2"), frame_diffs("64:-2:flags=area")
+    if not diff or not coarse:
+        return 0.0, [], []
+
+    def beat_at(t):
+        return next((s["id"] for s in spans if s["start"] <= t < s["end"]), spans[-1]["id"])
+    # A lone changed frame between two still ones is Manim's edge flicker, or a pop reported
+    # below; either way the picture did not move, so it does not end a hold.
+    moving = [d >= STILL_DIFF and (i > 0 and diff[i - 1] >= STILL_DIFF or
+                                   i + 1 < len(diff) and diff[i + 1] >= STILL_DIFF)
+              for i, d in enumerate(diff)]
+    holds, run_start = [], None
+    for i, m in enumerate(moving + [True]):
+        if not m and run_start is None:
+            run_start = i
+        elif m and run_start is not None:
+            length = (i - run_start) / fps
+            if length > (MAX_HOLD if voiced else MAX_HOLD_READ) and i < len(diff):
+                holds.append((round(run_start / fps, 1), round(length, 1), beat_at(run_start / fps)))
+            run_start = None
+    edges = [s["start"] for s in spans]
+    pops = []
+    for i in range(1, len(coarse) - 1):
+        t = (i + 1) / fps  # tblend's frame i is the change into frame i+1
+        if coarse[i] > POP_MIN and coarse[i] > POP_RATIO * max(coarse[i - 1], coarse[i + 1]):
+            if not voiced and any(abs(t - e) < 2 / fps for e in edges):
+                continue
+            pops.append((round(t, 1), beat_at(t)))
+    still = moving.count(False) / len(moving)
+    return still, holds, pops
 
 
 def embed(page, video_dir, out, vtt, title, seconds, voiced):
@@ -342,6 +450,15 @@ def main():
     if size > VIDEO_WARN and not args.draft:
         warnings.append(f"explainer.mp4 is {size // 1_000_000} MB (budget ~{VIDEO_WARN // 1_000_000} MB);"
                         " cut beats or hold still images for less time")
+    for s in spans:
+        for note in s.get("late", []):
+            warnings.append(f"beat {s['id']}: cue {note}; the animation before it runs long")
+    still, holds, pops = motion(out, spans, voiced)
+    for start, length, bid in holds:
+        warnings.append(f"hold {length} s at {start} s in beat {bid}; cue its next picture to a "
+                        "word inside the still, or move the camera")
+    for t, bid in pops:
+        warnings.append(f"pop at {t} s in beat {bid}: something appeared in one frame; animate it in")
     over = [s["id"] for s in spans
             if s["end"] - s["start"] > timings["beats"][s["id"]]["seconds"] + 0.5]
     if over:
@@ -350,7 +467,10 @@ def main():
     for w in warnings:
         print(f"WARN    {w}")
     voice = f"voiced ({VOICE}, {MODEL}; {paid} characters sent)" if voiced else "silent, captions on screen"
-    print(f"video: {out} · {total:.1f} s · {size // 1000} KB · {len(spans)} beats · {voice}")
+    print(f"video: {out} · {script.get('kind', 'no kind')} · {total:.1f} s · {size // 1000} KB · "
+          f"{len(spans)} beats · {voice}")
+    print(f"motion: {round(still * 100)}% of frames still · {len(holds)} holds over {MAX_HOLD if voiced else MAX_HOLD_READ} s · "
+          f"{len(pops)} pops")
     print(f"look:  {sheet}")
     if args.embed and not args.draft:
         embed(pathlib.Path(args.embed).resolve(), video_dir, out, video_dir / "explainer.vtt",

@@ -1,10 +1,16 @@
 {
   "title": "Why saving got fast",
+  "kind": "built",
   "beats": [
-    {"id": "hook", "say": "Saving a document used to take two seconds. Here is why, and what changed."},
-    {"id": "parts", "say": "Three parts take part in a save: the editor, the save API and the database."},
-    {"id": "flow", "say": "Every keystroke sent the whole document through the API to the database."},
-    {"id": "change", "say": "The change puts a cache beside the API, so only the edited lines travel."},
-    {"id": "screens", "say": "Saving now takes one round trip."}
+    {"id": "hook", "say": "You type one letter, and the page freezes for two seconds.",
+     "show": "a cursor and a typed letter; a counter runs to 2.0 s. Carries: the counter."},
+    {"id": "parts", "say": "Three parts take part in a save: the editor, the save API and the database.",
+     "show": "the counter shrinks into the Editor box; Save API and Database pop in on their names."},
+    {"id": "flow", "say": "Every keystroke sent the whole document through the API to the database.",
+     "show": "camera follows a pulse from Editor to Database; a page stack rides along. Carries: the row."},
+    {"id": "change", "say": "The change puts a cache beside the API, so only the edited lines travel.",
+     "show": "a green Cache node grows under the API; the page stack shrinks to one line."},
+    {"id": "close", "say": "One letter, one small save. The freeze is gone.",
+     "show": "the counter grows above the editor and runs down to 0.1 s; the row stays."}
   ]
 }

@@ -46,8 +46,10 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   an area.
 - When the story moves, such as a UI change or a larger feature, it asks whether you also want a
   short animated video: shapes that move one idea at a time, as in 3Blue1Brown, drawn in the
-  page's own colours and diagram style. The video plays at the top of the page.
-  Add `--video` or `--no-video` to the command to answer in advance.
+  page's own colours and diagram style, each picture landing on the word that names it. It
+  tells one of two stories: what a run built, or why, what and how of a feature. The video
+  plays at the top of the page. Add `--video` or `--no-video` to the command to answer in
+  advance.
 - The video is narrated with ElevenLabs when `ELEVENLABS_API_KEY` is set. Without a key, the
   narration shows as captions on screen. Set `ELEVENLABS_VOICE_ID` to pick another voice.
 - To set the key, keep it in its own file and load it near the top of `~/.bashrc`, above any

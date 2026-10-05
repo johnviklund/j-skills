@@ -72,9 +72,12 @@ video question in advance. `<skill>` below is this skill's folder.
      fit. When it fits, ask once, lettered, recommending a when `ELEVENLABS_API_KEY` is set and
      b otherwise: a) video with voice, b) video with on-screen captions, c) no video. Each option
      names its cost: roughly how many characters go to ElevenLabs, whether the key is set, and a
-     one-time Manim install when `build-video.py` finds none. `--video` means a, or b without a
-     key; `--no-video` or no fit means c. With no human to ask, c, and the receipt names
-     `understand <target> --video`.
+     one-time Manim install when `build-video.py` finds none. In the same question, numbered,
+     ask which story the video tells: 1) built, what the run built, the default for a slug; 2)
+     feature, why the feature exists, what it is and how it works, the default for an area. The
+     human answers both at once, such as `a1`. `--video` means a, or b without a key, with the
+     default story; `--no-video` or no fit means c. With no human to ask, c, and the receipt
+     names `understand <target> --video`.
 
 3. **Pictures.** Done when every changed screen has a before and an after picture, or a stated
    reason for each one missing. Skip this step when no screen changed. Take the cheapest source
@@ -136,7 +139,7 @@ video question in advance. `<skill>` below is this skill's folder.
      show. Correct a claim that fails, or move it to Open questions as "not verified".
    - With a browser tool, screenshot the page at desktop width and look at it against *Look*.
 
-7. **Video** (a or b only). Follow `<skill>/video.md`. Done when its build exits 0, the page's
+7. **Video** (a or b only). Follow `<skill>/video.md`, telling the story chosen in step 2. Done when its build exits 0, the page's
    Watch section plays it, and the checker of step 6 still exits 0.
 
 8. **Commit.** `git add <output folder>` only, then commit
