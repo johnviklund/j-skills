@@ -27,7 +27,8 @@ Reduce memory to its essential active pages without losing audit trail or search
   below. Compaction should actively move misfiled doctrine out, not just tidy it in place.
 - **Page shape** (every page, no exceptions): `# <claim>` · `Applies when:` · `Root cause:` ·
   `Fix:` · `Evidence:` (one entry per occurrence — run slug or sha) · `Occurrences: N · Last
-  confirmed: <date> · Status: active | superseded by <slug>` · optional `Promoted to: <skill>`.
+  confirmed: <date> · Status: active | superseded by <slug> | retired` · `Enforced by: judgement |
+  pending — <TODO line> | <check>` (absent on legacy pages = unclassified) · optional `Promoted to: <skill>`.
 - **Product doctrine:** `PRODUCT.md`, when the repo has one. Checked for pages that are really
   product shape, vocabulary, or workflow doctrine misfiled in memory. **Do not edit `PRODUCT.md`
   during a compaction** — flag the page as doctrine-misfiled and propose relocating it, since
@@ -124,7 +125,9 @@ For each page (and each legacy inline entry), classify as:
   specific run slug / artifact reference.
 - **Promoted** — page already promoted to `AGENTS.md`/`README.md` (or carries `Promoted to:`). If
   nothing beyond the pointer remains, archive it; a page with evidence stays as the why.
-- **Skill-promotion candidate** — `Occurrences: 3` or more, no `Promoted to:`, reusable beyond this
+- **Retire** — `Enforced by:` names a check that exists, or `Status: retired`. Move to the archive
+  proposal and drop the index line; the check is now the reminder.
+- **Skill-promotion candidate** — `Occurrences: 3` or more, `Enforced by: judgement`, no `Promoted to:`, reusable beyond this
   one feature/schema, not already in an existing skill. Never below 3 — that stays a page. Name
   which existing skill it should extend, or, only if none fits, that a new one is warranted.
 - **Skill-duplicated** — the page restates a principle an existing skill already covers. Collapse

@@ -5,7 +5,8 @@ description: >
   current session, then write them directly into the current repo's memory
   pages (memory/<slug>.md, indexed by MEMORY.md) and related repo-local docs in
   one pass — a repeat bumps an existing page's occurrence count instead of
-  adding a line; 3 occurrences promotes the principle into a skill (logged in
+  adding a line; a repeated mechanical mistake becomes a guardrail ticket, and
+  3 occurrences of a judgement call promote it into a skill (logged in
   SKILL-IMPACT.md and trialed); DESIGN.md is refined in place when present.
   Use when the user says "remember this", "save this for later", "update
   memory", "curate learnings", or asks to record a new workflow, repo rule,
@@ -65,9 +66,14 @@ Applies when: <the situation that should trigger recall>
 Root cause: <why it happens — one or two lines>
 Fix: <what to do — concrete, with paths or commands where they exist>
 Evidence: <run slug or sha> · <run slug or sha>          ← one entry per occurrence
-Occurrences: N · Last confirmed: YYYY-MM-DD · Status: active | superseded by <slug>
+Occurrences: N · Last confirmed: YYYY-MM-DD · Status: active | superseded by <slug> | retired
+Enforced by: judgement | pending — <TODO line> | <the check, type or structure, and its command>
 Promoted to: <skill name>                                 ← only once promoted
 ```
+
+`Enforced by:` is set when the page is classified (see *Repeats escalate to enforcement*); a
+legacy page without it is unclassified. `Status: retired` means the enforcer now makes the
+mistake impossible: the page leaves the index and moves to `MEMORY_ARCHIVE.md` as the why.
 
 **A repeat is not a new page.** Before creating one, search existing pages by claim (`grep -il`
 on the key nouns of `memory/*.md` and the index): a match means append an `Evidence` entry, bump
@@ -86,6 +92,38 @@ something. The count is what makes promotion mechanical — so it must be honest
   `Promoted to:` and `SKILL-IMPACT.md` for a row on the same page: an existing `proposed` or
   `trialing` row means the promotion is pending or done — do not create a second. Legacy v1 inline entries still in
 `MEMORY.md` (the old `### Topic` blocks) are read as pages-to-be; `memory.compact` splits them.
+
+## Repeats escalate to enforcement
+
+Assume the next agent sees only the files it opened, copies the nearest example, and takes the
+shortest path that passes. A page or an `AGENTS.md` line works only when that agent reads it; a
+check fires whether it was read or not. So a mistake that repeats earns enforcement, not more
+prose.
+
+**At the second occurrence** (or the first, when the fix is obvious), classify the page:
+
+- **Mechanical** — a tool could detect it: a banned call, an import shape, a file location, a
+  missing step, a state that should be unrepresentable. Pick the highest rung that works:
+  1. **Structure** — one owner per piece of state, one supported way per task, internals hidden
+     so the wrong import fails, one source of truth instead of hand-synced lists, and the old way
+     deleted so no agent copies it.
+  2. **Types** — the bad state cannot be written.
+  3. **A check** (lint rule, CI job, hook, or a grep in the repo's lint command) whose error names
+     the file, type or function to use instead. On a pattern already common, fail only on
+     additions. Same command locally and in CI.
+  4. **A test** of the behaviour — one that would fail if the code returned nothing.
+
+  Write `workflow todo Guardrail: <rung> — <the check> · must fail on <Evidence sha> · memory/<slug>.md`
+  and set `Enforced by: pending — <that TODO line>`. The ticket proves the check goes red on the
+  real past mistake and green on HEAD; a check never seen failing proves nothing. When that run
+  routes its learnings, set `Enforced by:` to the check and `Status: retired`.
+- **Judgement** — no tool can decide it (cross-file consistency, naming fit, product tone). Set
+  `Enforced by: judgement`. It stays a page the reviewer reaches, and only these pages are
+  promoted to a skill at `Occurrences: 3`.
+
+**A repeat on a page that already has an enforcer** means the enforcer is too narrow or unwired:
+the fix is a new guardrail ticket to widen or wire it, never another occurrence of prose.
+A mechanical page that reaches 3 still unenforced gets its guardrail ticket in this pass.
 
 ## The memory admission test
 
@@ -141,7 +179,7 @@ When the user invokes `/remember`:
    - `docs/solutions/`: detailed postmortems, implementation patterns, and reusable technical explanations.
    - **A skill:** a transferable, schema-agnostic *principle* — "how to design/review/build X well" — that has proven itself across more than this one feature. This is the layer that keeps `MEMORY.md` from becoming an ever-growing pile of principle prose that nobody reads at startup. Apply the promotion bar before choosing this:
      - **Existing skill first.** If a skill already covers this domain (check the frontmatter you read in step 1), add or refine a bullet there instead of creating a new skill.
-     - **New-skill bar.** Only create a new skill when the pattern (a) has recurred 3+ times — which now means a page with `Occurrences: 3` or more, not a judgment call — (b) is reusable beyond this one feature/schema, and (c) genuinely doesn't fit any existing skill's stated scope. One occurrence is a page, not a skill.
+     - **New-skill bar.** Only create a new skill when the pattern (a) has recurred 3+ times — which now means a page with `Occurrences: 3` or more and `Enforced by: judgement`; a mechanical page gets a guardrail instead (see *Repeats escalate to enforcement*) — (b) is reusable beyond this one feature/schema, and (c) genuinely doesn't fit any existing skill's stated scope. One occurrence is a page, not a skill.
      - **Write it by `agent-docs`.** Invoke the `agent-docs` skill before writing or editing any skill, `AGENTS.md` or memory page. Text a person reads follows the Rules of the `plain` skill.
      - **Every skill edit is logged and trialed — and the log's `Mode:` line decides who applies it.** Read the first line of the skills repo's `SKILL-IMPACT.md`. `Mode: autonomous`: write the `SKILL.md` edit directly, in its own commit (never mixed with code, so it can be reverted alone), and add the row `<date> · <skill> · <what changed> · from: <memory page> · trial until: 3 runs · trialing`. The skills repo is public: write `from:` generically ("retro of a work run", "a user review"), never another repo's name, run slugs or data. `Mode: approve`: do not touch `SKILL.md`; write the full proposed file as `SKILL.md.proposed` beside it, add the same row with outcome `proposed`, and tell the human `accept: mv <path>/SKILL.md.proposed <path>/SKILL.md` (they flip the row to `trialing` on accepting). Either way the source page gets `Promoted to: <skill>` and stays as the why; `checkup seats` judges the change on the runs after it. Missing `Mode:` line = approve.
      - **Never collide with an installed plugin's skill name.** Before naming a new skill (or matching it against an "existing skill" to extend), check it against the plugin skill list you gathered in step 1. A repo-local skill folder that shares a name with an installed plugin's skill silently shadows that plugin's real skill in this repo — the plugin skill becomes permanently unreachable here, even though it looks installed. This is not a hypothetical: it has already happened (a repo-local `ce-debug` shadowed the `compound-engineering` plugin's real `ce-debug`, a completely different and more capable skill). If the name collides, pick a different, repo-specific prefix instead (e.g. `acme-` for an Acme repo) — never reuse a plugin's namespace for repo-local content, even if the plugin's naming convention looks like a natural fit.
@@ -158,7 +196,7 @@ When the user invokes `/remember`:
    - Produce candidate pages in the page shape above.
    - Check each candidate against `AGENTS.md`, `README.md`, the `MEMORY.md` index and matching pages, `MEMORY_ARCHIVE.md`, existing skills, and `DESIGN.md` before writing.
    - Reconcile each candidate against its canonical owner:
-     - **Repeat of an existing page:** if this run slug is not yet in `Evidence`, append it, bump `Occurrences`, update `Last confirmed`, refine `Fix` if warranted — no new page; if the slug is already there, only refine `Fix`
+     - **Repeat of an existing page:** if this run slug is not yet in `Evidence`, append it, bump `Occurrences`, update `Last confirmed`, refine `Fix` if warranted — no new page; if the slug is already there, only refine `Fix`. From the second occurrence, classify and escalate as in *Repeats escalate to enforcement*
      - **New page:** write `memory/<slug>.md` and add its index line to `MEMORY.md`
      - **Supersede existing:** set the old page `Status: superseded by <new-slug>`, drop it from the active index (keep the file for the chain, or move it to the archive)
      - **Archive-only:** write it to `MEMORY_ARCHIVE.md` instead of active memory

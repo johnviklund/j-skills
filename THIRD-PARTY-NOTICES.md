@@ -34,8 +34,9 @@ SOFTWARE.
 `.github/skills/verify/` is based on `create-verification-skill` and `maintain-verification-skill`,
 and the prototype step in `.github/skills/workflow/references/phase-0-brainstorm.md` on the
 `prototype` playbook and `principle-exhaust-the-design-space`, the escape-hatch review rule in
-`phase-4-review.md` on `architect` and `principle-type-system-discipline`, and the PR-discussion
-step in `.github/skills/understand/` on `why`, all from pstack,
+`phase-4-review.md` on `architect` and `principle-type-system-discipline`, the PR-discussion
+step in `.github/skills/understand/` on `why`, and the enforcement ladder in
+`.github/skills/memory.remember/` on `correct`, all from pstack,
 https://github.com/cursor/plugins/tree/main/pstack, under the MIT License:
 
 ```text

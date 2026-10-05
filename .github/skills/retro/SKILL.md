@@ -57,6 +57,9 @@ scope; the friction it hit is the subject.
 - **Guardrails** — the agent made a mistake a deterministic check would catch (lint, types, tests,
   a filesystem or import rule). Read the repo's own check commands and CI first. A repo with no
   guardrail (no pre-commit hook and no CI job running lint/typecheck/test) is itself a finding.
+  Pick the rung by the *Repeats escalate to enforcement* ladder in `memory.remember` (structure,
+  types, a check whose error names the fix, a test) and say why each higher rung does not work.
+  The candidate names the past mistake (sha or transcript turn) the check must fail on.
 - **Review rules** — the strict reviewer missed something, or flagged noise. Classify first: a
   **mechanical** violation (fixed pattern, banned API, import shape, file location) becomes a
   guardrail — review already treats lint-enforced issues as non-findings, so each check retires a
@@ -79,7 +82,7 @@ scope; the friction it hit is the subject.
 |---|---|---|
 | Lesson, judgement-call review rule, memory-page pointer | `memory.remember` | In a live run: `[durable→memory]` lines in its `learnings.md`. Otherwise: hand it the approved items. A repeat bumps the page's occurrences. |
 | Line added, moved or removed in repo `AGENTS.md` / `README.md` | `memory.remember` | Same routing; it owns canonical-doc edits. |
-| Guardrail (new or rewired check) | `workflow` | `workflow todo <the check>` — a check is code and ships through a run. |
+| Guardrail (new or rewired check) | `workflow` | `workflow todo Guardrail: <rung> — <the check> · must fail on <sha>` — a check is code and ships through a run. A matching memory page gets `Enforced by: pending — <that line>` via `memory.remember`. |
 | Reviewer missed a P0/P1 | `workflow` | `[durable→eval] code-review` line in a live run's `learnings.md` (the reviewed run's while it is open); wrap deposits it. |
 | Skill change | `memory.remember` | `[durable→skill]` line: applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. |
 | Global steering file edit | the human | Show the exact diff; global files sit outside every repo. |

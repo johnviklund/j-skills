@@ -52,13 +52,17 @@ Applies when: <the situation that should trigger recall>
 Root cause: <why it happens — one or two lines>
 Fix: <what to do — concrete, with paths or commands where they exist>
 Evidence: <run slug or sha> · <run slug or sha>          ← one entry per occurrence
-Occurrences: N · Last confirmed: YYYY-MM-DD · Status: active | superseded by <slug>
+Occurrences: N · Last confirmed: YYYY-MM-DD · Status: active | superseded by <slug> | retired
+Enforced by: judgement | pending — <TODO line> | <the check, type or structure, and its command>
 ```
 
 A repeat is not a new page: `memory.remember` finds the existing page by claim, appends the run
 slug as an evidence entry — once per run, never twice — bumps `Occurrences`, updates `Last
 confirmed`, and marks the learnings line `[routed → …]` so a second pass skips it. That count is what makes the
-second-occurrence review tag mechanical, and `Occurrences: 3` is the signal to consider a skill
+second-occurrence review tag mechanical. The second occurrence also decides enforcement
+(`memory.remember`, *Repeats escalate to enforcement*): a mechanical mistake becomes a
+`Guardrail:` TODO whose check must fail on the page's evidence sha, and the page retires once it
+ships; a judgement call stays a page, and at `Occurrences: 3` is the signal to consider a skill
 (`[durable→skill]`) — the page then records `Promoted to: <skill>` and stays as the why. Pages
 never move into `.workflow/`; they are canonical docs and follow the canonical-doc edit rules.
 
