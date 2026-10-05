@@ -9,6 +9,7 @@ and a motion check reports every hold (the picture standing still) and pop (a ju
 
 Usage:
     build-video.py VIDEO_DIR [--silent] [--draft] [--embed PAGE]
+    build-video.py VIDEO_DIR --standalone PAGE   one-file copy of PAGE, no render
     build-video.py --setup            install Manim into ~/.cache/j-skills/manim-venv
 
     --silent  no voice even when a key is set; narration shows as on-screen captions
@@ -16,6 +17,9 @@ Usage:
     --embed   put this build in PAGE's Watch section, adding the section after In short when
               missing. Captions go in inline: browsers refuse a caption file next to a page
               opened from disk (tested in Chromium, 2026-10-04)
+    --standalone  write PAGE-standalone.html beside PAGE with a 720p copy of the built video
+              inside it, for sharing as one file (Teams, mail, a shared folder). PAGE must
+              already have its Watch section; nothing is rendered or narrated
 
 Needs: Python 3.10+, ffmpeg and ffprobe, and Manim Community Edition (cairo and pango libraries).
 Narration: ELEVENLABS_API_KEY; optional ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL_ID. Voice files are
@@ -67,6 +71,9 @@ POP_MIN = 0.15         # ...measured at 64 px wide, where Manim's edge flicker b
                        # still frames (up to 8.7 at 320 px) reads 0.00-0.01, a counter's last
                        # two-digit tick 0.14, and a three-word label appearing about 0.2 (2026-10-05)
 MOTION_FPS = 15        # the check samples at the draft's rate, so its thresholds hold for both
+SHARE_HEIGHT = 720     # px: the standalone copy; labels stay crisp, and the 2-minute test film
+                       # went from 6.7 MB at 1080p to a page of about 4 MB (2026-10-05)
+SHARE_CRF = 28         # x264 quality for that copy: flat diagrams on white compress well
 FINAL = ["-r", "1920,1080", "--fps", "30"]
 DRAFT = ["-r", "854,480", "--fps", "15"]
 
@@ -394,6 +401,46 @@ def embed(page, video_dir, out, vtt, title, seconds, voiced):
     print(f"embed: {page} plays {rel}/{out.name} in its Watch section")
 
 
+def standalone(page, video_dir):
+    """A copy of the page with the video inside it as base64, which a small script turns back
+    into a playable file. A data: URL straight in <source> would do without the script, but
+    browsers treat a URL of several MB unevenly; a Blob URL plays everywhere."""
+    html = page.read_text(encoding="utf-8")
+    mp4 = video_dir / "explainer.mp4"
+    if not mp4.exists():
+        fail(f"{mp4} not found; build the video first", 2)
+    m = re.search(r'(<section id="video"[\s\S]*?)(<video\b[^>]*>)([\s\S]*?)</video>', html)
+    if not m:
+        fail(f"{page} has no Watch section with a video; run --embed first", 2)
+    with tempfile.TemporaryDirectory() as tmp:
+        small = pathlib.Path(tmp) / "share.mp4"
+        run(["ffmpeg", "-v", "error", "-y", "-i", str(mp4), "-vf", f"scale=-2:{SHARE_HEIGHT}",
+             "-c:v", "libx264", "-crf", str(SHARE_CRF), "-preset", "slow", "-pix_fmt", "yuv420p",
+             "-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", str(small)],
+            "encoding the 720p copy")
+        data = base64.b64encode(small.read_bytes()).decode()
+    poster = video_dir / "poster.jpg"
+    tag = re.sub(r'\sposter="[^"]*"', "", m.group(2))
+    if poster.exists():
+        tag = tag.replace("<video", '<video poster="data:image/jpeg;base64,'
+                          + base64.b64encode(poster.read_bytes()).decode() + '"', 1)
+    tag = tag.replace("<video", '<video data-standalone', 1)
+    tracks = "".join(re.findall(r"<track\b[^>]*>", m.group(3)))
+    player = (f'{tag}{tracks}</video>\n'
+              f'<script type="application/octet-stream" id="video-data">{data}</script>\n'
+              '<script>(function () {\n'
+              '  var v = document.querySelector("video[data-standalone]");\n'
+              '  var s = atob(document.getElementById("video-data").textContent.trim());\n'
+              '  var b = new Uint8Array(s.length);\n'
+              '  for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);\n'
+              '  v.src = URL.createObjectURL(new Blob([b], {type: "video/mp4"}));\n'
+              '})();</script>')
+    html = html[:m.start(2)] + player + html[m.end():]
+    out = page.with_name(page.stem + "-standalone.html")
+    out.write_text(html, encoding="utf-8")
+    print(f"standalone: {out} · {out.stat().st_size // 1000} KB · video at {SHARE_HEIGHT}p inside")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("video_dir", nargs="?")
@@ -401,6 +448,7 @@ def main():
     ap.add_argument("--draft", action="store_true")
     ap.add_argument("--setup", action="store_true")
     ap.add_argument("--embed", metavar="PAGE")
+    ap.add_argument("--standalone", metavar="PAGE")
     args = ap.parse_args()
     if args.setup:
         return setup()
@@ -409,6 +457,9 @@ def main():
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             fail(f"{tool} not found; install ffmpeg with the system package manager")
+    if args.standalone:
+        return standalone(pathlib.Path(args.standalone).resolve(),
+                          pathlib.Path(args.video_dir).resolve())
 
     video_dir = pathlib.Path(args.video_dir).resolve()
     for name in ("script.json", "scene.py"):

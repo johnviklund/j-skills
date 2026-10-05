@@ -95,6 +95,11 @@ that `video/` folder.
      keeps it.
    - Rerun `check-explainer.py`, which now also checks the video files.
    - Open the page in the browser once more and play the first seconds.
+   - When the page will be shared as a file (Teams, mail, a shared folder), also run
+     `python3 <skill>/scripts/build-video.py <video> --standalone <page>`. It writes
+     `<page>-standalone.html` beside the page with a 720p copy of the video inside, about 4 MB
+     for two minutes, and renders nothing. The page in git keeps linking the mp4, so its diffs
+     stay small; the standalone file is for sending, so leave it out of the commit.
 
 ## Voice
 

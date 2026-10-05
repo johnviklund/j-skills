@@ -50,6 +50,8 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   tells one of two stories: what a run built, or why, what and how of a feature. The video
   plays at the top of the page. Add `--video` or `--no-video` to the command to answer in
   advance.
+- To share a page as one file, for example in Teams, ask for a standalone copy: the build
+  writes `explainer-standalone.html` with a 720p video inside it, about 4 MB for two minutes.
 - The video is narrated with ElevenLabs when `ELEVENLABS_API_KEY` is set. Without a key, the
   narration shows as captions on screen. Set `ELEVENLABS_VOICE_ID` to pick another voice.
 - To set the key, keep it in its own file and load it near the top of `~/.bashrc`, above any
