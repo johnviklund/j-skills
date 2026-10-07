@@ -454,6 +454,29 @@ def is_legacy(run, status):
     return bool(brief) and status == "done" and brief.section("Behaviours") is None
 
 
+def git_out(repo, *args):
+    r = subprocess.run(["git", "-C", repo, *args], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def checkout_warnings(repo):
+    """The next phase opens the primary checkout on the primary branch; a run committed elsewhere is invisible there."""
+    out = []
+    git_dir = os.path.realpath(os.path.join(repo, git_out(repo, "rev-parse", "--git-dir")))
+    common = os.path.realpath(os.path.join(repo, git_out(repo, "rev-parse", "--git-common-dir")))
+    if git_dir != common:
+        out.append(f"this is a linked worktree; the primary checkout is {os.path.dirname(common)}: "
+                   "fast-forward its branch to this one and push before the closing card")
+    branch = git_out(repo, "branch", "--show-current")
+    primary = git_out(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD").split("/", 1)[-1]
+    if not primary:
+        primary = next((b for b in ("main", "master") if git_out(repo, "rev-parse", "--verify", "-q", b)), "")
+    if branch and primary and branch != primary:
+        out.append(f"on branch `{branch}`, not `{primary}`: the next phase will not see this run's commits "
+                   f"until `{primary}` includes them")
+    return out
+
+
 def check_run(run_dir, rep):
     run = {"dir": run_dir, "docs": {}}
     for a in ARTIFACTS:
@@ -518,8 +541,11 @@ def main():
                 if os.path.isdir(os.path.join(wf, x)) and x != "archive"]
     failed = False
     checked = 0
+    checkout = checkout_warnings(repo)
     for d in dirs:
         rep = Report(repo)
+        for msg in checkout:
+            rep.warn(repo, 0, msg)
         status = check_run(d, rep)
         if not args.runs and not args.all and status in ("parked", "done"):
             continue

@@ -131,6 +131,9 @@ workflow <phase> <slug>
 ```
 ---
 
+**Reads:** names run files and receipts only; the CLI already loads `AGENTS.md` and its kin. Before
+the card, the run's commits are on the primary branch and pushed: the next phase opens the primary
+checkout, so a `check-run.py` worktree or branch warning is resolved first, or asked about.
 Reset is `yes` at every handoff, `no` only for same-seat work continuing. A human-only step (an
 operator ticket, an escalation) reads `**Model:** human · <the one action>` with **Reads:** naming
 the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
