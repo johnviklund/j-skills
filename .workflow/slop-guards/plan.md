@@ -2,7 +2,7 @@ Command: workflow plan slop-guards
 Created: 2026-10-08
 Base:    85b5b9e
 Inputs:  .workflow/slop-guards/brainstorm.md @ 8fa6782
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
@@ -81,9 +81,9 @@ Delivers: B1, B11, B13 · Blocked by: none · Lane: logic · Budget: code +0 · 
 Seam: `SKILL.md` Ground rules and `references/phase-2-plan.md` text
 - [ ] `grep -c '^- \*\*Simplicity\.\*\*' SKILL.md` → 1 (B11)
 - [ ] `wc -l < SKILL.md` → at most 180 (B11)
-- [ ] `grep -cE '^Size: |^Budget: code \+' phase-2-plan.md` → 2 (B1)
+- [ ] `grep -cE '^Size: |^Budget: code \+|^Decisions: ' phase-2-plan.md` → 3 (B1, B13)
 - [ ] `grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' phase-2-plan.md` → 3 (B13)
-Verify: `S=.github/skills/workflow; grep -c '^- \*\*Simplicity\.\*\*' $S/SKILL.md; wc -l < $S/SKILL.md; grep -cE '^Size: |^Budget: code \+' $S/references/phase-2-plan.md; grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' $S/references/phase-2-plan.md` (pre: 0 · 173 · 0 · 0)
+Verify: `S=.github/skills/workflow; grep -c '^- \*\*Simplicity\.\*\*' $S/SKILL.md; wc -l < $S/SKILL.md; grep -cE '^Size: |^Budget: code \+|^Decisions: ' $S/references/phase-2-plan.md; grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' $S/references/phase-2-plan.md` (pre: 0 · 173 · 0 · 0)
 Skills: none · Status: todo
 
 ### T7 — Tests stay proportional to the code
@@ -114,7 +114,7 @@ Skills: none · Status: todo
 ## Risks
 T5 is riskiest: Retire deletes product code after review (F7). A false ERROR blocks execute and wrap in every repo, so F4's gate matters. Not taken: a `check-run.py --size` mode printing the baseline; planners use the shell command in phase-2-plan.
 ## TODO impacts
-none named. Optional, same file as T6: a one-line `Decisions:` record in the plan template (review point 1).
+none named. Added by the human (review point 1): T6 puts a `Decisions:` line in the plan template, recording each answer from the plan rounds (`1a · 2a`) so a new session can read them.
 
 ## Product doc impacts
 PRODUCT.md, DESIGN.md: absent. workflow/ROADMAP.md: not opened by plan; wrap checks it. workflow/README.md: no changes.
