@@ -7,9 +7,9 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T5 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T6 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`; `-k` is case-sensitive, so test names carry the keyword
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`, `Retired:` check in `check_wrap()`, `check_pins()` (`--all` only, prints `== repo`); test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`, `check(..., args=)`, `DONE_WRAP`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -76,12 +76,13 @@ Writer: Opus 5.5
 ### T5 — Wrap retires what the run made obsolete
 Delivers: B9, B10, B15 · Blocked by: T1 · Lane: logic · Budget: code +40 · tests +60
 Seam: check-run output on fixture runs and repos, and on j-skills; `wrap.md` text
-- [ ] Done wrap.md with no `Retired:` line → ERROR containing `wrap.md has no Retired: line` (B9)
-- [ ] `--all` on a fixture repo whose `tests/test_x.py` opens `.workflow/x/data.json` → warn naming `tests/test_x.py` and `reads a path inside .workflow` (B10)
-- [ ] Review's `.workflow/` grep (phase-4-review.md:88) over `.github/` → 0 hits (B10)
-- [ ] `grep -cE 'transient files, nothing is deleted from the run folder|^5b\. \*\*Retire' wrap.md` → 2 (B15)
+- [x] Done wrap.md with no `Retired:` line → ERROR containing `wrap.md has no Retired: line` (B9)
+- [x] `--all` on a fixture repo whose `tests/test_x.py` opens `.workflow/x/data.json` → warn naming `tests/test_x.py` and `reads a path inside .workflow` (B10)
+- [x] Review's `.workflow/` grep (phase-4-review.md:88) over `.github/` → 0 hits (B10)
+- [x] `grep -cE 'transient files, nothing is deleted from the run folder|^5b\. \*\*Retire' wrap.md` → 2 (B15)
 Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k wrap; grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .github | wc -l; grep -cE 'transient files, nothing is deleted from the run folder|^5b\. \*\*Retire' $S/references/wrap.md` (pre: new file · 1 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ 6484bb8
+Writer: Opus 5.5
 
 ### T6 — Hub and plan docs ask for the smallest diff and reuse
 Delivers: B1, B11, B13 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
