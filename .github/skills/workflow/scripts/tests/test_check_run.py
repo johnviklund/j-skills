@@ -146,5 +146,22 @@ class OperatorTests(unittest.TestCase):
         self.assertIn("T3: operator ticket has no Risk:", check({"brainstorm.md": BRIEF, "plan.md": plan(risk="")}))
 
 
+def review(size=""):
+    return (HEADER.format(cmd="review", created="2026-10-09", base="{base}") + "\n## Coverage\n"
+            + "- [x] T1 — acceptance 1/1 tested and passing\n" + size
+            + "Independence: cross-vendor\n\n## Cycle 1 findings\n\n## Cycle 1 verdict\nship as-is\n")
+
+
+class ReviewTests(unittest.TestCase):
+    def test_review_coverage_without_size_is_an_error(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": review()})
+        self.assertRegex(out, r"(?m)^ERROR .*Coverage has no Size: line")
+
+    def test_review_coverage_with_size_is_clean(self):
+        size = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": review(size)})
+        self.assertIn("0 errors", out)
+
+
 if __name__ == "__main__":
     unittest.main()

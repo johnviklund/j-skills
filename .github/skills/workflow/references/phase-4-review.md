@@ -7,6 +7,10 @@ Seat: **strict reviewer** (`ROUTING.md`), a different vendor from the code's wri
 `ROUTING.md`; if one matches yours, this is a
 degraded same-vendor review and `review.md` says so. Read-only sub-agents may split a wide diff.
 
+**Blind first.** Read the brief, the tickets' acceptance lines and the diff, and draft findings.
+Only then read the writer's reports, `## Deviations` and `learnings.md`, so the writer's framing
+does not set yours.
+
 Review answers two questions, kept apart so one can't hide the other:
 
 - **Acceptance** — does the code do what the brief and tickets agreed? For every ticket, each
@@ -29,18 +33,31 @@ Review answers two questions, kept apart so one can't hide the other:
   merely awkward. Report it as a P2 naming the design flaw, not the line (the type that should
   carry the fact, the boundary that should parse it); P1 when it breaks a behaviour. A hatch at a
   boundary that parses outside data is fine.
+  **Simplicity** is part of Defects, with three checks:
+  - **Same-run waste.** A copy of an existing helper, a pass-through wrapper, an unused
+    parameter or branch, or a test that asserts nothing a sibling test doesn't. P1 when this run's
+    diff added it; P2 when it was there before.
+  - **Reachability.** Every new module, export or file has a live importer from an entry point,
+    and every new guard or check is shown failing once. Unreachable new code is P1.
+  - **Verify the verification.** Pick the riskiest acceptance line, invert one condition the
+    change adds, and run its test in a throwaway `git worktree`, never committed. A test that
+    stays green is a P1 missing assertion.
+
+  Each such finding proposes its remedy: collapse the duplicate branches, delete the wrapper,
+  split orchestration from logic, or reuse the existing helper.
 
 ## Severity — the bar that keeps cycles short
 
 | | Means | Default disposition |
 |---|---|---|
 | **P0** | data loss, security hole, crash on a normal path, a behaviour inverted, wrong or misleading data shown to users as correct | fix now |
-| **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input | fix now |
-| **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern | defer → `TODO.md` |
+| **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input; same-run waste, unreachable new code, a surviving mutation | fix now |
+| **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern, waste older than the run | defer → `TODO.md` |
 | **P3** | minor; at most five reported, the rest as a count | defer (stays in `review.md`) |
 
 A P0/P1 names its evidence: the B# or acceptance line it breaks, the Outcome and what its surface
-actually shows, or the input that fails. A finding that can't name one is P2 at most. Style,
+actually shows, the input that fails, or, for waste, the added lines and the existing
+equivalent, both file:line. A finding that can't name one is P2 at most. Style,
 naming, generated paths and anything lint/CI enforces are not findings. When a reproduction the
 plan prescribed doesn't reproduce, suspect the finding rather than the harness, and re-price it.
 
@@ -60,6 +77,8 @@ is a pointer plus the number that proves it (`file:line`, command, count) — ne
 - [ ] T2 — …
 - [x] B1…B6 delivered · Outcome observed on <surface> via <verify-APP | manual, no verify skill> · out of scope untouched
 - [x] .workflow/ dependency check
+Size: +<code> code · +<tests> tests · ratio <tests/code> · net +<n> · over 1,000: <files | none>
+Reachability: <each new file → its live importer | none new> · guards shown failing: <ids | none>
 Independence: cross-vendor | same-vendor (degraded)
 
 ## Resolved                    ← from cycle 2: a finding moves here once stamped or settled
@@ -82,11 +101,14 @@ After setting `Status: complete` (and after writing a `patch_plan.md`), run `pyt
 ERROR: dispositions, P0/P1 deferral approvals, the verdict and the patch tickets are all checked
 there.
 
-Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Three
-mechanical checks always run. The escape-hatch scan lists every hatch the diff adds; read each
-hit against the rule under *Defects*:
+Coverage ticks as each area is done, so a reset resumes at the first unticked entry. Four
+mechanical checks always run. The size count fills Coverage's `Size:` line (check-run ERRORs
+without it): `git diff --numstat <plan Base>..HEAD -- . ':(exclude).workflow'`, split into code
+and test files (a `tests/` folder, `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`; `*.md` and
+`*.txt` count as neither), plus any touched file now over 1,000 lines. The escape-hatch scan
+lists every hatch the diff adds; read each hit against the rule under *Defects*:
 `git diff <plan Base>..HEAD -U0 -- . ':(exclude).workflow' | grep -nE '^\+[^+].*(: any\b|<any>|as any\b|as unknown as|@ts-(ignore|expect-error|nocheck)|eslint-disable|# type: ignore|# noqa|\bcast\(|\bunsafe\b|\.unwrap\(\)|//\s*nolint|[A-Za-z0-9_)\]]!\.)'`.
-Second, nothing outside `.workflow/` references it
+Third, nothing outside `.workflow/` references it
 (`grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
 P1), and the full test suite — unless the receipt-rule diff `<plan Base>..HEAD` (`SKILL.md`) is
 empty, in which case that empty diff is the regression proof.

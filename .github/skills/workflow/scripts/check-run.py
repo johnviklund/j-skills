@@ -14,6 +14,7 @@ Checks what a script can count, so no phase has to eyeball it:
   tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
+  a `Size:` line in a complete review's Coverage;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
 - the folder: only the artifacts at the top level, everything else in a known subfolder.
 
@@ -431,6 +432,10 @@ def check_review(run, rep):
         (rep.error if status in ("complete", "done") else rep.warn)(doc.path, 0, "missing section `## Coverage`")
     elif not any("Independence:" in x for _, x in doc.section("Coverage")):
         rep.warn(doc.path, 0, "Coverage has no `Independence: cross-vendor | same-vendor (degraded)` line")
+    cover = doc.section("Coverage")
+    if doc.slop_gated() and status in ("complete", "done") and cover is not None and not any(
+            x.startswith("Size:") for _, x in cover):
+        rep.error(doc.path, 0, "Coverage has no Size: line (`Size: +<code> code · +<tests> tests · ratio · net · over 1,000`)")
     cycles = sorted(int(m.group(1)) for t in doc.sections if (m := re.match(r"Cycle (\d+) findings", t)))
     if status in ("complete", "done") and cycles and not doc.section(f"Cycle {cycles[-1]} verdict"):
         rep.error(doc.path, 0, f"Status {status} but no `## Cycle {cycles[-1]} verdict`")
