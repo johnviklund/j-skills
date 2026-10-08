@@ -11,7 +11,8 @@ Checks what a script can count, so no phase has to eyeball it:
   Verify with `pre:`, Skills paths, Status; every behaviour delivered by a ticket; no
   blocked-by cycle; operator tickets verify a receipt;
 - slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
-  tickets, acceptance lines of at most ACCEPT_WORDS words;
+  tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
+  OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
 - the folder: only the artifacts at the top level, everything else in a known subfolder.
 
@@ -47,6 +48,10 @@ BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 # Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
 SLOP_SINCE = "2026-10-09"
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
+OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
+TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, and ≥ 50, is an ERROR
+RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
+TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
 BRIEF_SECTIONS = ["Problem", "Outcome", "Behaviours", "Decisions", "Test seams", "Out of scope"]
 PLAN_SECTIONS = ["Findings", "Tickets", "Coverage", "Risks", "TODO impacts", "Product doc impacts"]
 
@@ -317,10 +322,37 @@ def check_tickets(run, doc, rep, behaviours, strict):
                     rep.missing_sha(doc.path, n_st, f"{t['id']}: done @ {m.group(2)} is not a commit in this repo")
                 if field(t, "Writer")[1] is None:
                     rep.warn(doc.path, n_st, f"{t['id']}: done but no `Writer: <model>` line")
+                if gated and doc.path.endswith("/plan.md") and not deviated(doc, t["id"]):
+                    check_overrun(t, lane, m.group(2), doc, rep, n_st)
     cycle = find_cycle(edges)
     if cycle:
         rep.error(doc.path, 0, "blocked-by cycle: " + " → ".join(cycle))
     return tickets
+
+
+def deviated(doc, tid):
+    return any(re.search(r"\b" + tid + r"\b", x) for _, x in doc.section("Deviations") or [])
+
+
+def check_overrun(t, lane, sha, doc, rep, n):
+    """The `done @` commit alone, receipts excluded: net lines against the Budget, tests against code."""
+    code = tests = net = 0
+    for row in git_out(rep.repo, "diff", "--numstat", f"{sha}^", sha).splitlines():
+        added, deleted, path = row.split("\t", 2)
+        if added == "-" or re.search(RECEIPTS, path):
+            continue
+        net += int(added) - int(deleted)
+        if re.search(TEST_FILE, path):
+            tests += int(added)
+        else:
+            code += int(added)
+    budget = sum(int(x) for x in re.findall(r"\+(\d+)", field(t, "Budget")[1] or ""))
+    if budget and net > OVERRUN * budget:
+        rep.warn(doc.path, n, f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}: "
+                              "log the reason under `## Deviations`")
+    if lane and lane.split()[0] == "logic" and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
+        rep.error(doc.path, n, f"{t['id']}: tests +{tests} over {TEST_RATIO}× code +{code}: "
+                               "cut to one test per behaviour, or log the reason under `## Deviations`")
 
 
 def check_skills(t, doc, rep):
