@@ -7,6 +7,12 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
+- Current: T1 done; next ready T2 (logic, blocked by T1 only)
+- T1 @ d5289bd
+- writer: Opus 5.5 (human chose it over GPT-6.1 Sol, 2026-10-08) → review must be OpenAI, degraded
+- Baseline: no suite before T1; `check-run.py --all` 0 errors · 0 warnings
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()` in check-run.py; fixture helpers `check(files)`, `plan()`, `BRIEF` in scripts/tests/test_check_run.py; `-k` is case-sensitive, so test names carry the lowercase keyword
+- Uncommitted: none · Pending decision: none
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -29,12 +35,13 @@ Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, 
 ### T1 — Plans carry a line budget per ticket
 Delivers: B1, B2, B7 · Blocked by: none · Lane: logic · Budget: code +50 · tests +100
 Seam: `check-run.py --repo <tmp> <slug>` output on fixture runs in a temp git repo
-- [ ] Fixture plan with a `Size:` line and `Budget:` on every ticket → summary `0 errors · 0 warnings` (B1)
-- [ ] Logic ticket T2 with no `Budget:` → warn line containing `T2: no Budget:` (B2)
-- [ ] An acceptance line of 41 words → warn line containing `T1: acceptance line has 41 words` (B7)
-- [ ] The no-Budget fixture with plan `Created: 2026-10-08` → summary `0 errors · 0 warnings` (B2)
+- [x] Fixture plan with a `Size:` line and `Budget:` on every ticket → summary `0 errors · 0 warnings` (B1)
+- [x] Logic ticket T2 with no `Budget:` → warn line containing `T2: no Budget:` (B2)
+- [x] An acceptance line of 41 words → warn line containing `T1: acceptance line has 41 words` (B7)
+- [x] The no-Budget fixture with plan `Created: 2026-10-08` → summary `0 errors · 0 warnings` (B2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k budget` (pre: new file)
-Skills: none · Status: todo
+Skills: none · Status: done @ d5289bd
+Writer: Opus 5.5
 
 ### T2 — Ticket commits that overrun their budget get flagged
 Delivers: B3, B4 · Blocked by: T1 · Lane: logic · Budget: code +50 · tests +100
