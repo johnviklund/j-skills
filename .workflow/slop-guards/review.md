@@ -1,54 +1,45 @@
 Command: workflow review slop-guards
 Created: 2026-10-08
-Base:    5c8f68a5e673e5fbc493060d8283fbe5bd2fb868
-Inputs:  plan.md @ 85b5b9e
+Base:    752ad6be9407e21c684b5345dbcfc0121c7e1e36
+Inputs:  plan.md @ 85b5b9e; patch_plan.md @ 5c8f68a5e673e5fbc493060d8283fbe5bd2fb868
 Status:  complete
 
 ## Coverage
-- [x] T1: 4/4 acceptance lines pass; its filter runs 5 tests because it also matches a T2 test.
-- [x] T2: 4/4 acceptance lines pass; 4 tests.
-- [x] T3: 4/4 acceptance lines pass; 3 tests and document counts 4, 1.
-- [x] T4: 4/4 acceptance lines pass; 2 tests and document counts 4, 3.
-- [x] T5: 4/4 acceptance lines pass; 3 tests and document counts 0, 2.
-- [x] T6: 4/4 acceptance lines pass; counts 1, 176 lines, 3, 3; wording inspected against B11/B13.
-- [x] T7: 4/4 acceptance lines pass; counts 7, 69 lines, 0, 2; wording inspected against B12.
-- [x] T8: 4/4 acceptance lines pass; counts 1, 1, 1, 1; complete MIT notice present.
-- [x] B1, B4–B5, B7–B15 delivered; out-of-scope work untouched.
-- [ ] B2, B3, B6: nominal inputs pass; empty fields and zero budgets fail as recorded below.
-- [ ] Outcome: observed through the CLI on temporary Git repositories; two guard failures remain. Manual, no verify skill.
-- [x] Full suite: 16 tests pass. No pre-existing test assertions changed. No added escape hatches or same-run waste found.
+- [x] T1–T8: cycle 1 verified all 32 acceptance lines. Documents are unchanged in this patch cycle.
+- [x] C1-T1: 2/2 acceptance lines verified. Both empty Risk cases fail before the fix; the original 16 tests remain unchanged.
+- [x] C1-T2: 2/2 acceptance lines pass. Both plan files warn and print a summary; fix commit bc114fc edits no tests.
+- [x] C1-T3: 3/3 acceptance lines verified. Zero and empty budgets fail before the fix; receipt-only additions stay clean.
+- [x] C1-T4: 2/2 acceptance lines pass. All 20 tests pass; fix commit 0e888de edits no tests.
+- [x] B2, B3, B6: 22 CLI cases cover both Risk dispatch paths, both Budget lanes, blank values, zero, date gate and deviations.
+- [x] B1, B4–B5, B7–B15: cycle 1 evidence retained; the full suite passes. Out-of-scope work is untouched.
+- [x] Outcome: CLI guards observed on temporary Git repositories; required document checks passed in cycle 1. Manual, no verify skill.
+- [x] Full suite: 20 tests pass. All 16 original test methods are unchanged; assertion calls increase from 18 to 23.
+- [x] No added escape hatches, same-run waste or unreachable checks found in the patch.
 - [x] Dependency scan: zero tracked non-receipt files outside run folders contain a literal run-folder path.
-Size: +89 code · +186 tests · ratio 2.09 · net +272 · over 1,000: none
-Reachability: unittest discovery loads the new test file; CLI dispatch reaches all new checks. Fixtures trigger B2–B10 diagnostics.
-Mutation: `check-run.py:370`, `tests > TEST_RATIO * code` inverted to `<=`; the B4 test fails, 1/1, in a disposable Git worktree.
-Independence: cross-vendor. All tickets name Anthropic Opus 5.5; reviewer is OpenAI.
-Evidence: `receipts/c1-verification.md` contains commands, counts and reproductions.
+Size: +90 code · +208 tests · ratio 2.31 · net +295 · over 1,000: none
+Patch size: +5/-4 code · +22/-0 tests · net +23; no new modules or helpers.
+Reachability: CLI dispatch reaches Risk checks in both plan files and Budget checks in plan.md. Historical failures prove the new assertions run.
+Mutation: check-run.py:368, invert `net > OVERRUN * budget` to `<=`; 2 failures across 3 selected tests in a disposable worktree.
+Independence: cross-vendor. All original and patch tickets name Anthropic Opus 5.5; reviewer is OpenAI gpt-6-astra, high.
+Evidence: `receipts/c1-verification.md` and `receipts/c2-verification.md`.
 
-## Cycle 1 findings
+## Resolved
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | An empty Risk field crashes the checker | fix now | @ bc114fc (cycle 2) |
+| C1-2 | P1 | A zero Budget disables the overrun guard | fix now | @ 0e888de (cycle 2) |
 
-### P1 — C1-1: An empty Risk field crashes the checker
-- Evidence: B6; `.github/skills/workflow/scripts/check-run.py:347` indexes `risk.split()[0]`. A gated operator ticket with `Risk:` produces `IndexError`, without a run summary.
-- Remedy: treat an empty value as missing and emit the existing ticket warning before inspecting its class.
-- Disposition: fix now
-- Resolved: —
-
-### P1 — C1-2: A zero Budget disables the overrun guard
-- Evidence: B3; `.github/skills/workflow/scripts/check-run.py:367` tests budget truthiness. A done ticket with `Budget: code +0 · tests +0` and +101 code lines reports `0 errors · 0 warnings`.
-- Remedy: distinguish a parsed zero from an absent budget; compare positive net additions against zero. An empty Budget also bypasses B2's missing-value warning.
-- Disposition: fix now
-- Resolved: —
+## Cycle 2 findings
+None. Both earlier findings are resolved at every affected call site.
 
 ## Pre-existing / environmental
-- No root AGENTS.md, PRODUCT.md or DESIGN.md. Workflow MEMORY.md read.
-- The installed skill predates this diff. Review also checks the repository's updated review instructions.
-- The model picker is unavailable through this session's tools; no model switch was performed.
-- CLI config names `gpt-6-astra`, effort `high`; no exact in-session model record is exposed. This differs from ROUTING.md's reviewer choices.
-- The private reviewer exam set is absent from the documented sibling location. The repeat check covers MEMORY.md only.
-- The existing plan is 131 lines against ~120. This is the checker's only warning before patching.
-- These artifacts are dated 2026-10-08, before SLOP_SINCE. The new checks were exercised with 2026-10-09 fixtures.
-- The writer's learnings were read during grounding before the updated blind-first instruction was loaded. This review does not claim blind-first independence.
+- No root AGENTS.md, PRODUCT.md or DESIGN.md. Workflow MEMORY.md read; no applicable linked memory page.
+- The installed skill predates this diff. Review also follows the repository's updated review instructions.
+- The model picker is unavailable. The session turn_context records gpt-6-astra, high, outside ROUTING.md's reviewer choices; no switch was performed.
+- The existing plan is 131 lines against ~120. This remains the checker's only warning.
+- Artifacts dated 2026-10-08 precede SLOP_SINCE. CLI verification uses gated 2026-10-09 fixtures.
+- Writer receipts and learnings were read after inspecting the patch and completing independent checks.
 
-## Cycle 1 verdict
-Fix before wrap: 0 P0, 2 P1, 0 P2, 0 P3. Patch cycle 1 covers C1-1 and C1-2 with four tickets.
-The existing suite and document checks pass, but the CLI still crashes or skips a promised warning on the reproduced inputs.
+## Cycle 2 verdict
+Ship as-is: 0 P0, 0 P1, 0 P2, 0 P3 open findings. Both patch fixes pass review; proceed to wrap.
 Consider `verify.create` for this CLI; no persistent verify skill exists.
