@@ -152,6 +152,9 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   ':(exclude)*.md' ':(exclude)*.txt' ':(exclude,glob).workflow/*/screens/**'
   ':(exclude,glob).workflow/*/prototypes/**' ':(exclude,glob).workflow/*/understand/**'` is non-empty — the **receipt-rule diff**. Code
   outside `.workflow/` never reads anything inside it.
+- **Simplicity.** The smallest diff that passes is the target: every added line is one more for
+  review to read and the next run to keep. Search the repo for an existing helper before writing
+  one, and say in the ticket report what the search found. A new abstraction needs two live callers.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
 
 ## Command index

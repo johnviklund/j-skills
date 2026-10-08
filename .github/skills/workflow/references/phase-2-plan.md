@@ -18,6 +18,16 @@ sections the brief and tickets touch — and, before a ticket that could contrad
 `F# · what is true · what it changes`. A correction to the brief is a finding row and the correct
 value is used in the tickets; the brief itself stays as written.
 
+**Reuse findings.** For each helper, harness or format function a ticket implies, search the repo
+and record the existing equivalent (file:line) as a finding row, or "none found"; the ticket reuses
+the hit, so the run never ships a second copy.
+
+**Size baseline.** Count the code and test lines in the files the tickets will touch (`wc -l`;
+test files by the `check-run.py` rule), note the largest touched files and any over 1,000 lines,
+and record it as the plan's `Size:` line. Each ticket then states the lines it expects to add as
+`Budget: code +N · tests +N`; `check-run.py` flags a ticket commit over 2× its Budget, and tests
+over 3× code, so the Budget is the bar the diff is held to.
+
 A question only the human can answer stops the phase before any ticket is written: ask it in the
 decision shape from `SKILL.md` and wait. An older brief with no Behaviours section: derive the
 behaviours from its scope, and include them in the step 4 round for the human to confirm.
@@ -26,7 +36,9 @@ behaviours from its scope, and include them in the step 4 round for the human to
 
 "Make the change easy, then make the easy change." If a small refactor (extract a function, move
 a seam, add a missing test harness) would make the behaviour tickets simpler, it becomes the first
-ticket — with its own tests proving behaviour is unchanged.
+ticket — with its own tests proving behaviour is unchanged. When the reuse search finds
+two or more near-copies, the prefactor consolidates them first: one copy to change, not three.
+A file over 1,000 lines in a ticket's path is a prefactor candidate too.
 
 ## 3. Slice into tickets
 
@@ -41,7 +53,8 @@ Every ticket is a **tracer bullet**:
   fresh session to build. A ticket that needs a paragraph to describe is two tickets.
 - **Testable.** Each acceptance line is one test (or, for an operator ticket, one receipt check)
   with a literal expected value, observed at the ticket's seam: "`parse_usage({'prompt_tokens': 12.0})` → `12`",
-  not "handles token formats". Three rules keep the bar honest:
+  not "handles token formats". Each line names one outcome in at most ~25 words, so it is one
+  test with few literals. These rules keep the bar honest:
   - **One expected result.** A line with "or" passes on its weaker arm; if one arm is the failure
     an earlier ticket exists to exclude, the line is wrong. A later ticket never restates an
     earlier ticket's bar more loosely.
@@ -120,6 +133,8 @@ Inputs:  .workflow/<slug>/brainstorm.md @ <its Base>
 Status:  complete
 
 Docs read: <PRODUCT.md §…, DESIGN.md §… — sections opened for this audit, or "none in scope">
+Size: code <n> · tests <n> · ratio <tests/code> · largest touched <file n, …> · over 1,000: <files | none>
+Decisions: <each answer from the plan's rounds, e.g. 1a · 2a — so a new session reads them here>
 
 ## Execution state
 <filled by execute>
@@ -132,6 +147,7 @@ Docs read: <PRODUCT.md §…, DESIGN.md §… — sections opened for this audit
 
 ### T1 — <title: the behaviour it makes work>
 Delivers: B1, B3 · Blocked by: none · Lane: logic
+Budget: code +<n> · tests +<n>
 Seam: <public interface the tests drive>
 Accept:
 - [ ] <input/situation> → <literal expected result> (B1)
