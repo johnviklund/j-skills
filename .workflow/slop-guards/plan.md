@@ -7,9 +7,9 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T4 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T5 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -65,12 +65,13 @@ Writer: Opus 5.5
 ### T4 — Review records size and checks for waste
 Delivers: B8, B14 · Blocked by: T1 · Lane: logic · Budget: code +15 · tests +40
 Seam: check-run output on a fixture `review.md`; `phase-4-review.md` text
-- [ ] Complete review.md whose Coverage has no `Size:` line → ERROR containing `Coverage has no Size: line` (B8)
-- [ ] Same review plus `Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none` → summary contains `0 errors` (B8)
-- [ ] `grep -cE '\*\*(Same-run waste|Reachability|Verify the verification|Blind first)\.\*\*' phase-4-review.md` → 4 (B14)
-- [ ] `grep -cE '^(Size|Reachability): |^\| \*\*P1\*\*.*same-run waste' phase-4-review.md` → 3 (B14)
+- [x] Complete review.md whose Coverage has no `Size:` line → ERROR containing `Coverage has no Size: line` (B8)
+- [x] Same review plus `Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none` → summary contains `0 errors` (B8)
+- [x] `grep -cE '\*\*(Same-run waste|Reachability|Verify the verification|Blind first)\.\*\*' phase-4-review.md` → 4 (B14)
+- [x] `grep -cE '^(Size|Reachability): |^\| \*\*P1\*\*.*same-run waste' phase-4-review.md` → 3 (B14)
 Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k review; grep -cE '\*\*(Same-run waste|Reachability|Verify the verification|Blind first)\.\*\*' $S/references/phase-4-review.md; grep -cE '^(Size|Reachability): |^\| \*\*P1\*\*.*same-run waste' $S/references/phase-4-review.md` (pre: new file · 0 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ d6280d0
+Writer: Opus 5.5
 
 ### T5 — Wrap retires what the run made obsolete
 Delivers: B9, B10, B15 · Blocked by: T1 · Lane: logic · Budget: code +40 · tests +60
