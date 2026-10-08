@@ -74,6 +74,17 @@ steering allows; a long human-run handoff is the signal to split the ticket. `Ve
 rows_written 1,204 · errors 0`). A `(live)` behaviour is delivered by an operator ticket, blocked
 by the tickets that build what it operates.
 
+Each operator ticket also names its **`Risk:`** class, which sets its ceremony:
+
+| Risk | When | Ceremony |
+|---|---|---|
+| `cheap` | reversible, and under the cost ceiling the repo states in `AGENTS.md` | a handoff of at most 20 lines (command and scope), one receipt with the literal values, no script test: reuse the repo's harness or CLI |
+| `costly` | paid above that ceiling, or writes shared data | dry-run, approval, receipt |
+| `irreversible` | deploys, deletes, production schema changes | as `costly`, plus a rollback line |
+
+A repo with no stated ceiling treats every paid call as `costly`. A run script in `scripts/` gets a
+test only when two or more tickets run it or its class is not `cheap`.
+
 **Wide refactors are the exception.** A rename or retype that breaks every call site at once
 cannot land green as one vertical slice. Sequence it as **expand–contract**: add the new form
 beside the old; migrate call sites in batches (one ticket each, blocked by the expand); delete

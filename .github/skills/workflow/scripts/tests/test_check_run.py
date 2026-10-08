@@ -33,10 +33,19 @@ Seam: s
 Verify: `true` (pre: fails)
 Skills: none · Status: todo
 """
+OPERATOR = """
+### T3 — Probe
+Delivers: B5 · Blocked by: none · Lane: operator{risk}
+Seam: s
+- [ ] the receipt shows ok
+Verify: receipt: receipts/t3.txt — ok (pre: no receipt)
+Skills: none · Status: awaiting-human
+"""
 PLAN_TAIL = "\n## Coverage\nc\n## Risks\nr\n## TODO impacts\nnone\n## Product doc impacts\nnone\n"
 
 
-def plan(created="2026-10-09", accept="situation → result", t2_budget=True, t1_done=False, deviation=False):
+def plan(created="2026-10-09", accept="situation → result", t2_budget=True, t1_done=False, deviation=False,
+         risk=None):
     t1 = TICKET.format(id="T1", delivers="B1, B2, B3", accept=accept)
     if t1_done:
         t1 = t1.replace("Status: todo", "Status: done @ {t1}\nWriter: m")
@@ -44,7 +53,8 @@ def plan(created="2026-10-09", accept="situation → result", t2_budget=True, t1
     if not t2_budget:
         t2 = t2.replace(" · Budget: code +20 · tests +30", "")
     return (HEADER.format(cmd="plan", created=created, base="{base}") + "Size: code 10 · tests 5\n"
-            + "## Findings\nf\n## Tickets\n" + t1 + t2 + PLAN_TAIL
+            + "## Findings\nf\n## Tickets\n" + t1 + t2
+            + ("" if risk is None else OPERATOR.format(risk=risk and " · Risk: " + risk)) + PLAN_TAIL
             + ("## Deviations\n- T1: the parser needed a second pass\n" if deviation else ""))
 
 
@@ -119,6 +129,21 @@ class OverrunTests(unittest.TestCase):
     def test_overrun_plan_created_before_the_gate_is_not_checked(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(created="2026-10-08", t1_done=True)}, self.TEST_HEAVY)
         self.assertIn("0 errors", out)
+
+
+class OperatorTests(unittest.TestCase):
+    PROBE = {"scripts/test_probe.py": "x\n"}
+
+    def test_operator_cheap_ticket_with_a_script_test_warns(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(risk="cheap"), **self.PROBE})
+        self.assertIn("T3: cheap operator ticket adds scripts/test_probe.py", out)
+
+    def test_operator_costly_ticket_may_test_its_script(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(risk="costly"), **self.PROBE})
+        self.assertIn("0 errors · 0 warnings", out)
+
+    def test_operator_ticket_without_risk_warns(self):
+        self.assertIn("T3: operator ticket has no Risk:", check({"brainstorm.md": BRIEF, "plan.md": plan(risk="")}))
 
 
 if __name__ == "__main__":

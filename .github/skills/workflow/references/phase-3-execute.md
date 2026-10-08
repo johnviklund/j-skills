@@ -64,12 +64,14 @@ without a receipt it is skipped.
    ticket per session, so the context never fills and the human clears at every card. The state is
    on disk, so the reset costs nothing.
 
-**Operator tickets** replace red → green with handoff → receipt. Write the handoff into the run
-folder's `receipts/` — what to run, where (the console or CLI), the dry-run to run first and what it must show,
-and the receipt path (also in `receipts/`) — commit it, set `Status: awaiting-human`, and close with the card routed to
+**Operator tickets** replace red → green with handoff → receipt, scaled to the ticket's `Risk:` class
+(`phase-2-plan.md`): `cheap` is at most 20 lines with no dry-run and no script test; `costly` adds
+the dry-run to run first and what it must show; `irreversible` adds a rollback line too. Write the
+handoff into the run folder's `receipts/` — what to run, where (the console or CLI), and the receipt
+path (also in `receipts/`) — commit it, set `Status: awaiting-human`, and close with the card routed to
 the human: the one action, the handoff path, the receipt path. When the ticket's runner is `agent
 after approval`, the card's one action is approving that exact scope; on approval the agent runs
-it (dry-run first, no paid retry without a new approval) and writes the receipt itself. On resume, read the receipt and
+it (dry-run first unless `cheap`, no paid retry without a new approval) and writes the receipt itself. On resume, read the receipt and
 check every acceptance line against its literal values; a mismatch is a failed `Verify`, reported
 like any other. A human-run step that failed gets a new receipt, never an edited one.
 Receipts hold the numbers that prove an acceptance line (counts, checksums, the command and its

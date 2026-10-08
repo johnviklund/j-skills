@@ -13,6 +13,7 @@ Checks what a script can count, so no phase has to eyeball it:
 - slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
   tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
+  a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
 - the folder: only the artifacts at the top level, everything else in a known subfolder.
 
@@ -301,6 +302,8 @@ def check_tickets(run, doc, rep, behaviours, strict):
         if (gated and doc.path.endswith("/plan.md") and lane and lane.split()[0] in ("logic", "contract")
                 and field(t, "Budget")[1] is None):
             rep.warn(doc.path, t["line"], f"{t['id']}: no Budget: line (`Budget: code +N · tests +N`)")
+        if gated and lane and lane.split()[0] == "operator":
+            check_risk(run, t, doc, rep)
         n_ver, verify = field(t, "Verify")
         if verify is None:
             rep.error(doc.path, t["line"], f"{t['id']}: no `Verify:` line")
@@ -332,6 +335,18 @@ def check_tickets(run, doc, rep, behaviours, strict):
 
 def deviated(doc, tid):
     return any(re.search(r"\b" + tid + r"\b", x) for _, x in doc.section("Deviations") or [])
+
+
+def check_risk(run, t, doc, rep):
+    """phase-2-plan's risk classes: every operator ticket has one, and a `cheap` one writes no script test."""
+    n, risk = field(t, "Risk")
+    if risk is None:
+        rep.warn(doc.path, t["line"], f"{t['id']}: operator ticket has no Risk: (`cheap`, `costly` or `irreversible`)")
+    elif risk.split()[0].strip("`") == "cheap":
+        for path in git_out(run["dir"], "ls-files", "scripts").splitlines():
+            if re.search(TEST_FILE, path):
+                rep.warn(doc.path, n, f"{t['id']}: cheap operator ticket adds {path}: "
+                                      "reuse the repo's harness or CLI, no bespoke script test")
 
 
 def check_overrun(t, lane, sha, doc, rep, n):
