@@ -7,12 +7,9 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Current: T1 done; next ready T2 (logic, blocked by T1 only)
-- T1 @ d5289bd
-- writer: Opus 5.5 (human chose it over GPT-6.1 Sol, 2026-10-08) → review must be OpenAI, degraded
-- Baseline: no suite before T1; `check-run.py --all` 0 errors · 0 warnings
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()` in check-run.py; fixture helpers `check(files)`, `plan()`, `BRIEF` in scripts/tests/test_check_run.py; `-k` is case-sensitive, so test names carry the lowercase keyword
-- Uncommitted: none · Pending decision: none
+- Next: T2 · done: T1 @ d5289bd · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`; test helpers `check(files)`, `plan()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
