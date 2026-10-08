@@ -7,9 +7,9 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T2 · done: T1 @ d5289bd · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T3 · done: T1 @ d5289bd, T2 @ b9381ca · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`; test helpers `check(files)`, `plan()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation)`, `lines(n)`, `write()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -43,12 +43,13 @@ Writer: Opus 5.5
 ### T2 — Ticket commits that overrun their budget get flagged
 Delivers: B3, B4 · Blocked by: T1 · Lane: logic · Budget: code +50 · tests +100
 Seam: `check-run.py --repo <tmp> <slug>` output on fixture runs with ticket commits
-- [ ] `Budget: code +20 · tests +30`, commit net +101 lines, no Deviations line → warn containing `T1: net +101 lines, over 2× budget +50` (B3)
-- [ ] Same commit plus a `## Deviations` line naming T1 → no line containing `over 2× budget` (B3)
-- [ ] Logic ticket commit +12 code, +178 test lines, no Deviations line → ERROR containing `T1: tests +178 over 3× code +12` (B4)
-- [ ] Same +12/+178 commit, plan `Created: 2026-10-08` → summary contains `0 errors` (B4)
+- [x] `Budget: code +20 · tests +30`, commit net +101 lines, no Deviations line → warn containing `T1: net +101 lines, over 2× budget +50` (B3)
+- [x] Same commit plus a `## Deviations` line naming T1 → no line containing `over 2× budget` (B3)
+- [x] Logic ticket commit +12 code, +178 test lines, no Deviations line → ERROR containing `T1: tests +178 over 3× code +12` (B4)
+- [x] Same +12/+178 commit, plan `Created: 2026-10-08` → summary contains `0 errors` (B4)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k overrun` (pre: new file)
-Skills: none · Status: todo
+Skills: none · Status: done @ b9381ca
+Writer: Opus 5.5
 
 ### T3 — Operator tickets carry a risk class
 Delivers: B5, B6, B13 · Blocked by: T2 · Lane: logic · Budget: code +25 · tests +60
