@@ -2,7 +2,7 @@ Command: workflow plan slop-guards
 Created: 2026-10-08
 Base:    85b5b9e
 Inputs:  .workflow/slop-guards/brainstorm.md @ 8fa6782
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
@@ -13,15 +13,15 @@ Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, 
 | F1 | `## Deviations` lives in plan.md (phase-3-execute.md:81); the execute report is chat only | B3/B4 "stated reason" = a `## Deviations` line naming the ticket id |
 | F2 | An operator ticket commits twice: handoff, then receipt at `done @` (phase-3-execute.md:65) | A ticket's diff = previous `done @` sha in the same file (else `Base`) `..` its own `done @` sha |
 | F3 | `*.md`/`*.txt` are receipts (SKILL.md receipt rule) | Numstat counts non-receipt files only. Test file = a `tests/`, `test/`, `__tests__/` folder, or `test_*`, `*_test.*`, `*.test.*`, `*.spec.*` |
-| F4 | check-run has no date gate; cx-intelligence has done runs with no `Budget:`/`Size:`/`Retired:` | D2 needs a gate: new checks fire only when the artifact's `Created:` ≥ `SLOP_SINCE = 2026-10-08` (decision 1) |
+| F4 | check-run has no date gate; cx-intelligence `self-service-gaps` (done) has review.md and wrap.md `Created: 2026-10-08`; its plan's `Created:` has text after the date | New checks fire only when the artifact's first `Created:` date ≥ `SLOP_SINCE = 2026-10-09` (human, decision 1a) |
 | F5 | D3 thresholds need one home | Constants at the top of check-run.py; docs quote each once. 1,000-line file has no check: plan and review `Size:` lines only |
 | F6 | Execute prescribes a dry-run for every operator ticket (phase-3-execute.md:65); "Extra tests are welcome" wraps lines 80-81 | T3 scales that paragraph to `Risk:`; T7 greps `tests are welcome` |
 | F7 | Wrap re-entry re-checks "no code since reviewed Base" (wrap.md:24); check-run quotes steps 9a/9b | Retire is step 5b (no renumbering); T5 exempts the Retire sha ticked in `## Steps`. Retire only deletes; a deletion needing an edit becomes a TODO line |
 | F8 | Review's `.workflow/` grep is already repo-wide (phase-4-review.md:88) | B10 adds it to `check-run.py --all` (`checkup` runs it), test files only. The new test file must not hold the string `.workflow/` (T5 line 3) |
 | F9 | Python 3.9.6, no pytest, no AGENTS.md; check-run is stdlib-only | `unittest` in `scripts/tests/test_check_run.py`, temp git repos, check-run as a subprocess. Execute baseline: that suite plus `check-run.py --all` |
 | F10 | Reuse: `field()` already parses `Budget: code +40 · tests +60` whole; `git_out()` runs git | T1-T5 reuse both; no new parser, no git wrapper |
-| F11 | Byte budgets (MAINTAINING.md ~10 KB): SKILL.md 10,273; phase-2-plan 9,472; phase-4-review 9,382; edits add ~1-1.7 KB each | Decision 3 |
-| F12 | D3's 3× rule ERRORs on +1 code / +4 tests | Decision 2: also require ≥ 50 test lines added |
+| F11 | Byte budgets (MAINTAINING.md ~10 KB): SKILL.md 10,273; phase-2-plan 9,472; phase-4-review 9,382; edits add ~1-1.7 KB each | Accepted over budget (human, decision 3a); T8's row notes it |
+| F12 | D3's 3× rule ERRORs on +1 code / +4 tests | B4 ERROR also needs ≥ 50 test lines added (human, decision 2a) |
 
 ## Tickets
 
@@ -31,7 +31,7 @@ Seam: `check-run.py --repo <tmp> <slug>` output on fixture runs in a temp git re
 - [ ] Fixture plan with a `Size:` line and `Budget:` on every ticket → summary `0 errors · 0 warnings` (B1)
 - [ ] Logic ticket T2 with no `Budget:` → warn line containing `T2: no Budget:` (B2)
 - [ ] An acceptance line of 41 words → warn line containing `T1: acceptance line has 41 words` (B7)
-- [ ] The no-Budget fixture with plan `Created: 2026-10-07` → summary `0 errors · 0 warnings` (B2)
+- [ ] The no-Budget fixture with plan `Created: 2026-10-08` → summary `0 errors · 0 warnings` (B2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k budget` (pre: new file)
 Skills: none · Status: todo
 
@@ -41,7 +41,7 @@ Seam: `check-run.py --repo <tmp> <slug>` output on fixture runs with ticket comm
 - [ ] `Budget: code +20 · tests +30`, commit net +101 lines, no Deviations line → warn containing `T1: net +101 lines, over 2× budget +50` (B3)
 - [ ] Same commit plus a `## Deviations` line naming T1 → no line containing `over 2× budget` (B3)
 - [ ] Logic ticket commit +12 code, +178 test lines, no Deviations line → ERROR containing `T1: tests +178 over 3× code +12` (B4)
-- [ ] Same +12/+178 commit, plan `Created: 2026-10-07` → summary contains `0 errors` (B4)
+- [ ] Same +12/+178 commit, plan `Created: 2026-10-08` → summary contains `0 errors` (B4)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k overrun` (pre: new file)
 Skills: none · Status: todo
 
