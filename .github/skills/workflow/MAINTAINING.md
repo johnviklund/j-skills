@@ -11,7 +11,7 @@ skill, see [`README.md`](README.md).
 | `ROUTING.md` | **Your mapping**: seat to vendor, model, effort and context, the trial column, fallbacks, and effort and approval per step. The closing card reads it every step, so keep it small | **Yes, this is the whole setup** |
 | `ROUTING-NOTES.md` | How models earn seats, the upkeep loop and mode notes. Only `checkup` reads it | Rarely |
 | `references/*.md` | Full instructions per command, one loaded per invocation | No |
-| `scripts/check-run.py` | Checks a run folder against the shapes in `SKILL.md` and `references/`: headers, budgets, ticket fields, behaviour coverage, review dispositions, layout. Steps run it before marking a file `complete`. `checkup` runs it with `--all` | No |
+| `scripts/check-run.py` | Checks a run folder against the shapes in `SKILL.md` and `references/`: headers, budgets, ticket fields, behaviour coverage, review dispositions, layout. Slop guards (per-ticket `Budget:` and overruns, test-to-code ratio, operator `Risk:`, review `Size:`, wrap `Retired:`, tests that read run folders) fire only on artifacts created from `SLOP_SINCE`; their thresholds are the constants at the top. Steps run it before marking a file `complete`. `checkup` runs it with `--all`. Its tests: `python3 -m unittest discover -s scripts/tests` | No |
 | `SKILL-IMPACT.md` | Log of every skill change and what the runs after it showed. Its `Mode:` line sets whether skill edits are autonomous or approved | The mode line, and accepting or rejecting rows |
 
 ## Rules for edits
