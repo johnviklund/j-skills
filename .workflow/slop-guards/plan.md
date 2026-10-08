@@ -2,7 +2,7 @@ Command: workflow plan slop-guards
 Created: 2026-10-08
 Base:    85b5b9e
 Inputs:  .workflow/slop-guards/brainstorm.md @ 8fa6782
-Status:  complete
+Status:  drafting
 
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
@@ -11,18 +11,19 @@ Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, 
 | # | What is true | What it changes |
 |---|---|---|
 | F1 | `## Deviations` lives in plan.md (phase-3-execute.md:81); the execute report is chat only | B3/B4 "stated reason" = a `## Deviations` line naming the ticket id |
-| F2 | An operator ticket commits twice: handoff, then receipt at `done @` (phase-3-execute.md:65) | A ticket's diff = previous `done @` sha in the same file (else `Base`) `..` its own `done @` sha |
+| F2 | Execute commits a logic ticket once (phase-3-execute.md:46); an operator ticket's handoff commit comes before its `done @`, which waits on the human | B3/B4 read the `done @` commit alone (`<sha>^..<sha>`), whatever the order. B5 reads tracked `test_*.py` under the run's `scripts/`, so it fires while the ticket awaits the human |
 | F3 | `*.md`/`*.txt` are receipts (SKILL.md receipt rule) | Numstat counts non-receipt files only. Test file = a `tests/`, `test/`, `__tests__/` folder, or `test_*`, `*_test.*`, `*.test.*`, `*.spec.*` |
-| F4 | check-run has no date gate; cx-intelligence `self-service-gaps` (done) has review.md and wrap.md `Created: 2026-10-08`; its plan's `Created:` has text after the date | New checks fire only when the artifact's first `Created:` date ≥ `SLOP_SINCE = 2026-10-09` (human, decision 1a) |
+| F4 | check-run has no date gate; cx-intelligence `self-service-gaps` (done) has review.md and wrap.md `Created: 2026-10-08`; its plan's `Created:` has text after the date | New checks fire only when the artifact's first `Created:` date ≥ `SLOP_SINCE = 2026-10-09` (human, decision 1a). This run's plan is not gated; its review and wrap are |
 | F5 | D3 thresholds need one home | Constants at the top of check-run.py; docs quote each once. 1,000-line file has no check: plan and review `Size:` lines only |
 | F6 | Execute prescribes a dry-run for every operator ticket (phase-3-execute.md:65); "Extra tests are welcome" wraps lines 80-81 | T3 scales that paragraph to `Risk:`; T7 greps `tests are welcome` |
-| F7 | Wrap re-entry re-checks "no code since reviewed Base" (wrap.md:24); check-run quotes steps 9a/9b | Retire is step 5b (no renumbering); T5 exempts the Retire sha ticked in `## Steps`. Retire only deletes; a deletion needing an edit becomes a TODO line |
-| F8 | Review's `.workflow/` grep is already repo-wide (phase-4-review.md:88) | B10 adds it to `check-run.py --all` (`checkup` runs it), test files only. The new test file must not hold the string `.workflow/` (T5 line 3) |
-| F9 | Python 3.9.6, no pytest, no AGENTS.md; check-run is stdlib-only | `unittest` in `scripts/tests/test_check_run.py`, temp git repos, check-run as a subprocess. Execute baseline: that suite plus `check-run.py --all` |
+| F7 | Wrap's suite (step 1) runs before any Retire; re-entry re-checks "no code since reviewed Base" (wrap.md:24); 9a deletes `patch_plan.md`; check-run quotes 9a/9b | Retire is step 5b: one delete-only commit, then the full suite again (red: revert, escalate); the precondition exempts that sha ticked in `## Steps`. Wording: "beyond 9a's transient files, nothing is deleted from the run folder". An edit-needing deletion becomes a TODO line |
+| F8 | Review's repo-wide `.workflow/` grep (phase-4-review.md:88) hits check-run.py:538 today | T5 rewords that message. New code writes the pattern `[.]workflow/`; messages and tests avoid the literal. B10 lists files with `git ls-files`, test files only |
+| F9 | Python 3.9.6, no pytest, no AGENTS.md; `unittest -k` with no match exits 0 (`Ran 0 tests`) | `unittest` in `scripts/tests/test_check_run.py`, temp git repos, check-run as a subprocess. Reports quote `Ran N tests`; N = 0 fails Verify. Baseline: the suite plus `check-run.py --all` |
 | F10 | Reuse: `field()` already parses `Budget: code +40 · tests +60` whole; `git_out()` runs git | T1-T5 reuse both; no new parser, no git wrapper |
-| F11 | Byte budgets (MAINTAINING.md ~10 KB): SKILL.md 10,273; phase-2-plan 9,472; phase-4-review 9,382; edits add ~1-1.7 KB each | Accepted over budget (human, decision 3a); T8's row notes it |
+| F11 | Byte budgets (~10 KB): SKILL.md 10,273, wrap.md 14,363 already over; phase-2-plan 9,472 and phase-4-review 9,382 cross it | Accepted over budget (human, decision 3a); T8's row notes it |
 | F12 | D3's 3× rule ERRORs on +1 code / +4 tests | B4 ERROR also needs ≥ 50 test lines added (human, decision 2a) |
-
+| F13 | "A finding that can't name [evidence] is P2 at most" (phase-4-review.md:43) has no evidence type for waste; review is read-only | T4 adds "the added lines and the existing equivalent, both file:line" to the evidence list. The mutation check runs in a throwaway `git worktree`, never committed |
+| F14 | T6, T7 deliver wording; their greps see only headings | Lane logic, and review reads their text against B11-B13. T8 copies LICENSE from `addyosmani/agent-skills@1401c8b8` (line 3: `Copyright (c) 2025 Addy Osmani`), not memory |
 ## Tickets
 
 ### T1 — Plans carry a line budget per ticket
@@ -48,7 +49,7 @@ Skills: none · Status: todo
 ### T3 — Operator tickets carry a risk class
 Delivers: B5, B6, B13 · Blocked by: T2 · Lane: logic · Budget: code +25 · tests +60
 Seam: check-run output on fixture runs; `phase-2-plan.md` and `phase-3-execute.md` text
-- [ ] `Risk: cheap` operator ticket whose handoff commit adds `scripts/test_probe.py` → warn containing `T3: cheap operator ticket adds scripts/test_probe.py` (B5)
+- [ ] Awaiting-human `Risk: cheap` ticket, run tracks `scripts/test_probe.py` → warn containing `T3: cheap operator ticket adds scripts/test_probe.py` (B5)
 - [ ] Operator ticket with no `Risk:` → warn containing `T3: operator ticket has no Risk:` (B6)
 - [ ] `grep -cE '^\| .(cheap|costly|irreversible). \||no stated ceiling' phase-2-plan.md` → 4 (B6)
 - [ ] `grep -c '.Risk:. class' phase-3-execute.md` → 1 (B13)
@@ -69,14 +70,14 @@ Skills: none · Status: todo
 Delivers: B9, B10, B15 · Blocked by: T1 · Lane: logic · Budget: code +40 · tests +60
 Seam: check-run output on fixture runs and repos, and on j-skills; `wrap.md` text
 - [ ] Done wrap.md with no `Retired:` line → ERROR containing `wrap.md has no Retired: line` (B9)
-- [ ] `--all` on a fixture repo whose `tests/test_x.py` opens `.workflow/x/data.json` → warn naming `tests/test_x.py` and `opens a .workflow/ path` (B10)
-- [ ] `check-run.py --all` in j-skills → 0 lines containing `opens a .workflow/ path` (B10)
-- [ ] `grep -cE 'nothing is deleted from the run folder|^5b\. \*\*Retire' wrap.md` → 2 (B15)
-Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k wrap; python3 $S/scripts/check-run.py --all | grep -c 'opens a .workflow/ path'; grep -cE 'nothing is deleted from the run folder|^5b\. \*\*Retire' $S/references/wrap.md` (pre: new file · 0 · 0)
+- [ ] `--all` on a fixture repo whose `tests/test_x.py` opens `.workflow/x/data.json` → warn naming `tests/test_x.py` and `reads a path inside .workflow` (B10)
+- [ ] Review's `.workflow/` grep (phase-4-review.md:88) over `.github/` → 0 hits (B10)
+- [ ] `grep -cE 'transient files, nothing is deleted from the run folder|^5b\. \*\*Retire' wrap.md` → 2 (B15)
+Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k wrap; grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .github | wc -l; grep -cE 'transient files, nothing is deleted from the run folder|^5b\. \*\*Retire' $S/references/wrap.md` (pre: new file · 1 · 0)
 Skills: none · Status: todo
 
 ### T6 — Hub and plan docs ask for the smallest diff and reuse
-Delivers: B1, B11, B13 · Blocked by: none · Lane: mechanical · Budget: code +0 · tests +0
+Delivers: B1, B11, B13 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
 Seam: `SKILL.md` Ground rules and `references/phase-2-plan.md` text
 - [ ] `grep -c '^- \*\*Simplicity\.\*\*' SKILL.md` → 1 (B11)
 - [ ] `wc -l < SKILL.md` → at most 180 (B11)
@@ -86,7 +87,7 @@ Verify: `S=.github/skills/workflow; grep -c '^- \*\*Simplicity\.\*\*' $S/SKILL.m
 Skills: none · Status: todo
 
 ### T7 — Tests stay proportional to the code
-Delivers: B12 · Blocked by: none · Lane: mechanical · Budget: code +0 · tests +0
+Delivers: B12 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
 Seam: `references/tests.md`; `references/phase-3-execute.md` text, whose `Noticed:` also names a helper written despite a reuse hit
 - [ ] `grep -cE '^\*\*(Smallest seam|One concept per test|Parametrize variants|No test imports a test|Never assert source text|Prove it can fail|Test budget)\.\*\*' tests.md` → 7 (B12)
 - [ ] `wc -l < tests.md` → between 60 and 75 (B12)
@@ -111,10 +112,9 @@ Skills: none · Status: todo
 - Out of scope: exam slop cases (seed T7), cx-intelligence cleanup runs, personas/ship/CI/hooks, per-repo threshold overrides → untouched
 
 ## Risks
-T2 is riskiest: the ticket diff range (F2) assumes tickets commit in plan order; a squash or rebase skews it. A false ERROR blocks execute and wrap in every repo, so F4's gate matters. Not taken: a `check-run.py --size` mode printing the baseline; planners use the shell command in phase-2-plan.
-
+T5 is riskiest: Retire deletes product code after review (F7). A false ERROR blocks execute and wrap in every repo, so F4's gate matters. Not taken: a `check-run.py --size` mode printing the baseline; planners use the shell command in phase-2-plan.
 ## TODO impacts
-none (the brief names no TODO item). Optional, same files: `checkup` could name the B10 pin warning in its report.
+none named. Optional, same file as T6: a one-line `Decisions:` record in the plan template (review point 1).
 
 ## Product doc impacts
 PRODUCT.md, DESIGN.md: absent. workflow/ROADMAP.md: not opened by plan; wrap checks it. workflow/README.md: no changes.
