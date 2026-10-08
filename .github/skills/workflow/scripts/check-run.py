@@ -302,7 +302,7 @@ def check_tickets(run, doc, rep, behaviours, strict):
             if gated and words > ACCEPT_WORDS:
                 rep.warn(doc.path, n, f"{t['id']}: acceptance line has {words} words: one outcome, about 25")
         if (gated and doc.path.endswith("/plan.md") and lane and lane.split()[0] in ("logic", "contract")
-                and field(t, "Budget")[1] is None):
+                and not field(t, "Budget")[1]):
             rep.warn(doc.path, t["line"], f"{t['id']}: no Budget: line (`Budget: code +N · tests +N`)")
         if gated and lane and lane.split()[0] == "operator":
             check_risk(run, t, doc, rep)
@@ -363,8 +363,9 @@ def check_overrun(t, lane, sha, doc, rep, n):
             tests += int(added)
         else:
             code += int(added)
-    budget = sum(int(x) for x in re.findall(r"\+(\d+)", field(t, "Budget")[1] or ""))
-    if budget and net > OVERRUN * budget:
+    parts = re.findall(r"\+(\d+)", field(t, "Budget")[1] or "")
+    budget = sum(int(x) for x in parts)
+    if parts and net > OVERRUN * budget:
         rep.warn(doc.path, n, f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}: "
                               "log the reason under `## Deviations`")
     if lane and lane.split()[0] == "logic" and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
