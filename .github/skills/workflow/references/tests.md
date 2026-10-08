@@ -58,6 +58,11 @@ failing run is the proof the test can catch the bug; a test that never went red 
 red. The report records it as `Mutation: <line> → red`. Add a test beyond the acceptance lines
 only when a mutation survives.
 
+**Verify keywords.** `unittest -k` matches case-sensitively against `module.Class.method`, so put
+the keyword in each test method name and check the `Ran N tests` count, not just OK. A keyword must
+not be a substring of another ticket's test names, or this ticket's Verify goes red during that
+ticket's red step.
+
 **Test budget.** A logic ticket's test lines are the same order as its code lines; above 3×,
 the report says why. `check-run.py` errors at tests over 3× code once tests pass 50 lines.
 

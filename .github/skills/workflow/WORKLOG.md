@@ -5,6 +5,15 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-08 · slop-guards · workflow guards against bloated plans, tests and patches · Opus 5.5
+- `check-run.py` gained Budget/Risk/Size/Retired checks (2× code overrun warns, tests over 3× code
+  errors); plan, execute, review and wrap references now teach proportional tests and retiring
+  obsolete code; two review findings (empty Risk crash, zero Budget) fixed in cycle 2.
+- Commits: d5289bd b9381ca fbe43c1 d6280d0 6484bb8 6e8efc9 bc114fc dd167fe 0e888de
+- Review: ship as-is (cycle 2, 0 open) @ 752ad6b
+- Run: 12 tickets · 2 review cycles · 2 findings fixed
+- Why: stop AI-slop growth (long plans, oversized tests, dead code) with mechanical checks.
+
 ## 2026-10-01 · docs refresh, MIT license, workflow v2.1.1 context budget · Sonnet 5.5
 - READMEs brought in line with the real wiring (direct symlinks into both CLIs, `j-skills` plugin
   name, lowercase paths, memory pages); MIT `LICENSE` added; the roadmap emptied (no

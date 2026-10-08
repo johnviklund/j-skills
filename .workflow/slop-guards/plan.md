@@ -2,14 +2,10 @@ Command: workflow plan slop-guards
 Created: 2026-10-08
 Base:    85b5b9e
 Inputs:  .workflow/slop-guards/brainstorm.md @ 8fa6782
-Status:  complete
+Status:  done
 
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
-## Execution state
-- Next: review (all tickets done) · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358, T7 @ 0c1e7ac, T8 @ fb10679 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
-- Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`, `Retired:` check in `check_wrap()`, `check_pins()` (`--all` only, prints `== repo`); test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`, `check(..., args=)`, `DONE_WRAP`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|

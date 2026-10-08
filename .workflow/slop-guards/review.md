@@ -2,7 +2,7 @@ Command: workflow review slop-guards
 Created: 2026-10-08
 Base:    752ad6be9407e21c684b5345dbcfc0121c7e1e36
 Inputs:  plan.md @ 85b5b9e; patch_plan.md @ 5c8f68a5e673e5fbc493060d8283fbe5bd2fb868
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1–T8: cycle 1 verified all 32 acceptance lines. Documents are unchanged in this patch cycle.

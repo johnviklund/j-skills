@@ -2,7 +2,7 @@ Command: workflow brainstorm slop-guards
 Created: 2026-10-08
 Base:    8fa6782
 Inputs:  none
-Status:  complete
+Status:  done
 
 ## Problem
 The workflow checks that code is correct but never how much code a run adds. Its own rules (literal acceptance values, tests at the reached surface, full operator ceremony) make runs grow with nothing pushing back. In cx-intelligence a 12-line fix got a 178-line test, and a $0.005 probe got about 600 lines of script, test and receipts. Seed and evidence: `notes/seed-review-and-plan.md`.
