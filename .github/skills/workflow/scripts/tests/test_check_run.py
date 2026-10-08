@@ -145,6 +145,13 @@ class OperatorTests(unittest.TestCase):
     def test_operator_ticket_without_risk_warns(self):
         self.assertIn("T3: operator ticket has no Risk:", check({"brainstorm.md": BRIEF, "plan.md": plan(risk="")}))
 
+    def test_operator_risk_empty_warns(self):
+        for name in ("plan.md", "patch_plan.md"):
+            with self.subTest(name):
+                out = check({"brainstorm.md": BRIEF, name: plan(risk="cheap").replace("Risk: cheap", "Risk:")})
+                self.assertIn("T3: operator ticket has no Risk:", out)
+                self.assertRegex(out, r"(?m)^== x · complete · \d+ errors")
+
 
 def review(size=""):
     return (HEADER.format(cmd="review", created="2026-10-09", base="{base}") + "\n## Coverage\n"
