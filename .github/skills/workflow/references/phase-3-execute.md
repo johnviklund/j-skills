@@ -49,14 +49,15 @@ without a receipt it is skipped.
    decision (a ➡️ looks right — commit · b change something: say what), and end the turn there with
    no closing card; on a it commits, persists and carries on at 6. No other ticket waits for approval — its tests and the
    cross-vendor review are the check, and the human doesn't read diffs.
-5. **Report** in plain words, at most five lines:
+5. **Report** in plain words, at most six lines:
 
    ```text
    T# · <title> · Commit: <sha | not yet>
    Changed: <what now works differently, in the user's terms — no code>
    Proof: <Verify pass/fail + the number that proves it>
+   Mutation: <the line inverted> → red | none — doc or mechanical ticket
    Try it: none — nothing changes on screen; <the test or receipt that shows the change> | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
-   Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed>
+   Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed, a helper written despite a reuse hit>
    ```
 6. **Continue or stop.** A mechanical ticket rolls straight into the next ready ticket when that
    one is mechanical too. Every other ticket — and a mechanical run reaching a non-mechanical
@@ -78,8 +79,8 @@ Receipts hold the numbers that prove an acceptance line (counts, checksums, the 
 exit), not the data: bulk output stays outside the repo and the receipt names its path, row count
 and checksum — later phases never read a receipt larger than a few KB.
 
-**The ticket is the whole job.** Build what its acceptance lines describe, at its seam. Extra
-tests are welcome where they pin behaviour the acceptance lines already imply. Everything else —
+**The ticket is the whole job.** Build what its acceptance lines describe, at its seam. Add a test
+beyond the acceptance lines only when a mutation survives (`tests.md`). Everything else —
 a nearby bug, a tempting refactor, a missing feature — is one line under `## Deviations` and the
 ticket continues. **Existing tests keep their assertions:** changing or removing an assertion in a
 test the ticket didn't create is a deviation, logged with the assertion count before and after,
