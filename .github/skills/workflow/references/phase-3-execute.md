@@ -18,9 +18,7 @@ Read `references/tests.md` once per session before the first test.
    (`workflow review <slug>` for a patch plan).
 2. **Fresh:** `git diff --stat <its Base>..HEAD -- <every file its tickets name>` shows only commits
    listed as `T# @ <sha>` in `## Execution state`. Anything else → stop and route to
-`workflow plan <slug>` (or `workflow review <slug>` for a patch plan): end on the closing card
-with that command as the next action and the drifted files and shas on one line, so the human
-runs it without relaying the message.
+   `workflow plan <slug>` (or `workflow review <slug>` for a patch plan).
 3. **Baseline:** run the build/test/lint commands from `AGENTS.md`'s *Verifying your work* block
    and note which failures already exist. No such block → ask for the commands.
 
