@@ -7,7 +7,7 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T7 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T8 (mechanical) · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358, T7 @ 0c1e7ac · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
 - In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`, `Retired:` check in `check_wrap()`, `check_pins()` (`--all` only, prints `== repo`); test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`, `check(..., args=)`, `DONE_WRAP`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
@@ -98,12 +98,13 @@ Writer: Opus 5.5
 ### T7 — Tests stay proportional to the code
 Delivers: B12 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
 Seam: `references/tests.md`; `references/phase-3-execute.md` text, whose `Noticed:` also names a helper written despite a reuse hit
-- [ ] `grep -cE '^\*\*(Smallest seam|One concept per test|Parametrize variants|No test imports a test|Never assert source text|Prove it can fail|Test budget)\.\*\*' tests.md` → 7 (B12)
-- [ ] `wc -l < tests.md` → between 60 and 75 (B12)
-- [ ] `grep -c 'tests are welcome' phase-3-execute.md` → 0 (B12)
-- [ ] `grep -cE '^   Mutation: |only when a mutation survives' phase-3-execute.md` → 2 (B12)
+- [x] `grep -cE '^\*\*(Smallest seam|One concept per test|Parametrize variants|No test imports a test|Never assert source text|Prove it can fail|Test budget)\.\*\*' tests.md` → 7 (B12)
+- [x] `wc -l < tests.md` → between 60 and 75 (B12)
+- [x] `grep -c 'tests are welcome' phase-3-execute.md` → 0 (B12)
+- [x] `grep -cE '^   Mutation: |only when a mutation survives' phase-3-execute.md` → 2 (B12)
 Verify: `S=.github/skills/workflow/references; grep -cE '^\*\*(Smallest seam|One concept per test|Parametrize variants|No test imports a test|Never assert source text|Prove it can fail|Test budget)\.\*\*' $S/tests.md; wc -l < $S/tests.md; grep -c 'tests are welcome' $S/phase-3-execute.md; grep -cE '^   Mutation: |only when a mutation survives' $S/phase-3-execute.md` (pre: 0 · 48 · 1 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ 0c1e7ac
+Writer: Opus 5.5
 
 ### T8 — Credit the source and log the change
 Delivers: B15 · Blocked by: T1, T2, T3, T4, T5, T6, T7 · Lane: mechanical · Budget: code +0 · tests +0
