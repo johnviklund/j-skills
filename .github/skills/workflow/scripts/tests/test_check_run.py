@@ -62,9 +62,9 @@ def lines(n):
     return "".join(f"x{i}\n" for i in range(n))
 
 
-def check(files, ticket=None):
+def check(files, ticket=None, args=("x",)):
     """Commit `ticket` (repo-relative path -> text) as T1's commit, then `files` (run-relative path -> text,
-    `{base}` and `{t1}` filled in) into a fresh repo; return check-run's output."""
+    `{base}` and `{t1}` filled in) into a fresh repo; return the output of check-run with `args`."""
     with tempfile.TemporaryDirectory() as repo:
         git = lambda *a: subprocess.run(["git", "-C", repo, *a], check=True, capture_output=True, text=True)
         git("-c", "init.defaultBranch=main", "init", "-q")
@@ -80,7 +80,7 @@ def check(files, ticket=None):
                      for rel, text in files.items()})
         git("add", "-A")
         git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "run")
-        r = subprocess.run([sys.executable, SCRIPT, "--repo", repo, "x"], capture_output=True, text=True)
+        r = subprocess.run([sys.executable, SCRIPT, "--repo", repo, *args], capture_output=True, text=True)
         return r.stdout + r.stderr
 
 
@@ -161,6 +161,25 @@ class ReviewTests(unittest.TestCase):
         size = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": review(size)})
         self.assertIn("0 errors", out)
+
+
+DONE_WRAP = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").replace("complete", "done") + "\nsummary\n"
+
+
+class WrapTests(unittest.TestCase):
+    def test_wrap_done_without_retired_is_an_error(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP})
+        self.assertRegex(out, r"(?m)^ERROR .*wrap.md has no Retired: line")
+
+    def test_wrap_done_with_retired_is_clean(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP + "Retired: none — nothing obsolete\n"})
+        self.assertIn("0 errors", out)
+
+    def test_wrap_all_warns_on_a_test_reading_the_run_folder(self):
+        pin = {"tests/test_x.py": f"open('{RUN}/data.json')\n", "src/x.py": f"open('{RUN}/data.json')\n"}
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan()}, pin, args=("--all",))
+        self.assertRegex(out, r"(?m)^warn  tests/test_x.py  reads a path inside .workflow")
+        self.assertNotIn("src/x.py", out)
 
 
 if __name__ == "__main__":

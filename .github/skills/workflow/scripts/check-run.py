@@ -14,9 +14,10 @@ Checks what a script can count, so no phase has to eyeball it:
   tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
-  a `Size:` line in a complete review's Coverage;
+  a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
-- the folder: only the artifacts at the top level, everything else in a known subfolder.
+- the folder: only the artifacts at the top level, everything else in a known subfolder;
+- `--all` only: a tracked test file outside the run folders that names a path inside one.
 
 Runs in the v2.02 shape (plan.md with `## Checklist`, no `## Behaviours`) get header, budget and
 layout checks only; their ticket and brief checks are skipped with a note.
@@ -489,6 +490,8 @@ def check_wrap(run, rep):
     if doc.status() == "done":
         if doc.section("Steps") is not None:
             rep.error(doc.path, doc.heading("Steps"), "done wrap still has `## Steps`: 9a rewrites it into the summary")
+        if doc.slop_gated() and not any(t.startswith("Retired:") for t in doc.lines):
+            rep.error(doc.path, 0, "wrap.md has no Retired: line: step 5b records what was deleted, or `none` with a reason")
         if len(doc.lines) > WRAP_DONE_BUDGET:
             rep.warn(doc.path, 0, f"{len(doc.lines)} lines; a finished run's summary is ~{WRAP_DONE_BUDGET}")
     elif doc.section("Steps") is None:
@@ -510,6 +513,16 @@ def check_layout(run, rep):
         rep.warn(run["dir"], 0, f"{len(big)} file(s) over ~{BIG_FILE // 1000} KB, largest "
                                 f"{os.path.relpath(big[0][1], run['dir'])} at {big[0][0] // 1000} KB: "
                                 "the human decides whether they stay in git (wrap 9b)")
+
+
+def check_pins(repo, rep):
+    """Code outside the run folders never reads inside them; a test that does pins a run's files."""
+    for f in git_out(repo, "ls-files").splitlines():
+        if (re.search(TEST_FILE, f) and not re.match(r"[.]workflow/", f) and not re.search(RECEIPTS, f)
+                and os.path.isfile(os.path.join(repo, f))):
+            with open(os.path.join(repo, f), encoding="utf-8", errors="replace") as fh:
+                if re.search(r"[.]workflow/", fh.read()):
+                    rep.warn(os.path.join(repo, f), 0, "reads a path inside .workflow: code outside the run folders never does")
 
 
 def is_legacy(run, status):
@@ -602,7 +615,7 @@ def main():
             dirs.append(os.path.abspath(d))
     else:
         if not os.path.isdir(wf):
-            print(f"no .workflow/ folder in {repo}", file=sys.stderr)
+            print(f"no .workflow folder in {repo}", file=sys.stderr)
             return 2
         dirs = [os.path.join(wf, x) for x in sorted(os.listdir(wf))
                 if os.path.isdir(os.path.join(wf, x)) and x != "archive"]
@@ -621,6 +634,12 @@ def main():
             print(line)
         print(f"== {os.path.basename(d)} · {status or 'no status'} · {len(rep.errors)} errors · {len(rep.warnings)} warnings\n")
         failed = failed or bool(rep.errors)
+    if args.all:
+        rep = Report(repo)
+        check_pins(repo, rep)
+        for line in rep.warnings:
+            print(line)
+        print(f"== repo · {len(rep.warnings)} warnings\n")
     if not checked:
         print("no live runs (use --all to include parked and done runs)")
     return 1 if failed else 0

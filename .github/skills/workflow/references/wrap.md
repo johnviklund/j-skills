@@ -13,7 +13,8 @@ carries a reason. A `fix now` without `Resolved:` is intended work, not done wor
 to `workflow execute <slug>` (patch plan) or `workflow review <slug>`. Then confirm **no code changed
 since the reviewed `Base`** per `SKILL.md`'s receipt rule (the receipt-rule diff `<Base>..HEAD`
 is empty) — receipt commits such as the review itself are
-fine, any code commit is not. If it's missing or stale, don't lecture that review "hasn't run" —
+fine, and so is step 5b's delete commit once its sha is ticked in `wrap.md`'s `## Steps`; any other
+code commit is not. If it's missing or stale, don't lecture that review "hasn't run" —
 say the evidence is missing/stale and print the closing card routing to `workflow review`.
 
 **Precondition — the run checks out.** `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR and no open `fix now` finding
@@ -83,6 +84,16 @@ Commit, push, curate, and clean up — in one go:
    receipts; a fix the control CLI itself needs is code, so it becomes one `TODO.md` line
    ("`verify.maintain`: <gap>"), never a wrap edit. Leave the `Last maintained` stamp alone:
    only `verify.maintain` checks every feature. No user-facing change → "no feature changed".
+5b. **Retire** what this run made obsolete in the product tree (the run folder is history and
+   stays): code paths it replaced, flags now always on, shims, harnesses whose campaign ended,
+   tests that cover only those, and tests of run scripts. Check each before listing it: `git log -S`
+   for why it exists, and a grep for live importers. Ask once, as one lettered decision (➡️ a
+   delete all · b keep some: say which). On approval, delete in one commit that only deletes
+   files, tick its sha here, then run the full suite again; red → revert that commit and escalate
+   like step 1. A removal that needs an edit to a kept file is code review never saw: it becomes
+   one `TODO.md` line, not a wrap change. A test outside `.workflow/` that reads a run's files is
+   a P1 for the next run, named here (`check-run.py --all` lists them). Nothing obsolete →
+   `none` with a reason.
 6. **TODO hygiene** — `TODO.md` is a small scratch pad (one line per idea) and its full history lives
    in `<repo>/TODO_ARCHIVE.md`; both are read by `grep` and section, never whole-file by default.
    Update `TODO.md` (if present) from the plan's `## TODO impacts` plus anything done in passing:
@@ -124,7 +135,7 @@ Commit, push, curate, and clean up — in one go:
    cases copy code: never write a case into this repo or any public one.
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
-9. **Archive the run — nothing leaves `.workflow/<slug>/`, nothing is deleted from the repo.** Once
+9. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 9a's transient files, nothing is deleted from the run folder.** Once
    `memory.remember` confirms every line is routed and step 7's cases are deposited:
 
    **9a. Drop the transient, keep the record, leave a summary.** In the run folder: delete
@@ -132,8 +143,9 @@ Commit, push, curate, and clean up — in one go:
    `plan.md`; keep `brainstorm.md`, `plan.md` (with `## Deviations`), `review.md`, `learnings.md`
    (fully routed — the record of *what* was learned) as **history only**. Rewrite `wrap.md` last into
    the run's **summary, ≤ ~40 lines**: outcome (one paragraph), what shipped (ticket → commit sha),
-   deferred items and where they went, receipts that exist and where, and the review verdict and
-   cycle count — dropping the step checklist. **Later phases read a done run's `wrap.md` alone**;
+   deferred items and where they went, receipts that exist and where, the review verdict and
+   cycle count, and a `Retired: <files, -lines> @ <sha>` or `Retired: none — <reason>` line from
+   step 5b (`check-run.py` errors without it) — dropping the step checklist. **Later phases read a done run's `wrap.md` alone**;
    its `plan.md`/`review.md` are searched with `grep` on demand, never loaded. Set `Status: done` in
    `brainstorm.md` (the run's status of record) and in the kept artifacts, `wrap.md` last.
 
@@ -154,14 +166,15 @@ Commit, push, curate, and clean up — in one go:
    lives on one machine is not an archive.
 
 **Why this order:** code → learnings routed, evals deposited, committed → **push** → archive the run.
-Archiving is last because it is the only step that removes anything (the transient files), and by
+Archiving is last because it is the only step that removes anything from the run folder (the transient files), and by
 then everything worth keeping is in git, the exam set, `memory/` or the kept artifacts. Open a PR only
 if not committing straight to `main`.
 
 **Wrap's chat receipt is fixed, one line per step:** final checks (pass / known-environmental);
 shortcut grep (clean / what was found); commits + push (shas); learnings routed (count → where);
 product-doc truth (per doc: no changes, or the edit — one line each, ESCALATE items as a lettered
-decision list); feature map (files updated, `no feature changed`, or `no verify skill`); TODO hygiene (items archived/rewritten, or none); eval cases deposited (count);
+decision list); feature map (files updated, `no feature changed`, or `no verify skill`); retired
+(files and lines @ sha, or none); TODO hygiene (items archived/rewritten, or none); eval cases deposited (count);
 worklog entry (yes); run archived (`<slug>` · done); size flags (`TODO.md`/`ROADMAP.md` over budget, or
 none); parked runs still open (slugs, or none). Anything that needs a decision is a lettered item
 with a recommended default. Then the ✅ done card, not a next-phase card: what shipped (one line);
