@@ -18,7 +18,9 @@ Read `references/tests.md` once per session before the first test.
    (`workflow review <slug>` for a patch plan).
 2. **Fresh:** `git diff --stat <its Base>..HEAD -- <every file its tickets name>` shows only commits
    listed as `T# @ <sha>` in `## Execution state`. Anything else → stop and route to
-   `workflow plan <slug>` (or `workflow review <slug>` for a patch plan).
+`workflow plan <slug>` (or `workflow review <slug>` for a patch plan): end on the closing card
+with that command as the next action and the drifted files and shas on one line, so the human
+runs it without relaying the message.
 3. **Baseline:** run the build/test/lint commands from `AGENTS.md`'s *Verifying your work* block
    and note which failures already exist. No such block → ask for the commands.
 
@@ -55,7 +57,7 @@ without a receipt it is skipped.
    T# · <title> · Commit: <sha | not yet>
    Changed: <what now works differently, in the user's terms — no code>
    Proof: <Verify pass/fail + the number that proves it>
-   Try it: none | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
+   Try it: none — nothing changes on screen; <the test or receipt that shows the change> | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
    Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed>
    ```
 6. **Continue or stop.** A mechanical ticket rolls straight into the next ready ticket when that
@@ -87,13 +89,20 @@ and the report's `Noticed:` line names it.
 turns out wrong about the code, stop and report it: what the line says, what the code does, and
 the conservative options. A test gets fixed only when the test itself is wrong, and that is a
 deviation named in `Noticed:`. A `Verify` command that is not found (exit 127) is a failure.
+A deviation that changes a number or assumption a plan Finding rests on (a worker count, a call
+rate, a limit) means the plan is wrong about the code: stop and report the Finding and every later
+target derived from it, so they are re-derived before an operator ticket spends money on them.
+A one-item probe proves the path works, never the full run's runtime or cost.
 
 ## `## Execution state` (top of the live file, ≤ ~15 lines)
 
 Current ticket and status · one `T# @ <sha>` line per committed ticket (the freshness check reads
 these) · `writer: <model>` · baseline failures that pre-exist · exact
 signatures, column names and contract versions in flight · uncommitted files · pending decision.
-It is a re-ground block: after any reset or compaction, read it before touching the next ticket.
+It is a re-ground block: after any reset or compaction, read it and the active ticket before
+touching the next ticket. Re-open a skill or reference file only when its rules are gone from
+context, and open only the `memory/` pages the ticket names rather than the whole `MEMORY.md`
+index again.
 A contract ticket mid-flight gets finished and committed before a reset.
 
 **Name the running model from a record, not memory** — a model's recall of its own name lags its
