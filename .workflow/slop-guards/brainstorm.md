@@ -21,11 +21,11 @@ A run's plan carries a size baseline and a line budget per ticket. `check-run.py
 - B8 — a `review.md` Coverage with no `Size:` line → ERROR.
 - B9 — a `wrap.md` with no `Retired:` line → ERROR.
 - B10 — `check-run.py --all` on a repo where a test outside `.workflow/` opens a `.workflow/` path → WARN naming the file.
-- B11 — `SKILL.md` has a Simplicity block (smallest diff, search before writing a helper, new abstraction needs two live callers) and stays at or under 180 lines.
-- B12 — `tests.md` has the smallest-seam, one-concept, parametrize, no-test-imports-test, no-source-text-asserts, mutation and test-budget rules, stays near 70 lines, and "Extra tests are welcome" is gone; the execute report has a `Mutation:` line.
-- B13 — `phase-2-plan.md` has Reuse findings, prefactor consolidation, the one-outcome ~25-word acceptance line and the operator risk-class table (`cheap`/`costly`/`irreversible`, cheap handoff ≤ 20 lines).
-- B14 — `phase-4-review.md` has a same-run-waste P1 row, a reachability check, the verify-the-verification check, the numstat `Size:`/`Reachability:` Coverage lines and the blind-first reading order.
-- B15 — `wrap.md` has a Retire step (one lettered decision, one delete commit) and the wording is "nothing is deleted from the run folder"; `THIRD-PARTY-NOTICES.md` has the MIT notice for addyosmani/agent-skills; `SKILL-IMPACT.md` has a row with the baseline numbers.
+- B11 — reading `SKILL.md` → it has a Simplicity block (smallest diff, search before writing a helper, new abstraction needs two live callers) and stays at or under 180 lines.
+- B12 — reading `tests.md` → it has the smallest-seam, one-concept, parametrize, no-test-imports-test, no-source-text-asserts, mutation and test-budget rules, stays near 70 lines, and "Extra tests are welcome" is gone; the execute report has a `Mutation:` line.
+- B13 — reading `phase-2-plan.md` → it has Reuse findings, prefactor consolidation, the one-outcome ~25-word acceptance line and the operator risk-class table (`cheap`/`costly`/`irreversible`, cheap handoff ≤ 20 lines).
+- B14 — reading `phase-4-review.md` → it has a same-run-waste P1 row, a reachability check, the verify-the-verification check, the numstat `Size:`/`Reachability:` Coverage lines and the blind-first reading order.
+- B15 — reading `wrap.md` → it has a Retire step (one lettered decision, one delete commit) and the wording is "nothing is deleted from the run folder"; `THIRD-PARTY-NOTICES.md` has the MIT notice for addyosmani/agent-skills; `SKILL-IMPACT.md` has a row with the baseline numbers.
 
 ## Decisions
 - D1 — one run, tickets T1–T6 and T8 from the seed plan — fits the 8-ticket cap (product call)
