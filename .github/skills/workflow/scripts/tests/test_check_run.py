@@ -130,6 +130,21 @@ class OverrunTests(unittest.TestCase):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(created="2026-10-08", t1_done=True)}, self.TEST_HEAVY)
         self.assertIn("0 errors", out)
 
+    def test_budget_values_zero_still_warns_on_overrun(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True).replace("code +20 · tests +30", "code +0 · tests +0", 1)}, self.BIG)
+        self.assertIn("T1: net +101 lines, over 2× budget +0", out)
+
+    def test_budget_values_empty_warns_as_missing(self):
+        for lane in ("logic", "contract"):
+            with self.subTest(lane):
+                text = f"Lane: {lane} · Budget:".join(plan().rsplit("Lane: logic · Budget: code +20 · tests +30", 1))
+                self.assertIn("T2: no Budget:", check({"brainstorm.md": BRIEF, "plan.md": text}))
+
+    def test_budget_values_zero_with_only_receipts_is_clean(self):
+        plan_text = plan(t1_done=True).replace("code +20 · tests +30", "code +0 · tests +0", 1)
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan_text}, {"notes/t1-verification.md": lines(101)})
+        self.assertIn("0 errors · 0 warnings", out)
+
 
 class OperatorTests(unittest.TestCase):
     PROBE = {"scripts/test_probe.py": "x\n"}
