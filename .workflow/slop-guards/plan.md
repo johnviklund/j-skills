@@ -7,7 +7,7 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T6 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T7 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
 - In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`, `Retired:` check in `check_wrap()`, `check_pins()` (`--all` only, prints `== repo`); test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`, `check(..., args=)`, `DONE_WRAP`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
@@ -87,12 +87,13 @@ Writer: Opus 5.5
 ### T6 — Hub and plan docs ask for the smallest diff and reuse
 Delivers: B1, B11, B13 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
 Seam: `SKILL.md` Ground rules and `references/phase-2-plan.md` text
-- [ ] `grep -c '^- \*\*Simplicity\.\*\*' SKILL.md` → 1 (B11)
-- [ ] `wc -l < SKILL.md` → at most 180 (B11)
-- [ ] `grep -cE '^Size: |^Budget: code \+|^Decisions: ' phase-2-plan.md` → 3 (B1, B13)
-- [ ] `grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' phase-2-plan.md` → 3 (B13)
+- [x] `grep -c '^- \*\*Simplicity\.\*\*' SKILL.md` → 1 (B11)
+- [x] `wc -l < SKILL.md` → at most 180 (B11)
+- [x] `grep -cE '^Size: |^Budget: code \+|^Decisions: ' phase-2-plan.md` → 3 (B1, B13)
+- [x] `grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' phase-2-plan.md` → 3 (B13)
 Verify: `S=.github/skills/workflow; grep -c '^- \*\*Simplicity\.\*\*' $S/SKILL.md; wc -l < $S/SKILL.md; grep -cE '^Size: |^Budget: code \+|^Decisions: ' $S/references/phase-2-plan.md; grep -cE '\*\*Reuse findings\.\*\*|two or more near-copies|at most ~25 words' $S/references/phase-2-plan.md` (pre: 0 · 173 · 0 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ 5a92358
+Writer: Opus 5.5
 
 ### T7 — Tests stay proportional to the code
 Delivers: B12 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
