@@ -7,7 +7,7 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T8 (mechanical) · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358, T7 @ 0c1e7ac · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: review (all tickets done) · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1, T4 @ d6280d0, T5 @ 6484bb8, T6 @ 5a92358, T7 @ 0c1e7ac, T8 @ fb10679 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
 - In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`, review `Size:` check in `check_review()`, `Retired:` check in `check_wrap()`, `check_pins()` (`--all` only, prints `== repo`); test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`, `review(size)`, `check(..., args=)`, `DONE_WRAP`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
@@ -109,12 +109,13 @@ Writer: Opus 5.5
 ### T8 — Credit the source and log the change
 Delivers: B15 · Blocked by: T1, T2, T3, T4, T5, T6, T7 · Lane: mechanical · Budget: code +0 · tests +0
 Seam: `THIRD-PARTY-NOTICES.md`, `SKILL-IMPACT.md`, MAINTAINING.md check-run row text
-- [ ] `grep -c 'Copyright (c) 2025 Addy Osmani' THIRD-PARTY-NOTICES.md` → 1 (B15)
-- [ ] `grep -c 'https://github.com/addyosmani/agent-skills' THIRD-PARTY-NOTICES.md` → 1 (B15)
-- [ ] `grep -cF 'tests 98.7k / code 73.6k = 1.34' SKILL-IMPACT.md` → 1 (B15)
-- [ ] `grep -cF 'operator prep 470-770 lines' SKILL-IMPACT.md` → 1 (B15)
+- [x] `grep -c 'Copyright (c) 2025 Addy Osmani' THIRD-PARTY-NOTICES.md` → 1 (B15)
+- [x] `grep -c 'https://github.com/addyosmani/agent-skills' THIRD-PARTY-NOTICES.md` → 1 (B15)
+- [x] `grep -cF 'tests 98.7k / code 73.6k = 1.34' SKILL-IMPACT.md` → 1 (B15)
+- [x] `grep -cF 'operator prep 470-770 lines' SKILL-IMPACT.md` → 1 (B15)
 Verify: `S=.github/skills/workflow; grep -c 'Copyright (c) 2025 Addy Osmani' THIRD-PARTY-NOTICES.md; grep -c 'https://github.com/addyosmani/agent-skills' THIRD-PARTY-NOTICES.md; grep -cF 'tests 98.7k / code 73.6k = 1.34' $S/SKILL-IMPACT.md; grep -cF 'operator prep 470-770 lines' $S/SKILL-IMPACT.md` (pre: 0 · 0 · 0 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ fb10679
+Writer: Opus 5.5
 
 ## Coverage
 - Outcome → T1, T2 (plan budgets checked), T4 (review `Size:`), T5 (wrap `Retired:`), T6, T7 (docs)
