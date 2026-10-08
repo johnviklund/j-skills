@@ -14,12 +14,13 @@ Size: check-run.py 649 lines · tests 186 lines · over 1,000: none
 Decisions: both P1 findings are fix now under the review rule; each reproducing test is committed before its fix.
 
 ## Execution state
-- Next: C1-T4. Commit each test ticket while its new tests fail for the reproduced reason. Fix tickets leave every test file untouched.
+- Next: review (all C1 tickets done). Re-review both field checks and their dispatcher paths.
 - C1-T1 @ 6e8efc9
 - C1-T2 @ bc114fc
 - C1-T3 @ dd167fe
+- C1-T4 @ 0e888de
 - writer: Opus 5.5 (routed GPT-6.1 Sol not used; same writer vendor as T1–T8, so the OpenAI review stays cross-vendor)
-- Baseline: 16 tests OK. 17 OK after C1-T2; after C1-T3, 17 OK + 3 red (budget_values: zero-budget overrun, empty Budget logic/contract), receipt-only case green.
+- Baseline: 16 tests OK. 17 OK after C1-T2; after C1-T3, 17 OK + 3 red; after C1-T4, 20 OK.
 - Uncommitted: none · Pending decision: none
 
 ## Tickets
@@ -55,10 +56,11 @@ Writer: Opus 5.5
 ### C1-T4 — Enforce zero budgets and warn on empty ones
 Delivers: B2, B3 · Blocked by: C1-T3 · Lane: logic · Budget: code +12 · tests +0
 Seam: Budget presence check and check_overrun numeric comparison
-- [ ] Every C1-T3 case passes, including logic and contract presence checks and receipt exclusion.
-- [ ] The full suite passes, including date-gate and deviation cases; the commit changes no test file.
+- [x] Every C1-T3 case passes, including logic and contract presence checks and receipt exclusion.
+- [x] The full suite passes, including date-gate and deviation cases; the commit changes no test file.
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -v` (pre: C1-T3 zero-budget and empty-budget assertions fail)
-Skills: none · Status: todo
+Skills: none · Status: done @ 0e888de
+Writer: Opus 5.5
 
 ## Coverage
 C1-1 → C1-T1, C1-T2. C1-2 → C1-T3, C1-T4. Re-review both field checks and their dispatcher paths after all four commits.
