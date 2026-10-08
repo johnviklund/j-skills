@@ -10,6 +10,8 @@ Checks what a script can count, so no phase has to eyeball it:
 - tickets in plan.md / patch_plan.md: Delivers · Blocked by · Lane, Seam, 1-4 acceptance lines,
   Verify with `pre:`, Skills paths, Status; every behaviour delivered by a ticket; no
   blocked-by cycle; operator tickets verify a receipt;
+- slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
+  tickets, acceptance lines of at most ACCEPT_WORDS words;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
 - the folder: only the artifacts at the top level, everything else in a known subfolder.
 
@@ -42,6 +44,9 @@ MAX_TICKETS = 8                            # phase-2-plan §5
 ACCEPT_MIN, ACCEPT_MAX = 1, 4              # phase-2-plan §3 *Small*
 MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
 BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
+# Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
+SLOP_SINCE = "2026-10-09"
+ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 BRIEF_SECTIONS = ["Problem", "Outcome", "Behaviours", "Decisions", "Test seams", "Out of scope"]
 PLAN_SECTIONS = ["Findings", "Tickets", "Coverage", "Risks", "TODO impacts", "Product doc impacts"]
 
@@ -116,6 +121,10 @@ class Doc:
 
     def status(self):
         return self.header().get("Status", "").split()[0] if self.header().get("Status") else ""
+
+    def slop_gated(self):
+        m = re.search(r"\d{4}-\d{2}-\d{2}", self.header().get("Created", ""))
+        return bool(m) and m.group(0) >= SLOP_SINCE
 
 
 def git_has(repo, sha, cache={}):
@@ -255,7 +264,7 @@ def check_tickets(run, doc, rep, behaviours, strict):
         rep.error(doc.path, 0, f"{dup} is defined twice")
     if doc.path.endswith("/plan.md") and len(tickets) > MAX_TICKETS:
         rep.error(doc.path, 0, f"{len(tickets)} tickets; at most {MAX_TICKETS}: propose the split into two runs")
-    edges = {}
+    edges, gated = {}, doc.slop_gated()
     for t in tickets:
         where = lambda n: n or t["line"]
         _, lane = field(t, "Lane")
@@ -281,6 +290,12 @@ def check_tickets(run, doc, rep, behaviours, strict):
         for n, x in accepts:
             if re.search(r"\bor\b", re.sub(r"`[^`]*`", "", x)):
                 rep.warn(doc.path, n, f"{t['id']}: acceptance line has `or`: one expected result per line")
+            words = len(re.sub(r"^\s*- \[[ x]\] ", "", x).split())
+            if gated and words > ACCEPT_WORDS:
+                rep.warn(doc.path, n, f"{t['id']}: acceptance line has {words} words: one outcome, about 25")
+        if (gated and doc.path.endswith("/plan.md") and lane and lane.split()[0] in ("logic", "contract")
+                and field(t, "Budget")[1] is None):
+            rep.warn(doc.path, t["line"], f"{t['id']}: no Budget: line (`Budget: code +N · tests +N`)")
         n_ver, verify = field(t, "Verify")
         if verify is None:
             rep.error(doc.path, t["line"], f"{t['id']}: no `Verify:` line")
