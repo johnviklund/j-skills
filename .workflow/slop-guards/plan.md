@@ -7,9 +7,9 @@ Status:  complete
 Docs read: none in scope (PRODUCT.md and DESIGN.md absent)
 Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, SKILL.md 173, wrap.md 170 · over 1,000: none
 ## Execution state
-- Next: T3 · done: T1 @ d5289bd, T2 @ b9381ca · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
+- Next: T4 · done: T1 @ d5289bd, T2 @ b9381ca, T3 @ fbe43c1 · writer: Opus 5.5 (human's choice over GPT-6.1 Sol) → review must be OpenAI, degraded
 - Baseline: no suite before T1; `check-run.py --all` clean · uncommitted: none · pending: none
-- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation)`, `lines(n)`, `write()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
+- In flight: `SLOP_SINCE`, `ACCEPT_WORDS`, `Doc.slop_gated()`, `OVERRUN`, `TEST_RATIO`/`TEST_FLOOR`, `RECEIPTS`, `TEST_FILE`, `deviated()`, `check_overrun()`, `check_risk()`; test helpers `check(files, ticket)`, `plan(t1_done, deviation, risk)`, `lines(n)`, `write()`, `BRIEF`; `-k` is case-sensitive, so test names carry the keyword
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -54,12 +54,13 @@ Writer: Opus 5.5
 ### T3 — Operator tickets carry a risk class
 Delivers: B5, B6, B13 · Blocked by: T2 · Lane: logic · Budget: code +25 · tests +60
 Seam: check-run output on fixture runs; `phase-2-plan.md` and `phase-3-execute.md` text
-- [ ] Awaiting-human `Risk: cheap` ticket, run tracks `scripts/test_probe.py` → warn containing `T3: cheap operator ticket adds scripts/test_probe.py` (B5)
-- [ ] Operator ticket with no `Risk:` → warn containing `T3: operator ticket has no Risk:` (B6)
-- [ ] `grep -cE '^\| .(cheap|costly|irreversible). \||no stated ceiling' phase-2-plan.md` → 4 (B6)
-- [ ] `grep -c '.Risk:. class' phase-3-execute.md` → 1 (B13)
+- [x] Awaiting-human `Risk: cheap` ticket, run tracks `scripts/test_probe.py` → warn containing `T3: cheap operator ticket adds scripts/test_probe.py` (B5)
+- [x] Operator ticket with no `Risk:` → warn containing `T3: operator ticket has no Risk:` (B6)
+- [x] `grep -cE '^\| .(cheap|costly|irreversible). \||no stated ceiling' phase-2-plan.md` → 4 (B6)
+- [x] `grep -c '.Risk:. class' phase-3-execute.md` → 1 (B13)
 Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k operator; grep -cE '^\| .(cheap|costly|irreversible). \||no stated ceiling' $S/references/phase-2-plan.md; grep -c '.Risk:. class' $S/references/phase-3-execute.md` (pre: new file · 0 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ fbe43c1
+Writer: Opus 5.5
 
 ### T4 — Review records size and checks for waste
 Delivers: B8, B14 · Blocked by: T1 · Lane: logic · Budget: code +15 · tests +40
