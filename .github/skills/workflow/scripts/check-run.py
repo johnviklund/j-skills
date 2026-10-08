@@ -342,7 +342,7 @@ def deviated(doc, tid):
 def check_risk(run, t, doc, rep):
     """phase-2-plan's risk classes: every operator ticket has one, and a `cheap` one writes no script test."""
     n, risk = field(t, "Risk")
-    if risk is None:
+    if not risk:
         rep.warn(doc.path, t["line"], f"{t['id']}: operator ticket has no Risk: (`cheap`, `costly` or `irreversible`)")
     elif risk.split()[0].strip("`") == "cheap":
         for path in git_out(run["dir"], "ls-files", "scripts").splitlines():
