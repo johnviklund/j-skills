@@ -14,10 +14,11 @@ Size: check-run.py 649 lines · tests 186 lines · over 1,000: none
 Decisions: both P1 findings are fix now under the review rule; each reproducing test is committed before its fix.
 
 ## Execution state
-- Next: C1-T2. Commit each test ticket while its new tests fail for the reproduced reason. Fix tickets leave every test file untouched.
+- Next: C1-T3. Commit each test ticket while its new tests fail for the reproduced reason. Fix tickets leave every test file untouched.
 - C1-T1 @ 6e8efc9
+- C1-T2 @ bc114fc
 - writer: Opus 5.5 (routed GPT-6.1 Sol not used; same writer vendor as T1–T8, so the OpenAI review stays cross-vendor)
-- Baseline: 16 tests OK. Now 17: `test_operator_risk_empty_warns` red on IndexError at check-run.py:347 in both subtests, by design.
+- Baseline: 16 tests OK. Now 17 OK after C1-T2.
 - Uncommitted: none · Pending decision: none
 
 ## Tickets
@@ -34,10 +35,11 @@ Writer: Opus 5.5
 ### C1-T2 — Warn when Risk is empty
 Delivers: B6 · Blocked by: C1-T1 · Lane: logic · Budget: code +5 · tests +0
 Seam: check_tickets dispatch to check_risk for plan.md and patch_plan.md
-- [ ] C1-T1's empty Risk cases print the warning and a normal run summary, without a traceback.
-- [ ] The full suite passes; the commit changes no test file.
+- [x] C1-T1's empty Risk cases print the warning and a normal run summary, without a traceback.
+- [x] The full suite passes; the commit changes no test file.
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -v` (pre: C1-T1 cases fail; original 16 pass)
-Skills: none · Status: todo
+Skills: none · Status: done @ bc114fc
+Writer: Opus 5.5
 
 ### C1-T3 — Reproduce zero and empty Budget handling
 Delivers: B2, B3 · Blocked by: C1-T2 · Lane: logic · Budget: code +0 · tests +35
