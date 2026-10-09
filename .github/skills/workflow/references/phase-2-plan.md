@@ -49,12 +49,17 @@ Every ticket is a **tracer bullet**:
   then all the endpoints" is horizontal slicing, and it hides integration errors until review.
 - **Valuable.** It delivers at least one behaviour (B#) — or, for a prefactor, names the ticket it
   makes easy.
-- **Small.** One seam, 1–4 acceptance lines, a diff a reviewer can read in about five minutes, one
-  fresh session to build. A ticket that needs a paragraph to describe is two tickets.
+- **Right-sized.** One seam or one module, 1–6 acceptance lines, roughly 50–300 changed lines
+  (code plus tests). A ticket under about 40 code lines merges with the next ticket in the same
+  module and lane, unless other tickets are blocked on it as a prefactor; `check-run.py` warns on a
+  median code Budget under 40 over 4 or more tickets. Most runs need 2–5 tickets.
+  8 is a ceiling, not a target. A ticket that needs a paragraph to describe is two tickets.
 - **Testable.** Each acceptance line is one test (or, for an operator ticket, one receipt check)
   with a literal expected value, observed at the ticket's seam: "`parse_usage({'prompt_tokens': 12.0})` → `12`",
   not "handles token formats". Each line names one outcome in at most ~25 words, so it is one
   test with few literals. These rules keep the bar honest:
+  - **Computed values as a relation.** A cost, ratio, duration or estimate is checked as a relation
+    to its inputs or a named constant (`worst_case == 2 × three_attempt_basis`), not as a long decimal.
   - **One expected result.** A line with "or" passes on its weaker arm; if one arm is the failure
     an earlier ticket exists to exclude, the line is wrong. A later ticket never restates an
     earlier ticket's bar more loosely.

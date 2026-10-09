@@ -55,8 +55,9 @@ fallback. One trial per seat, at most two seats at once.
 | Bootstrap (`workflow bootstrap`) | Brainstorm partner (docs) + Strict reviewer (audit) | high | large | propose each doc, confirm before writing |
 | Realign (`workflow realign`) | Strict reviewer | high | large | human approval per candidate before canonical-doc write |
 
-`auto` = no human step. Execute still stops after every ticket but a run of mechanical ones, so the
-human can reset, and before a UI ticket's commit (`references/phase-3-execute.md`).
+`auto` = no human step. Execute runs up to 3 tickets per session at the same model and effort,
+then stops so the human can reset; it also stops before a UI ticket's commit
+(`references/phase-3-execute.md`).
 
 `standard` context = the model's default; `large` = the biggest the picker offers, used only where the
 seat holds the whole repo or a wide diff (plan, review, bootstrap).

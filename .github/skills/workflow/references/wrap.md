@@ -136,7 +136,9 @@ Commit, push, curate, and clean up — in one go:
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
    Take the models from the run, not from `ROUTING.md`: the writer from `plan.md`'s `Writer:`
-   lines, the reviewer from `review.md`'s `Independence:` line. Write `Seats:` and `Skills:`;
+   lines, the reviewer from `review.md`'s `Independence:` line. The `Run:` line's sessions count
+   the `Session N:` lines in `plan.md`'s `## Execution state`, before 9a strips it. Write `Seats:`
+   and `Skills:`;
    `check-run.py` errors on a done run whose entry lacks them.
 9. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 9a's transient files, nothing is deleted from the run folder.** Once
    `memory.remember` confirms every line is routed and step 7's cases are deposited:

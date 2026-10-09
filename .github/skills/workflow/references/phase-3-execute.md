@@ -59,11 +59,12 @@ without a receipt it is skipped.
    Try it: none — nothing changes on screen; <the test or receipt that shows the change> | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
    Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed, a helper written despite a reuse hit>
    ```
-6. **Continue or stop.** A mechanical ticket rolls straight into the next ready ticket when that
-   one is mechanical too. Every other ticket — and a mechanical run reaching a non-mechanical
-   ticket — ends the turn with the closing card, `Reset: yes`, naming the next ticket's model: one
-   ticket per session, so the context never fills and the human clears at every card. The state is
-   on disk, so the reset costs nothing.
+6. **Continue or stop.** Carry straight on to the next ready ticket when its card names the
+   same model and effort, up to 3 tickets per session. Stop with the closing card, `Reset: yes`,
+   naming the next ticket's model: after 3 tickets, when a `Verify` fails, when the next ticket
+   needs another model or effort, or when it is a UI or operator ticket. Each ticket still commits,
+   reports and updates `## Execution state` before the next starts, so a reset loses nothing.
+   Each session adds one `Session N: T#, T#` line to `## Execution state`; wrap counts them.
 
 **Operator tickets** replace red → green with handoff → receipt, scaled to the ticket's `Risk:` class
 (`phase-2-plan.md`): `cheap` is at most 20 lines with no dry-run and no script test; `costly` adds
@@ -91,8 +92,9 @@ turns out wrong about the code, stop and report it: what the line says, what the
 the conservative options. A test gets fixed only when the test itself is wrong, and that is a
 deviation named in `Noticed:`. A `Verify` command that is not found (exit 127) is a failure.
 A deviation that changes a number or assumption a plan Finding rests on (a worker count, a call
-rate, a limit) means the plan is wrong about the code: stop and report the Finding and every later
-target derived from it, so they are re-derived before an operator ticket spends money on them.
+rate, a limit) stops the run when an operator ticket's spend or a target depends on it: report
+the Finding and every later target derived from it, so they are re-derived before money is spent. Otherwise update the Finding in place, log a
+`## Deviations` line and continue.
 A one-item probe proves the path works, never the full run's runtime or cost.
 
 ## `## Execution state` (top of the live file, ≤ ~15 lines)

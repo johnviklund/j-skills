@@ -203,7 +203,7 @@ git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.p
 ### 6. Seat & skill performance, reviewer exam set
 
 Models earn seats on **trial runs**, not exams: every `workflow wrap` appends a `WORKLOG.md`
-entry with a `Run:` line (tickets · review cycles · deviations · findings overturned) and a
+entry with a `Run:` line (tickets · sessions · review cycles · deviations · findings overturned) and a
 `Seats:` line (model per phase). Checkup turns those into a per-seat comparison and
 *detects the need* to promote, demote, or run the one exam. It never edits `ROUTING.md`.
 

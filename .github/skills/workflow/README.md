@@ -9,8 +9,8 @@ GitHub Copilot CLI. Version 2.1.
 | Step | What happens | You do |
 |---|---|---|
 | Brainstorm | The agent asks questions until the task is clear, then writes a short brief. It builds throwaway sketches when trying beats asking | Answer questions, confirm the behaviours |
-| Plan | The agent checks the brief against the real code and writes at most eight small tickets. Each ticket says how to prove it is done | Approve the ticket list |
-| Execute | One ticket at a time: write a failing test, make it pass, commit | Try each UI change before its commit. Run the live or risky steps |
+| Plan | The agent checks the brief against the real code and writes usually 2–5 tickets, at most eight. Each ticket says how to prove it is done | Approve the ticket list |
+| Execute | One ticket at a time, up to 3 tickets per session: write a failing test, make it pass, commit | Try each UI change before its commit. Run the live or risky steps |
 | Review | A model from the other vendor reviews the result and rates findings P0 to P3. Fixes go through at most two patch cycles | Choose which P2 and P3 findings to fix |
 | Wrap | Final checks, push, docs updated, lessons saved to memory, the run closed | Nothing, unless asked |
 
@@ -38,8 +38,8 @@ skill. Saying "plan" or "review" in passing does not.
 |---|---|
 | `workflow brainstorm <slug>` | Creates `.workflow/<slug>/`, asks questions with a recommended answer for each, and writes the brief to `brainstorm.md`. It also checks `TODO.md` for related items |
 | `workflow improve <feature> - goal: <goal>` | A brainstorm that starts from an audit of the existing code |
-| `workflow plan` | Writes `plan.md` with at most eight tickets, after you approve them |
-| `workflow execute` | Runs the next ticket and saves progress after each one |
+| `workflow plan` | Writes `plan.md` with usually 2–5 tickets, at most eight, after you approve them |
+| `workflow execute` | Runs the next ready tickets, up to 3 tickets per session, and saves progress after each one |
 | `workflow review` | Writes `review.md`. A re-review looks only at the fix diff |
 | `workflow wrap` | Checks, commits and pushes, updates docs, saves lessons, adds a worklog entry and closes the run |
 | `workflow park [slug]` | Sets a run aside at any step. Nothing is deleted |
