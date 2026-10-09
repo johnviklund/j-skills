@@ -129,11 +129,12 @@ is needed for defers.
 **Any "fix now"** → write `patch_plan.md`: one fix ticket per finding, same ticket shape and
 rules as `plan.md` (lane, seam, acceptance, verify with `pre:`, skills), numbered `C<cycle>-T#`
 so their `@ <sha>` lines never collide with the plan's. The lane decides seat and approval: a fix
-that touches a contract is a contract ticket whatever its severity. A behavioural bug is two
-tickets: first a test that reproduces it, run and seen to fail, committed alone; then the fix,
-which leaves every test file untouched. When the finding is a class that can recur (a field read
-in several places, a call site pattern), the fix ticket's acceptance names every site — list them
-with a search at planning time. The card routes to `workflow execute <slug>`, naming the
+that touches a contract is a contract ticket whatever its severity.
+A behavioural bug is one fix ticket with two commits: first a test that reproduces it, run and
+seen to fail, committed alone; then the fix, which leaves every test file untouched. The ticket
+records the first as `Red: <sha>`, and re-review diffs the test files from it to the fix. When
+the finding is a class that can recur (a field read in several places, a call site pattern), the
+fix ticket's acceptance names every site — list them with a search at planning time. The card routes to `workflow execute <slug>`, naming the
 cycle and finding ids (`Patch cycle 1 · fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
 **Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,
@@ -148,9 +149,12 @@ its reproducing test passes, and look for regressions the fix diff introduced. S
 outside that scope is recorded at P2, except a P0 (fix now) or a P1, which goes to the human as a
 decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `TODO.md`.
 
-**Cycle bound — three.** Stop and escalate after the third cycle, or as soon as a P0 survives a
-cycle. The escalation states the unresolved finding verbatim, each attempt and why it failed, and
-one answerable question; the card routes to the human (`**Model:** human · <the one action>`).
+**Cycle bound — two.** After cycle 2, every open fix-now finding goes to the human as one
+decision: a) one more cycle · b) defer to `TODO.md` ➡️ when it breaks no B# and not the Outcome.
+A third cycle starts only on a), recorded as `Cycle 3 approved by human: <when>` (check-run
+errors without it). A P0 always escalates, as soon as it survives a cycle. The escalation states
+the unresolved finding verbatim, each attempt and why it failed, and one answerable question; the
+card routes to the human (`**Model:** human · <the one action>`).
 
 A finding stays open until a later cycle stamps it. P0/P1 deferral needs the human's explicit
 approval, recorded as `Approved by human:`. Wrap refuses any open "fix now" and any unapproved

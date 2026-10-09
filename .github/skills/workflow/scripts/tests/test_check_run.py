@@ -191,8 +191,8 @@ class OperatorTests(unittest.TestCase):
                 self.assertRegex(out, r"(?m)^== x · complete · \d+ errors")
 
 
-def review(size=""):
-    return (HEADER.format(cmd="review", created="2026-10-09", base="{base}") + "\n## Coverage\n"
+def review(size="", created="2026-10-09"):
+    return (HEADER.format(cmd="review", created=created, base="{base}") + "\n## Coverage\n"
             + "- [x] T1 — acceptance 1/1 tested and passing\n" + size
             + "Independence: cross-vendor\n\n## Cycle 1 findings\n\n## Cycle 1 verdict\nship as-is\n")
 
@@ -205,6 +205,28 @@ class ReviewTests(unittest.TestCase):
     def test_review_coverage_with_size_is_clean(self):
         size = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": review(size)})
+        self.assertIn("0 errors", out)
+
+
+class CycleTests(unittest.TestCase):
+    SIZE = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
+    LATER = "\n## Cycle 2 findings\n\n## Cycle 2 verdict\nfix\n\n## Cycle 3 findings\n{approval}\n## Cycle 3 verdict\nship\n"
+
+    def run_review(self, created="2026-10-10", approval=""):
+        text = review(self.SIZE, created) + self.LATER.format(approval=approval)
+        return check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": text})
+
+    def test_cycle_three_without_approval_is_an_error(self):
+        self.assertRegex(self.run_review(), r"(?m)^ERROR .*Cycle 3 approved by human:")
+
+    def test_cycle_three_with_approval_is_clean(self):
+        out = self.run_review(approval="Cycle 3 approved by human: 2026-10-10\n")
+        self.assertNotIn("Cycle 3 approved", out)
+        self.assertIn("0 errors", out)
+
+    def test_cycle_three_created_before_the_gate_is_not_checked(self):
+        out = self.run_review(created="2026-10-09")
+        self.assertNotIn("Cycle 3 approved", out)
         self.assertIn("0 errors", out)
 
 

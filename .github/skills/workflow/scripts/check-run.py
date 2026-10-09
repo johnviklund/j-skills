@@ -17,6 +17,7 @@ Checks what a script can count, so no phase has to eyeball it:
   a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
   WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
+  from SIZING_SINCE, a third or later cycle carries `Cycle N approved by human:`;
 - the folder: only the artifacts at the top level, everything else in a known subfolder;
 - `--all` only: a tracked test file outside the run folders that names a path inside one.
 
@@ -52,6 +53,7 @@ MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
 BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 # Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
 SLOP_SINCE = "2026-10-09"
+SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle needs the human's approval
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, and ≥ 50, is an ERROR
@@ -133,9 +135,9 @@ class Doc:
     def status(self):
         return self.header().get("Status", "").split()[0] if self.header().get("Status") else ""
 
-    def slop_gated(self):
+    def slop_gated(self, since=SLOP_SINCE):
         m = re.search(r"\d{4}-\d{2}-\d{2}", self.header().get("Created", ""))
-        return bool(m) and m.group(0) >= SLOP_SINCE
+        return bool(m) and m.group(0) >= since
 
 
 def git_has(repo, sha, cache={}):
@@ -460,6 +462,10 @@ def check_review(run, rep):
         rep.error(doc.path, 0, f"Status {status} but no `## Cycle {cycles[-1]} verdict`")
     open_fix = []
     for c in cycles:
+        if c >= 3 and doc.slop_gated(SIZING_SINCE) and not any(
+                re.match(rf"Cycle {c} approved by human:\s*\S", x) for x in doc.lines):
+            rep.error(doc.path, doc.heading(f"Cycle {c} findings"),
+                      f"cycle {c} needs a `Cycle {c} approved by human: <when>` line: review stops after two")
         findings, current = [], None
         for n, text in doc.section(f"Cycle {c} findings"):
             m = re.match(r"^### (P[0-3])" + DASH + r"(.+)$", text)

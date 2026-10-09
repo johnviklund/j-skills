@@ -39,7 +39,7 @@ The skill speaks in one voice. It has no reviewer personas and starts no sub-age
 A CLI's parallel mode is allowed only for read-only seats, to cover more ground.
 
 Everything is bounded: the worklog keeps about 15 entries, the reviewer exam set holds at most 10
-cases, and a patch loop runs at most three cycles.
+cases, and a patch loop runs at most two cycles.
 
 Every command takes an explicit slug, and there is no hidden current run. That lets a
 coordinating agent hand runs to other agents, several at once, with git and the run folders as

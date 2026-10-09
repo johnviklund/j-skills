@@ -11,7 +11,7 @@ GitHub Copilot CLI. Version 2.1.
 | Brainstorm | The agent asks questions until the task is clear, then writes a short brief. It builds throwaway sketches when trying beats asking | Answer questions, confirm the behaviours |
 | Plan | The agent checks the brief against the real code and writes at most eight small tickets. Each ticket says how to prove it is done | Approve the ticket list |
 | Execute | One ticket at a time: write a failing test, make it pass, commit | Try each UI change before its commit. Run the live or risky steps |
-| Review | A model from the other vendor reviews the result and rates findings P0 to P3. Fixes go through at most three patch cycles | Choose which P2 and P3 findings to fix |
+| Review | A model from the other vendor reviews the result and rates findings P0 to P3. Fixes go through at most two patch cycles | Choose which P2 and P3 findings to fix |
 | Wrap | Final checks, push, docs updated, lessons saved to memory, the run closed | Nothing, unless asked |
 
 Every step ends with a **closing card**. It says whether to reset the session, which model and
