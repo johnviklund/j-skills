@@ -5,8 +5,9 @@ Inputs:  .workflow/run-sizing/review.md @ e1bc18b8792c33efbb8c8930b3914c8c012e4f
 Status:  complete
 
 ## Execution state
-- Current: C1-T2 (todo, mechanical · medium)
+- Current: none — C1-T1 and C1-T2 done; next is review
 - C1-T1 @ 36b844d
+- C1-T2 @ 69370a6
 - writer: Opus 5.5 — outside the executor chain; review must stay OpenAI or note degraded
 - Session 2 recorded in `plan.md` (the run-wide ledger C1-T2 sets up)
 - Baseline: 30 tests pass; no production-code defect reproduced. Now 31.
@@ -36,10 +37,11 @@ This is a test-coverage fix. Production behavior already passes B4. Use a tempor
 Delivers: C1-2, B9, B11 · Blocked by: none · Lane: mechanical
 Seam: `.github/skills/workflow/references/phase-3-execute.md` and `references/wrap.md`, checked by content and a session trace
 Accept:
-- [ ] Execute says `Session ledger: plan.md` and records normal and patch sessions there, preserving entries and continuing N across patch cycles.
-- [ ] Wrap says its count `includes patch sessions`; a trace with one initial session and two patch sessions reports 3 before cleanup.
+- [x] Execute says `Session ledger: plan.md` and records normal and patch sessions there, preserving entries and continuing N across patch cycles.
+- [x] Wrap says its count `includes patch sessions`; a trace with one initial session and two patch sessions reports 3 before cleanup.
 Verify: `grep -c 'Session ledger: plan.md' .github/skills/workflow/references/phase-3-execute.md; grep -c 'includes patch sessions' .github/skills/workflow/references/wrap.md` → 1, 1 (pre: 0, 0)
-Skills: .github/skills/agent-docs/SKILL.md · Status: todo
+Skills: .github/skills/agent-docs/SKILL.md · Status: done @ 69370a6
+Writer: Opus 5.5
 Replace the existing session instructions. Ticket status and commit records stay in the active plan; only the session ledger is run-wide.
 This is a document correction: verify the text and save the trace in receipts; no source-text unit test or new script.
 

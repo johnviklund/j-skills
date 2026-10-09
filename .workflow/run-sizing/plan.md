@@ -14,7 +14,7 @@ Decisions: 1a (ticket list approved as drafted)
 - T2 @ d3ce44c
 - T3 @ f3d885e
 - Session 1: T1, T2, T3 (before T3's rule; one session, the human did not reset)
-- Session 2: C1-T1 (patch cycle 1)
+- Session 2: C1-T1, C1-T2 (patch cycle 1)
 - writer: Opus 5.5 (T1, T2, T3) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
 - Baseline: 24 tests OK, no pre-existing failures; no AGENTS.md (verify = the skill's unittest suite + check-run)
 - check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`, `SIZING_SINCE = "2026-10-10"`, `Doc.slop_gated(since=SLOP_SINCE)`
@@ -91,3 +91,4 @@ No PRODUCT.md, DESIGN.md or ROADMAP.md changes. README.md: the plan rows' "at mo
 
 ## Deviations
 - T3: the 3-ticket cap now also bounds runs of mechanical tickets, which rolled on without limit before (D1 names no exception). ROUTING.md *Modes* still says tickets of different lanes can share a session; D2 now needs the same effort, and only the human edits that line.
+- C1-T2: ran in the same session as C1-T1 at the human's request, without a reset, although its lane (mechanical · medium) differs from C1-T1's (logic · high).
