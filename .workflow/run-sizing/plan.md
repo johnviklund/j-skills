@@ -9,11 +9,12 @@ Size: code 675 · tests 236 · ratio 0.35 · largest touched check-run.py 675 ·
 Decisions: 1a (ticket list approved as drafted)
 
 ## Execution state
-- Current: T2 — todo (next ready)
+- Current: T3 — todo (next ready)
 - T1 @ 1d56b03
-- writer: Opus 5.5 (T1) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
+- T2 @ d3ce44c
+- writer: Opus 5.5 (T1, T2) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
 - Baseline: 24 tests OK, no pre-existing failures; no AGENTS.md (verify = the skill's unittest suite + check-run)
-- check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`
+- check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`, `SIZING_SINCE = "2026-10-10"`, `Doc.slop_gated(since=SLOP_SINCE)`
 - Uncommitted: none · Pending decision: none
 
 ## Findings
@@ -49,12 +50,13 @@ Writer: Opus 5.5
 Delivers: B5, B6, B7, B10 · Blocked by: none · Lane: logic · Budget: code +12 · tests +35
 Seam: `check-run.py` subprocess, new class `CycleTests`; phase-4-review.md, MAINTAINING.md, README.md by grep
 Accept:
-- [ ] review.md Created 2026-10-10 with `## Cycle 3 findings` and no approval line → ERROR naming `Cycle 3 approved by human:` (B5)
-- [ ] the same review.md plus `Cycle 3 approved by human: 2026-10-10` → no Cycle 3 ERROR (B6)
-- [ ] the same review.md Created 2026-10-09 → no Cycle 3 ERROR (B7)
-- [ ] phase-4-review.md: `one fix ticket with two commits`, `Red: <sha>`, `**Cycle bound — two.**`, `A P0 always escalates` all present; MAINTAINING.md, README.md say two cycles (B10)
+- [x] review.md Created 2026-10-10 with `## Cycle 3 findings` and no approval line → ERROR naming `Cycle 3 approved by human:` (B5)
+- [x] the same review.md plus `Cycle 3 approved by human: 2026-10-10` → no Cycle 3 ERROR (B6)
+- [x] the same review.md Created 2026-10-09 → no Cycle 3 ERROR (B7)
+- [x] phase-4-review.md: `one fix ticket with two commits`, `Red: <sha>`, `**Cycle bound — two.**`, `A P0 always escalates` all present; MAINTAINING.md, README.md say two cycles (B10)
 Verify: `S=.github/skills/workflow; python3 -m unittest discover -s $S/scripts/tests -k Cycle; grep -oE 'one fix ticket with two commits|Red: <sha>|\*\*Cycle bound — two\.\*\*|A P0 always escalates' $S/references/phase-4-review.md | sort -u | wc -l; grep -c 'at most two cycles' $S/MAINTAINING.md; grep -c 'at most two patch cycles' $S/README.md; grep -ciE 'three (patch )?cycles|Cycle bound — three' $S/references/phase-4-review.md $S/MAINTAINING.md $S/README.md` → OK · 4 · 1 · 1 · 0 · 0 · 0 (pre: Ran 0 tests, OK · 0 · 0 · 0 · 1 · 1 · 1)
-Skills: none · Status: todo
+Skills: none · Status: done @ d3ce44c
+Writer: Opus 5.5
 
 ### T3 — plan and execute rules, session counts, trial log
 Delivers: B8, B9, B11, B12 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
