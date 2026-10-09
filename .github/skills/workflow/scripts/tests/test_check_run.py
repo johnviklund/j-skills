@@ -127,6 +127,10 @@ class SizingTests(unittest.TestCase):
         self.assertNotRegex(out, r"(?m)^warn .*median code Budget")
         self.assertRegex(out, r"(?m)^note .*median code Budget 80 over 4 tickets")
 
+    def test_sizing_six_acceptance_lines_are_valid(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(accept="a → b" + "\n- [ ] a → b" * 5)})
+        self.assertIn("· 0 errors", out)
+
     def test_sizing_seven_acceptance_lines_is_an_error(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(accept="a → b\n- [ ] a → b" + "\n- [ ] a → b" * 5)})
         self.assertRegex(out, r"(?m)^ERROR .*T1: 7 acceptance lines; a ticket has 1-6")
