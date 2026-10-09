@@ -64,7 +64,10 @@ without a receipt it is skipped.
    naming the next ticket's model: after 3 tickets, when a `Verify` fails, when the next ticket
    needs another model or effort, or when it is a UI or operator ticket. Each ticket still commits,
    reports and updates `## Execution state` before the next starts, so a reset loses nothing.
-   Each session adds one `Session N: T#, T#` line to `## Execution state`; wrap counts them.
+   **Session ledger: plan.md.** Each session, normal or patch, adds one `Session N: T#, T#` line to
+   `plan.md`'s `## Execution state`, even when it runs `patch_plan.md`: wrap counts the run's
+   sessions there, and `patch_plan.md` is replaced each cycle. Keep earlier lines; N continues
+   across patch cycles. Ticket status and `T# @ <sha>` lines stay in the file being executed.
 
 **Operator tickets** replace red → green with handoff → receipt, scaled to the ticket's `Risk:` class
 (`phase-2-plan.md`): `cheap` is at most 20 lines with no dry-run and no script test; `costly` adds
