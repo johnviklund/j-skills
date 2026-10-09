@@ -1,44 +1,39 @@
 Command: workflow review run-sizing
 Created: 2026-10-10
-Base:    e1bc18b8792c33efbb8c8930b3914c8c012e4f28
+Base:    38dea5df6e9017b0ef36d863fa457ab53206defd
 Inputs:  .workflow/run-sizing/plan.md @ 1dfb679
 Status:  complete
 
 ## Coverage
-- [x] T1: acceptance 4/4 passes; B1–B4 work in direct probes. B4 lacks a six-line regression assertion, C1-1.
-- [x] T2: acceptance 4/4 passes; B5–B7 and B10 verified in tests and full reference text.
-- [x] T3: literal acceptance 4/4 passes; B8–B12 traced through plan, execute, review, wrap, and worklog instructions. C1-2 breaks patch-session counting.
-- [x] Outcome observed in checker output and skill references, manual, no verify skill. Future throughput remains a trial measure.
-- [x] Full suite: 30 tests pass; all 28 assertions in 24 pre-existing tests remain unchanged.
+- [x] T1–T3: retain cycle 1's acceptance and B1–B12 coverage; both identified gaps are resolved below.
+- [x] C1-T1: acceptance 2/2 passes. Six lines pass, seven fail; the boundary mutation now fails the new test.
+- [x] C1-T2: acceptance 2/2 passes. Execute and wrap share plan.md's ledger across normal and patch sessions.
+- [x] Outcome observed in checker output and canonical skill references, manual, no verify skill. Future throughput remains a trial measure.
+- [x] Full workflow suite: 31 tests pass. All 37 assertions in the 30 pre-patch tests remain unchanged.
+- [x] Fix scope and freshness checked: three changed skill files belong to C1-T1/C1-T2; no production checker changes.
 - [x] Out of scope untouched; no added escape hatches; no `.workflow/` dependency hits outside receipts.
-- [x] Mutation checks: cycle approval inversion fails 2/3 tests; six-line boundary mutation survives all 30 tests, C1-1.
-Size: +27 code · +47 tests · ratio 1.74 · net +67 · over 1,000: none
-Reachability: no new production files; CLI → check_plan → check_tickets → check_sizing; CLI → check_review. Median, cycle, and acceptance guards shown failing.
-Independence: cross-vendor; writer Opus 5.5; reviewer configured as GPT-6 Astra in `~/.codex/config.toml`. Runtime model and picker unavailable.
-Evidence: `receipts/c1-verification.md`. All changed skill files belong to T1–T3; input artifacts are fresh.
+- [x] Mutation in a temporary worktree: `< ACCEPT_MAX` fails the six-line test; restored code passes all four sizing tests.
+Size: +27 code · +51 tests · ratio 1.89 · net +71 · over 1,000: none
+Reachability: no new production files or guards in the patch; unittest discovery runs the added boundary test. Existing CLI paths and failing guards were verified in cycle 1.
+Independence: cross-vendor; writer Opus 5.5 / Anthropic; reviewer GPT-6 / OpenAI per session context. Config names GPT-6 Astra; the exact active variant and model picker are unavailable.
+Evidence: `receipts/c2-verification.md`; earlier acceptance evidence remains in `receipts/c1-verification.md`.
 
-## Cycle 1 findings
+## Resolved
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | Six acceptance lines have no regression assertion | fix now | @ 36b844d (cycle 2) |
+| C1-2 | P1 | Wrap omits patch sessions from the run total | fix now | @ 69370a6 (cycle 2) |
 
-### P1 — C1-1: Six acceptance lines have no regression assertion
-- Evidence: B4 requires six lines to pass. `scripts/tests/test_check_run.py:130` tests only seven lines failing.
-- Mutation: changing `len(accepts) <= ACCEPT_MAX` to `< ACCEPT_MAX` at `scripts/check-run.py:300` rejects six lines, but all 30 tests pass.
-- Remedy: add the six-line success case at the subprocess seam and prove it fails under this mutation.
-- Disposition: fix now
-- Resolved: —
-
-### P1 — C1-2: Wrap omits patch sessions from the run total
-- Evidence: B9/B11 and D4 require a session record and run count. `references/phase-3-execute.md:10` selects `patch_plan.md`; line 67 records sessions there.
-- `references/wrap.md:140` counts only `plan.md`, then line 147 deletes `patch_plan.md`. One initial session plus one patch session reports 1 instead of 2.
-- Remedy: keep one run-wide session ledger in `plan.md` for both normal and patch execution, preserving earlier entries across patch cycles.
-- Disposition: fix now
-- Resolved: —
+## Cycle 2 findings
+None. Rechecked the acceptance boundary and every session-recording/counting site in the canonical workflow and checkup skills.
 
 ## Pre-existing / environmental
-The installed workflow skill predates this run. Review checks the canonical files in `.github/skills/`.
-Finding paths above are relative to `.github/skills/workflow/`. Memory and reviewer exam cases contain no matching prior occurrence.
-The full plan read exposed the writer's Deviations before independent findings were drafted; blind-first isolation was incomplete.
+The installed workflow skill predates this run. Implementation review uses canonical files in `.github/skills/`.
+The picker cannot be opened through this session's tools; the active model was not switched to the configured reviewer seat.
+No root AGENTS.md, MEMORY.md, PRODUCT.md, DESIGN.md or verify skill exists. The workflow's nested MEMORY.md was read.
+Cycle 2 read the patch acceptance and diff before the writer's verification receipts and Deviations.
+The patch's mixed-lane session exception is recorded in plan.md as a human request; it does not alter the skill's stop rule.
 
-## Cycle 1 verdict
-Fix C1-1 and C1-2 before wrap. P0: 0 · P1: 2 · P2: 0 · P3: 0.
-`patch_plan.md` contains two tickets. Production code passes the stated examples; the remaining work covers a missing assertion and session accounting.
-Consider `verify.create` for repeatable checks of the workflow's user-facing instructions.
+## Cycle 2 verdict
+Ship as-is. P0: 0 · P1: 0 · P2: 0 · P3: 0. Both earlier findings are resolved; no further patch cycle is needed.
+Next: workflow wrap run-sizing. Consider `verify.create` for repeatable checks of the workflow's user-facing instructions.
