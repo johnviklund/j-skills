@@ -63,6 +63,9 @@ the keyword in each test method name and check the `Ran N tests` count, not just
 not be a substring of another ticket's test names, or this ticket's Verify goes red during that
 ticket's red step.
 
+**Test the boundary.** A ticket that moves a limit gets one test that passes exactly at the new
+limit and one that fails just over it; the over-limit test alone lets a `<` for `<=` mutation live.
+
 **Test budget.** A logic ticket's test lines are the same order as its code lines; above 3×,
 the report says why. `check-run.py` errors at tests over 3× code once tests pass 50 lines.
 

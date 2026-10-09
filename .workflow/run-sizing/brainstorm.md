@@ -2,7 +2,7 @@ Command: workflow brainstorm run-sizing
 Created: 2026-10-10
 Base:    0ba7236
 Inputs:  none
-Status:  complete
+Status: done
 
 Seed: notes/proposal.md (changes C1–C5, copied from the session that wrote it).
 

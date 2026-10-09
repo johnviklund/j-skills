@@ -5,6 +5,17 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-10 · run-sizing · workflow plans bigger tickets, runs 3 per session, caps review at two cycles · Opus 5.5
+- `check-run.py` warns on a low median code Budget, allows 6 acceptance lines, and errors on an
+  unapproved third review cycle; plan, execute, review, wrap and README rules and counts updated.
+- Cycle 1 found two P1s (no six-line boundary test; wrap missed patch sessions), both fixed.
+- Commits: 1d56b03 d3ce44c f3d885e 36b844d 69370a6
+- Review: ship as-is (cycle 2, 0 open) @ 38dea5d
+- Run: 3 tickets · 2 sessions · 2 review cycles · 2 deviations · 0 findings overturned
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 Opus 5.5 · 4 GPT-6
+- Skills: workflow@2820722, checkup@2820722
+- Why: fewer, larger tickets and fewer review cycles cut the cost per run.
+
 ## 2026-10-08 · slop-guards · workflow guards against bloated plans, tests and patches · Opus 5.5
 - `check-run.py` gained Budget/Risk/Size/Retired checks (2× code overrun warns, tests over 3× code
   errors); plan, execute, review and wrap references now teach proportional tests and retiring

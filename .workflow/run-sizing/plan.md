@@ -2,23 +2,11 @@ Command: workflow plan run-sizing
 Created: 2026-10-10
 Base:    1dfb679
 Inputs:  .workflow/run-sizing/brainstorm.md @ 0ba7236
-Status:  complete
+Status: done
 
 Docs read: none in scope (no PRODUCT.md, no DESIGN.md)
 Size: code 675 · tests 236 · ratio 0.35 · largest touched check-run.py 675 · over 1,000: none
 Decisions: 1a (ticket list approved as drafted)
-
-## Execution state
-- Current: none — every ticket done; next is review
-- T1 @ 1d56b03
-- T2 @ d3ce44c
-- T3 @ f3d885e
-- Session 1: T1, T2, T3 (before T3's rule; one session, the human did not reset)
-- Session 2: C1-T1, C1-T2 (patch cycle 1)
-- writer: Opus 5.5 (T1, T2, T3) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
-- Baseline: 24 tests OK, no pre-existing failures; no AGENTS.md (verify = the skill's unittest suite + check-run)
-- check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`, `SIZING_SINCE = "2026-10-10"`, `Doc.slop_gated(since=SLOP_SINCE)`
-- Uncommitted: none · Pending decision: none
 
 ## Findings
 | # | What is true | What it changes |

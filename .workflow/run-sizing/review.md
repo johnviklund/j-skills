@@ -2,7 +2,7 @@ Command: workflow review run-sizing
 Created: 2026-10-10
 Base:    38dea5df6e9017b0ef36d863fa457ab53206defd
 Inputs:  .workflow/run-sizing/plan.md @ 1dfb679
-Status:  complete
+Status: done
 
 ## Coverage
 - [x] T1–T3: retain cycle 1's acceptance and B1–B12 coverage; both identified gaps are resolved below.
