@@ -9,10 +9,12 @@ Size: code 675 · tests 236 · ratio 0.35 · largest touched check-run.py 675 ·
 Decisions: 1a (ticket list approved as drafted)
 
 ## Execution state
-- Current: T3 — todo (next ready)
+- Current: none — every ticket done; next is review
 - T1 @ 1d56b03
 - T2 @ d3ce44c
-- writer: Opus 5.5 (T1, T2) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
+- T3 @ f3d885e
+- Session 1: T1, T2, T3 (before T3's rule; one session, the human did not reset)
+- writer: Opus 5.5 (T1, T2, T3) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
 - Baseline: 24 tests OK, no pre-existing failures; no AGENTS.md (verify = the skill's unittest suite + check-run)
 - check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`, `SIZING_SINCE = "2026-10-10"`, `Doc.slop_gated(since=SLOP_SINCE)`
 - Uncommitted: none · Pending decision: none
@@ -62,12 +64,13 @@ Writer: Opus 5.5
 Delivers: B8, B9, B11, B12 · Blocked by: none · Lane: logic · Budget: code +0 · tests +0
 Seam: the skill's markdown, observed by `grep`. Text: proposal C1, C2, C5 as amended by D1, D2, D4, D5, D8, D11; each phrase on one source line
 Accept:
-- [ ] phase-2-plan.md: `**Right-sized.**`, `under about 40 code lines`, `8 is a ceiling`, `as a relation` all present; `five minutes` 0 (B8)
-- [ ] phase-3-execute.md: `same model and effort`, `after 3 tickets`, `Session N: T#`, `spend or a target depends on it` all present; `ticket per session` 0 (B9)
-- [ ] `up to 3 tickets per session`: ROUTING.md 1, README.md 2; `sessions` on the Run: line in learning-worklog.md, checkup; wrap.md `Session N:` 1 (B11)
-- [ ] SKILL-IMPACT.md: a `run-sizing` row with `loosens`; the Slop guards row has `lines per behaviour`; `lines per ticket fall` 0 (B12)
+- [x] phase-2-plan.md: `**Right-sized.**`, `under about 40 code lines`, `8 is a ceiling`, `as a relation` all present; `five minutes` 0 (B8)
+- [x] phase-3-execute.md: `same model and effort`, `after 3 tickets`, `Session N: T#`, `spend or a target depends on it` all present; `ticket per session` 0 (B9)
+- [x] `up to 3 tickets per session`: ROUTING.md 1, README.md 2; `sessions` on the Run: line in learning-worklog.md, checkup; wrap.md `Session N:` 1 (B11)
+- [x] SKILL-IMPACT.md: a `run-sizing` row with `loosens`; the Slop guards row has `lines per behaviour`; `lines per ticket fall` 0 (B12)
 Verify: `S=.github/skills/workflow; R=$S/references; grep -oE '\*\*Right-sized\.\*\*|under about 40 code lines|8 is a ceiling|as a relation' $R/phase-2-plan.md | sort -u | wc -l; grep -c 'five minutes' $R/phase-2-plan.md; grep -oE 'same model and effort|after 3 tickets|Session N: T#|spend or a target depends on it' $R/phase-3-execute.md | sort -u | wc -l; grep -c 'ticket per session' $R/phase-3-execute.md; grep -c 'up to 3 tickets per session' $S/ROUTING.md $S/README.md; grep -c '<sessions> sessions' $R/learning-worklog.md; grep -c 'tickets · sessions · review cycles' .github/skills/checkup/SKILL.md; grep -c 'Session N:' $R/wrap.md; grep -c 'run-sizing.*loosens' $S/SKILL-IMPACT.md; grep -c 'Slop guards.*lines per behaviour' $S/SKILL-IMPACT.md; grep -c 'lines per ticket fall' $S/SKILL-IMPACT.md; grep -c 'usually 2–5 tickets, at most eight' $S/README.md` → 4 · 0 · 4 · 0 · 1, 2 · 1 · 1 · 1 · 1 · 1 · 0 · 2 (pre: 0 · 1 · 0 · 1 · 0, 0 · 0 · 0 · 0 · 0 · 0 · 1 · 0)
-Skills: none · Status: todo
+Skills: none · Status: done @ f3d885e
+Writer: Opus 5.5
 
 ## Coverage
 - Outcome → T1 (check-run warns on tiny tickets), T2 (errors on an unapproved third cycle), T3 (plan writes 2–5 tickets; execute runs up to 3 per session)
@@ -84,3 +87,6 @@ none (no TODO.md). Optional, human-only: ROUTING-NOTES.md:11 lists the `Run:` fi
 
 ## Product doc impacts
 No PRODUCT.md, DESIGN.md or ROADMAP.md changes. README.md: the plan rows' "at most eight small tickets" becomes "usually 2–5 tickets, at most eight" (T3), and the review row says two cycles (T2).
+
+## Deviations
+- T3: the 3-ticket cap now also bounds runs of mechanical tickets, which rolled on without limit before (D1 names no exception). ROUTING.md *Modes* still says tickets of different lanes can share a session; D2 now needs the same effort, and only the human edits that line.
