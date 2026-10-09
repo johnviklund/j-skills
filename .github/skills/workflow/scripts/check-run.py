@@ -7,11 +7,11 @@ Checks what a script can count, so no phase has to eyeball it:
 - budgets: brainstorm ~80 lines and 5-15 behaviours, plan ~120 lines and 8 tickets,
   review ~100 lines, a done wrap ~40 lines;
 - the brief: required sections, `B# — situation → result` behaviours, prototype notes;
-- tickets in plan.md / patch_plan.md: Delivers · Blocked by · Lane, Seam, 1-4 acceptance lines,
+- tickets in plan.md / patch_plan.md: Delivers · Blocked by · Lane, Seam, 1-6 acceptance lines,
   Verify with `pre:`, Skills paths, Status; every behaviour delivered by a ticket; no
   blocked-by cycle; operator tickets verify a receipt;
 - slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
-  tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
+  tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
@@ -33,6 +33,7 @@ Exit 0 with no errors (warnings allowed), 1 with any error, 2 on bad input.
 import argparse
 import os
 import re
+import statistics
 import subprocess
 import sys
 
@@ -46,7 +47,7 @@ BUDGET = {"brainstorm.md": 80, "plan.md": 120, "review.md": 100}
 WRAP_DONE_BUDGET = 40
 BEHAVIOURS_MIN, BEHAVIOURS_MAX = 5, 15     # phase-0-brainstorm §4: more means two runs
 MAX_TICKETS = 8                            # phase-2-plan §5
-ACCEPT_MIN, ACCEPT_MAX = 1, 4              # phase-2-plan §3 *Small*
+ACCEPT_MIN, ACCEPT_MAX = 1, 6              # phase-2-plan §3 *Right-sized*
 MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
 BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 # Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
@@ -54,6 +55,7 @@ SLOP_SINCE = "2026-10-09"
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, and ≥ 50, is an ERROR
+MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4      # a median code Budget under 40 over 4+ tickets warns: merge
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
 TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
 BRIEF_SECTIONS = ["Problem", "Outcome", "Behaviours", "Decisions", "Test seams", "Out of scope"]
@@ -330,10 +332,24 @@ def check_tickets(run, doc, rep, behaviours, strict):
                     rep.warn(doc.path, n_st, f"{t['id']}: done but no `Writer: <model>` line")
                 if gated and doc.path.endswith("/plan.md") and not deviated(doc, t["id"]):
                     check_overrun(t, lane, m.group(2), doc, rep, n_st)
+    if gated and doc.path.endswith("/plan.md"):
+        check_sizing(tickets, doc, rep)
     cycle = find_cycle(edges)
     if cycle:
         rep.error(doc.path, 0, "blocked-by cycle: " + " → ".join(cycle))
     return tickets
+
+
+def check_sizing(tickets, doc, rep):
+    budgets = [int(m.group(1)) for t in tickets
+               if (field(t, "Lane")[1] or "x").split()[0] in ("logic", "contract")
+               and (m := re.search(r"code\s*\+(\d+)", field(t, "Budget")[1] or ""))]
+    if not budgets:
+        return
+    msg = f"median code Budget {statistics.median(budgets):g} over {len(budgets)} tickets"
+    rep.note(doc.path, msg)
+    if len(budgets) >= MERGE_MIN_TICKETS and statistics.median(budgets) < MERGE_BELOW:
+        rep.warn(doc.path, 0, f"{msg}: merge tickets under ~{MERGE_BELOW} code lines into their neighbours")
 
 
 def deviated(doc, tid):

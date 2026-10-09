@@ -109,6 +109,29 @@ class BudgetTests(unittest.TestCase):
         self.assertIn("0 errors · 0 warnings", out)
 
 
+def sized(budgets):
+    delivers = ["B1, B2", "B3", "B4", "B5"]
+    tickets = "".join(TICKET.format(id=f"T{i}", delivers=d, accept="situation → result")
+                      .replace("code +20", f"code +{b}") for i, (d, b) in enumerate(zip(delivers, budgets), 1))
+    return (HEADER.format(cmd="plan", created="2026-10-09", base="{base}") + "Size: code 10 · tests 5\n"
+            + "## Findings\nf\n## Tickets\n" + tickets + PLAN_TAIL)
+
+
+class SizingTests(unittest.TestCase):
+    def test_sizing_median_under_40_warns_to_merge(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": sized([20, 30, 30, 50])})
+        self.assertRegex(out, r"(?m)^warn .*median code Budget 30 over 4 tickets.*merge")
+
+    def test_sizing_right_sized_plan_only_notes_the_median(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": sized([60, 80, 80, 120])})
+        self.assertNotRegex(out, r"(?m)^warn .*median code Budget")
+        self.assertRegex(out, r"(?m)^note .*median code Budget 80 over 4 tickets")
+
+    def test_sizing_seven_acceptance_lines_is_an_error(self):
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(accept="a → b\n- [ ] a → b" + "\n- [ ] a → b" * 5)})
+        self.assertRegex(out, r"(?m)^ERROR .*T1: 7 acceptance lines; a ticket has 1-6")
+
+
 class OverrunTests(unittest.TestCase):
     BIG = {"src/app.py": lines(101)}
     TEST_HEAVY = {"src/app.py": lines(12), "tests/test_app.py": lines(178)}
