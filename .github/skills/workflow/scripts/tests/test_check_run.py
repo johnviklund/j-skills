@@ -194,8 +194,36 @@ class WrapTests(unittest.TestCase):
         self.assertRegex(out, r"(?m)^ERROR .*wrap.md has no Retired: line")
 
     def test_wrap_done_with_retired_is_clean(self):
-        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP + "Retired: none — nothing obsolete\n"})
-        self.assertIn("0 errors", out)
+        files = {"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP + "Retired: none — nothing obsolete\n"}
+        worklog = {"WORKLOG.md": "## 2026-10-09 · x · shipped · m\n- Seats: 0 m\n- Skills: workflow@abc\n"}
+        self.assertIn("0 errors", check(files, worklog))
+
+    DONE = {"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP + "Retired: none — nothing obsolete\n"}
+    REVIEWED = "Independence: cross-vendor (writer GPT-6.1 Sol / OpenAI · reviewer Claude Opus 5.5 / Anthropic)\n"
+
+    def worklog(self, header="GPT-6.1 Sol (writer) + Claude Opus 5.5 (reviewer)", seats=True):
+        body = f"## 2026-10-09 · x · shipped · {header}\n- Commits: abc\n"
+        if seats:
+            body += "- Seats: 0 m · 2 m · 3 m · 4 m\n- Skills: workflow@abc\n"
+        return {"WORKLOG.md": "# Worklog\n\n" + body + "\n## 2026-10-08 · y · older · m\n- Seats: 0 m\n"}
+
+    def test_wrap_worklog_entry_with_seats_is_clean(self):
+        self.assertIn("0 errors", check(self.DONE, self.worklog(), args=("--all",)))
+
+    def test_wrap_worklog_entry_missing_is_an_error(self):
+        out = check(self.DONE, {"WORKLOG.md": "# Worklog\n"}, args=("--all",))
+        self.assertRegex(out, r"(?m)^ERROR .*WORKLOG.md has no entry for x")
+
+    def test_wrap_worklog_entry_without_seats_is_an_error(self):
+        out = check(self.DONE, self.worklog(seats=False), args=("--all",))
+        self.assertRegex(out, r"(?m)^ERROR WORKLOG.md:3 .*entry for x has no Seats: line")
+        self.assertRegex(out, r"(?m)^ERROR WORKLOG.md:3 .*entry for x has no Skills: line")
+
+    def test_wrap_worklog_unrecorded_reviewer_named_in_review_is_an_error(self):
+        size = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
+        files = dict(self.DONE, **{"review.md": review(size).replace("Independence: cross-vendor\n", self.REVIEWED)})
+        out = check(files, self.worklog(header="GPT-6.1 Sol (writer) + reviewer model unrecorded"), args=("--all",))
+        self.assertRegex(out, r"(?m)^ERROR WORKLOG.md:3 .*says unrecorded, but review.md names the reviewer")
 
     def test_wrap_all_warns_on_a_test_reading_the_run_folder(self):
         pin = {"tests/test_x.py": f"open('{RUN}/data.json')\n", "src/x.py": f"open('{RUN}/data.json')\n"}

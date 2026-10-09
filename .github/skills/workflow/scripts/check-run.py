@@ -14,7 +14,8 @@ Checks what a script can count, so no phase has to eyeball it:
   tickets, acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
-  a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap;
+  a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
+  WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
 - the folder: only the artifacts at the top level, everything else in a known subfolder;
 - `--all` only: a tracked test file outside the run folders that names a path inside one.
@@ -495,8 +496,32 @@ def check_wrap(run, rep):
             rep.error(doc.path, 0, "wrap.md has no Retired: line: step 5b records what was deleted, or `none` with a reason")
         if len(doc.lines) > WRAP_DONE_BUDGET:
             rep.warn(doc.path, 0, f"{len(doc.lines)} lines; a finished run's summary is ~{WRAP_DONE_BUDGET}")
+        if doc.slop_gated():
+            check_worklog(run, rep)
     elif doc.section("Steps") is None:
         rep.warn(doc.path, 0, "wrap in progress but no `## Steps` checklist")
+
+
+def check_worklog(run, rep):
+    """A done wrap's WORKLOG.md entry carries Seats: and Skills:, and names a reviewer review.md names."""
+    slug = os.path.basename(os.path.normpath(run["dir"]))
+    path = os.path.join(rep.repo, "WORKLOG.md")
+    lines = open(path, encoding="utf-8").read().splitlines() if os.path.isfile(path) else []
+    start = next((i for i, t in enumerate(lines) if t.startswith("## ") and f" · {slug} · " in t), None)
+    if start is None:
+        rep.error(path, 0, f"WORKLOG.md has no entry for {slug}: wrap step 8 appends `## <date> · {slug} · ...`")
+        return
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    entry = [t.lstrip("- ").strip() for t in lines[start:end]]
+    for field in ("Seats:", "Skills:"):
+        if not any(t.startswith(field) for t in entry):
+            rep.error(path, start + 1, f"entry for {slug} has no {field} line: take the writer from plan.md "
+                                       "`Writer:` lines and the reviewer from review.md `Independence:`")
+    review = run["docs"].get("review.md")
+    named = review and any(re.search(r"\breviewer\s+[A-Z]", t) for t in review.lines if t.startswith("Independence:"))
+    if named and "unrecorded" in lines[start]:
+        rep.error(path, start + 1, f"entry for {slug} says unrecorded, but review.md names the reviewer "
+                                   "on its `Independence:` line")
 
 
 def check_layout(run, rep):

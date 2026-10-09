@@ -41,7 +41,9 @@ Review answers two questions, kept apart so one can't hide the other:
     and every new guard or check is shown failing once. Unreachable new code is P1.
   - **Verify the verification.** Pick the riskiest acceptance line, invert one condition the
     change adds, and run its test in a throwaway `git worktree`, never committed. A test that
-    stays green is a P1 missing assertion.
+    stays green is a P1 missing assertion. When a fix adds a catch-all, such as a fallback that
+    clears state at the end of a run, also mutate the narrower path it overlaps: the catch-all can
+    keep that path's tests green after the path breaks.
 
   Each such finding proposes its remedy: collapse the duplicate branches, delete the wrapper,
   split orchestration from logic, or reuse the existing helper.

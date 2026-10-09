@@ -156,6 +156,9 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
+- **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
+  A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
+  and shas that do not exist. Write an artifact only after the reads it reports on have returned.
 
 ## Command index
 
