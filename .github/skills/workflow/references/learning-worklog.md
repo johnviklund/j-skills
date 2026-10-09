@@ -25,7 +25,7 @@ any time something worth keeping gets solved — don't wait for wrap-up:
 Models earn seats on **trial runs**, not exams (protocol in `ROUTING.md`): a candidate takes a
 seat for a real run, and the worklog's `Run:`/`Seats:` lines are the evidence. The one exception
 is the strict reviewer, because a reviewer miss is expensive and a diff with known findings is a
-cheap, honest exam. So the only case shape is `code-review`, filed in the exam set (`j-skills-evals/strict-reviewer/`, a private repo cloned beside j-skills; the `evals` skill says how to find it):
+cheap, honest exam. So the only case shape is `code-review`, filed in the exam set (`~/.agents/j-skills-evals/strict-reviewer/`, a clone of the private `j-skills-evals` repo; the `evals` skill gives the clone command):
 
 | Case shape | Seat directory | Input → what a pass must name |
 |---|---|---|

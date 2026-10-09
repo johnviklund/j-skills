@@ -179,11 +179,12 @@ done
 Copilot started inside a clone of this repo reads the clone's `.github/skills` instead of the
 installed copies. That is how to try an edit before installing it.
 
-The reviewer exam cases live in a private repo, cloned next to this one. They copy code from
-private repos, so they must never go into this public repo:
+The reviewer exam cases live in a private repo, cloned at the fixed path `~/.agents/j-skills-evals`. The
+skills find it there because the installed skills are copies, not git checkouts. The cases copy
+code from private repos, so they must never go into this public repo:
 
 ```sh
-gh repo clone johnviklund/j-skills-evals ../j-skills-evals
+gh repo clone johnviklund/j-skills-evals ~/.agents/j-skills-evals
 ```
 
 ### Change a skill

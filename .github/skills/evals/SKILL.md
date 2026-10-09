@@ -23,10 +23,11 @@ invokes it.
 
 ## The exam set
 
-One central set for every repo, in the private repo `j-skills-evals`, cloned beside the j-skills
-clone. Find it with `git -C <this skill's folder> rev-parse --show-toplevel`, then `../j-skills-evals/strict-reviewer/`.
+One central set for every repo, in the private repo `j-skills-evals`, cloned at the fixed path
+`~/.agents/j-skills-evals`, so the cases are in `~/.agents/j-skills-evals/strict-reviewer/`. The path is fixed
+because installed skills are copies, not git checkouts, so no lookup from the skill folder works.
 Missing → stop and give the human the clone command:
-`gh repo clone johnviklund/j-skills-evals <j-skills root>/../j-skills-evals`. The set is private
+`gh repo clone johnviklund/j-skills-evals ~/.agents/j-skills-evals`. The set is private
 because cases copy code from private repos; never copy a case into a public repo.
 
 Each case is one file, `strict-reviewer/<kind>-<topic>.md`, in this exact shape (scripts and

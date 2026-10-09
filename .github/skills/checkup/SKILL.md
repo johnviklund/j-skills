@@ -209,7 +209,7 @@ entry with a `Run:` line (tickets · review cycles · deviations · findings ove
 
 ```sh
 grep -nE '^\s*- (Run|Seats):' WORKLOG.md 2>/dev/null | tail -30        # recent run evidence
-E="$(git -C <checkup skill folder> rev-parse --show-toplevel)/../j-skills-evals/strict-reviewer"
+E="$HOME/.agents/j-skills-evals/strict-reviewer"
 ls "$E"/*.md 2>/dev/null | grep -v RESULTS.md | wc -l                 # exam cases (cap 10)
 grep -L '^## Must name' "$E"/*-*.md 2>/dev/null                        # cases missing their findings
 grep -l '\.workflow/' "$E"/*-*.md 2>/dev/null                          # cases pointing at run scratch
@@ -239,8 +239,8 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
   skipped -- nothing can be judged until it isn't.
 - **Stale routing.** `ROUTING.md`'s *Last verified* date > 90 days old, or a *Trial* entry with no
   run in the last ~10 entries: ⚠️ re-verify model IDs in the picker / clear or use the trial.
-- **Reviewer exam set.** It lives in the private `j-skills-evals` repo beside the j-skills clone;
-  missing clone is ⚠️ (give `gh repo clone johnviklund/j-skills-evals`). A per-repo
+- **Reviewer exam set.** It lives in the private `j-skills-evals` repo, cloned at `~/.agents/j-skills-evals`;
+  missing clone is ⚠️ (give `gh repo clone johnviklund/j-skills-evals ~/.agents/j-skills-evals`). A per-repo
   `evals/strict-reviewer/` is ⚠️ "move its cases into the exam set". Cases referencing a
   `.workflow/` path are 🔴 (the scratch is gone; the case is worthless). More than 10 cases is ⚠️
   (rolling cap; recommend a human prune). A case without

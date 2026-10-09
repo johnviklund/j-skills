@@ -127,11 +127,11 @@ Commit, push, curate, and clean up — in one go:
 7. **Eval deposit** — usually nothing. For each `[durable→eval] code-review` line in
    `.workflow/<slug>/learnings.md` that passes the admission test in `references/learning-worklog.md`
    (a P0/P1 missed by the writer or by the reviewer), write one `Kind: missed` case to
-   the exam set (`j-skills-evals/strict-reviewer/`, a private repo cloned beside j-skills; the `evals` skill says how to find it), as `missed-<topic>.md` in the shape the `evals` skill defines: context, the diff
+   the exam set (`~/.agents/j-skills-evals/strict-reviewer/`, a clone of the private `j-skills-evals` repo; the `evals` skill gives the clone command), as `missed-<topic>.md` in the shape the `evals` skill defines: context, the diff
    copied in (never a `.workflow/` path), the fixed diff as its clean twin when there is one, the
    P0/P1 a pass must name, and provenance (date, repo, run, sha range, which model missed it).
    **Cap 10, rolling:** a full set drops its oldest seeded case first, then the weakest missed
-   one; never append past the cap. Commit and push in `j-skills-evals`, which is private because
+   one; never append past the cap. Commit and push in `~/.agents/j-skills-evals`, which is private because
    cases copy code: never write a case into this repo or any public one.
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
