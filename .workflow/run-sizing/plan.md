@@ -9,7 +9,12 @@ Size: code 675 · tests 236 · ratio 0.35 · largest touched check-run.py 675 ·
 Decisions: 1a (ticket list approved as drafted)
 
 ## Execution state
-<filled by execute>
+- Current: T2 — todo (next ready)
+- T1 @ 1d56b03
+- writer: Opus 5.5 (T1) — outside the executor chain and same vendor as the reviewer seat; review must be OpenAI or note degraded
+- Baseline: 24 tests OK, no pre-existing failures; no AGENTS.md (verify = the skill's unittest suite + check-run)
+- check-run.py: `check_sizing(tickets, doc, rep)`, `MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4`, `ACCEPT_MAX = 6`
+- Uncommitted: none · Pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -32,12 +37,13 @@ Decisions: 1a (ticket list approved as drafted)
 Delivers: B1, B2, B3, B4 · Blocked by: none · Lane: logic · Budget: code +20 · tests +45
 Seam: `check-run.py` run as a subprocess by `scripts/tests/test_check_run.py`, new class `SizingTests`
 Accept:
-- [ ] plan.md, 4 logic tickets, code Budgets +20 +30 +30 +50 → warn `median code Budget 30 over 4 tickets` naming `merge` (B1)
-- [ ] the same plan with code Budgets +60 +80 +80 +120 → no warn line containing `median code Budget` (B2)
-- [ ] that +60 … +120 plan → note `median code Budget 80 over 4 tickets` (B3)
-- [ ] a ticket with 7 acceptance lines → ERROR `7 acceptance lines; a ticket has 1-6` (B4)
+- [x] plan.md, 4 logic tickets, code Budgets +20 +30 +30 +50 → warn `median code Budget 30 over 4 tickets` naming `merge` (B1)
+- [x] the same plan with code Budgets +60 +80 +80 +120 → no warn line containing `median code Budget` (B2)
+- [x] that +60 … +120 plan → note `median code Budget 80 over 4 tickets` (B3)
+- [x] a ticket with 7 acceptance lines → ERROR `7 acceptance lines; a ticket has 1-6` (B4)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Sizing` (pre: Ran 0 tests, OK)
-Skills: none · Status: todo
+Skills: none · Status: done @ 1d56b03
+Writer: Opus 5.5
 
 ### T2 — a third review cycle needs the human's approval; review allows two
 Delivers: B5, B6, B7, B10 · Blocked by: none · Lane: logic · Budget: code +12 · tests +35
