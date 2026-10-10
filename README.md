@@ -29,25 +29,11 @@ Use the exact command on the agent's closing card when it includes a prefix.
 
 ## How the skills fit together
 
-The solid arrows show the coding steps. Dotted arrows show help used at a particular step.
+Follow the character through the five coding steps. The toolkit below shows the skills you can use along the way.
 
-```mermaid
-flowchart TD
-    B["1. Brainstorm<br/>Decide what to build"] --> P["2. Plan<br/>Approve small tickets"]
-    P --> E["3. Execute<br/>Build and test each ticket"]
-    E --> R["4. Review<br/>Check the result"]
-    R -->|Fixes needed| E
-    R -->|Review clear| W["5. Wrap<br/>Push, update docs, close the run"]
-    V["verify<br/>Prepare app checks once per repo"] -.-> E
-    V -.-> R
-    W -.-> M["memory.remember<br/>Save lessons during wrap"]
-    W -.-> U["understand<br/>Explain what changed"]
-    W -.-> T["retro<br/>Improve how the next run goes"]
-    classDef steps fill:#e8efff,stroke:#3156a3,color:#142547
-    classDef helpers fill:#f2f5f8,stroke:#65758b,color:#243247
-    class B,P,E,R,W steps
-    class V,M,U,T helpers
-```
+![A coding companion brainstorms, plans, builds, reviews and wraps a task. Below it, nine helper skills explain, check, remember and improve the work.](docs/assets/workflow-character.png)
+
+[Open the full-size illustration](docs/assets/workflow-character.png). The command tables below explain when to use each skill.
 
 `workflow` manages all five numbered steps. Ask for `plain` whenever an answer is hard to follow.
 For upkeep, use `checkup`, `memory.compact` and `evals` as needed.
