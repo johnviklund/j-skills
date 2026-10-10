@@ -1,26 +1,127 @@
 # j-skills
 
-Personal agent skills that work in every repo. Claude Code, Codex CLI and GitHub Copilot CLI all
-read them from this one clone.
+Ten skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
+Use `workflow` to take a coding task from idea to reviewed code. Use the other skills when you
+need an explanation, app checks, saved lessons or help improving how you work.
 
-## Skills at a glance
+**Start with one task. You do not need to run every skill each time.**
 
-| Skill | What it does | Start it with |
-|---|---|---|
-| [`plain`](#plain) | Explains something in simple terms, or rewrites text so it reads plainly | "in simple terms", "wait, what?", "remove AI patterns" |
-| [`understand`](#understand) | Writes a cited HTML page that explains a finished run or a part of the code | `understand <slug>` or `understand <area>` |
-| [`workflow`](#workflow) | Takes a coding task through brainstorm, plan, execute, review and wrap | `workflow <command>` |
-| [`retro`](#retro) | Looks back at a session and suggests fixes so the next one goes faster | `retro` |
-| [`memory.remember`](#memoryremember) | Saves lessons from the session into the repo's memory pages | "remember this" |
-| [`memory.compact`](#memorycompact) | Cleans up memory pages that overlap or have gone stale | `memory.compact` |
-| [`checkup`](#checkup) | Gives a health report on the repo and the skill setup | `checkup` |
-| [`evals`](#evals) | Tests a model before it takes the reviewer seat | `evals.run reviewer <model>` |
-| [`verify`](#verify) | Gives a repo a scripted way to drive its app, plus a map of its features | `verify.create`, `verify.maintain` |
-| [`agent-docs`](#agent-docs) | Guides the writing and testing of skills, `AGENTS.md` and other docs agents read | other skills load it |
+[Install the skills](#setup) · [Follow a coding task](#follow-one-task-from-idea-to-done) ·
+[Choose a skill](#which-skill-do-i-need) · [Read the details](#skill-reference)
 
-Codex shows each skill with the plugin name in front, for example `j-skills:workflow`.
+## Start here
 
-## The skills
+After [installation](#setup), open your coding agent in the project you want to work on.
+Send this as a chat message:
+
+```text
+workflow brainstorm export-csv
+I want users to download the current table as a CSV file.
+```
+
+`export-csv` is the **run name**, also called a slug. Choose a short name for your own task.
+The agent asks questions, saves a brief, and gives you the next command.
+
+Commands in the workflow and skill tables are **messages to your agent**.
+The shell blocks under setup and configuration go in a terminal or the named configuration file.
+When installed as a plugin, a skill may appear with a prefix such as `j-skills:workflow`.
+Use the exact command on the agent's closing card when it includes a prefix.
+
+## How the skills fit together
+
+The solid arrows show the coding steps. Dotted arrows show help used at a particular step.
+
+```mermaid
+flowchart TD
+    B["1. Brainstorm<br/>Decide what to build"] --> P["2. Plan<br/>Approve small tickets"]
+    P --> E["3. Execute<br/>Build and test each ticket"]
+    E --> R["4. Review<br/>Check the result"]
+    R -->|Fixes needed| E
+    R -->|Review clear| W["5. Wrap<br/>Push, update docs, close the run"]
+    V["verify<br/>Prepare app checks once per repo"] -.-> E
+    V -.-> R
+    W -.-> M["memory.remember<br/>Save lessons during wrap"]
+    W -.-> U["understand<br/>Explain what changed"]
+    W -.-> T["retro<br/>Improve how the next run goes"]
+    classDef steps fill:#e8efff,stroke:#3156a3,color:#142547
+    classDef helpers fill:#f2f5f8,stroke:#65758b,color:#243247
+    class B,P,E,R,W steps
+    class V,M,U,T helpers
+```
+
+`workflow` manages all five numbered steps. Ask for `plain` whenever an answer is hard to follow.
+For upkeep, use `checkup`, `memory.compact` and `evals` as needed.
+`agent-docs` helps when writing instructions that agents will read.
+
+## Follow one task from idea to done
+
+Send **one command at a time**. Wait for the result before continuing.
+Keep the same run name throughout.
+
+| Step | Message to send | What you get | Your part |
+|---|---|---|---|
+| 1. Define the task | `workflow brainstorm export-csv` | A brief describing the problem and expected behaviour | Answer questions and confirm what to build |
+| 2. Agree on the work | `workflow plan export-csv` | Usually 2–5 tickets, at most eight, with a check for each | Approve the tickets |
+| 3. Build it | `workflow execute export-csv` | Tested changes, one ticket at a time | Try UI changes before their commits; complete any steps assigned to you |
+| 4. Check it | `workflow review export-csv` | Findings from a reviewer, normally using a different model vendor | Choose which lower-priority findings to fix |
+| 5. Finish it | `workflow wrap export-csv` | Final checks, commits and push, updated docs, saved lessons and a closed run | Follow any remaining requests on the closing card |
+
+Execute handles up to three tickets per session. Repeat it when the closing card says more work remains.
+If review finds problems, follow the card through fixes and another review before wrap.
+Live or irreversible actions become **operator tickets**, with prepared steps and a record of their result.
+
+Every step ends with a **closing card**. It tells you which model to select, whether to start a
+fresh session, and exactly what to send next. Follow it when switching agents or models.
+Progress lives in `.workflow/export-csv/`, so a fresh session can resume from the saved files.
+
+| If you need to… | Send |
+|---|---|
+| Find where you left off | `workflow status` |
+| See the next command and model again | `workflow next` |
+| Pause the task | `workflow park export-csv` |
+| Save an idea for later | `workflow todo Add a PDF export` |
+| Improve something that already exists | `workflow improve export-csv - goal: make large exports faster` |
+
+For a new project, `workflow bootstrap` sets up the repo instructions and planning files.
+Once the app runs, use `verify.create` to give the agent a repeatable way to drive and check it.
+See the [full workflow guide](.github/skills/workflow/README.md) for all commands and
+[model routing](.github/skills/workflow/ROUTING.md) for the models used at each step.
+
+## Which skill do I need?
+
+Choose the row that matches your situation. These skills also work outside a workflow run.
+
+| When you need… | Skill | Example message | Result |
+|---|---|---|---|
+| A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
+| A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams and source links |
+| A repeatable way to check a runnable app | [verify](#verify) | `verify.create` | An app-checking skill and a map of features and how to test them |
+| To save a lesson for future sessions | [memory.remember](#memoryremember) | `Remember this: run the API tests with the local test database.` | A memory page linked from `MEMORY.md` |
+| To understand why a session was slow | [retro](#retro) | `retro export-csv` | Suggested fixes for the way you work, for you to approve |
+| To find problems in the repo or skill setup | [checkup](#checkup) | `checkup` | A read-only health report and suggested actions |
+| To tidy repeated or stale memory | [memory.compact](#memorycompact) | `memory.compact` | Proposed memory changes for you to accept |
+| To test a new reviewer model | [evals](#evals) | `evals.run reviewer` | Bug-detection and false-alarm results; asks which model to test |
+| To write instructions agents can follow | [agent-docs](#agent-docs) | `Use agent-docs to improve this repo's AGENTS.md.` | Guidance for writing and testing the instructions |
+
+### What happens automatically, and what do I ask for?
+
+| Timing | What to use |
+|---|---|
+| Once the repo has a runnable app | Ask for `verify.create`. Existing verification skill? Use `verify.maintain` instead. |
+| During a workflow run | The agent uses `plain` writing rules and the repo's verification skill when available. |
+| At wrap | `workflow` calls `memory.remember` to save lessons and updates the verification feature map for changed features. |
+| After a run, when useful | Ask for `understand <run-name>` to explain the result, or `retro <run-name>` to improve the process. |
+| Whenever upkeep is needed | Ask for `checkup`. Use `memory.compact` for memory cleanup or `verify.maintain` to recheck the feature map. |
+| Before changing the reviewer | Run `evals.run reviewer`. It needs the private exam repository described in [setup](#setup). |
+| When skills or agent instructions change | `retro` and `memory.remember` load `agent-docs` when needed. You can also request it directly. |
+
+For example, finish `export-csv`, then send `understand export-csv --no-video` to get a visual
+explanation. If repeated setup failures slowed the run, send `retro export-csv` too.
+
+## Skill reference
+
+Read the sections below when you need a skill's options, output locations or setup requirements.
 
 ### plain
 
@@ -84,7 +185,8 @@ Use it for any coding task bigger than a quick fix.
 Each step ends with a card that names the next command and the model to use. Before a step marks
 its file complete, `workflow/scripts/check-run.py` checks the run folder's format, so mistakes
 in headers, tickets or review notes are caught by a script.
-`workflow/ROUTING.md` sets the models, and `workflow/README.md` has the full guide.
+[`ROUTING.md`](.github/skills/workflow/ROUTING.md) sets the models, and the
+[workflow guide](.github/skills/workflow/README.md) explains every command.
 
 ### retro
 
@@ -156,10 +258,13 @@ agents.
 
 ## Setup
 
+The terminal commands below install the skills for Codex and GitHub Copilot. For Claude Code,
+use the [workflow guide's folder setup](.github/skills/workflow/README.md#install) for each skill
+you want to load. This repo also includes Claude Code plugin discovery links.
+
 Each skill is installed once, as a real folder in `~/.agents/skills/<name>`. The `skills`
 installer copies it from GitHub and records it in `~/.agents/.skill-lock.json`. Copilot CLI reads
-that folder; Codex reads the same folder through a link in `~/.codex/skills`. No CLI reads a
-working clone, so a clone can live anywhere and be deleted safely.
+that folder; Codex reads the same folder through a link in `~/.codex/skills`. These global installs are independent of the working clone, so that clone can live anywhere.
 
 | Path | What it is |
 |---|---|
@@ -171,6 +276,7 @@ Install every skill:
 
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
+mkdir -p ~/.codex/skills
 for n in agent-docs checkup evals memory.compact memory.remember plain retro understand verify workflow; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
 done
