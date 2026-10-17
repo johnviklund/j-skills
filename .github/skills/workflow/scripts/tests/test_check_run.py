@@ -130,7 +130,8 @@ class RatioTests(unittest.TestCase):
     def test_committed_test_ratio(self):
         for lane, tests, created, error in (("logic", 76, "2026-10-18", True),
                 ("contract", 76, "2026-10-18", True), ("logic", 75, "2026-10-18", False),
-                ("contract", 75, "2026-10-18", False), ("contract", 76, "2026-10-16", False)):
+                ("contract", 75, "2026-10-18", False), ("contract", 76, "2026-10-16", False),
+                ("contract", 151, "2026-10-16", False)):
             with self.subTest(lane=lane, tests=tests, created=created):
                 text = plan(created=created, t1_done=True).replace("Lane: logic", f"Lane: {lane}")
                 out = check({"brainstorm.md": BRIEF, "plan.md": text},
