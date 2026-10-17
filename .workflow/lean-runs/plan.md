@@ -9,9 +9,10 @@ Size: code 720 · tests 305 · ratio 0.42 · largest touched check-run.py 720, R
 Decisions: 1a LEAN_SINCE 2026-10-18 · 2a READMEs unchanged (B7 counts stale numbers only) · 3a tickets approved
 
 ## Execution state
-Current: T2 todo · writer: GPT-6.1 Sol
+Current: T3 todo · writer: GPT-6.1 Sol
 T1 @ 3c64d1b
-Session 1: T1
+T2 @ c07710e
+Session 1: T1, T2
 Baseline: 34 tests pass; check-run 0 errors, 0 warnings; no separate build or lint.
 Uncommitted: none for this run; pre-existing test __pycache__/ remains untracked.
 Pending decision: none.
@@ -53,13 +54,14 @@ Delivers: B3, B4, B5 · Blocked by: T1 · Lane: logic
 Budget: code +30 · tests +30
 Seam: `check-run.py` run as a subprocess on fixture runs with a committed `done @` ticket
 Accept:
-- [ ] Contract and logic lanes, plan created 2026-10-18, commit code +50 · tests +76 → ERROR `tests +76 over 1.5× code +50` (B3)
-- [ ] The same commit with tests +75 → no ratio ERROR, both lanes (B3)
-- [ ] `Budget: code +60 · tests +120`, no `why:` → warn naming `tests +120` and `code +60`; with `· why: x` → no warn (B4)
-- [ ] Contract lane, plan created 2026-10-16, code +50 · tests +76 → `0 errors` (B5)
+- [x] Contract and logic lanes, plan created 2026-10-18, commit code +50 · tests +76 → ERROR `tests +76 over 1.5× code +50` (B3)
+- [x] The same commit with tests +75 → no ratio ERROR, both lanes (B3)
+- [x] `Budget: code +60 · tests +120`, no `why:` → warn naming `tests +120` and `code +60`; with `· why: x` → no warn (B4)
+- [x] Contract lane, plan created 2026-10-16, code +50 · tests +76 → `0 errors` (B5)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k RatioTests` (pre: NO TESTS RAN)
 Skills: none
-Status: todo
+Status: done @ c07710e
+Writer: GPT-6.1 Sol
 
 ### T3 — Docs state the new limits, one test per behaviour
 Delivers: B6, B7, B8 · Blocked by: T1, T2 · Lane: mechanical
