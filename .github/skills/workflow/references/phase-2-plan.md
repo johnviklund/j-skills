@@ -25,8 +25,8 @@ the hit, so the run never ships a second copy.
 **Size baseline.** Count the code and test lines in the files the tickets will touch (`wc -l`;
 test files by the `check-run.py` rule), note the largest touched files and any over 1,000 lines,
 and record it as the plan's `Size:` line. Each ticket then states the lines it expects to add as
-`Budget: code +N · tests +N`; `check-run.py` flags a ticket commit over 2× its Budget, and tests
-over 3× code, so the Budget is the bar the diff is held to.
+`Budget: code +N · tests +N`, adding `· why: <reason>` on that line when tests exceed code.
+`check-run.py` flags commits over 2× Budget and ≥ 50 test lines over 1.5× code.
 
 A question only the human can answer stops the phase before any ticket is written: ask it in the
 decision shape from `SKILL.md` and wait. An older brief with no Behaviours section: derive the
@@ -54,10 +54,9 @@ Every ticket is a **tracer bullet**:
   module and lane, unless other tickets are blocked on it as a prefactor; `check-run.py` warns on a
   median code Budget under 40 over 4 or more tickets. Most runs need 2–5 tickets.
   8 is a ceiling, not a target. A ticket that needs a paragraph to describe is two tickets.
-- **Testable.** Each acceptance line is one test (or, for an operator ticket, one receipt check)
-  with a literal expected value, observed at the ticket's seam: "`parse_usage({'prompt_tokens': 12.0})` → `12`",
-  not "handles token formats". Each line names one outcome in at most ~25 words, so it is one
-  test with few literals. These rules keep the bar honest:
+- **Testable.** Write one test per behaviour at its seam, with parametrized cases for acceptance
+  lines sharing that seam. Each line names one outcome in ~25 words with a literal expected value.
+  Operator tickets check receipts. These rules keep the bar honest:
   - **Computed values as a relation.** A cost, ratio, duration or estimate is checked as a relation
     to its inputs or a named constant (`worst_case == 2 × three_attempt_basis`), not as a long decimal.
   - **One expected result.** A line with "or" passes on its weaker arm; if one arm is the failure
@@ -71,9 +70,8 @@ Every ticket is a **tracer bullet**:
   - **Data that exists.** A `(live)` line observes a state the plan saw in the live data (a count,
     a named record from a read-only probe). A state with no live instance is checked at a non-live
     seam instead; the live line would otherwise end unverifiable.
-  - **Inherited semantics.** A ticket adding a read surface over existing records asserts, per
-    existing consumer, each state and label it honours (archived, knowledge/authority) and every
-    error exit it must keep.
+  - **Inherited semantics.** A ticket adding a read surface names existing consumers at risk and
+    asserts the states, labels and error exits those consumers must keep.
 
 A decision marked `(prototype: P#)` is settled by evidence; the prototype is reference for shape
 only. Its code stays in the run folder, and tickets build the chosen direction at their seam,

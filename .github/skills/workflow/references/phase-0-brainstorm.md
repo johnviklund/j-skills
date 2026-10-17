@@ -140,7 +140,7 @@ the final round:
   At least one behaviour asserts something positively present — the new answer, a supported score —
   not only that lineage exists or old text is gone. A behaviour only observable in a live system
   or a hosted console is marked `(live)`; plan gives it an operator ticket.
-  5–15 behaviours; more means two runs.
+  1–8 behaviours; split above that, or record the human's refusal as in SKILL.md.
 - **Test seams** — the public interfaces where tests will observe those behaviours. Prefer seams
   that already exist; use the highest one that can see the behaviour; fewer is better, one is ideal.
 

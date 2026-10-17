@@ -85,10 +85,10 @@ commands, paths and fixed line formats stay as they are. Above the closing card,
 — ambiguous scope, a command/state mismatch, schema/contract/deletion work, a silent assumption —
 ask one round of ≤3 questions and wait.
 
-**Budgets** — thinking is unbounded, files are not: `brainstorm.md` ≤ ~80 lines and ≤ 15
-behaviours; `plan.md` ≤ ~120 lines and ≤ 8 tickets; `review.md` ≤ ~100 lines; a finished run's
-`wrap.md` ≤ ~40. Over budget = two runs: propose the split and ask. Cut prose, never acceptance
-lines or checks.
+**Budgets** — thinking is unbounded, files are not: `brainstorm.md` ≤ ~80 lines, 8 behaviours;
+`plan.md` ≤ ~120 lines, 8 tickets, 20 acceptance lines; `review.md` ≤ ~100; done `wrap.md` ≤ ~40.
+Over budget: propose two runs and ask; record a refusal as `Split declined by human: <when>`.
+Cut prose, never acceptance lines or checks.
 
 ## Seats
 

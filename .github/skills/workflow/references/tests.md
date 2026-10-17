@@ -2,7 +2,7 @@
 
 > Reached from `phase-3-execute.md` and `phase-2-plan.md`; read it through the `workflow` skill.
 
-A ticket's acceptance lines become tests. These rules make those tests worth keeping.
+A ticket's behaviours become tests; its acceptance lines become cases. These rules keep them useful.
 
 **Test behaviour at the seam.** A test drives the ticket's public interface and asserts what a
 caller can observe. It reads like the acceptance line it came from ("usage with float token
@@ -60,9 +60,9 @@ empty result.
 paid run) is checked by an operator ticket's receipt against literal values — never by a mock
 standing in for the live system.
 
-**Red → green, one acceptance line at a time.** Write one test, run it, watch it fail for the
-reason you expect, write the least code that passes it, run again. Then the next line. The
-failing run is the proof the test can catch the bug; a test that never went red proves nothing.
+**Red → green, one behaviour at a time.** Write one test with parametrized acceptance cases.
+Run each new case, watch it fail for the expected reason, then write the least code that passes.
+The failing run proves the test can catch the bug; a test that never went red proves nothing.
 
 **Prove it can fail.** At green, invert or revert one line of the change and rerun: it must go
 red. The report records it as `Mutation: <line> → red`. Add a test beyond the acceptance lines
@@ -76,8 +76,8 @@ ticket's red step.
 **Test the boundary.** A ticket that moves a limit gets one test that passes exactly at the new
 limit and one that fails just over it; the over-limit test alone lets a `<` for `<=` mutation live.
 
-**Test budget.** A logic ticket's test lines are the same order as its code lines; above 3×,
-the report says why. `check-run.py` errors at tests over 3× code once tests pass 50 lines.
+**Test budget.** Logic and contract ticket commits with ≥ 50 added test lines error above 1.5×
+added code lines. Keep one parametrized test per behaviour; explain exceptions under `## Deviations`.
 
 **Signs a test is wrong:** it breaks on a refactor that kept behaviour; it asserts call counts or
 call order on your own code; its name describes how instead of what; it needed a mock of a

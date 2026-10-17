@@ -30,8 +30,8 @@ without a receipt it is skipped.
 
 1. **Read** its `Skills:` files — a precondition, not a hint. A path that doesn't resolve here →
    say so and ask.
-2. **Red.** For each acceptance line, write the test at the ticket's seam and run `Verify:`;
-   see it fail for the expected reason. (Mechanical and doc tickets skip red and verify by content.)
+2. **Red.** For each behaviour, write one test at the ticket's seam with parametrized acceptance
+   cases; run `Verify:` and see each new case fail. Mechanical and doc tickets verify by content.
 3. **Green.** Write the least code that passes, then run `Verify:`, the tests of every file you
    touched, and the typecheck/lint from the baseline.
 
