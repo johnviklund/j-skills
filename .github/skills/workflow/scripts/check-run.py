@@ -12,7 +12,9 @@ Checks what a script can count, so no phase has to eyeball it:
   blocked-by cycle; operator tickets verify a receipt;
 - slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
   tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
-  OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it; added
+  OVERRUN× its budget and tests within TEST_RATIO× code; from GROWTH_SINCE, tests use net growth
+  and `## Deviations` needs a reason under `Ratio waived:` or `Budget waived:`; older plans
+  keep added-line ratios and any-mention skips; added
   test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
@@ -57,6 +59,7 @@ BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 SLOP_SINCE = "2026-10-09"
 SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle needs the human's approval
 LEAN_SINCE = "2026-10-18"                  # lean-runs gates new artifacts; older runs keep their rules
+GROWTH_SINCE = "2026-10-19"                # net test growth and keyed waivers; older plans keep their rules
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 1.5, 50           # lean-runs: tests over 1.5× code and ≥ 50 lines error
@@ -344,7 +347,8 @@ def check_tickets(run, doc, rep, behaviours, strict):
                     rep.missing_sha(doc.path, n_st, f"{t['id']}: done @ {m.group(2)} is not a commit in this repo")
                 if field(t, "Writer")[1] is None:
                     rep.warn(doc.path, n_st, f"{t['id']}: done but no `Writer: <model>` line")
-                if gated and doc.path.endswith("/plan.md") and not deviated(doc, t["id"]):
+                if (gated and doc.path.endswith("/plan.md")
+                        and (doc.slop_gated(GROWTH_SINCE) or not deviated(doc, t["id"]))):
                     check_overrun(t, lane, m.group(2), doc, rep, n_st)
                 if gated:
                     check_test_smells(t, m.group(2), doc, rep, n_st)
@@ -380,6 +384,13 @@ def deviated(doc, tid):
     return any(re.search(r"\b" + tid + r"\b", x) for _, x in doc.section("Deviations") or [])
 
 
+def waiver(doc, kind, tid):
+    for _, text in doc.section("Deviations") or []:
+        m = re.match(r"^\s*(?:-\s+)?" + kind + r" waived:\s*" + re.escape(tid) + DASH + r"(\S.*)$", text)
+        if m:
+            return m.group(1)
+
+
 def check_risk(run, t, doc, rep):
     """phase-2-plan's risk classes: every operator ticket has one, and a `cheap` one writes no script test."""
     n, risk = field(t, "Risk")
@@ -394,6 +405,7 @@ def check_risk(run, t, doc, rep):
 
 def check_overrun(t, lane, sha, doc, rep, n):
     """The `done @` commit alone, receipts excluded: net lines against the Budget, tests against code."""
+    growth = doc.slop_gated(GROWTH_SINCE)
     code = tests = net = 0
     for row in git_out(rep.repo, "diff", "--numstat", f"{sha}^", sha).splitlines():
         added, deleted, path = row.split("\t", 2)
@@ -401,20 +413,32 @@ def check_overrun(t, lane, sha, doc, rep, n):
             continue
         net += int(added) - int(deleted)
         if re.search(TEST_FILE, path):
-            tests += int(added)
+            tests += int(added) - (int(deleted) if growth else 0)
         else:
             code += int(added)
     parts = re.findall(r"\+(\d+)", field(t, "Budget")[1] or "")
     budget = sum(int(x) for x in parts)
     if parts and net > OVERRUN * budget:
-        rep.warn(doc.path, n, f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}: "
-                              "log the reason under `## Deviations`")
+        reason = waiver(doc, "Budget", t["id"]) if growth else None
+        msg = f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}"
+        if reason:
+            rep.note(doc.path, msg + f"; Budget waived: {t['id']} — {reason}")
+        else:
+            rep.warn(doc.path, n, msg + f": record `Budget waived: {t['id']} — <reason>` under `## Deviations`")
     lean = doc.slop_gated(LEAN_SINCE)
     ratio = TEST_RATIO if lean else LEGACY_TEST_RATIO
     lanes = ("logic", "contract") if lean else ("logic",)
     if lane and lane.split()[0] in lanes and tests >= TEST_FLOOR and tests > ratio * code:
-        rep.error(doc.path, n, f"{t['id']}: tests +{tests} over {ratio}× code +{code}: "
-                               "cut to one test per behaviour, or log the reason under `## Deviations`")
+        reason = waiver(doc, "Ratio", t["id"]) if growth else None
+        label = "tests net" if growth else "tests"
+        msg = f"{t['id']}: {label} +{tests} over {ratio}× code +{code}"
+        if growth:
+            msg += f" (allowed {ratio * code:g})"
+        if reason:
+            rep.warn(doc.path, n, msg + f"; Ratio waived: {t['id']} — {reason}")
+        else:
+            rep.error(doc.path, n, msg + f": cut to one test per behaviour, or record "
+                      f"`Ratio waived: {t['id']} — <reason>` under `## Deviations`")
 
 
 def check_test_smells(t, sha, doc, rep, n):

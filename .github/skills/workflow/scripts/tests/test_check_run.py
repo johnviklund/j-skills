@@ -62,12 +62,14 @@ def lines(n):
     return "".join(f"x{i}\n" for i in range(n))
 
 
-def check(files, ticket=None, args=("x",)):
+def check(files, ticket=None, args=("x",), seed=None):
     """Commit `ticket` (repo-relative path -> text) as T1's commit, then `files` (run-relative path -> text,
     `{base}` and `{t1}` filled in) into a fresh repo; return the output of check-run with `args`."""
     with tempfile.TemporaryDirectory() as repo:
         git = lambda *a: subprocess.run(["git", "-C", repo, *a], check=True, capture_output=True, text=True)
         git("-c", "init.defaultBranch=main", "init", "-q")
+        write(repo, seed or {})
+        git("add", "-A")
         git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
         base = git("rev-parse", "--short", "HEAD").stdout.strip()
         t1 = base
@@ -127,6 +129,50 @@ class LimitTests(unittest.TestCase):
 
 
 class RatioTests(unittest.TestCase):
+    def test_growth_net_ratio(self):
+        for added, deleted, code, removed, expected in ((201, 305, 89, 313, None),
+                (252, 128, 134, 0, None), (90, 0, 60, 0, None), (49, 0, 0, 0, None),
+                (130, 10, 60, 0, "120 over 1.5× code +60 (allowed 90)"),
+                (91, 0, 60, 0, "91 over 1.5× code +60 (allowed 90)"), (50, 0, 0, 0, "50 over 1.5× code +0 (allowed 0)")):
+            with self.subTest(added=added, deleted=deleted, code=code):
+                out = check({"brainstorm.md": BRIEF, "plan.md": plan(created="2026-10-19", t1_done=True)},
+                            {"src/app.py": lines(code), "tests/test_app.py": lines(added)},
+                            seed={"src/app.py": "old\n" * removed, "tests/test_app.py": "old\n" * deleted})
+                if expected:
+                    self.assertIn("T1: tests net +" + expected, out)
+                    self.assertRegex(out, r"(?m)^ERROR ")
+                else:
+                    self.assertIn("0 errors", out)
+
+    def test_growth_ratio_waivers(self):
+        for deviation, waived in (("Ratio waived: T1 — fixture rewrite", True),
+                ("T1 proof: receipts/t1.txt", False), ("Ratio waived: T1 —", False)):
+            with self.subTest(deviation=deviation):
+                text = plan(created="2026-10-19", t1_done=True) + "## Deviations\n- " + deviation + "\n"
+                out = check({"brainstorm.md": BRIEF, "plan.md": text},
+                            {"src/app.py": lines(60), "tests/test_app.py": lines(130)},
+                            seed={"tests/test_app.py": "old\n" * 10})
+                self.assertIn("0 errors" if waived else "1 errors", out)
+                self.assertEqual(len([x for x in out.splitlines() if x.startswith("warn ") and "tests net +120" in x]), int(waived))
+                self.assertIn("allowed 90", out)
+
+    def test_growth_budget_waivers(self):
+        for deviation, waived in (("Budget waived: T1 — reason", True), ("T1 note", False)):
+            with self.subTest(deviation=deviation):
+                text = plan(created="2026-10-19", t1_done=True) + "## Deviations\n- " + deviation + "\n"
+                text = text.replace("tests +30", "tests +30 · why: fixture")
+                out = check({"brainstorm.md": BRIEF, "plan.md": text}, {"src/app.py": lines(101)})
+                self.assertRegex(out, r"(?m)^" + ("note " if waived else "warn ") + r".*T1:.*net \+101.*budget \+50")
+                self.assertIn("0 errors · 0 warnings" if waived else "0 errors · 1 warnings", out)
+
+    def test_growth_legacy_ratio(self):
+        for deviation in (False, True):
+            with self.subTest(deviation=deviation):
+                text = plan(created="2026-10-18", t1_done=True, deviation=deviation)
+                out = check({"brainstorm.md": BRIEF, "plan.md": text},
+                            {"src/app.py": lines(60), "tests/test_app.py": lines(130)})
+                self.assertIn("0 errors" if deviation else "T1: tests +130 over 1.5× code +60", out)
+
     def test_committed_test_ratio(self):
         for lane, tests, created, error in (("logic", 76, "2026-10-18", True),
                 ("contract", 76, "2026-10-18", True), ("logic", 75, "2026-10-18", False),
