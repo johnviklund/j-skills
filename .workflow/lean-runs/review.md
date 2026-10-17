@@ -2,7 +2,7 @@ Command: workflow review lean-runs
 Created: 2026-10-17
 Base:    4a085e5
 Inputs:  .workflow/lean-runs/patch_plan.md @ aafea80
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1: acceptance 5/5 tested and passing (`LimitTests`, 2 tests, 8 subtests)

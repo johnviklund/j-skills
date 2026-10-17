@@ -2,7 +2,7 @@ Command: workflow brainstorm lean-runs
 Created: 2026-10-17
 Base:    5ff0790
 Inputs:  none
-Status:  complete
+Status:  done
 
 ## Problem
 Workflow runs in cx-intelligence grow the test suite and take many sessions. Plans fill the caps
