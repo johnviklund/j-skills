@@ -9,11 +9,13 @@ Size: code 746 · tests 368 · ratio 0.49 · largest touched check-run.py 746, t
 Decisions: 1a (tickets approved) · 2a (a budget waiver prints a note with net and budget)
 
 ## Execution state
-Current: T1 done; T2 todo, next session at medium effort.
+Current: T1 and T2 done; review next.
 T1 @ 1a65a10
+T2 @ 9974505
 writer: GPT-6.1 Sol
 Session 1: T1
-Baseline: 38 tests pass; git diff --check passes; --all has two missing root WORKLOG entries and one existing slop-guards size warning.
+Session 2: T2
+Baseline: session 1 had 38 passing tests; session 2 had 42. T2 fixes both WORKLOG errors; the existing slop-guards size warning remains.
 Checks approved: existing unittest suite, check-run.py, git diff --check; no repo AGENTS.md.
 Contract: GROWTH_SINCE = 2026-10-19; older plans retain their rules.
 Uncommitted: none after this handoff commit.
@@ -55,14 +57,15 @@ Writer: GPT-6.1 Sol
 Delivers: B7, B8 · Blocked by: T1 · Lane: mechanical
 Seam: the workflow docs, `check-run.py --all` in j-skills, `git diff --numstat`
 Accept:
-- [ ] `grep -c 'Ratio waived: T'` in `references/tests.md` and `references/phase-3-execute.md` → 1 each; `grep -c 'tests net'` in `references/phase-2-plan.md` → 1 (B8)
-- [ ] `explain exceptions under` and `log the reason under` across the skill folder's `*.md` and `*.py`, SKILL-IMPACT.md excluded → 0 occurrences (B8)
-- [ ] Net lines of `README.md` and the skill folder's `*.md` since d62b5d0, excluding `**/SKILL-IMPACT.md` and `**/WORKLOG.md` → net ≤ 0 (B8)
-- [ ] `ls WORKLOG.md` → present; `.github/skills/workflow/WORKLOG.md` → absent; `git log --follow WORKLOG.md` → shows the lean-runs entry commit 5d5eba7 (B7)
-- [ ] `check-run.py --all` → 0 lines containing `has no entry` (B7)
+- [x] `grep -c 'Ratio waived: T'` in `references/tests.md` and `references/phase-3-execute.md` → 1 each; `grep -c 'tests net'` in `references/phase-2-plan.md` → 1 (B8)
+- [x] `explain exceptions under` and `log the reason under` across the skill folder's `*.md` and `*.py`, SKILL-IMPACT.md excluded → 0 occurrences (B8)
+- [x] Net lines of `README.md` and the skill folder's `*.md` since d62b5d0, excluding `**/SKILL-IMPACT.md` and `**/WORKLOG.md` → net ≤ 0 (B8)
+- [x] `ls WORKLOG.md` → present; `.github/skills/workflow/WORKLOG.md` → absent; `git log --follow WORKLOG.md` → shows the lean-runs entry commit 5d5eba7 (B7)
+- [x] `check-run.py --all` → 0 lines containing `has no entry` (B7)
 Verify: `W=.github/skills/workflow; grep -c 'Ratio waived: T' $W/references/tests.md $W/references/phase-3-execute.md; grep -c 'tests net' $W/references/phase-2-plan.md; grep -rhoE --include='*.md' --include='*.py' --exclude=SKILL-IMPACT.md 'explain exceptions under|log the reason under' $W | wc -l; git diff --numstat d62b5d0 -- README.md ":(glob)$W/**/*.md" ':(exclude,glob)**/SKILL-IMPACT.md' ':(exclude,glob)**/WORKLOG.md' | awk '{n+=$1-$2} END {print "net", n+0}'; ls WORKLOG.md $W/WORKLOG.md 2>&1; python3 $W/scripts/check-run.py --all | grep -c 'has no entry'` (pre: 0 · 0 · 0 · 3 · net 0 · root WORKLOG.md missing, skill copy present · 2)
 Skills: none
-Status: todo
+Status: done @ 9974505
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome: the ratio flags bloat but not rewrites or moves → T1 (B1, B2); waivers only by keyed line, printed with numbers → T1 (B3–B5); `--all` reports no worklog error → T2 (B7)
