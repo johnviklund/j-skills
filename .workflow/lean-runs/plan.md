@@ -9,12 +9,14 @@ Size: code 720 · tests 305 · ratio 0.42 · largest touched check-run.py 720, R
 Decisions: 1a LEAN_SINCE 2026-10-18 · 2a READMEs unchanged (B7 counts stale numbers only) · 3a tickets approved
 
 ## Execution state
-Current: all tickets done; next review · writer: GPT-6.1 Sol
+Current: all tickets and C1-T1 done; next review cycle 2 · writer: GPT-6.1 Sol
 T1 @ 3c64d1b
 T2 @ c07710e
 T3 @ 2b6835a
 Session 1: T1, T2
 Session 2: T3
+Session 3: C1-T1
+Session 3 baseline: 38 tests pass; check-run 0 errors, 0 warnings; no separate build or lint.
 Session 2 baseline: 38 tests pass; check-run 0 errors, 0 warnings.
 Baseline: 34 tests pass; check-run 0 errors, 0 warnings; no separate build or lint.
 Uncommitted: none for this run; pre-existing test __pycache__/ remains untracked.
