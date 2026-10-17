@@ -4,7 +4,7 @@
 Checks what a script can count, so no phase has to eyeball it:
 - every artifact opens with the five-line provenance header, `Status:` holds a known value,
   and every sha in `Base:` / `Inputs:` / `done @` / `Resolved: @` exists in git;
-- budgets: brainstorm ~80 lines and 5-15 behaviours, plan ~120 lines and 8 tickets,
+- budgets: brainstorm ~80 lines and 1-8 behaviours, plan ~120 lines, 8 tickets and 20 acceptance lines,
   review ~100 lines, a done wrap ~40 lines;
 - the brief: required sections, `B# — situation → result` behaviours, prototype notes;
 - tickets in plan.md / patch_plan.md: Delivers · Blocked by · Lane, Seam, 1-6 acceptance lines,
@@ -48,6 +48,7 @@ LANES = {"mechanical", "logic", "contract", "operator"}
 BUDGET = {"brainstorm.md": 80, "plan.md": 120, "review.md": 100}
 WRAP_DONE_BUDGET = 40
 BEHAVIOURS_MIN, BEHAVIOURS_MAX = 5, 15     # phase-0-brainstorm §4: more means two runs
+LEAN_BEHAVIOURS_MAX, PLAN_ACCEPT_MAX = 8, 20  # lean runs: split above either total
 MAX_TICKETS = 8                            # phase-2-plan §5
 ACCEPT_MIN, ACCEPT_MAX = 1, 6              # phase-2-plan §3 *Right-sized*
 MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
@@ -55,6 +56,7 @@ BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 # Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
 SLOP_SINCE = "2026-10-09"
 SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle needs the human's approval
+LEAN_SINCE = "2026-10-18"                  # lean-runs gates new artifacts; older runs keep their rules
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, and ≥ 50, is an ERROR
@@ -207,7 +209,13 @@ def check_brief(run, rep):
         ids.add(m.group(1))
         if "→" not in m.group(2) and "->" not in m.group(2):
             rep.warn(doc.path, n, f"{m.group(1)} has no `→ observable result`")
-    if strict and not BEHAVIOURS_MIN <= len(ids) <= BEHAVIOURS_MAX:
+    if strict and doc.slop_gated(LEAN_SINCE):
+        if len(ids) > LEAN_BEHAVIOURS_MAX and not any(
+                re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
+            rep.error(doc.path, doc.heading("Behaviours"),
+                      f"{len(ids)} behaviours; at most {LEAN_BEHAVIOURS_MAX}: propose the split into two runs "
+                      "or record `Split declined by human: <when>`")
+    elif strict and not BEHAVIOURS_MIN <= len(ids) <= BEHAVIOURS_MAX:
         rep.warn(doc.path, doc.heading("Behaviours"),
                  f"{len(ids)} behaviours; the brief wants {BEHAVIOURS_MIN}-{BEHAVIOURS_MAX} (more means two runs)")
     if strict and not any(t.startswith("Docs read:") for t in doc.lines):
@@ -459,6 +467,12 @@ def check_plan(run, rep, behaviours):
     strict = doc.status() in ("complete", "done")
     require_sections(doc, rep, PLAN_SECTIONS, strict)
     tickets = check_tickets(run, doc, rep, behaviours, strict)
+    accepts = sum(bool(re.match(r"^\s*- \[[ x]\] ", x)) for t in tickets for _, x in t["lines"])
+    if strict and doc.slop_gated(LEAN_SINCE) and accepts > PLAN_ACCEPT_MAX and not any(
+            re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
+        rep.error(doc.path, doc.heading("Tickets"),
+                  f"{accepts} acceptance lines; at most {PLAN_ACCEPT_MAX}: propose the split into two runs "
+                  "or record `Split declined by human: <when>`")
     if behaviours and strict:
         delivered = set().union(*(t.get("delivers", set()) for t in tickets)) if tickets else set()
         for b in sorted(behaviours - delivered, key=lambda x: int(x[1:])):

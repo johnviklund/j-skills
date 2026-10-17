@@ -92,6 +92,40 @@ def write(repo, files):
             f.write(text)
 
 
+class LimitTests(unittest.TestCase):
+    def test_brief_limits(self):
+        for count, approval, error in ((9, "", True), (9, "2026-10-18", False),
+                                       (8, "", False), (1, "", False)):
+            with self.subTest(count=count, approval=approval):
+                brief = BRIEF.replace("2026-10-09", "2026-10-18")
+                start, end = brief.index("- B1"), brief.index("## Decisions")
+                brief = brief[:start] + "".join(f"- B{i} — input → output\n" for i in range(1, count + 1)) + brief[end:]
+                out = check({"brainstorm.md": brief + f"\nSplit declined by human: {approval}\n"})
+                if error:
+                    self.assertRegex(out, r"(?m)^ERROR .*9 behaviours.*8")
+                else:
+                    self.assertNotRegex(out, r"(?m)^(ERROR|warn).*behaviours")
+                    self.assertIn("0 errors", out)
+
+    def test_plan_limits(self):
+        for count, approval, created, error in ((21, "", "2026-10-18", True),
+                (20, "", "2026-10-18", False), (21, "2026-10-18", "2026-10-18", False),
+                (21, "", "2026-10-16", False)):
+            with self.subTest(count=count, approval=approval, created=created):
+                text = sized([60] * 4).replace("2026-10-09", created)
+                text = text.replace("- [ ] situation → result\n", "- [ ] situation → result\n" * 5)
+                text = text.replace("## Coverage", "- [ ] extra → result\n## Coverage", count - 20)
+                brief = BRIEF.replace("2026-10-09", created)
+                if created == "2026-10-16":
+                    brief = brief.replace("## Decisions", "".join(f"- B{i} — input → output\n" for i in range(6, 10)) + "## Decisions")
+                    text = text.replace("Delivers: B1, B2", "Delivers: B1, B2, B6, B7, B8, B9")
+                out = check({"brainstorm.md": brief, "plan.md": text + f"\nSplit declined by human: {approval}\n"})
+                if error:
+                    self.assertRegex(out, r"(?m)^ERROR .*21 acceptance lines.*20")
+                else:
+                    self.assertIn("0 errors", out)
+
+
 class BudgetTests(unittest.TestCase):
     def test_budget_plan_with_size_and_budgets_is_clean(self):
         self.assertIn("0 errors · 0 warnings", check({"brainstorm.md": BRIEF, "plan.md": plan()}))
