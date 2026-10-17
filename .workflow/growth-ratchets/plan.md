@@ -9,7 +9,15 @@ Size: code 746 · tests 368 · ratio 0.49 · largest touched check-run.py 746, t
 Decisions: 1a (tickets approved) · 2a (a budget waiver prints a note with net and budget)
 
 ## Execution state
-<filled by execute>
+Current: T1 done; T2 todo, next session at medium effort.
+T1 @ 1a65a10
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: 38 tests pass; git diff --check passes; --all has two missing root WORKLOG entries and one existing slop-guards size warning.
+Checks approved: existing unittest suite, check-run.py, git diff --check; no repo AGENTS.md.
+Contract: GROWTH_SINCE = 2026-10-19; older plans retain their rules.
+Uncommitted: none after this handoff commit.
+Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -32,15 +40,16 @@ Delivers: B1, B2, B3, B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +35 · tests +50 · why: a seed-files argument on the `check()` helper for deleted lines
 Seam: `check-run.py` run as a subprocess on fixture runs (`scripts/tests/test_check_run.py`, `check()`)
 Accept:
-- [ ] Plan created 2026-10-19, logic ticket: tests +201 −305 with code +89 −313; tests +252 −128 with code +134; tests net +90 with code +60; tests net +49 with code 0 → `0 errors` each (B1, B2)
-- [ ] Created 2026-10-19, tests +130 −10, code +60 → ERROR containing `T1: tests net +120 over 1.5× code +60 (allowed 90)` (B2)
-- [ ] Over-ratio ticket with `- Ratio waived: T1 — fixture rewrite` under `## Deviations` → `0 errors`, one warn containing `tests net +120` and `allowed 90` (B3)
-- [ ] Over-ratio ticket whose Deviations hold only `- T1 proof: receipts/t1.txt`, then only `- Ratio waived: T1 —` → the ratio ERROR stands in each (B3, B4)
-- [ ] Net over 2× Budget: `- Budget waived: T1 — reason` → no warn, one note containing the net and budget; a bare `- T1 note` line → the overrun warn (B5)
-- [ ] Plan created 2026-10-18, tests +130 code +60 → ERROR containing `tests +130 over 1.5× code +60`; a bare `- T1 note` Deviations line → `0 errors` (B6)
+- [x] Plan created 2026-10-19, logic ticket: tests +201 −305 with code +89 −313; tests +252 −128 with code +134; tests net +90 with code +60; tests net +49 with code 0 → `0 errors` each (B1, B2)
+- [x] Created 2026-10-19, tests +130 −10, code +60 → ERROR containing `T1: tests net +120 over 1.5× code +60 (allowed 90)` (B2)
+- [x] Over-ratio ticket with `- Ratio waived: T1 — fixture rewrite` under `## Deviations` → `0 errors`, one warn containing `tests net +120` and `allowed 90` (B3)
+- [x] Over-ratio ticket whose Deviations hold only `- T1 proof: receipts/t1.txt`, then only `- Ratio waived: T1 —` → the ratio ERROR stands in each (B3, B4)
+- [x] Net over 2× Budget: `- Budget waived: T1 — reason` → no warn, one note containing the net and budget; a bare `- T1 note` line → the overrun warn (B5)
+- [x] Plan created 2026-10-18, tests +130 code +60 → ERROR containing `tests +130 over 1.5× code +60`; a bare `- T1 note` Deviations line → `0 errors` (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k growth` (pre: NO TESTS RAN)
 Skills: none
-Status: todo
+Status: done @ 1a65a10
+Writer: GPT-6.1 Sol
 
 ### T2 — docs name tests net and the waiver keys; WORKLOG.md moves to the root
 Delivers: B7, B8 · Blocked by: T1 · Lane: mechanical
