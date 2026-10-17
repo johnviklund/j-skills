@@ -76,7 +76,13 @@ handoff into the run folder's `receipts/` — what to run, where (the console or
 path (also in `receipts/`) — commit it, set `Status: awaiting-human`, and close with the card routed to
 the human: the one action, the handoff path, the receipt path. When the ticket's runner is `agent
 after approval`, the card's one action is approving that exact scope; on approval the agent runs
-it (dry-run first unless `cheap`, no paid retry without a new approval) and writes the receipt itself. On resume, read the receipt and
+it (dry-run first unless `cheap`, no paid retry without a new approval) and writes the receipt itself.
+**Long live steps run detached.** A live step longer than a few minutes starts detached, logging
+progress to a file, and the agent waits with one blocking wait that returns when the state changes,
+the step stops, or 30 minutes pass. Each status read re-sends the whole session context, and one
+overnight backfill spent most of a run's tokens on hundreds of progress reads. An approval that
+arrives in the same session after a `Reset: yes` card is recorded in the receipt and closed with a
+resume card, so the live step starts in a fresh session with a small context. On resume, read the receipt and
 check every acceptance line against its literal values; a mismatch is a failed `Verify`, reported
 like any other. A human-run step that failed gets a new receipt, never an edited one.
 Receipts hold the numbers that prove an acceptance line (counts, checksums, the command and its

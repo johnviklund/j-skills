@@ -5,7 +5,11 @@
 Seat: **strict reviewer** (`ROUTING.md`), a different vendor from the code's writer. Read the
 `writer:` field and per-ticket `Writer:` lines in `plan.md` and look up each model's vendor in
 `ROUTING.md`; if one matches yours, this is a
-degraded same-vendor review and `review.md` says so. Read-only sub-agents may split a wide diff.
+degraded same-vendor review and `review.md` says so. A run with a user-visible change or a live
+promotion gets its verdict from a cross-vendor reviewer whenever `ROUTING.md` lists one that is
+available: stop with the card naming that model instead of signing off degraded. A same-vendor
+review once passed an unapproved UI fallback that the human caught only after wrap.
+Read-only sub-agents may split a wide diff.
 
 **Blind first.** Read the brief, the tickets' acceptance lines and the diff, and draft findings.
 Only then read the writer's reports, `## Deviations` and `learnings.md`, so the writer's framing
