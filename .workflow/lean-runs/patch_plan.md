@@ -5,7 +5,7 @@ Inputs:  .workflow/lean-runs/review.md @ aafea80
 Status:  complete
 
 ## Execution state
-- Current: C1-T1 done; next review cycle 2
+- Current: C1-T1 done; review cycle 2 clean; next wrap
 - C1-T1 @ e92cdbe
 - writer: GPT-6.1 Sol
 - Baseline: 38 tests pass; check-run 0 errors. No code defect reproduces today; this is a missing assertion.

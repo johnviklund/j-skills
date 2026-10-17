@@ -9,7 +9,7 @@ Size: code 720 · tests 305 · ratio 0.42 · largest touched check-run.py 720, R
 Decisions: 1a LEAN_SINCE 2026-10-18 · 2a READMEs unchanged (B7 counts stale numbers only) · 3a tickets approved
 
 ## Execution state
-Current: all tickets and C1-T1 done; next review cycle 2 · writer: GPT-6.1 Sol
+Current: all tickets and C1-T1 done; review cycle 2 clean; next wrap · writer: GPT-6.1 Sol
 T1 @ 3c64d1b
 T2 @ c07710e
 T3 @ 2b6835a

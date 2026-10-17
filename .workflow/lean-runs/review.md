@@ -1,48 +1,47 @@
 Command: workflow review lean-runs
 Created: 2026-10-17
-Base:    aafea80
-Inputs:  .workflow/lean-runs/plan.md @ b675349
+Base:    4a085e5
+Inputs:  .workflow/lean-runs/patch_plan.md @ aafea80
 Status:  complete
 
 ## Coverage
-- [x] T1 — acceptance 5/5 tested and passing (`LimitTests`, 2 tests, 8 subtests)
-- [ ] T2 — acceptance 4/4 pass, but the B5 line's values cannot see the lane gate (C1-1)
-- [x] T3 — acceptance 5/5 by content: stale-number count 0, net −2 doc lines (`receipts/t3-net-lines.txt`)
-- [x] B1–B4, B6–B8 delivered · B5 delivered, test gap C1-1 · Outcome observed on check-run output over real cx-intelligence runs, manual (CLI, no user screen) · out of scope untouched
-- [x] .workflow/ dependency check: 0 hits · escape-hatch scan: 0 hits · full suite 38/38 pass
-Size: +31 code · +62 tests · ratio 2.00 · net +88 · over 1,000: none (check-run.py 746)
-Reachability: no new file, export or function · guards shown failing: B1–B4 red in T1/T2 receipts; review mutations M1, M3, M4, M5 red, M2 green (C1-1)
+- [x] T1: acceptance 5/5 tested and passing (`LimitTests`, 2 tests, 8 subtests)
+- [x] T2: acceptance 4/4 pass, and the lane gate is now pinned by the C1-T1 case
+- [x] T3: acceptance 5/5 by content. The stale-number count is 0 and doc lines net −2 (`receipts/t3-net-lines.txt`)
+- [x] C1-T1: acceptance 2/2. The new case passes, and the lane mutation turns it red (`receipts/c1-t1-verification.md`, re-run here)
+- [x] B1–B8 delivered · Outcome observed in cycle 1 on check-run output over real cx-intelligence runs, manual (CLI, no user screen); cycle 2 changes no code · out of scope untouched
+- [x] .workflow/ dependency check: 0 hits · escape-hatch scan: 0 hits · full suite 38/38 pass · check-run 0 errors
+Size: +31 code · +63 tests · ratio 2.03 · net +89 · over 1,000: none (check-run.py 746)
+Reachability: no new file, export or function · guards shown failing: M2, M6–M10 below
 Independence: cross-vendor (writer GPT-6.1 Sol, OpenAI · reviewer Claude Opus 5.5, Anthropic)
-Blind first: partial. plan.md's one `## Deviations` line was read with the tickets, since they share a file.
 
-Outcome evidence:
-- B5 on real data: old (b675349) and new check-run print the same summary on all 29 cx-intelligence runs.
-- Forward: with `Created:` moved to 2026-10-18 in a /tmp copy, workspace-topic-ownership errors at 11 behaviours and 25 acceptance lines; 19 ticket commits across 9 runs error at 1.5×.
+Cycle 2 scope: the fix diff `aafea80..4a085e5` touches one test file, +2 −1, and no checker code.
+It adds one tuple to `test_committed_test_ratio` and changes no assertion; the assertion count is the same before and after.
 
-## Cycle 1 findings
-### P1 — C1-1 The lane gate for old runs survives mutation
-- Evidence: B5, T2 line 4. Dropping `if lean else ("logic",)` at `check-run.py:414` leaves 38/38 green (M2, throwaway worktree). The B5 case uses tests +76 over code +50, and the legacy 3× ratio already passes that, so the case cannot tell whether contract is gated.
-- Failing input under M2: a contract ticket, plan created 2026-10-16, code +50, tests +151. It errors although B5 says older runs keep their rules.
-- Remedy: add that case to `test_committed_test_ratio`, `test_check_run.py:131`. Test only, no code change.
-- Disposition: fix now
-- Resolved: —
+Class check for C1-1, a legacy gate whose test values cannot see it. Every `LEAN_SINCE` site was
+mutated at 4a085e5 in a throwaway worktree, never committed:
+- M2 `lanes` ungated, `check-run.py:414` → 1 failure (the new contract/151/2026-10-16 case)
+- M6 `ratio` ungated, `:413` → 1 failure
+- M7 `lean = True`, `:412` → 3 failures
+- M8 brief-limit gate dropped, `:213` → 1 failure
+- M9 plan-limit gate dropped, `:483` → 1 failure
+- M10 Budget-reason gate dropped, `:360` → 6 failures
 
-### P3 — C1-2 Two predicates repeat
-- Evidence: the `Split declined by human:` scan is at `check-run.py:214-215` and `:484-485`. The acceptance-line regex at `:483` repeats `:311`, so a format change there leaves the run total behind.
-- Remedy: a `declined(doc)` helper with two callers, and `t["accepts"]` saved at `:311`.
-- Disposition: defer — P3, stays in review.md
+## Resolved
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | The lane gate for old runs survives mutation | fix now | @ e92cdbe (cycle 2) |
+| C1-2 | P3 | Two predicates repeat (`check-run.py:214-215`, `:484-485`; regex `:483` repeats `:311`) | defer, stays in review.md | settled (cycle 2) |
+| C1-3 | P3 | A list-item `- Split declined by human:` line is not read (`:215`, `:484`) | defer, stays in review.md | settled (cycle 2) |
+| C1-4 | P3 | The Budget check reads only `code +N · tests +N` order (`:365`) | defer, stays in review.md | settled (cycle 2) |
 
-### P3 — C1-3 A list-item refusal is not read
-- Evidence: `re.match` at `:215` and `:484` needs the line to start with `Split declined`, so `- Split declined by human: …` still errors. It fails loudly, not silently.
-- Disposition: defer — P3, stays in review.md
-
-### P3 — C1-4 The Budget check reads one order only
-- Evidence: `check-run.py:365` matches only `code +N · tests +N`. A Budget written `tests +N · code +N` is never checked for a reason.
-- Disposition: defer — P3, stays in review.md
+## Cycle 2 findings
+None. Code is unchanged since cycle 1, so the fix diff can introduce no regression.
 
 ## Pre-existing / environmental
-- The Codex copy `~/.agents/skills/workflow/scripts/check-run.py` has 0 `LEAN_SINCE` hits; the Claude link has the change. A Codex executor on the next cx-intelligence run gets the old checks until `npx skills update -g` runs after push.
+- The Codex copy `~/.agents/skills/workflow/scripts/check-run.py` still has 0 `LEAN_SINCE` hits. A Codex executor gets the old checks until `npx skills update -g` runs after push.
 - `scripts/tests/__pycache__/` is untracked, as at plan time.
 
-## Cycle 1 verdict
-Fix one P1, then re-review. C1-1 is a missing test case: the code is right today, but nothing stops a later edit from making old contract tickets error. Three P3s stay here. No P0 and no P2.
+## Cycle 2 verdict
+Ship as-is. C1-1 is fixed at e92cdbe: the new case fails when the lane gate is removed, and every
+other `LEAN_SINCE` gate also fails under mutation. The three P3s stay deferred here. No P0, P1 or P2 is open.
