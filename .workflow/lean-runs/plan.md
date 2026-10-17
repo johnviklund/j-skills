@@ -9,7 +9,12 @@ Size: code 720 · tests 305 · ratio 0.42 · largest touched check-run.py 720, R
 Decisions: 1a LEAN_SINCE 2026-10-18 · 2a READMEs unchanged (B7 counts stale numbers only) · 3a tickets approved
 
 ## Execution state
-<filled by execute>
+Current: T2 todo · writer: GPT-6.1 Sol
+T1 @ 3c64d1b
+Session 1: T1
+Baseline: 34 tests pass; check-run 0 errors, 0 warnings; no separate build or lint.
+Uncommitted: none for this run; pre-existing test __pycache__/ remains untracked.
+Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -33,14 +38,15 @@ Delivers: B1, B2, B5 · Blocked by: none · Lane: logic
 Budget: code +35 · tests +35
 Seam: `check-run.py` run as a subprocess on fixture runs (`check()` in test_check_run.py)
 Accept:
-- [ ] Brief created 2026-10-18, 9 behaviours, no `Split declined by human:` → ERROR naming `9 behaviours` and `8` (B1)
-- [ ] The same brief with `Split declined by human: 2026-10-18`, and a 1-behaviour brief → no behaviours ERROR, no behaviours warning (B1)
-- [ ] Complete plan, 21 acceptance lines across tickets → ERROR naming `21 acceptance lines` and `20` (B2)
-- [ ] 20 lines, and 21 lines with `Split declined by human:` → no acceptance-count ERROR (B2)
-- [ ] Brief with 9 behaviours and plan with 21 lines, both created 2026-10-16 → `0 errors` (B5)
+- [x] Brief created 2026-10-18, 9 behaviours, no `Split declined by human:` → ERROR naming `9 behaviours` and `8` (B1)
+- [x] The same brief with `Split declined by human: 2026-10-18`, and a 1-behaviour brief → no behaviours ERROR, no behaviours warning (B1)
+- [x] Complete plan, 21 acceptance lines across tickets → ERROR naming `21 acceptance lines` and `20` (B2)
+- [x] 20 lines, and 21 lines with `Split declined by human:` → no acceptance-count ERROR (B2)
+- [x] Brief with 9 behaviours and plan with 21 lines, both created 2026-10-16 → `0 errors` (B5)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k LimitTests` (pre: NO TESTS RAN)
 Skills: none
-Status: todo
+Status: done @ 3c64d1b
+Writer: GPT-6.1 Sol
 
 ### T2 — Tests within 1.5× code, Budget reasons
 Delivers: B3, B4, B5 · Blocked by: T1 · Lane: logic
