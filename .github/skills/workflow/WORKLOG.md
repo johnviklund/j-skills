@@ -5,6 +5,18 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-17 · lean-runs · workflow caps run size and test growth · GPT-6.1 Sol
+- `check-run.py` errors on briefs over 8 behaviours, plans over 20 acceptance lines (unless a split
+  was declined) and tickets whose tests exceed 1.5× code; warns on a high Budget with no `why:`.
+  Runs created before 2026-10-18 keep the old rules. Docs now ask for one test per behaviour.
+- Cycle 1 found one P1 (old-run lane gate untested), fixed in cycle 2.
+- Commits: 3c64d1b c07710e 2b6835a e92cdbe
+- Review: ship as-is (cycle 2, 0 open) @ 4a085e5
+- Run: 3 tickets · 3 sessions · 2 review cycles · 1 deviations · 0 findings overturned
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@e92cdbe
+- Why: workflow runs grew the test suite and took too many sessions.
+
 ## 2026-10-10 · run-sizing · workflow plans bigger tickets, runs 3 per session, caps review at two cycles · Opus 5.5
 - `check-run.py` warns on a low median code Budget, allows 6 acceptance lines, and errors on an
   unapproved third review cycle; plan, execute, review, wrap and README rules and counts updated.
