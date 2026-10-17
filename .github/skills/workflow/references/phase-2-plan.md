@@ -26,7 +26,7 @@ the hit, so the run never ships a second copy.
 test files by the `check-run.py` rule), note the largest touched files and any over 1,000 lines,
 and record it as the plan's `Size:` line. Each ticket then states the lines it expects to add as
 `Budget: code +N · tests +N`, adding `· why: <reason>` on that line when tests exceed code.
-`check-run.py` flags commits over 2× Budget and ≥ 50 test lines over 1.5× code.
+From 2026-10-19, `check-run.py` flags commits over 2× Budget and ≥ 50 tests net over 1.5× code added.
 
 A question only the human can answer stops the phase before any ticket is written: ask it in the
 decision shape from `SKILL.md` and wait. An older brief with no Behaviours section: derive the
