@@ -173,6 +173,26 @@ class OverrunTests(unittest.TestCase):
         self.assertIn("0 errors · 0 warnings", out)
 
 
+class TestSmellTests(unittest.TestCase):
+    def smells(self, ticket):
+        return check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True)}, ticket)
+
+    def test_smell_test_importing_a_test_warns(self):
+        for line in ("from test_orders import build_order", "from tests.test_orders import x", "import test_orders"):
+            with self.subTest(line):
+                out = self.smells({"src/app.py": "x\n", "tests/test_cart.py": line + "\n"})
+                self.assertIn("T1: tests/test_cart.py imports a test module", out)
+
+    def test_smell_test_reading_sql_text_warns(self):
+        out = self.smells({"tests/test_sql.py": 'SQL = (ROOT / "orders.sql").read_text()\n'})
+        self.assertIn("T1: tests/test_sql.py reads SQL source text", out)
+
+    def test_smell_fixture_imports_and_code_files_are_clean(self):
+        out = self.smells({"tests/test_cart.py": "from fixtures.orders import build_order\n",
+                           "src/load.py": 'import test_utils\nQ = open("orders.sql").read()\n'})
+        self.assertIn("0 errors · 0 warnings", out)
+
+
 class OperatorTests(unittest.TestCase):
     PROBE = {"scripts/test_probe.py": "x\n"}
 

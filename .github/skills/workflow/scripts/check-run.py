@@ -12,7 +12,8 @@ Checks what a script can count, so no phase has to eyeball it:
   blocked-by cycle; operator tickets verify a receipt;
 - slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
   tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
-  OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it;
+  OVERRUN× its budget and tests within TEST_RATIO× code, unless `## Deviations` names it; added
+  test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
   WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
@@ -60,6 +61,8 @@ TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, an
 MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4      # a median code Budget under 40 over 4+ tickets warns: merge
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
 TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
+TEST_IMPORT = r"^\s*(from\s+\.*(\w+\.)*test_\w*\s+import|import\s+(\w+\.)*test_\w*)\b"   # tests.md: no test imports a test
+SQL_TEXT = r"\.sql\b.*\b(read_text|open)\(|\b(read_text|open)\(.*\.sql\b"            # tests.md: never assert source text
 BRIEF_SECTIONS = ["Problem", "Outcome", "Behaviours", "Decisions", "Test seams", "Out of scope"]
 PLAN_SECTIONS = ["Findings", "Tickets", "Coverage", "Risks", "TODO impacts", "Product doc impacts"]
 
@@ -334,6 +337,8 @@ def check_tickets(run, doc, rep, behaviours, strict):
                     rep.warn(doc.path, n_st, f"{t['id']}: done but no `Writer: <model>` line")
                 if gated and doc.path.endswith("/plan.md") and not deviated(doc, t["id"]):
                     check_overrun(t, lane, m.group(2), doc, rep, n_st)
+                if gated:
+                    check_test_smells(t, m.group(2), doc, rep, n_st)
     if gated and doc.path.endswith("/plan.md"):
         check_sizing(tickets, doc, rep)
     cycle = find_cycle(edges)
@@ -390,6 +395,24 @@ def check_overrun(t, lane, sha, doc, rep, n):
     if lane and lane.split()[0] == "logic" and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
         rep.error(doc.path, n, f"{t['id']}: tests +{tests} over {TEST_RATIO}× code +{code}: "
                                "cut to one test per behaviour, or log the reason under `## Deviations`")
+
+
+def check_test_smells(t, sha, doc, rep, n):
+    """Lines the `done @` commit adds to test files that break a tests.md rule a script can see: one warning
+    per file and rule."""
+    rules = {TEST_IMPORT: "imports a test module: move the shared builder to conftest.py or a fixtures module",
+             SQL_TEXT: "reads SQL source text: assert the schema contract or the output; "
+                       "a deny-list guard is the one exception"}
+    hits, path = {}, None
+    for line in git_out(rep.repo, "diff", "-U0", f"{sha}^", sha).splitlines():
+        if line.startswith("+++ "):
+            path = line[6:] if line.startswith("+++ b/") and re.search(TEST_FILE, line[6:]) else None
+        elif path and line.startswith("+"):
+            rule = next((r for r in rules if re.search(r, line[1:])), None)
+            if rule:
+                hits[(path, rule)] = hits.get((path, rule), 0) + 1
+    for (path, rule), count in hits.items():
+        rep.warn(doc.path, n, f"{t['id']}: {path} {rules[rule]} ({count} added line{'s' if count > 1 else ''})")
 
 
 def check_skills(t, doc, rep):

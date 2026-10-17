@@ -18,9 +18,19 @@ derived strings, call counts or prompt layout. An exact long string only when it
 (`subTest`, `pytest.mark.parametrize`), not one test each.
 
 **No test imports a test.** Shared fixtures go in `conftest.py` or a fixtures module.
+`check-run.py` warns on a ticket commit that adds one.
+
+**Keep test files small.** A test file stays at 1,500 lines or fewer; split it by feature before it
+grows past. A big file costs every reader its tokens, and an edit to it is harder to review.
 
 **Never assert source text.** SQL, a code file's contents and CTE aliases are not behaviour:
 assert the schema contract or the output. A deny-list of forbidden tokens is the one exception.
+`check-run.py` warns on a ticket commit whose tests add SQL file reads.
+
+**A deny-list gets a case per form.** List every form the grammar allows for the thing it blocks
+(every Snowflake write statement, not only the ones the corpus uses) and give each a negative case.
+A guard that requires several lines gets one case per line missing alone; dropping all at once
+cannot tell them apart.
 
 **Expected values come from outside the code.** Use the literal from the acceptance line, a
 worked example, or a known-good fixture. An expected value computed the way the code computes it
