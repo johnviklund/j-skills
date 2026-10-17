@@ -9,10 +9,13 @@ Size: code 720 · tests 305 · ratio 0.42 · largest touched check-run.py 720, R
 Decisions: 1a LEAN_SINCE 2026-10-18 · 2a READMEs unchanged (B7 counts stale numbers only) · 3a tickets approved
 
 ## Execution state
-Current: T3 todo · writer: GPT-6.1 Sol
+Current: all tickets done; next review · writer: GPT-6.1 Sol
 T1 @ 3c64d1b
 T2 @ c07710e
+T3 @ 2b6835a
 Session 1: T1, T2
+Session 2: T3
+Session 2 baseline: 38 tests pass; check-run 0 errors, 0 warnings.
 Baseline: 34 tests pass; check-run 0 errors, 0 warnings; no separate build or lint.
 Uncommitted: none for this run; pre-existing test __pycache__/ remains untracked.
 Pending decision: none.
@@ -67,14 +70,15 @@ Writer: GPT-6.1 Sol
 Delivers: B6, B7, B8 · Blocked by: T1, T2 · Lane: mechanical
 Seam: the workflow docs, counted with grep
 Accept:
-- [ ] `grep -c "Each acceptance line is one test" references/phase-2-plan.md` → 0; `grep -c "one test per behaviour"` there → ≥ 1 (B6)
-- [ ] phase-2-plan.md's *Inherited semantics* bullet contains "at risk" (B6)
-- [ ] Workflow `*.md` and root README, minus SKILL-IMPACT/WORKLOG, lines joined: "15 behaviours", "5–15", "3×" → 0 (B7)
-- [ ] `SKILL.md` contains "8 behaviours" and "20 acceptance lines"; `tests.md` contains "1.5×" (B7)
-- [ ] `receipts/t3-net-lines.txt`: numstat of workflow `*.md` minus SKILL-IMPACT/WORKLOG, b675349..HEAD → net ≤ 0 (B8)
+- [x] `grep -c "Each acceptance line is one test" references/phase-2-plan.md` → 0; `grep -c "one test per behaviour"` there → ≥ 1 (B6)
+- [x] phase-2-plan.md's *Inherited semantics* bullet contains "at risk" (B6)
+- [x] Workflow `*.md` and root README, minus SKILL-IMPACT/WORKLOG, lines joined: "15 behaviours", "5–15", "3×" → 0 (B7)
+- [x] `SKILL.md` contains "8 behaviours" and "20 acceptance lines"; `tests.md` contains "1.5×" (B7)
+- [x] `receipts/t3-net-lines.txt`: numstat of workflow `*.md` minus SKILL-IMPACT/WORKLOG, b675349..HEAD → net ≤ 0 (B8)
 Verify: `W=.github/skills/workflow; grep -c "Each acceptance line is one test" $W/references/phase-2-plan.md; ls $W/*.md $W/references/*.md README.md | grep -vE 'SKILL-IMPACT|WORKLOG' | xargs cat | tr '\n' ' ' | tr -s ' ' | grep -oE '15 behaviours|5–15|3×' | wc -l` (pre: 1 · 5)
 Skills: none
-Status: todo
+Status: done @ 2b6835a
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1, T2 (check-run ERRORs on the next run's brief, plan and ticket commits) · T3 (plan reference asks one test per behaviour)
@@ -91,3 +95,6 @@ none (D1 keeps the `check_worklog` item out)
 
 ## Product doc impacts
 No PRODUCT.md, DESIGN.md or ROADMAP.md at repo root. `.github/skills/workflow/ROADMAP.md`: no changes.
+
+## Deviations
+- T3 also aligns execute’s Red step with behaviour tests; its old per-acceptance instruction contradicted B6.

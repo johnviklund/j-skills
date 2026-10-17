@@ -1,0 +1,17 @@
+Command: workflow execute lean-runs
+Created: 2026-10-17
+Base: 2b6835a
+Inputs: .workflow/lean-runs/plan.md @ b675349
+Status: complete
+
+Command run: git diff --numstat b675349..HEAD -- .github/skills/workflow/*.md .github/skills/workflow/references/*.md :(exclude)**/SKILL-IMPACT.md :(exclude)**/WORKLOG.md
+HEAD at measurement: 2b6835a
+
+4	4	.github/skills/workflow/SKILL.md
+1	1	.github/skills/workflow/references/phase-0-brainstorm.md
+7	9	.github/skills/workflow/references/phase-2-plan.md
+2	2	.github/skills/workflow/references/phase-3-execute.md
+6	6	.github/skills/workflow/references/tests.md
+
+Net: -2 lines
+Result: PASS (net <= 0)
