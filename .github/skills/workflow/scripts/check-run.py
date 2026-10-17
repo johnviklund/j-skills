@@ -59,7 +59,8 @@ SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle 
 LEAN_SINCE = "2026-10-18"                  # lean-runs gates new artifacts; older runs keep their rules
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
-TEST_RATIO, TEST_FLOOR = 3, 50             # tests added over 3× code added, and ≥ 50, is an ERROR
+TEST_RATIO, TEST_FLOOR = 1.5, 50           # lean-runs: tests over 1.5× code and ≥ 50 lines error
+LEGACY_TEST_RATIO = 3                     # pre-LEAN_SINCE logic tickets keep the old ratio
 MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4      # a median code Budget under 40 over 4+ tickets warns: merge
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
 TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
@@ -356,6 +357,14 @@ def check_tickets(run, doc, rep, behaviours, strict):
 
 
 def check_sizing(tickets, doc, rep):
+    if doc.slop_gated(LEAN_SINCE):
+        for t in tickets:
+            n, budget = field(t, "Budget")
+            n_why, why = field(t, "why")
+            m = re.search(r"code\s*\+(\d+)\s*·\s*tests\s*\+(\d+)", budget or "")
+            if m and int(m.group(2)) > int(m.group(1)) and not (n_why == n and why):
+                rep.warn(doc.path, n, f"{t['id']}: Budget tests +{m.group(2)} exceed code +{m.group(1)}: "
+                                     "add `· why: <reason>` on the Budget line")
     budgets = [int(m.group(1)) for t in tickets
                if (field(t, "Lane")[1] or "x").split()[0] in ("logic", "contract")
                and (m := re.search(r"code\s*\+(\d+)", field(t, "Budget")[1] or ""))]
@@ -400,8 +409,11 @@ def check_overrun(t, lane, sha, doc, rep, n):
     if parts and net > OVERRUN * budget:
         rep.warn(doc.path, n, f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}: "
                               "log the reason under `## Deviations`")
-    if lane and lane.split()[0] == "logic" and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
-        rep.error(doc.path, n, f"{t['id']}: tests +{tests} over {TEST_RATIO}× code +{code}: "
+    lean = doc.slop_gated(LEAN_SINCE)
+    ratio = TEST_RATIO if lean else LEGACY_TEST_RATIO
+    lanes = ("logic", "contract") if lean else ("logic",)
+    if lane and lane.split()[0] in lanes and tests >= TEST_FLOOR and tests > ratio * code:
+        rep.error(doc.path, n, f"{t['id']}: tests +{tests} over {ratio}× code +{code}: "
                                "cut to one test per behaviour, or log the reason under `## Deviations`")
 
 

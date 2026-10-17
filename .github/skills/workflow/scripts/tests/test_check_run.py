@@ -126,6 +126,34 @@ class LimitTests(unittest.TestCase):
                     self.assertIn("0 errors", out)
 
 
+class RatioTests(unittest.TestCase):
+    def test_committed_test_ratio(self):
+        for lane, tests, created, error in (("logic", 76, "2026-10-18", True),
+                ("contract", 76, "2026-10-18", True), ("logic", 75, "2026-10-18", False),
+                ("contract", 75, "2026-10-18", False), ("contract", 76, "2026-10-16", False)):
+            with self.subTest(lane=lane, tests=tests, created=created):
+                text = plan(created=created, t1_done=True).replace("Lane: logic", f"Lane: {lane}")
+                out = check({"brainstorm.md": BRIEF, "plan.md": text},
+                            {"src/app.py": lines(50), "tests/test_app.py": lines(tests)})
+                if error:
+                    self.assertRegex(out, r"(?m)^ERROR .*tests \+76 over 1\.5× code \+50")
+                else:
+                    self.assertIn("0 errors", out)
+
+    def test_budget_ratio_reason(self):
+        for created, why, warning in (("2026-10-18", "", True),
+                ("2026-10-18", " · why: x", False), ("2026-10-18", "\nwhy: x", True),
+                ("2026-10-16", "", False)):
+            with self.subTest(created=created, why=why):
+                text = plan(created=created).replace("tests +30", "tests +30 · why: fixture")
+                text = text.replace("code +20 · tests +30 · why: fixture", f"code +60 · tests +120{why}", 1)
+                out = check({"brainstorm.md": BRIEF, "plan.md": text})
+                if warning:
+                    self.assertRegex(out, r"(?m)^warn .*T1:.*tests \+120.*code \+60")
+                else:
+                    self.assertIn("0 errors · 0 warnings", out)
+
+
 class BudgetTests(unittest.TestCase):
     def test_budget_plan_with_size_and_budgets_is_clean(self):
         self.assertIn("0 errors · 0 warnings", check({"brainstorm.md": BRIEF, "plan.md": plan()}))
