@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-18 · growth-ratchets · check-run counts tests net and honours only keyed waivers · GPT-6.1 Sol
+- `check-run.py` compares net test growth with code additions, so rewrites and moves no longer trip the ratio. Only a keyed `Ratio waived: T#` or `Budget waived: T#` line with a reason skips its check, and the output repeats the numbers. Plans created before 2026-10-19 keep the old rules. `WORKLOG.md` moved to the repo root, so `check_worklog` finds the entries.
+- Cycles 1 and 2 each found a P1 test gap (waiver ticket key, then waiver kind), both fixed by tests only.
+- Commits: 1a65a10 9974505 ee191dc cfa48ca
+- Review: ship as-is (cycle 3, 0 open) @ a9bb5fe
+- Run: 2 tickets · 4 sessions · 3 review cycles · 0 deviations · 0 findings overturned
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@cfa48ca
+- Why: the added-line test ratio flagged rewrites, and any mention of a waiver skipped the check.
+
 ## 2026-10-17 · lean-runs · workflow caps run size and test growth · GPT-6.1 Sol
 - `check-run.py` errors on briefs over 8 behaviours, plans over 20 acceptance lines (unless a split
   was declined) and tickets whose tests exceed 1.5× code; warns on a high Budget with no `why:`.

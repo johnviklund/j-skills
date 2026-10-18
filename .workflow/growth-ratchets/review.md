@@ -2,7 +2,7 @@ Command: workflow review growth-ratchets
 Created: 2026-10-18
 Base:    30a648b
 Inputs:  .workflow/growth-ratchets/plan.md @ d62b5d0
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1: acceptance 6/6 tested and passing (`RatioTests.test_growth_*`, 4 tests, 14 subtests)

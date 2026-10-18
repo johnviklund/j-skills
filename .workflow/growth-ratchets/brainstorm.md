@@ -2,7 +2,7 @@ Command: workflow brainstorm growth-ratchets
 Created: 2026-10-18
 Base:    1971256
 Inputs:  none
-Status:  complete
+Status:  done
 
 ## Problem
 check-run's ticket ratio gate counts lines added, so a rewrite or move trips it (governed-execution-discovery T2, T3). The writer then names the ticket under `## Deviations`, and any mention of the ticket ID skips the budget and ratio checks (`check-run.py:380`), even a receipt pointer (T4). Separately, `check_worklog` reads only a repo-root `WORKLOG.md`; this repo's is in the skill folder, so done runs report "no entry".
