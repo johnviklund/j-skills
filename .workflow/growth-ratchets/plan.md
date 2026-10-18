@@ -9,7 +9,7 @@ Size: code 746 · tests 368 · ratio 0.49 · largest touched check-run.py 746, t
 Decisions: 1a (tickets approved) · 2a (a budget waiver prints a note with net and budget)
 
 ## Execution state
-Current: T1, T2 and patches C1-T1, C2-T1 done; review cycle 3 next.
+Current: T1, T2 and patches C1-T1, C2-T1 done; review cycle 3 clean, wrap next.
 T1 @ 1a65a10
 T2 @ 9974505
 writer: GPT-6.1 Sol
