@@ -147,6 +147,7 @@ class RatioTests(unittest.TestCase):
     def test_growth_ratio_waivers(self):
         for deviation, waived in (("Ratio waived: T1 — fixture rewrite", True),
                 ("Ratio waived: T2 — other ticket", False),
+                ("Budget waived: T1 — wrong kind", False),
                 ("T1 proof: receipts/t1.txt", False), ("Ratio waived: T1 —", False)):
             with self.subTest(deviation=deviation):
                 text = plan(created="2026-10-19", t1_done=True) + "## Deviations\n- " + deviation + "\n"
@@ -158,7 +159,8 @@ class RatioTests(unittest.TestCase):
                 self.assertIn("allowed 90", out)
 
     def test_growth_budget_waivers(self):
-        for deviation, waived in (("Budget waived: T1 — reason", True), ("T1 note", False)):
+        for deviation, waived in (("Budget waived: T1 — reason", True), ("T1 note", False),
+                ("Ratio waived: T1 — wrong kind", False)):
             with self.subTest(deviation=deviation):
                 text = plan(created="2026-10-19", t1_done=True) + "## Deviations\n- " + deviation + "\n"
                 text = text.replace("tests +30", "tests +30 · why: fixture")
