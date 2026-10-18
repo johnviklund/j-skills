@@ -2,7 +2,7 @@ Command: workflow review growth-ratchets
 Created: 2026-10-18
 Base:    cab6086
 Inputs:  .workflow/growth-ratchets/plan.md @ d62b5d0
-Status:  drafting
+Status:  complete
 
 ## Coverage
 - [x] T1: acceptance 6/6 tested and passing (`RatioTests.test_growth_*`, 4 tests, 14 subtests)
@@ -34,11 +34,12 @@ Scope: fix diff c4ce7f0..cab6086 (one tuple in `test_growth_ratio_waivers`) plus
 
 ### P1 — C2-1: no test sees which kind a waiver names
 - Evidence: D2 gives two separate keys, `Ratio waived:` and `Budget waived:`. M6 replaces `kind` with `(?:Ratio|Budget)` at `check-run.py:389`, so either line waives both checks, and all 4 growth tests stay green. The code is right today. No growth case puts a `Budget waived: T1` line against a ratio error, or the reverse. Outside cycle 2's scope; cycle 1 missed it. Breaks no B# today and leaves the Outcome true.
-- Disposition: fix now — awaiting human: a) one more cycle, a test-only patch C2-T1 · b) defer to `TODO.md` (recommended)
+- Disposition: fix now (human chose 1a, 2026-10-18) → `patch_plan.md` C2-T1
 - Resolved: —
 
 ## Pre-existing / environmental
 - `slop-guards/plan.md` 127 lines over the ~120 budget: an existing warning, unrelated to this run.
 
 ## Cycle 2 verdict
-C1-1 is fixed. The new case catches the loose ticket key, and the code is unchanged. One new P1, C2-1, is the same kind of gap on a second key. It waits on the human, because review stops after two cycles. B1–B8 hold, and the Outcome is visible in check-run output.
+C1-1 is fixed. The new case catches the loose ticket key, and the code is unchanged. One new P1, C2-1, is the same kind of gap on a second key. The human approved a third cycle to fix it: `patch_plan.md` C2-T1, test only.
+Cycle 3 approved by human: 2026-10-18 (decision 1a) B1–B8 hold, and the Outcome is visible in check-run output.
