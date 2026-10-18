@@ -94,7 +94,7 @@ Add a test beyond the acceptance lines only when a mutation survives (`tests.md`
 a nearby bug, a tempting refactor, a missing feature — is one line under `## Deviations` and
 the ticket continues. **Existing tests keep their assertions.** Log changed or removed assertions as
 deviations, count assertions before and after, and name the change in the report's `Noticed:` line.
-For plans created from 2026-10-19, waivers under `## Deviations` require
+For plans created from 2026-10-18, waivers under `## Deviations` require
 `Ratio waived: T# — <reason>` or `Budget waived: T# — <reason>`. Ratio waivers warn with tests net
 and allowed; budget waivers note net and budget. Receipt pointers skip neither check. Older plans
 keep their rules.

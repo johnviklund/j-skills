@@ -77,7 +77,7 @@ ticket's red step.
 **Test the boundary.** A ticket that moves a limit gets one test that passes exactly at the new
 limit and one that fails just over it; the over-limit test alone lets a `<` for `<=` mutation live.
 
-**Test budget.** From 2026-10-19, logic and contract commits with ≥ 50 tests net error above 1.5× code added.
+**Test budget.** From 2026-10-18, logic and contract commits with ≥ 50 tests net error above 1.5× code added.
 Use one parametrized test per behaviour; exceptions need `Ratio waived: T# — <reason>` under `## Deviations`. Earlier plans keep their rules.
 
 **Signs a test is wrong:** it breaks on a refactor that kept behaviour; it asserts call counts or

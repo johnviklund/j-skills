@@ -171,10 +171,10 @@ class RatioTests(unittest.TestCase):
     def test_growth_legacy_ratio(self):
         for deviation in (False, True):
             with self.subTest(deviation=deviation):
-                text = plan(created="2026-10-18", t1_done=True, deviation=deviation)
+                text = plan(created="2026-10-17", t1_done=True, deviation=deviation)
                 out = check({"brainstorm.md": BRIEF, "plan.md": text},
-                            {"src/app.py": lines(60), "tests/test_app.py": lines(130)})
-                self.assertIn("0 errors" if deviation else "T1: tests +130 over 1.5× code +60", out)
+                            {"src/app.py": lines(60), "tests/test_app.py": lines(190)})
+                self.assertIn("0 errors" if deviation else "T1: tests +190 over 3× code +60", out)
 
     def test_committed_test_ratio(self):
         for lane, tests, created, error in (("logic", 76, "2026-10-18", True),
@@ -186,7 +186,7 @@ class RatioTests(unittest.TestCase):
                 out = check({"brainstorm.md": BRIEF, "plan.md": text},
                             {"src/app.py": lines(50), "tests/test_app.py": lines(tests)})
                 if error:
-                    self.assertRegex(out, r"(?m)^ERROR .*tests \+76 over 1\.5× code \+50")
+                    self.assertRegex(out, r"(?m)^ERROR .*tests net \+76 over 1\.5× code \+50")
                 else:
                     self.assertIn("0 errors", out)
 
