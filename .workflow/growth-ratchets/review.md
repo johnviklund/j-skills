@@ -1,15 +1,15 @@
 Command: workflow review growth-ratchets
 Created: 2026-10-18
-Base:    c4ce7f0
+Base:    cab6086
 Inputs:  .workflow/growth-ratchets/plan.md @ d62b5d0
-Status:  complete
+Status:  drafting
 
 ## Coverage
 - [x] T1: acceptance 6/6 tested and passing (`RatioTests.test_growth_*`, 4 tests, 14 subtests)
 - [x] T2: acceptance 5/5 by content. Key counts 1/1, `tests net` 1, stale phrases 0, doc net 0, root `WORKLOG.md` present with `--follow` reaching 5d5eba7, `has no entry` 0
 - [x] B1–B8 delivered · Outcome observed on check-run output, manual (CLI, no user screen): `--all` gives 0 errors on every done run · out of scope untouched (no run-level gate, mechanical lane unchanged, skill `MEMORY.md`/`SKILL-IMPACT.md` stay put)
 - [x] .workflow/ dependency check: 0 hits · escape-hatch scan: 0 hits · full suite 42/42 pass · existing test assertions unchanged (the diff's only removed test line is the `check()` signature)
-Size: +31 code · +47 tests · ratio 1.52 · net +70 · over 1,000: none (check-run.py 770)
+Size: +31 code · +48 tests · ratio 1.55 · net +71 · over 1,000: none (check-run.py 770, test_check_run.py 415). Cycle 2 fix diff: +1 test line, no code
 Reachability: no new file; `waiver()` has two live callers in `check_overrun` (`check-run.py:422`, `:432`) · guards shown failing: M2, M3
 Independence: cross-vendor (writer GPT-6.1 Sol, OpenAI · reviewer Claude Opus 5.5, Anthropic)
 
@@ -20,25 +20,25 @@ Mutations, each in a throwaway worktree at c4ce7f0, run with `-k growth`, never 
 - M4 empty reason allowed, `:389` → OK; harmless, `if reason:` (`:424`, `:434`) still rejects an empty reason
 - M5 waiver key matched anywhere on the line, `:389` → OK; harmless, the line must still name the key, ticket and a reason
 
-## Cycle 1 findings
+## Resolved
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | no test sees which ticket a waiver names | fix now | @ ee191dc (cycle 2) |
+| C1-2 | P2 | the execute doc lost two rules to stay at net zero lines | defer → `TODO.md` at wrap | settled (cycle 2) |
+| C1-3 | P3 | T2's Verify exits 1 when it passes | defer, stays here | settled (cycle 2) |
 
-### P1 — C1-1: no test sees which ticket a waiver names
-- Evidence: D2 and B3 key a waiver to its ticket (`Ratio waived: T# — <reason>`). M1 lets any ticket's waiver silence T1's ratio error, and all 4 growth tests stay green. The code is right today (`check-run.py:389`), but nothing pins it. `test_growth_ratio_waivers` (`test_check_run.py:147-149`) has no case naming another ticket. Same class as lean-runs C1-1.
-- Disposition: fix now
-- Resolved: —
+## Cycle 2 findings
+Scope: fix diff c4ce7f0..cab6086 (one tuple in `test_growth_ratio_waivers`) plus C1-1's class, a waiver keyed on its ticket. Each mutation ran in a throwaway worktree at cab6086, `-k growth`, never committed.
+- C1-1 re-checked: M1 (`re.escape(tid)` → `r"T\d+"`, `check-run.py:389`) now fails exactly one case, `Ratio waived: T2 — other ticket`. Both callers, Ratio (`:432`) and Budget (`:422`), share `waiver()`, so the one case pins the ticket key at every site. Stamped.
+- Fix diff is test-only: no checker line changed, existing assertions unchanged. Full suite 42/42 pass. `check-run.py --all` 0 errors. `.workflow/` dependency check 0 hits, escape-hatch scan 0 hits.
 
-### P2 — C1-2: the execute doc lost two rules to stay at net zero lines
-- Evidence: `phase-3-execute.md:92` drops "Build what its acceptance lines describe, at its seam" and "the ticket continues" after a side note. No other line in the file restates either. D7's net ≤ 0 lines was met by unwrapping: the three edited docs gained 19 words, and lines over 100 chars in `phase-3-execute.md` went from 9 to 13.
-- Disposition: defer → `TODO.md` at wrap (restore both rules; measure doc growth in words, not lines)
-- Resolved: —
-
-### P3 — C1-3: T2's Verify exits 1 when it passes
-- Evidence: its last command is `grep -c 'has no entry'`, which exits 1 on the expected count 0. The writer noted this (`receipts/t2-verification.md`). Use `grep -c … || true` next time.
-- Disposition: defer, stays in review.md
+### P1 — C2-1: no test sees which kind a waiver names
+- Evidence: D2 gives two separate keys, `Ratio waived:` and `Budget waived:`. M6 replaces `kind` with `(?:Ratio|Budget)` at `check-run.py:389`, so either line waives both checks, and all 4 growth tests stay green. The code is right today. No growth case puts a `Budget waived: T1` line against a ratio error, or the reverse. Outside cycle 2's scope; cycle 1 missed it. Breaks no B# today and leaves the Outcome true.
+- Disposition: fix now — awaiting human: a) one more cycle, a test-only patch C2-T1 · b) defer to `TODO.md` (recommended)
 - Resolved: —
 
 ## Pre-existing / environmental
 - `slop-guards/plan.md` 127 lines over the ~120 budget: an existing warning, unrelated to this run.
 
-## Cycle 1 verdict
-Fix C1-1 first: one patch ticket, test only (`patch_plan.md` C1-T1). The checker logic is right. B1–B8 hold, and the Outcome is visible in check-run output. C1-2 is deferred to `TODO.md`, and C1-3 stays here.
+## Cycle 2 verdict
+C1-1 is fixed. The new case catches the loose ticket key, and the code is unchanged. One new P1, C2-1, is the same kind of gap on a second key. It waits on the human, because review stops after two cycles. B1–B8 hold, and the Outcome is visible in check-run output.
