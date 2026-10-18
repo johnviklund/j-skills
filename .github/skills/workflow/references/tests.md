@@ -29,8 +29,9 @@ assert the schema contract or the output. A deny-list of forbidden tokens is the
 
 **A deny-list gets a case per form.** List every form the grammar allows for the thing it blocks
 (every Snowflake write statement, not only the ones the corpus uses) and give each a negative case.
-A guard that requires several lines gets one case per line missing alone; dropping all at once
-cannot tell them apart.
+A guard that requires several lines gets one case per line missing alone; a guard that matches on
+several keys gets one case per key, differing only in that key. Dropping all at once cannot tell
+them apart.
 
 **Expected values come from outside the code.** Use the literal from the acceptance line, a
 worked example, or a known-good fixture. An expected value computed the way the code computes it
