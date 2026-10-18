@@ -5,10 +5,13 @@ Inputs:  .workflow/growth-ratchets/review.md @ c8f2e48
 Status:  complete
 
 ## Execution state
-- Current: C2-T1 ready; review cycle 3 after it.
+- Current: C2-T1 done; review cycle 3 next.
+- C2-T1 @ cfa48ca
+- writer: GPT-6.1 Sol
 - Cycle 1's C1-T1 is done @ ee191dc; its text stays in git.
 - Baseline: 42 tests pass; check-run --all 0 errors. No code defect reproduces today; this is a missing assertion.
-- Uncommitted: none. Pending decision: none.
+- Proof: receipts/c2-t1-verification.md; both new cases fail under the mutation, then all 42 tests pass.
+- Uncommitted: none after the handoff commit. Pending decision: none.
 
 ## Findings
 - C2-1: `waiver()` keys on its kind (`check-run.py:389`), but no growth case puts one kind's line against the other check, so replacing `kind` with `(?:Ratio|Budget)` stays green.
@@ -21,11 +24,12 @@ Status:  complete
 Delivers: C2-1, B3, B5 · Blocked by: none · Lane: logic · Budget: code +0 · tests +2
 Seam: check-run CLI through the subprocess fixtures in `.github/skills/workflow/scripts/tests/test_check_run.py`
 Accept:
-- [ ] `test_growth_ratio_waivers` gains the case `Budget waived: T1 — wrong kind` → the T1 ratio ERROR stands (`1 errors`, no ratio waiver warn) (B3)
-- [ ] `test_growth_budget_waivers` gains the case `Ratio waived: T1 — wrong kind` → the overrun warn stands (`0 errors · 1 warnings`) (B5)
-- [ ] With `kind` replaced by `(?:Ratio|Budget)` at `check-run.py:389`, both new cases fail; restored, all tests pass. A receipt records the mutation and result.
+- [x] `test_growth_ratio_waivers` gains the case `Budget waived: T1 — wrong kind` → the T1 ratio ERROR stands (`1 errors`, no ratio waiver warn) (B3)
+- [x] `test_growth_budget_waivers` gains the case `Ratio waived: T1 — wrong kind` → the overrun warn stands (`0 errors · 1 warnings`) (B5)
+- [x] With `kind` replaced by `(?:Ratio|Budget)` at `check-run.py:389`, both new cases fail; restored, all tests pass. A receipt records the mutation and result.
 Verify: `python3 -B -m unittest discover -s .github/skills/workflow/scripts/tests -k growth` (pre: Ran 4 tests, OK; neither new case exists)
-Skills: none · Status: todo
+Skills: none · Status: done @ cfa48ca
+Writer: GPT-6.1 Sol
 Test-only fix: commit just the two added cases. Red is the temporary mutation, not a committed failing test.
 
 ## Coverage

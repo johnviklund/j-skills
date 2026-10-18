@@ -9,13 +9,14 @@ Size: code 746 · tests 368 · ratio 0.49 · largest touched check-run.py 746, t
 Decisions: 1a (tickets approved) · 2a (a budget waiver prints a note with net and budget)
 
 ## Execution state
-Current: T1, T2 and patch C1-T1 done; review cycle 2 next.
+Current: T1, T2 and patches C1-T1, C2-T1 done; review cycle 3 next.
 T1 @ 1a65a10
 T2 @ 9974505
 writer: GPT-6.1 Sol
 Session 1: T1
 Session 2: T2
 Session 3: C1-T1
+Session 4: C2-T1
 Baseline: session 1 had 38 passing tests; session 2 had 42. T2 fixes both WORKLOG errors; the existing slop-guards size warning remains.
 Checks approved: existing unittest suite, check-run.py, git diff --check; no repo AGENTS.md.
 Contract: GROWTH_SINCE = 2026-10-19; older plans retain their rules.
