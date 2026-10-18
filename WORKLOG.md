@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-18 · guard-keys · writers and reviewers test every key a guard matches on · GPT-6.1 Sol
+- The test, review and execute references now say: one case per guard key, a reviewer who finds one untested key lists and mutates all of them, and execute regains its acceptance-seam and scope wording. A trial row sits in `SKILL-IMPACT.md`.
+- Review found 3 P3s (Verify greps one phrase per rule, rule placement, conditional reviewer trigger), all deferred.
+- Commits: e478a17
+- Review: ship as-is (cycle 1, 0 open) @ b98bb26
+- Run: 1 tickets · 1 sessions · 1 review cycles · 0 deviations · 0 findings overturned
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@e478a17
+- Why: three growth-ratchets findings were one untested guard key each, and the cap was met by unwrapping.
+
 ## 2026-10-18 · growth-ratchets · check-run counts tests net and honours only keyed waivers · GPT-6.1 Sol
 - `check-run.py` compares net test growth with code additions, so rewrites and moves no longer trip the ratio. Only a keyed `Ratio waived: T#` or `Budget waived: T#` line with a reason skips its check, and the output repeats the numbers. Plans created before 2026-10-19 keep the old rules. `WORKLOG.md` moved to the repo root, so `check_worklog` finds the entries.
 - Cycles 1 and 2 each found a P1 test gap (waiver ticket key, then waiver kind), both fixed by tests only.
