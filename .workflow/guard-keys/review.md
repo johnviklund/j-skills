@@ -2,7 +2,7 @@ Command: workflow review guard-keys
 Created: 2026-10-18
 Base:    b98bb26
 Inputs:  .workflow/guard-keys/plan.md @ bbf2d45
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 checked: T1's Verify rerun at b98bb26 prints nine 1s, net 5, width 0, trial 1, exit 0

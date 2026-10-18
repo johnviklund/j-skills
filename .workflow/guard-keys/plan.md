@@ -2,21 +2,11 @@ Command: workflow plan guard-keys
 Created: 2026-10-18
 Base:    bbf2d45
 Inputs:  .workflow/guard-keys/brainstorm.md @ 29c49c7
-Status:  complete
+Status:  done
 
 Docs read: none in scope (j-skills has no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a (doc-only run; every touched file is `*.md`, a receipt by rule) · docs touched: phase-4-review.md 170, phase-3-execute.md 137, tests.md 87, SKILL-IMPACT.md 50 · over 1,000: none
 Decisions: 1a — one ticket approved as listed, with the 100-character line limit (2026-10-18)
-
-## Execution state
-Current: T1 done; all tickets complete; next review
-T1 @ e478a17
-writer: GPT-6.1 Sol
-Session 1: T1
-Baseline: human chose 1a, T1 content checks and `check-run.py --all`; 0 errors.
-Existing warning: archived slop-guards plan has 127 lines against ~120.
-Verification: receipts/t1-verification.md
-Uncommitted files: none after this record is committed; pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |

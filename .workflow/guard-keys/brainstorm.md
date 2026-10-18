@@ -2,7 +2,7 @@ Command: workflow brainstorm guard-keys
 Created: 2026-10-18
 Base:    29c49c7
 Inputs:  none
-Status:  complete
+Status:  done
 
 ## Problem
 A guard that matches on several keys (an ID, a date, a lane, a kind) keeps an untested key after the writer's one mutation and the reviewer's one mutation. This cost a review cycle three times (lean-runs C1-1, growth-ratchets C1-1 and C2-1). growth-ratchets T2 also trimmed `phase-3-execute.md` to meet a net-zero line cap and lost wording (C1-2).
