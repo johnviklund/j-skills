@@ -9,7 +9,14 @@ Size: code 0 · tests 0 · ratio n/a (doc-only run; every touched file is `*.md`
 Decisions: 1a — one ticket approved as listed, with the 100-character line limit (2026-10-18)
 
 ## Execution state
-<filled by execute>
+Current: T1 done; all tickets complete; next review
+T1 @ e478a17
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: human chose 1a, T1 content checks and `check-run.py --all`; 0 errors.
+Existing warning: archived slop-guards plan has 127 lines against ~120.
+Verification: receipts/t1-verification.md
+Uncommitted files: none after this record is committed; pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -30,15 +37,16 @@ Delivers: B1, B2, B3, B4, B5, B6 · Blocked by: none · Lane: mechanical
 Budget: code +7 · tests +0
 Seam: the three reference files and `SKILL-IMPACT.md`, read by `grep`, `git diff` and `check-run.py --all`
 Accept:
-- [ ] `grep -c 'one case per key'` in `references/tests.md` → 1, in the sentence about guards that require several lines (B1)
-- [ ] `grep -c` in `references/phase-4-review.md` for `every key the guard matches on` → 1 and for `mutate each` → 1 (B2)
-- [ ] `grep -c` in `references/phase-3-execute.md` for `Build what its acceptance lines describe`, `a nearby bug, a tempting refactor, a missing feature`, `the ticket continues` → 1 each (B3)
-- [ ] `grep -c` in `references/phase-3-execute.md` for `Ratio waived: T# — <reason>`, `Budget waived: T# — <reason>`, `plans created from 2026-10-19` → 1 each (B4)
-- [ ] the three references since bbf2d45 → net ≤ +6 lines, 0 added lines over 100 characters; `check-run.py --all` → exit 0 (B5)
-- [ ] `SKILL-IMPACT.md` → 1 row matching `guard-keys`, then `cycle 2` in its judge, ending `| trialing |` (B6)
+- [x] `grep -c 'one case per key'` in `references/tests.md` → 1, in the sentence about guards that require several lines (B1)
+- [x] `grep -c` in `references/phase-4-review.md` for `every key the guard matches on` → 1 and for `mutate each` → 1 (B2)
+- [x] `grep -c` in `references/phase-3-execute.md` for `Build what its acceptance lines describe`, `a nearby bug, a tempting refactor, a missing feature`, `the ticket continues` → 1 each (B3)
+- [x] `grep -c` in `references/phase-3-execute.md` for `Ratio waived: T# — <reason>`, `Budget waived: T# — <reason>`, `plans created from 2026-10-19` → 1 each (B4)
+- [x] the three references since bbf2d45 → net ≤ +6 lines, 0 added lines over 100 characters; `check-run.py --all` → exit 0 (B5)
+- [x] `SKILL-IMPACT.md` → 1 row matching `guard-keys`, then `cycle 2` in its judge, ending `| trialing |` (B6)
 Verify: `W=.github/skills/workflow; R=$W/references; grep -c 'one case per key' $R/tests.md; grep -c 'every key the guard matches on' $R/phase-4-review.md; grep -c 'mutate each' $R/phase-4-review.md; for p in 'Build what its acceptance lines describe' 'a nearby bug, a tempting refactor, a missing feature' 'the ticket continues' 'Ratio waived: T# — <reason>' 'Budget waived: T# — <reason>' 'plans created from 2026-10-19'; do grep -c -- "$p" $R/phase-3-execute.md; done; git diff --numstat bbf2d45 -- $R/tests.md $R/phase-3-execute.md $R/phase-4-review.md | awk '{n+=$1-$2} END {print "net", n+0}'; git diff -U0 bbf2d45 -- $R/tests.md $R/phase-3-execute.md $R/phase-4-review.md | grep '^+[^+]' | awk 'length>101' | wc -l; grep -c '^| .*guard-keys.*cycle 2.*| trialing |$' $W/SKILL-IMPACT.md; python3 $W/scripts/check-run.py --all >/dev/null; echo "exit $?"` (pre: 0 · 0 · 0 · 0 · 0 · 0 · 1 · 1 · 1 · net 0 · 0 · 0 · exit 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ e478a17
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1: the three references carry the rule and the restored wording within +6 net lines; the trial row is logged
