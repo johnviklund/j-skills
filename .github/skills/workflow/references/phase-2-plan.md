@@ -40,6 +40,11 @@ ticket — with its own tests proving behaviour is unchanged. When the reuse sea
 two or more near-copies, the prefactor consolidates them first: one copy to change, not three.
 A file over 1,000 lines in a ticket's path is a prefactor candidate too.
 
+A run with a user surface in a repo with no verify skill (`.agents/skills/verify-*/`) gets a
+prefactor that runs `verify.create`, so execute and review can drive the Outcome. The agent runs
+it and asks the human only what it cannot observe (credentials, a test account, a new dev
+dependency); the human is never asked to run it.
+
 ## 3. Slice into tickets
 
 Every ticket is a **tracer bullet**:
@@ -70,6 +75,9 @@ Every ticket is a **tracer bullet**:
   - **Data that exists.** A `(live)` line observes a state the plan saw in the live data (a count,
     a named record from a read-only probe). A state with no live instance is checked at a non-live
     seam instead; the live line would otherwise end unverifiable.
+  - **A traced path.** A `(live)` line names, with file:line, each step from production startup
+    to the endpoint and the default dependency it calls (provider, client, credential). A step
+    that exists only in tests becomes its own ticket, blocking the operator ticket.
   - **Inherited semantics.** A ticket adding a read surface names existing consumers at risk and
     asserts the states, labels and error exits those consumers must keep.
 

@@ -25,8 +25,8 @@ Review answers two questions, kept apart so one can't hide the other:
   proof of it: a bar can pass on provenance while the user sees nothing useful. When the repo
   has a verify skill (`.agents/skills/verify-*/`), drive the Outcome with it along every entry
   point its feature file lists, evidence in `receipts/`. A run with a user surface and no verify
-  skill notes `no verify skill` on the Outcome coverage line and recommends `verify.create` in
-  the verdict.
+  skill notes `no verify skill` on the Outcome coverage line; the repo's next plan opens with the
+  `verify.create` prefactor (`phase-2-plan.md`). The verdict asks the human for nothing here.
 - **Defects** — does it break anything? Verify empirically: run the tests, trace producer →
   consumer, run live queries. Look for missing error handling, data loss, resource leaks, security
   flaws, and logic that defeats the feature's own guarantee (a gate that can never fire). In any
@@ -59,8 +59,12 @@ Review answers two questions, kept apart so one can't hide the other:
 |---|---|---|
 | **P0** | data loss, security hole, crash on a normal path, a behaviour inverted, wrong or misleading data shown to users as correct | fix now |
 | **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input; same-run waste, unreachable new code, a surviving mutation | fix now |
-| **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern, waste older than the run | defer → `TODO.md` |
+| **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern, waste older than the run | **small** → fix now; otherwise defer → `TODO.md` |
 | **P3** | minor; at most five reported, the rest as a count | defer (stays in `review.md`) |
+
+A P2 is **small** when one fix ticket of about 30 changed lines closes it, with no contract change,
+no new behaviour and no decision only the human can make. Doing it now is cheaper than a
+`TODO.md` line nobody gets back to; defer only what needs a run or a human decision.
 
 A P0/P1 names its evidence: the B# or acceptance line it breaks, the Outcome and what its surface
 actually shows, the input that fails, or, for waste, the added lines and the existing
@@ -127,9 +131,9 @@ owes as a lettered decision list. Verdict "ship as-is" when nothing needs acting
 
 **Clean** → `workflow wrap <slug>`.
 
-**Only P2/P3** → their default dispositions stand unless the human picks "fix now" for one; the
-deferred P2s become `TODO.md` lines at wrap, and deferred P3s stay in `review.md`. No patch cycle
-is needed for defers.
+**Only P2/P3** → their default dispositions stand unless the human picks otherwise: small P2s
+get a patch cycle like any "fix now", the deferred P2s become `TODO.md` lines at wrap, and
+deferred P3s stay in `review.md`. No patch cycle is needed when everything is deferred.
 
 **Any "fix now"** → write `patch_plan.md`: one fix ticket per finding, same ticket shape and
 rules as `plan.md` (lane, seam, acceptance, verify with `pre:`, skills), numbered `C<cycle>-T#`
@@ -151,7 +155,7 @@ fix diff plus each finding's class: re-verify each finding at every site of its 
 the lines the fix touched (stamp `Resolved: @ <sha> (cycle N)` or reopen it — an incomplete fix
 reopens the finding at its original severity), confirm each bug fix left the tests untouched and
 its reproducing test passes, and look for regressions the fix diff introduced. Something new
-outside that scope is recorded at P2, except a P0 (fix now) or a P1, which goes to the human as a
+outside that scope is recorded at P2 and deferred however small, except a P0 (fix now) or a P1, which goes to the human as a
 decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `TODO.md`.
 
 **Cycle bound — two.** After cycle 2, every open fix-now finding goes to the human as one

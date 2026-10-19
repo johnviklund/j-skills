@@ -7,8 +7,8 @@ description: >
   map saying how a user reaches each feature and what proves it works. "verify.create"
   generates it and proves it on one feature; "verify.maintain" re-checks every mapped feature
   from source and live, then commits only proven corrections. Run only on an explicit
-  "verify.create" or "verify.maintain" message; never on casual mentions of verifying, testing
-  or checking a change.
+  "verify.create" or "verify.maintain" message, or a workflow ticket that names one; never on
+  casual mentions of verifying, testing or checking a change.
 ---
 
 # verify
