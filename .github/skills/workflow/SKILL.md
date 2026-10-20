@@ -135,19 +135,31 @@ Fill the model line from `ROUTING.md`'s rows (a *Trial* entry replaces the prima
 `(trial)`) so the human never opens a file to pick a model.
 
 ---
-**▶ Next: <phase>** · <run slug> · <one-line why, or the cycle and finding ids for a patch cycle>
-**Reset:** yes | no · **Model:** <model> · <effort> · <context> · fallback <model> <effort>
-**Reads:** <files the next phase opens first>
+**▶ Next: <phase>** · <run slug>
+
+- **Why:** <one line, or the cycle and finding ids for a patch cycle>
+- **Reset:** yes | no
+- **Model:** <model> · <effort> · <context>
+- **Fallback:** <model> · <effort>
+- **Reads:** <files the next phase opens first>
+
+**Run:**
+
 ```text
 workflow <phase> <slug>
 ```
 ---
 
+One field per row, as a bullet list, never a run-on line: markdown joins plain lines, so a row
+without its bullet disappears into the paragraph. A blank line sits before the **Run:** label and
+before the fence, and the command is always its own fenced `text` block, even when the card is
+short, so it has a copy button.
+
 **Reads:** names run files and receipts only; the CLI already loads `AGENTS.md` and its kin. Before
 the card, the run's commits are on the primary branch and pushed: the next phase opens the primary
 checkout, so a `check-run.py` worktree or branch warning is resolved first, or asked about.
 Reset is `yes` at every handoff, `no` only for same-seat work continuing. A human-only step (an
-operator ticket, an escalation) reads `**Model:** human · <the one action>` with **Reads:** naming
+operator ticket, an escalation) reads `- **Model:** human · <the one action>` with **Reads:** naming
 the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
 
 ## Ground rules
