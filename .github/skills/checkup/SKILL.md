@@ -225,7 +225,9 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
   delete and mark `rejected` to decline". Never accept or reject on the human's behalf.
 - **Skill trials.** Entries also carry `Skills: <skill>@<sha>`. For each `trialing` line in the
   skills repo's `SKILL-IMPACT.md`, compare `Run:` numbers for entries at the new sha against the
-  entries before it: once the trial count is reached, ⚠️ "trial complete -- better / worse / no
+  entries before it. The sha is the skill folder's tree hash: map it to a commit by matching
+  `git rev-parse <commit>:<skill folder>` over that folder's history; an entry whose sha matches
+  no commit is ⚠️ "unresolvable sha" and is left out of the comparison: once the trial count is reached, ⚠️ "trial complete -- better / worse / no
   signal, N runs"; worse means recommend reverting. Never edit the skill. Compare only like with
   like: v2.02 entries count checklist steps (≤12), v2.1 entries count tickets (≤8), so across that
   boundary compare review cycles and deviations only.

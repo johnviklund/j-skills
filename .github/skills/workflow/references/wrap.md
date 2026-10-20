@@ -139,7 +139,8 @@ Commit, push, curate, and clean up — in one go:
    lines, the reviewer from `review.md`'s `Independence:` line. The `Run:` line's sessions count
    the `Session N:` lines in `plan.md`'s `## Execution state`, before 9a strips it; the count
    includes patch sessions, which execute records there too. Write `Seats:`
-   and `Skills:`;
+   and `Skills:`, each skill's sha read from the lock file or `git rev-parse` as
+   `learning-worklog.md` says;
    `check-run.py` errors on a done run whose entry lacks them.
 9. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 9a's transient files, nothing is deleted from the run folder.** Once
    `memory.remember` confirms every line is routed and step 7's cases are deposited:

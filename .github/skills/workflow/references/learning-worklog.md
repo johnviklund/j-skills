@@ -78,7 +78,9 @@ A change to a skill is gated the same way a model is: on the runs after it. `mem
 applies the edit in its own commit (never mixed with code) and adds a line to the skills repo's
 `SKILL-IMPACT.md` (`<date> · <skill> · <what changed> · from: <memory page> · trial until: <N runs>`).
 The next N worklog entries carry `Skills: <skill>@<sha>` so `checkup` can compare `Run:` numbers
-before and after; worse means revert the commit and log the reversal in the same file. A change
+before and after. The sha is the first 12 characters of the skill folder's git tree hash: for an
+installed skill, `skillFolderHash` in `~/.local/state/skills/.skill-lock.json`; for a repo-local
+skill, `git rev-parse HEAD:<skill folder>`. Never a commit, a file hash or a guess; worse means revert the commit and log the reversal in the same file. A change
 considered and rejected is logged there too, so it is not re-proposed.
 
 ## Worklog — `workflow log`
@@ -105,7 +107,7 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   - Review: <verdict> @ <reviewed sha>   (workflow runs only — omit when no review ran)
   - Run: <tickets> tickets · <sessions> sessions · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned   (workflow runs only)
   - Seats: 0 <model> · 2 <model> · 3 <model> · 4 <model>   (workflow runs only — brainstorm · plan · execute · review; suffix "(trial)" where a trial model ran)
-  - Skills: workflow@<sha>[, <other skill>@<sha>]   (workflow runs only — the skill versions that ran, so a skill change can be judged like a model)
+  - Skills: workflow@<sha>[, <other skill>@<sha>]   (workflow runs only — the skill versions that ran, so a skill change can be judged like a model; <sha> is the folder tree hash above)
   - Why: <one line>
   ```
 
