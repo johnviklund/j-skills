@@ -77,8 +77,20 @@ human reads follows the Rules of the `plain` skill: invoke it once per phase bef
 commands, paths and fixed line formats stay as they are. Above the closing card, at most ~12 lines:
 
 - **Result** — what the phase did, ≤3 plain lines.
-- **Decisions needed** — numbered, one decision each, options lettered on their own lines, a ➡️
-  recommended default, so "all defaults except 2b" answers it. Every question uses this shape.
+- **Decisions needed** — numbered, one decision each, and every question uses this shape, one row
+  per option, never a run-on paragraph:
+
+  ```
+  **1. <title>** <the question, ≤2 plain sentences>
+  - ➡️ **a) <option>** — recommended: <why it wins, in the reader's terms>
+  - b) <option> — <what it costs or risks, why it is the weaker pick>
+  - c) <option> — <same>
+  ```
+
+  The ➡️ row is first and bold, so the recommendation is seen without reading on. Every option
+  carries a reason: the winner says why it wins, each other says why it loses; "also fine" is not a
+  reason. When two options truly tie, say so and say what would tip it. Keep each row to one or two
+  lines and one blank line between questions, so "all defaults except 2b" answers it.
 - A negative result is one line ("`PRODUCT.md` — no changes").
 
 **Clarify gate** (every phase except brainstorm): before the first edit, when a misread is expensive

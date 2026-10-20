@@ -122,8 +122,8 @@ human asks.
 Show the tickets as a numbered list — `T# · <title> · delivers B# · blocked by T# · lane` — with
 each ticket's acceptance lines indented under it, one line each. The acceptance lines are the bar
 review will hold the code to, so the human sees them here; this is the one round where the chat
-budget yields. Ask one decision: a) approve ➡️ · b) split T# · c) merge T# + T# · d) change an
-acceptance line · e) other. Iterate until approved. The approval completes the phase.
+budget yields. Ask one decision in the `SKILL.md` row shape: ➡️ a) approve · b) split T# · c) merge T# + T# ·
+d) change an acceptance line · e) other, one row each with its reason. Iterate until approved. The approval completes the phase.
 
 ## 5. Finish `plan.md` (≤ ~120 lines, ≤ 8 tickets)
 

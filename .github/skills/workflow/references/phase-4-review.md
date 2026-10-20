@@ -156,10 +156,10 @@ the lines the fix touched (stamp `Resolved: @ <sha> (cycle N)` or reopen it — 
 reopens the finding at its original severity), confirm each bug fix left the tests untouched and
 its reproducing test passes, and look for regressions the fix diff introduced. Something new
 outside that scope is recorded at P2 and deferred however small, except a P0 (fix now) or a P1, which goes to the human as a
-decision: a) fix now ➡️ when it breaks a B# or the Outcome · b) defer to `TODO.md`.
+decision (row shape in `SKILL.md`): ➡️ a) fix now when it breaks a B# or the Outcome · b) defer to `TODO.md`.
 
 **Cycle bound — two.** After cycle 2, every open fix-now finding goes to the human as one
-decision: a) one more cycle · b) defer to `TODO.md` ➡️ when it breaks no B# and not the Outcome.
+decision (row shape in `SKILL.md`): a) one more cycle · ➡️ b) defer to `TODO.md` when it breaks no B# and not the Outcome.
 A third cycle starts only on a), recorded as `Cycle 3 approved by human: <when>` (check-run
 errors without it). A P0 always escalates, as soon as it survives a cycle. The escalation states
 the unresolved finding verbatim, each attempt and why it failed, and one answerable question; the

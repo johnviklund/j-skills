@@ -42,9 +42,12 @@ depends on another open question in the round (density before layout) waits for 
 
 ```
 **Q1 · <title>** <the question in ≤2 plain sentences>
-  a) <option>   b) <option>   c) <option>
-  ➡️ <recommended answer, one line on why>
+- ➡️ **a) <option>** — recommended: <why it wins>
+- b) <option> — <why it is weaker>
+- c) <option> — <why it is weaker>
 ```
+
+One row per option, the ➡️ row first, every option with its reason (the shape in `SKILL.md`).
 
 - **Restate first.** Round 1 opens with **Problem, as I read it**: 2–3 plain lines, in your own
   words, on what is wrong or wanted and for whom: the symptom, who meets it, how to see it. It
@@ -121,8 +124,8 @@ A question with pictures keeps the round shape:
 
 ```
 **Q2 · Row density** The task list can be compact or roomy. I built both (P1).
-  a) compact · screens/p1-compact.jpg   b) roomy · screens/p1-roomy.jpg
-  ➡️ a, it shows twice as many rows above the fold at 1280×800
+- ➡️ **a) compact** · screens/p1-compact.jpg — recommended: shows twice as many rows above the fold at 1280×800
+- b) roomy · screens/p1-roomy.jpg — easier to tap, but half the rows fit, so more scrolling
 ```
 
 ## 4. Close the frontier with outcome, behaviours and seams
