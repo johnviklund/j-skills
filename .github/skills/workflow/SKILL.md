@@ -167,7 +167,7 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
 - **Verify against the code — and the data.** Every interface, signature and column a phase relies on
   is checked in the real code; the brief's claims are hypotheses until then. An Outcome that depends
   on real data gets a read-only query before its behaviours are confirmed.
-- **Provenance header** — every run artifact opens with five lines: `Command:`, `Created:`, `Base:`
+- **Provenance header** — every run artifact opens with five lines: `Command:`, `Created:` (a brief or plan adds `· <model>`), `Base:`
   (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
   `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
   run's own ticket commits. Stale → name it and route to the phase that must rerun.

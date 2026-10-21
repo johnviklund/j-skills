@@ -135,8 +135,9 @@ Commit, push, curate, and clean up — in one go:
    cases copy code: never write a case into this repo or any public one.
 8. Append this run's entry to `WORKLOG.md` (see `references/learning-worklog.md`): one capped,
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
-   Take the models from the run, not from `ROUTING.md`: the writer from `plan.md`'s `Writer:`
-   lines, the reviewer from `review.md`'s `Independence:` line. The `Run:` line's sessions count
+   Take the models from the run, not from `ROUTING.md`: seats 0 and 2 from the `Created:` lines of
+   `brainstorm.md` and `plan.md`, the writer from `plan.md`'s `Writer:` lines, the reviewer from
+   `review.md`'s `Independence:` line. The `Run:` line's sessions count
    the `Session N:` lines in `plan.md`'s `## Execution state`, before 9a strips it; the count
    includes patch sessions, which execute records there too. Write `Seats:`
    and `Skills:`, each skill's sha read from the lock file or `git rev-parse` as

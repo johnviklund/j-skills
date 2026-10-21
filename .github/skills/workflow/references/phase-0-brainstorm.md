@@ -157,7 +157,7 @@ naturally at its human gates: build and prove locally in one run, operate and ve
 
 ```markdown
 Command: workflow brainstorm <slug>
-Created: <date>
+Created: <date> · <model>
 Base:    <git sha>
 Inputs:  none
 Status:  complete

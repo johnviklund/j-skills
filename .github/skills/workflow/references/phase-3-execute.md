@@ -20,7 +20,8 @@ Read `references/tests.md` once per session before the first test.
    listed as `T# @ <sha>` in `## Execution state`. Anything else → stop and route to
    `workflow plan <slug>` (or `workflow review <slug>` for a patch plan).
 3. **Baseline:** run the build/test/lint commands from `AGENTS.md`'s *Verifying your work* block
-   and note which failures already exist. No such block → ask for the commands.
+   and note which failures already exist, unless the last ticket's final suite passed on this HEAD
+   with a clean tree: cite that result instead, since a rerun tests the same code. No such block → ask for the commands.
 
 ## The ticket loop
 

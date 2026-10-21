@@ -13,7 +13,10 @@ proves it with tests, so the run is working software after every ticket instead 
 
 Open `plan.md` with `Status: drafting` now and append each part as it settles (shape in step 5).
 Check every decision and seam in the brief against the real code: signatures, columns, config
-keys, call sites, contract versions. Read `PRODUCT.md`/`DESIGN.md` by heading — only the
+keys, call sites, contract versions. Before slicing, name the lightest shape that meets the Outcome
+and each brief decision that adds standing cost (a deploy, a pin, an approval per edit); put them
+to the human, and when a decision drops or reverses one, search `PRODUCT.md` for it and list each
+match under product doc impacts. Read `PRODUCT.md`/`DESIGN.md` by heading — only the
 sections the brief and tickets touch — and, before a ticket that could contradict one, that section in full. Record what you learn as **findings** — one table row each:
 `F# · what is true · what it changes`. A correction to the brief is a finding row and the correct
 value is used in the tickets; the brief itself stays as written.
@@ -138,7 +141,7 @@ on judgement.
 
 ```markdown
 Command: workflow plan <slug>
-Created: <date>
+Created: <date> · <model>
 Base:    <git sha>
 Inputs:  .workflow/<slug>/brainstorm.md @ <its Base>
 Status:  complete

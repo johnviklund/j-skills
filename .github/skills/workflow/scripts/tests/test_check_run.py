@@ -94,6 +94,15 @@ def write(repo, files):
             f.write(text)
 
 
+class SeatTests(unittest.TestCase):
+    def test_brief_and_plan_name_their_model_on_created(self):
+        for created, warns in (("2026-10-22", True), ("2026-10-22 · m", False), ("2026-10-21", False)):
+            with self.subTest(created=created):
+                brief = BRIEF.replace("Created: 2026-10-09", "Created: " + created)
+                out = check({"brainstorm.md": brief, "plan.md": plan(created=created)})
+                self.assertEqual(out.count("Created has no model"), 2 if warns else 0, out)
+
+
 class LimitTests(unittest.TestCase):
     def test_brief_limits(self):
         for count, approval, error in ((9, "", True), (9, "2026-10-18", False),

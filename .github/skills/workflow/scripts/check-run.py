@@ -3,7 +3,7 @@
 
 Checks what a script can count, so no phase has to eyeball it:
 - every artifact opens with the five-line provenance header, `Status:` holds a known value,
-  and every sha in `Base:` / `Inputs:` / `done @` / `Resolved: @` exists in git;
+  a brief or plan from SEAT_SINCE names its model on `Created:`, and every sha in `Base:` / `Inputs:` / `done @` / `Resolved: @` exists in git;
 - budgets: brainstorm ~80 lines and 1-8 behaviours, plan ~120 lines, 8 tickets and 20 acceptance lines,
   review ~100 lines, a done wrap ~40 lines;
 - the brief: required sections, `B# — situation → result` behaviours, prototype notes;
@@ -60,6 +60,7 @@ SLOP_SINCE = "2026-10-09"
 SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle needs the human's approval
 LEAN_SINCE = "2026-10-18"                  # lean-runs gates new artifacts; older runs keep their rules
 GROWTH_SINCE = "2026-10-18"                # net test growth and keyed waivers; older plans keep their rules
+SEAT_SINCE = "2026-10-22"                  # briefs and plans from here name their model on `Created:`
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 1.5, 50           # lean-runs: tests over 1.5× code and ≥ 50 lines error
@@ -167,6 +168,9 @@ def check_header(doc, rep):
     status = h["Status"].split()[0] if h["Status"] else ""
     if status not in STATUSES:
         rep.error(doc.path, 5, f"Status `{h['Status']}` is not one of {', '.join(sorted(STATUSES))}")
+    if (os.path.basename(doc.path) in ("brainstorm.md", "plan.md") and doc.slop_gated(SEAT_SINCE)
+            and not re.search(r"\d{4}-\d{2}-\d{2}\s+·\s+\S", h["Created"])):
+        rep.warn(doc.path, 2, "Created has no model: write `Created: <date> · <model>` so wrap can fill Seats")
     base = re.match(SHA, h["Base"])
     if not base:
         rep.error(doc.path, 3, f"Base `{h['Base']}` is not a git sha")
