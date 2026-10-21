@@ -693,6 +693,21 @@ def check_run(run_dir, rep):
     run_status = run["docs"]["brainstorm.md"].status() if "brainstorm.md" in run["docs"] else ""
     if rep.done:
         rep.note(run_dir, "done run: only header, sha and layout checks apply")
+        for name in ("plan.md", "patch_plan.md", "review.md"):
+            doc = run["docs"].get(name)
+            if doc is None:
+                continue
+            if name == "review.md":
+                for n, text in enumerate(doc.lines[5:], 6):
+                    for sha in re.findall(r"@\s*(" + SHA + ")", text):
+                        if not git_has(rep.repo, sha):
+                            rep.missing_sha(doc.path, n, f"Resolved @ {sha} is not a commit in this repo")
+            else:
+                for t in parse_tickets(doc):
+                    n, status = field(t, "Status")
+                    sha = re.match(r"done @ (" + SHA + r")\b", status or "")
+                    if sha and not git_has(rep.repo, sha.group(1)):
+                        rep.missing_sha(doc.path, n, f"{t['id']}: done @ {sha.group(1)} is not a commit in this repo")
     elif is_legacy(run, run_status):
         rep.note(run_dir, "v2.02 run shape (checklist plan, no behaviours): only header, budget and "
                           "layout checks apply")
