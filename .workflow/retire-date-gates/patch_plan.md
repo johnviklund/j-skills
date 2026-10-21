@@ -5,12 +5,16 @@ Inputs:  .workflow/retire-date-gates/review.md @ 188f48a
 Status:  complete
 
 ## Execution state
-- Current: C1-T1 done; C1-T2 ready.
+- Current: C1-T1 and C1-T2 done; ready for review cycle 2.
 - C1-T1 @ fbb1fdc
 - C1-T1 red @ 380c292
+- C1-T2 @ 2aac08b
+- C1-T2 red @ c88dc8e
 - writer: GPT-6.1 Sol
-- Verification: 49 tests pass; --all has 0 errors and 0 warnings.
+- Verification: 50 tests pass; --all has 0 errors and 0 warnings.
 - Reuse: parse_tickets, field, git_has, Report.missing_sha; no helper added.
+- Receipt: receipts/c1-verification.md
+- Pending decision: none. Uncommitted: none after ledger commit.
 - Baseline: 47 tests pass; `check-run.py --all` 0 errors.
 
 ## Findings
@@ -37,11 +41,12 @@ Red: commit the new test alone, seen failing, before the fix
 Delivers: C1-2, B6 · Blocked by: none · Lane: logic · Budget: code +2 · tests +8
 Seam: check-run CLI through `check()` in `.github/skills/workflow/scripts/tests/test_check_run.py`
 Accept:
-- [ ] parked brief with `## Parked`, no `## Outcome` → `warn … missing section` and `0 errors` (B6)
-- [ ] `test_parked_brief_uses_the_same_limit` still passes: 9 behaviours parked → ERROR `9 behaviours; at most 8` (B6)
+- [x] parked brief with `## Parked`, no `## Outcome` → `warn … missing section` and `0 errors` (B6)
+- [x] `test_parked_brief_uses_the_same_limit` still passes: 9 behaviours parked → ERROR `9 behaviours; at most 8` (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests` (pre: 47 passed; the new case fails)
 Skills: none
-Status: todo
+Status: done @ 2aac08b
+Writer: GPT-6.1 Sol
 Red: commit the new test alone, seen failing, before the fix
 
 ## Coverage
