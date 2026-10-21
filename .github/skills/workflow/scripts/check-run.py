@@ -10,20 +10,20 @@ Checks what a script can count, so no phase has to eyeball it:
 - tickets in plan.md / patch_plan.md: Delivers · Blocked by · Lane, Seam, 1-6 acceptance lines,
   Verify with `pre:`, Skills paths, Status; every behaviour delivered by a ticket; no
   blocked-by cycle; operator tickets verify a receipt;
-- slop guards, on artifacts created from SLOP_SINCE: a `Budget:` on logic and contract plan
+- slop guards for every run not yet done: a `Budget:` on logic and contract plan
   tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
-  OVERRUN× its budget and tests within TEST_RATIO× code; from GROWTH_SINCE, tests use net growth
-  and `## Deviations` needs a reason under `Ratio waived:` or `Budget waived:`; older plans
-  keep added-line ratios and any-mention skips; added
-  test lines that import a test module or read SQL source text warn (tests.md);
+  OVERRUN× its budget and net tests within TEST_RATIO× code; waivers need a reason under `Ratio waived:` or `Budget waived:`;
+  added test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a wrap in progress notes the run's net code and test
   lines since plan.md's Base; a `Retired:` line in a done wrap, and a
   WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
-- review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
-  from SIZING_SINCE, a third or later cycle carries `Cycle N approved by human:`;
+- review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete; a third or later cycle carries `Cycle N approved by human:`;
 - the folder: only the artifacts at the top level, everything else in a known subfolder;
 - `--all` only: a tracked test file outside the run folders that names a path inside one.
+
+A run whose brief is marked done, tracked and clean is history: it gets header, sha and layout
+checks only, including under `--all`. Uncommitted done briefs still receive the rule checks.
 
 Runs in the v2.02 shape (plan.md with `## Checklist`, no `## Behaviours`) get header, budget and
 layout checks only; their ticket and brief checks are skipped with a note.
