@@ -55,7 +55,11 @@ Added: <date> · missed by <model> | planted by <model>
 ```
 
 - **missed:** a real P0/P1 that a writer or reviewer missed, deposited by `workflow wrap`. The
-  clean diff is the change with the fix applied, when one exists. These outrank seeded cases.
+  clean diff is the whole change with the fix applied, when one exists: one self-contained diff
+  against the same base as `## Diff`, never the fix alone, with the test the fix shipped with.
+  When the fix shipped without a test, its one line says so: a "no test" finding on that twin
+  is true, not a false alarm. Measured 2026-10-21: fix-only twins and a missing test line drew
+  10 of 17 clean-twin P1s. These outrank seeded cases.
 - **seeded:** a shipped, reviewed diff with one realistic slip planted on one added line (an
   off-by-one, a flipped comparison, a stale constant). The shipped diff is the clean twin. They
   make the exam runnable before any real miss exists; the generator that built them is in
