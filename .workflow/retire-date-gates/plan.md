@@ -9,15 +9,17 @@ Decisions: 1a (a done run is history once its `done` status is committed) · tic
 Size: code 794 · tests 436 · ratio 0.55 · largest touched check-run.py 794, test_check_run.py 436 · over 1,000: none
 
 ## Execution state
-Current: T1 done; T2 ready.
+Current: T1 and T2 done; ready for cross-vendor review.
 T1 @ fc99027
+T2 @ 281f4a9
 writer: GPT-6.1 Sol
-Session 1: T1
-Baseline: 44 tests passed; final T1 suite: 47 passed on the code committed at fc99027.
-No separate build, lint or typecheck declared; no baseline failures.
+Session 1: T1, T2
+Baseline: 44 passed; T1 and T2 final suites: 47 passed each; no baseline failures.
+No separate build, lint or typecheck declared; --all and T2 content checks passed.
 Reuse: Report.done and git_out; no helper added.
-Receipt: receipts/t1-verification.md
-Uncommitted: this execution ledger only. Pending decision: none.
+Receipts: receipts/t1-verification.md, receipts/t2-verification.md
+Uncommitted: none after ledger commit. Pending decision: none; push approved by user 2026-10-21 (1a).
+Limit: Copilot registration check could not start; launcher DNS failed.
 
 ## Findings
 | # | What is true | What it changes |
@@ -54,13 +56,14 @@ Delivers: B7 · Blocked by: T1 · Lane: mechanical
 Budget: code +0 · tests +0
 Seam: check-run.py docstring, `references/tests.md`, `phase-3-execute.md`, `phase-2-plan.md`, `MAINTAINING.md`, `agent-docs/SKILL.md:151`
 Accept:
-- [ ] grep `_SINCE|LEGACY_TEST_RATIO|slop_gated` in check-run.py → 0 matches (B7)
-- [ ] grep -i `older plans|earlier plans|from 2026|keep their rules` in the four docs and check-run.py → 0 matches (B7)
-- [ ] `MAINTAINING.md` says the rule checks apply to `every run not yet done` → 1 match (B7)
-- [ ] `agent-docs/SKILL.md` says finished runs get `header, sha and layout checks only` → 1 match (B7)
+- [x] grep `_SINCE|LEGACY_TEST_RATIO|slop_gated` in check-run.py → 0 matches (B7)
+- [x] grep -i `older plans|earlier plans|from 2026|keep their rules` in the four docs and check-run.py → 0 matches (B7)
+- [x] `MAINTAINING.md` says the rule checks apply to `every run not yet done` → 1 match (B7)
+- [x] `agent-docs/SKILL.md` says finished runs get `header, sha and layout checks only` → 1 match (B7)
 Verify: `! grep -nE "_SINCE|LEGACY_TEST_RATIO|slop_gated" skills/workflow/scripts/check-run.py && ! grep -niE "older plans|earlier plans|from 2026|keep their rules" skills/workflow/references/{tests,phase-3-execute,phase-2-plan}.md skills/workflow/MAINTAINING.md skills/workflow/scripts/check-run.py && grep -c "every run not yet done" skills/workflow/MAINTAINING.md && grep -c "header, sha and layout checks only" skills/agent-docs/SKILL.md` (pre: fails, 9 date lines and 0 MAINTAINING match)
 Skills: skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 281f4a9
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (rules on every run not done, on the checker's output) · T2 (docs)
@@ -83,3 +86,5 @@ none (the brief names no TODO.md item)
 - T1: existing date-exemption and legacy-ratio assertions now assert the approved universal rules; assertions 61 → 66.
 - T1: clean fixture Budgets now give a reason for larger test budgets; existing clean assertions remain unchanged.
 - T1: the old plan-limit fixture now isolates acceptance lines instead of also exceeding the behaviour limit.
+- T2: Copilot registration and CLI trigger checks remain unverified; launcher could not resolve its download hosts. Triggers unchanged.
+- Handoff: automatic approval review initially rejected git push origin main; the user explicitly approved it with 1a on 2026-10-21.
