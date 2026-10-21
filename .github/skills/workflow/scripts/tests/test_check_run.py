@@ -384,6 +384,29 @@ DONE_WRAP = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").repla
 
 
 class WrapTests(unittest.TestCase):
+    def test_done_ticket_shas_still_warn(self):
+        for name in ("plan.md", "patch_plan.md"):
+            for sha in ("deadbee", "{t1}"):
+                with self.subTest(name=name, sha=sha):
+                    text = plan(t1_done=True).replace("{t1}", sha)
+                    out = check({"brainstorm.md": BRIEF.replace("Status: complete", "Status: done"),
+                                 name: text}, args=("--all",))
+                    self.assertIn("0 errors", out)
+                    self.assertEqual(out.count("T1: done @ deadbee is not a commit"), int(sha == "deadbee"))
+                    self.assertEqual(out.count("warn  "), int(sha == "deadbee"))
+
+    def test_done_resolved_shas_still_warn_without_rule_checks(self):
+        for pointer in ("## Cycle 1 findings\n### P1 — Fixed\n- Disposition: fix now\n- Resolved: @ {sha}\n",
+                        "## Resolved\n| Finding | Fix |\n| C1-1 | @ {sha} |\n"):
+            for sha in ("deadbee", "{t1}"):
+                with self.subTest(pointer=pointer, sha=sha):
+                    out = check({"brainstorm.md": BRIEF.replace("Status: complete", "Status: done"),
+                                 "review.md": review() + pointer.replace("{sha}", sha)}, args=("--all",))
+                    self.assertIn("0 errors", out)
+                    self.assertEqual(out.count("warn  "), int(sha == "deadbee"))
+                    self.assertEqual(out.count("@ deadbee is not a commit"), int(sha == "deadbee"))
+                    self.assertNotIn("Size:", out)
+
     def test_done_brief_skips_rules_only_once_committed(self):
         brief = BRIEF.replace("## Decisions", "".join(f"- B{i} — input → output\n" for i in range(6, 10)) + "## Decisions")
         for state in ("committed", "modified", "untracked", "ignored"):
