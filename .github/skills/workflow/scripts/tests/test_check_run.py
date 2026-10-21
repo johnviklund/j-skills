@@ -128,6 +128,12 @@ class LimitTests(unittest.TestCase):
         out = check({"brainstorm.md": brief + "\n## Parked\nResume on request\n"})
         self.assertRegex(out, r"(?m)^ERROR .*9 behaviours; at most 8")
 
+    def test_parked_draft_brief_warns_on_missing_sections(self):
+        brief = BRIEF.replace("Status: complete", "Status: parked").replace("## Outcome\no\n", "")
+        out = check({"brainstorm.md": brief + "\n## Parked\nResume on request\n"})
+        self.assertRegex(out, r"(?m)^warn .*missing section `## Outcome`")
+        self.assertIn("0 errors · 1 warnings", out)
+
     def test_plan_limits(self):
         for count, approval, created, error in ((21, "", "2026-10-18", True),
                 (20, "", "2026-10-18", False), (21, "2026-10-18", "2026-10-18", False),
