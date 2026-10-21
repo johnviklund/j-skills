@@ -194,7 +194,7 @@ def check_brief(run, rep):
     if status == "parked" and doc.section("Parked") is None:
         rep.error(doc.path, 0, "Status parked but no `## Parked` section saying what unparks it")
     body = doc.section("Behaviours") or []
-    strict = status in ("complete", "done", "parked")
+    strict = status in ("complete", "done")
     require_sections(doc, rep, BRIEF_SECTIONS, strict)
     ids = set()
     for n, text in body:
@@ -206,7 +206,7 @@ def check_brief(run, rep):
         ids.add(m.group(1))
         if "→" not in m.group(2) and "->" not in m.group(2):
             rep.warn(doc.path, n, f"{m.group(1)} has no `→ observable result`")
-    if strict:
+    if status != "drafting":
         if len(ids) > LEAN_BEHAVIOURS_MAX and not any(
                 re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
             rep.error(doc.path, doc.heading("Behaviours"),
