@@ -5,7 +5,12 @@ Inputs:  .workflow/retire-date-gates/review.md @ 188f48a
 Status:  complete
 
 ## Execution state
-- Current: C1-T1
+- Current: C1-T1 done; C1-T2 ready.
+- C1-T1 @ fbb1fdc
+- C1-T1 red @ 380c292
+- writer: GPT-6.1 Sol
+- Verification: 49 tests pass; --all has 0 errors and 0 warnings.
+- Reuse: parse_tickets, field, git_has, Report.missing_sha; no helper added.
 - Baseline: 47 tests pass; `check-run.py --all` 0 errors.
 
 ## Findings
@@ -19,12 +24,13 @@ Status:  complete
 Delivers: C1-1, B5 · Blocked by: none · Lane: logic · Budget: code +12 · tests +12 · why: one test per pointer kind
 Seam: check-run CLI through `check()` in `.github/skills/workflow/scripts/tests/test_check_run.py`
 Accept:
-- [ ] committed done brief + plan with `T1 … done @ deadbee`, `--all` → `warn … T1: done @ deadbee is not a commit` and `0 errors` (B5)
-- [ ] committed done brief + review.md with `Resolved: @ deadbee` and a `## Resolved` row `@ deadbee`, `--all` → both warn, `0 errors`, no rule check message such as `Size:` (B5)
-- [ ] every site listed in Findings C1-1 is covered for done runs: plan.md, patch_plan.md, review.md
+- [x] committed done brief + plan with `T1 … done @ deadbee`, `--all` → `warn … T1: done @ deadbee is not a commit` and `0 errors` (B5)
+- [x] committed done brief + review.md with `Resolved: @ deadbee` and a `## Resolved` row `@ deadbee`, `--all` → both warn, `0 errors`, no rule check message such as `Size:` (B5)
+- [x] every site listed in Findings C1-1 is covered for done runs: plan.md, patch_plan.md, review.md
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests` (pre: 47 passed; the new cases fail)
 Skills: none
-Status: todo
+Status: done @ fbb1fdc
+Writer: GPT-6.1 Sol
 Red: commit the new test alone, seen failing, before the fix
 
 ### C1-T2 — A parked draft brief warns on missing sections; the behaviour limit still errors

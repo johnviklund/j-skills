@@ -9,11 +9,12 @@ Decisions: 1a (a done run is history once its `done` status is committed) · tic
 Size: code 794 · tests 436 · ratio 0.55 · largest touched check-run.py 794, test_check_run.py 436 · over 1,000: none
 
 ## Execution state
-Current: T1 and T2 done; ready for cross-vendor review.
+Current: C1-T1 done; C1-T2 ready in patch_plan.md.
 T1 @ fc99027
 T2 @ 281f4a9
 writer: GPT-6.1 Sol
 Session 1: T1, T2
+Session 2: C1-T1
 Baseline: 44 passed; T1 and T2 final suites: 47 passed each; no baseline failures.
 No separate build, lint or typecheck declared; --all and T2 content checks passed.
 Reuse: Report.done and git_out; no helper added.
