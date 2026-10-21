@@ -258,9 +258,14 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
 
 ## Output format
 
-Print a compact, scannable report grouped by the six sections, each finding one line with its
-severity, the evidence, and the fix. Close with a **prioritized action list** (🔴 first) and, if the
-user opted into fixes, offer the safe ones one at a time.
+Print a compact, scannable report grouped by the six sections, each ⚠️/🔴 finding one line with
+its evidence and fix; a section with none is one ✅ line. Close with **Recommended next**: at most
+three actions, often fewer, so the human can take all of them without weighing each. An action
+earns a row only when it names the cost of leaving it: what breaks (a skill silently not loaded,
+a trial that cannot be judged, a check that never runs) or what every run pays (KB read per phase,
+minutes per run). Findings that share one fix are one row (`memory.compact` for five stale pages).
+A ⚠️ with no such cost, or a "worth a human skim", stays a line in its section and is never an
+action. Then, if the user opted into fixes, offer the safe ones one at a time.
 
 ```text
 ## Workspace checkup — <repo> (<date>)
@@ -273,9 +278,9 @@ user opted into fixes, offer the safe ones one at a time.
 ### Seats         ...
 
 ### Recommended next
-1. 🔴 <highest-value fix> — <how>
-2. ⚠️ <next> — <how / delegate to memory.compact / evals.run reviewer / edit ROUTING.md>
-...
+1. 🔴 <highest-value fix> — <cost of leaving it> — <how>
+2. ⚠️ <next> — <cost> — <how / delegate to memory.compact / evals.run reviewer / edit ROUTING.md>
+3. (at most three)
 ```
 
 If nothing is wrong, say so plainly ("✅ Workspace is healthy — nothing to act on") instead of
