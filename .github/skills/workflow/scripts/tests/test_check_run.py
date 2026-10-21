@@ -9,7 +9,7 @@ SCRIPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 RUN = os.path.join(".workflow", "x")
 
 HEADER = "Command: workflow {cmd} x\nCreated: {created}\nBase: {base}\nInputs: none\nStatus: complete\n"
-BRIEF = HEADER.format(cmd="brainstorm", created="2026-10-09", base="{base}") + """
+BRIEF = HEADER.format(cmd="brainstorm", created="2026-10-09 · m", base="{base}") + """
 ## Problem
 p
 ## Outcome
@@ -52,6 +52,7 @@ def plan(created="2026-10-09", accept="situation → result", t2_budget=True, t1
     t2 = TICKET.format(id="T2", delivers="B4, B5", accept="situation → result")
     if not t2_budget:
         t2 = t2.replace(" · Budget: code +20 · tests +30", "")
+    created += "" if "·" in created else " · m"
     return (HEADER.format(cmd="plan", created=created, base="{base}") + "Size: code 10 · tests 5\n"
             + "## Findings\nf\n## Tickets\n" + t1 + t2
             + ("" if risk is None else OPERATOR.format(risk=risk and " · Risk: " + risk)) + PLAN_TAIL
@@ -96,10 +97,11 @@ def write(repo, files):
 
 class SeatTests(unittest.TestCase):
     def test_brief_and_plan_name_their_model_on_created(self):
-        for created, warns in (("2026-10-22", True), ("2026-10-22 · m", False), ("2026-10-21", False)):
-            with self.subTest(created=created):
-                brief = BRIEF.replace("Created: 2026-10-09", "Created: " + created)
-                out = check({"brainstorm.md": brief, "plan.md": plan(created=created)})
+        for created, status, warns in (("2026-10-09 · ", "complete", True), ("2026-10-09 · m", "complete", False),
+                                       ("2026-10-09 · ", "done", False)):
+            with self.subTest(created=created, status=status):
+                brief = BRIEF.replace("Created: 2026-10-09 · m", "Created: " + created).replace("complete", status)
+                out = check({"brainstorm.md": brief, "plan.md": plan(created=created)}, args=("--all",))
                 self.assertEqual(out.count("Created has no model"), 2 if warns else 0, out)
 
 
