@@ -27,7 +27,7 @@ Docs read: none
 """
 TICKET = """
 ### {id} — Ticket
-Delivers: {delivers} · Blocked by: none · Lane: logic · Budget: code +20 · tests +30
+Delivers: {delivers} · Blocked by: none · Lane: logic · Budget: code +20 · tests +30 · why: fixture
 Seam: s
 - [ ] {accept}
 Verify: `true` (pre: fails)
@@ -63,7 +63,7 @@ def lines(n):
     return "".join(f"x{i}\n" for i in range(n))
 
 
-def check(files, ticket=None, args=("x",), seed=None):
+def check(files, ticket=None, args=("x",), seed=None, dirty=None):
     """Commit `ticket` (repo-relative path -> text) as T1's commit, then `files` (run-relative path -> text,
     `{base}` and `{t1}` filled in) into a fresh repo; return the output of check-run with `args`."""
     with tempfile.TemporaryDirectory() as repo:
@@ -83,6 +83,8 @@ def check(files, ticket=None, args=("x",), seed=None):
                      for rel, text in files.items()})
         git("add", "-A")
         git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "run")
+        write(repo, {os.path.join(RUN, rel): text.replace("{base}", base).replace("{t1}", t1)
+                     for rel, text in (dirty or {}).items()})
         r = subprocess.run([sys.executable, SCRIPT, "--repo", repo, *args], capture_output=True, text=True)
         return r.stdout + r.stderr
 
@@ -108,9 +110,9 @@ class SeatTests(unittest.TestCase):
 class LimitTests(unittest.TestCase):
     def test_brief_limits(self):
         for count, approval, error in ((9, "", True), (9, "2026-10-18", False),
-                                       (8, "", False), (1, "", False)):
+                                       (8, "", False), (4, "", False), (1, "", False)):
             with self.subTest(count=count, approval=approval):
-                brief = BRIEF.replace("2026-10-09", "2026-10-18")
+                brief = BRIEF.replace("2026-10-09", "2026-10-08")
                 start, end = brief.index("- B1"), brief.index("## Decisions")
                 brief = brief[:start] + "".join(f"- B{i} — input → output\n" for i in range(1, count + 1)) + brief[end:]
                 out = check({"brainstorm.md": brief + f"\nSplit declined by human: {approval}\n"})
@@ -120,18 +122,21 @@ class LimitTests(unittest.TestCase):
                     self.assertNotRegex(out, r"(?m)^(ERROR|warn).*behaviours")
                     self.assertIn("0 errors", out)
 
+    def test_parked_brief_uses_the_same_limit(self):
+        brief = BRIEF.replace("Status: complete", "Status: parked")
+        brief = brief.replace("## Decisions", "".join(f"- B{i} — input → output\n" for i in range(6, 10)) + "## Decisions")
+        out = check({"brainstorm.md": brief + "\n## Parked\nResume on request\n"})
+        self.assertRegex(out, r"(?m)^ERROR .*9 behaviours; at most 8")
+
     def test_plan_limits(self):
         for count, approval, created, error in ((21, "", "2026-10-18", True),
                 (20, "", "2026-10-18", False), (21, "2026-10-18", "2026-10-18", False),
-                (21, "", "2026-10-16", False)):
+                (21, "", "2026-10-08", True)):
             with self.subTest(count=count, approval=approval, created=created):
                 text = sized([60] * 4).replace("2026-10-09", created)
                 text = text.replace("- [ ] situation → result\n", "- [ ] situation → result\n" * 5)
                 text = text.replace("## Coverage", "- [ ] extra → result\n## Coverage", count - 20)
                 brief = BRIEF.replace("2026-10-09", created)
-                if created == "2026-10-16":
-                    brief = brief.replace("## Decisions", "".join(f"- B{i} — input → output\n" for i in range(6, 10)) + "## Decisions")
-                    text = text.replace("Delivers: B1, B2", "Delivers: B1, B2, B6, B7, B8, B9")
                 out = check({"brainstorm.md": brief, "plan.md": text + f"\nSplit declined by human: {approval}\n"})
                 if error:
                     self.assertRegex(out, r"(?m)^ERROR .*21 acceptance lines.*20")
@@ -179,34 +184,33 @@ class RatioTests(unittest.TestCase):
                 self.assertRegex(out, r"(?m)^" + ("note " if waived else "warn ") + r".*T1:.*net \+101.*budget \+50")
                 self.assertIn("0 errors · 0 warnings" if waived else "0 errors · 1 warnings", out)
 
-    def test_growth_legacy_ratio(self):
-        for deviation in (False, True):
-            with self.subTest(deviation=deviation):
-                text = plan(created="2026-10-17", t1_done=True, deviation=deviation)
-                out = check({"brainstorm.md": BRIEF, "plan.md": text},
-                            {"src/app.py": lines(60), "tests/test_app.py": lines(190)})
-                self.assertIn("0 errors" if deviation else "T1: tests +190 over 3× code +60", out)
+    def test_ratio_ignores_bare_deviations_on_old_plans(self):
+        text = plan(created="2026-10-08", t1_done=True, deviation=True)
+        out = check({"brainstorm.md": BRIEF, "plan.md": text},
+                    {"src/app.py": lines(50), "tests/test_app.py": lines(76)})
+        self.assertIn("T1: tests net +76 over 1.5× code +50 (allowed 75)", out)
+        self.assertRegex(out, r"(?m)^ERROR ")
 
     def test_committed_test_ratio(self):
         for lane, tests, created, error in (("logic", 76, "2026-10-18", True),
                 ("contract", 76, "2026-10-18", True), ("logic", 75, "2026-10-18", False),
-                ("contract", 75, "2026-10-18", False), ("contract", 76, "2026-10-16", False),
-                ("contract", 151, "2026-10-16", False)):
+                ("contract", 75, "2026-10-18", False), ("contract", 76, "2026-10-08", True),
+                ("contract", 151, "2026-10-08", True)):
             with self.subTest(lane=lane, tests=tests, created=created):
                 text = plan(created=created, t1_done=True).replace("Lane: logic", f"Lane: {lane}")
                 out = check({"brainstorm.md": BRIEF, "plan.md": text},
                             {"src/app.py": lines(50), "tests/test_app.py": lines(tests)})
                 if error:
-                    self.assertRegex(out, r"(?m)^ERROR .*tests net \+76 over 1\.5× code \+50")
+                    self.assertRegex(out, rf"(?m)^ERROR .*tests net \+{tests} over 1\.5× code \+50")
                 else:
                     self.assertIn("0 errors", out)
 
     def test_budget_ratio_reason(self):
         for created, why, warning in (("2026-10-18", "", True),
                 ("2026-10-18", " · why: x", False), ("2026-10-18", "\nwhy: x", True),
-                ("2026-10-16", "", False)):
+                ("2026-10-08", "", True)):
             with self.subTest(created=created, why=why):
-                text = plan(created=created).replace("tests +30", "tests +30 · why: fixture")
+                text = plan(created=created)
                 text = text.replace("code +20 · tests +30 · why: fixture", f"code +60 · tests +120{why}", 1)
                 out = check({"brainstorm.md": BRIEF, "plan.md": text})
                 if warning:
@@ -227,9 +231,9 @@ class BudgetTests(unittest.TestCase):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(accept=" ".join(["word"] * 41))})
         self.assertIn("T1: acceptance line has 41 words", out)
 
-    def test_budget_plan_created_before_the_gate_is_not_checked(self):
+    def test_budget_old_plan_without_budget_warns(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(created="2026-10-08", t2_budget=False)})
-        self.assertIn("0 errors · 0 warnings", out)
+        self.assertIn("T2: no Budget: line", out)
 
 
 def sized(budgets):
@@ -267,18 +271,18 @@ class OverrunTests(unittest.TestCase):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True)}, self.BIG)
         self.assertIn("T1: net +101 lines, over 2× budget +50", out)
 
-    def test_overrun_with_a_deviation_line_is_quiet(self):
+    def test_overrun_bare_deviation_still_warns(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True, deviation=True)}, self.BIG)
-        self.assertNotIn("over 2× budget", out)
-        self.assertIn("0 errors · 0 warnings", out)
+        self.assertIn("T1: net +101 lines, over 2× budget +50", out)
+        self.assertIn("0 errors · 1 warnings", out)
 
-    def test_overrun_tests_over_three_times_code_is_an_error(self):
+    def test_overrun_tests_over_ratio_is_an_error(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True)}, self.TEST_HEAVY)
-        self.assertRegex(out, r"(?m)^ERROR .*T1: tests \+178 over 3× code \+12")
+        self.assertRegex(out, r"(?m)^ERROR .*T1: tests net \+178 over 1\.5× code \+12")
 
-    def test_overrun_plan_created_before_the_gate_is_not_checked(self):
+    def test_overrun_old_plan_still_checks_ratio(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(created="2026-10-08", t1_done=True)}, self.TEST_HEAVY)
-        self.assertIn("0 errors", out)
+        self.assertRegex(out, r"(?m)^ERROR .*tests net \+178 over 1\.5× code \+12")
 
     def test_budget_values_zero_still_warns_on_overrun(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(t1_done=True).replace("code +20 · tests +30", "code +0 · tests +0", 1)}, self.BIG)
@@ -287,7 +291,7 @@ class OverrunTests(unittest.TestCase):
     def test_budget_values_empty_warns_as_missing(self):
         for lane in ("logic", "contract"):
             with self.subTest(lane):
-                text = f"Lane: {lane} · Budget:".join(plan().rsplit("Lane: logic · Budget: code +20 · tests +30", 1))
+                text = f"Lane: {lane} · Budget:".join(plan().replace(" · why: fixture", "").rsplit("Lane: logic · Budget: code +20 · tests +30", 1))
                 self.assertIn("T2: no Budget:", check({"brainstorm.md": BRIEF, "plan.md": text}))
 
     def test_budget_values_zero_with_only_receipts_is_clean(self):
@@ -371,16 +375,42 @@ class CycleTests(unittest.TestCase):
         self.assertNotIn("Cycle 3 approved", out)
         self.assertIn("0 errors", out)
 
-    def test_cycle_three_created_before_the_gate_is_not_checked(self):
+    def test_cycle_three_old_review_still_needs_approval(self):
         out = self.run_review(created="2026-10-09")
-        self.assertNotIn("Cycle 3 approved", out)
-        self.assertIn("0 errors", out)
+        self.assertRegex(out, r"(?m)^ERROR .*cycle 3 needs")
 
 
 DONE_WRAP = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").replace("complete", "done") + "\nsummary\n"
 
 
 class WrapTests(unittest.TestCase):
+    def test_done_brief_skips_rules_only_once_committed(self):
+        brief = BRIEF.replace("## Decisions", "".join(f"- B{i} — input → output\n" for i in range(6, 10)) + "## Decisions")
+        for state in ("committed", "modified", "untracked", "ignored"):
+            with self.subTest(state=state):
+                files = {"brainstorm.md": brief, "wrap.md": DONE_WRAP}
+                done = brief.replace("Status: complete", "Status: done")
+                if state == "committed":
+                    files["brainstorm.md"] = done
+                elif state in ("untracked", "ignored"):
+                    del files["brainstorm.md"]
+                out = check(files, args=("--all",),
+                            seed={".gitignore": f"{RUN}/brainstorm.md\n"} if state == "ignored" else None,
+                            dirty={"notes/dirty.txt": "pending receipt\n"} if state == "committed" else {"brainstorm.md": done})
+                if state == "committed":
+                    self.assertIn("0 errors · 0 warnings", out)
+                else:
+                    self.assertRegex(out, r"(?m)^ERROR .*no Retired:")
+                    self.assertRegex(out, r"(?m)^ERROR .*9 behaviours; at most 8")
+
+    def test_done_brief_keeps_header_sha_and_layout_checks(self):
+        brief = BRIEF.replace("Status: complete", "Status: done")
+        for files, expected in (({"brainstorm.md": brief.replace("{base}", "abcdef0")}, "Base abcdef0"),
+                ({"brainstorm.md": brief.replace("Command:", "Broken:")}, "provenance header"),
+                ({"brainstorm.md": brief, "stray.json": "{}"}, "stray.json")):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, check(files, args=("--all",)))
+
     def test_wrap_done_without_retired_is_an_error(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": DONE_WRAP})
         self.assertRegex(out, r"(?m)^ERROR .*wrap.md has no Retired: line")

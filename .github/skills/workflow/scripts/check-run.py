@@ -50,21 +50,14 @@ LANES = {"mechanical", "logic", "contract", "operator"}
 # Line budgets from SKILL.md *Budgets*; wrap's ~40 applies only once the run is done.
 BUDGET = {"brainstorm.md": 80, "plan.md": 120, "review.md": 100}
 WRAP_DONE_BUDGET = 40
-BEHAVIOURS_MIN, BEHAVIOURS_MAX = 5, 15     # phase-0-brainstorm §4: more means two runs
 LEAN_BEHAVIOURS_MAX, PLAN_ACCEPT_MAX = 8, 20  # lean runs: split above either total
 MAX_TICKETS = 8                            # phase-2-plan §5
 ACCEPT_MIN, ACCEPT_MAX = 1, 6              # phase-2-plan §3 *Right-sized*
 MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
 BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
-# Slop guards fire only on artifacts whose first `Created:` date is on or after SLOP_SINCE.
-SLOP_SINCE = "2026-10-09"
-SIZING_SINCE = "2026-10-10"                # review.md from here: a third cycle needs the human's approval
-LEAN_SINCE = "2026-10-18"                  # lean-runs gates new artifacts; older runs keep their rules
-GROWTH_SINCE = "2026-10-18"                # net test growth and keyed waivers; older plans keep their rules
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
 TEST_RATIO, TEST_FLOOR = 1.5, 50           # lean-runs: tests over 1.5× code and ≥ 50 lines error
-LEGACY_TEST_RATIO = 3                     # pre-LEAN_SINCE logic tickets keep the old ratio
 MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4      # a median code Budget under 40 over 4+ tickets warns: merge
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
 TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
@@ -145,10 +138,6 @@ class Doc:
     def status(self):
         return self.header().get("Status", "").split()[0] if self.header().get("Status") else ""
 
-    def slop_gated(self, since=SLOP_SINCE):
-        m = re.search(r"\d{4}-\d{2}-\d{2}", self.header().get("Created", ""))
-        return bool(m) and m.group(0) >= since
-
 
 def git_has(repo, sha, cache={}):
     if sha not in cache:
@@ -205,7 +194,7 @@ def check_brief(run, rep):
     if status == "parked" and doc.section("Parked") is None:
         rep.error(doc.path, 0, "Status parked but no `## Parked` section saying what unparks it")
     body = doc.section("Behaviours") or []
-    strict = status in ("complete", "done")
+    strict = status in ("complete", "done", "parked")
     require_sections(doc, rep, BRIEF_SECTIONS, strict)
     ids = set()
     for n, text in body:
@@ -217,15 +206,12 @@ def check_brief(run, rep):
         ids.add(m.group(1))
         if "→" not in m.group(2) and "->" not in m.group(2):
             rep.warn(doc.path, n, f"{m.group(1)} has no `→ observable result`")
-    if strict and doc.slop_gated(LEAN_SINCE):
+    if strict:
         if len(ids) > LEAN_BEHAVIOURS_MAX and not any(
                 re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
             rep.error(doc.path, doc.heading("Behaviours"),
                       f"{len(ids)} behaviours; at most {LEAN_BEHAVIOURS_MAX}: propose the split into two runs "
                       "or record `Split declined by human: <when>`")
-    elif strict and not BEHAVIOURS_MIN <= len(ids) <= BEHAVIOURS_MAX:
-        rep.warn(doc.path, doc.heading("Behaviours"),
-                 f"{len(ids)} behaviours; the brief wants {BEHAVIOURS_MIN}-{BEHAVIOURS_MAX} (more means two runs)")
     if strict and not any(t.startswith("Docs read:") for t in doc.lines):
         rep.warn(doc.path, 0, "no `Docs read:` line")
     check_prototypes(run, doc, rep)
@@ -296,7 +282,7 @@ def check_tickets(run, doc, rep, behaviours, strict):
         rep.error(doc.path, 0, f"{dup} is defined twice")
     if doc.path.endswith("/plan.md") and len(tickets) > MAX_TICKETS:
         rep.error(doc.path, 0, f"{len(tickets)} tickets; at most {MAX_TICKETS}: propose the split into two runs")
-    edges, gated = {}, doc.slop_gated()
+    edges = {}
     for t in tickets:
         where = lambda n: n or t["line"]
         _, lane = field(t, "Lane")
@@ -323,12 +309,12 @@ def check_tickets(run, doc, rep, behaviours, strict):
             if re.search(r"\bor\b", re.sub(r"`[^`]*`", "", x)):
                 rep.warn(doc.path, n, f"{t['id']}: acceptance line has `or`: one expected result per line")
             words = len(re.sub(r"^\s*- \[[ x]\] ", "", x).split())
-            if gated and words > ACCEPT_WORDS:
+            if words > ACCEPT_WORDS:
                 rep.warn(doc.path, n, f"{t['id']}: acceptance line has {words} words: one outcome, about 25")
-        if (gated and doc.path.endswith("/plan.md") and lane and lane.split()[0] in ("logic", "contract")
+        if (doc.path.endswith("/plan.md") and lane and lane.split()[0] in ("logic", "contract")
                 and not field(t, "Budget")[1]):
             rep.warn(doc.path, t["line"], f"{t['id']}: no Budget: line (`Budget: code +N · tests +N`)")
-        if gated and lane and lane.split()[0] == "operator":
+        if lane and lane.split()[0] == "operator":
             check_risk(run, t, doc, rep)
         n_ver, verify = field(t, "Verify")
         if verify is None:
@@ -351,12 +337,10 @@ def check_tickets(run, doc, rep, behaviours, strict):
                     rep.missing_sha(doc.path, n_st, f"{t['id']}: done @ {m.group(2)} is not a commit in this repo")
                 if field(t, "Writer")[1] is None:
                     rep.warn(doc.path, n_st, f"{t['id']}: done but no `Writer: <model>` line")
-                if (gated and doc.path.endswith("/plan.md")
-                        and (doc.slop_gated(GROWTH_SINCE) or not deviated(doc, t["id"]))):
+                if doc.path.endswith("/plan.md"):
                     check_overrun(t, lane, m.group(2), doc, rep, n_st)
-                if gated:
-                    check_test_smells(t, m.group(2), doc, rep, n_st)
-    if gated and doc.path.endswith("/plan.md"):
+                check_test_smells(t, m.group(2), doc, rep, n_st)
+    if doc.path.endswith("/plan.md"):
         check_sizing(tickets, doc, rep)
     cycle = find_cycle(edges)
     if cycle:
@@ -365,14 +349,13 @@ def check_tickets(run, doc, rep, behaviours, strict):
 
 
 def check_sizing(tickets, doc, rep):
-    if doc.slop_gated(LEAN_SINCE):
-        for t in tickets:
-            n, budget = field(t, "Budget")
-            n_why, why = field(t, "why")
-            m = re.search(r"code\s*\+(\d+)\s*·\s*tests\s*\+(\d+)", budget or "")
-            if m and int(m.group(2)) > int(m.group(1)) and not (n_why == n and why):
-                rep.warn(doc.path, n, f"{t['id']}: Budget tests +{m.group(2)} exceed code +{m.group(1)}: "
-                                     "add `· why: <reason>` on the Budget line")
+    for t in tickets:
+        n, budget = field(t, "Budget")
+        n_why, why = field(t, "why")
+        m = re.search(r"code\s*\+(\d+)\s*·\s*tests\s*\+(\d+)", budget or "")
+        if m and int(m.group(2)) > int(m.group(1)) and not (n_why == n and why):
+            rep.warn(doc.path, n, f"{t['id']}: Budget tests +{m.group(2)} exceed code +{m.group(1)}: "
+                                 "add `· why: <reason>` on the Budget line")
     budgets = [int(m.group(1)) for t in tickets
                if (field(t, "Lane")[1] or "x").split()[0] in ("logic", "contract")
                and (m := re.search(r"code\s*\+(\d+)", field(t, "Budget")[1] or ""))]
@@ -382,10 +365,6 @@ def check_sizing(tickets, doc, rep):
     rep.note(doc.path, msg)
     if len(budgets) >= MERGE_MIN_TICKETS and statistics.median(budgets) < MERGE_BELOW:
         rep.warn(doc.path, 0, f"{msg}: merge tickets under ~{MERGE_BELOW} code lines into their neighbours")
-
-
-def deviated(doc, tid):
-    return any(re.search(r"\b" + tid + r"\b", x) for _, x in doc.section("Deviations") or [])
 
 
 def waiver(doc, kind, tid):
@@ -409,7 +388,6 @@ def check_risk(run, t, doc, rep):
 
 def check_overrun(t, lane, sha, doc, rep, n):
     """The `done @` commit alone, receipts excluded: net lines against the Budget, tests against code."""
-    growth = doc.slop_gated(GROWTH_SINCE)
     code = tests = net = 0
     for row in git_out(rep.repo, "diff", "--numstat", f"{sha}^", sha).splitlines():
         added, deleted, path = row.split("\t", 2)
@@ -417,27 +395,21 @@ def check_overrun(t, lane, sha, doc, rep, n):
             continue
         net += int(added) - int(deleted)
         if re.search(TEST_FILE, path):
-            tests += int(added) - (int(deleted) if growth else 0)
+            tests += int(added) - int(deleted)
         else:
             code += int(added)
     parts = re.findall(r"\+(\d+)", field(t, "Budget")[1] or "")
     budget = sum(int(x) for x in parts)
     if parts and net > OVERRUN * budget:
-        reason = waiver(doc, "Budget", t["id"]) if growth else None
+        reason = waiver(doc, "Budget", t["id"])
         msg = f"{t['id']}: net +{net} lines, over {OVERRUN}× budget +{budget}"
         if reason:
             rep.note(doc.path, msg + f"; Budget waived: {t['id']} — {reason}")
         else:
             rep.warn(doc.path, n, msg + f": record `Budget waived: {t['id']} — <reason>` under `## Deviations`")
-    lean = doc.slop_gated(LEAN_SINCE)
-    ratio = TEST_RATIO if lean else LEGACY_TEST_RATIO
-    lanes = ("logic", "contract") if lean else ("logic",)
-    if lane and lane.split()[0] in lanes and tests >= TEST_FLOOR and tests > ratio * code:
-        reason = waiver(doc, "Ratio", t["id"]) if growth else None
-        label = "tests net" if growth else "tests"
-        msg = f"{t['id']}: {label} +{tests} over {ratio}× code +{code}"
-        if growth:
-            msg += f" (allowed {ratio * code:g})"
+    if lane and lane.split()[0] in ("logic", "contract") and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
+        reason = waiver(doc, "Ratio", t["id"])
+        msg = f"{t['id']}: tests net +{tests} over {TEST_RATIO}× code +{code} (allowed {TEST_RATIO * code:g})"
         if reason:
             rep.warn(doc.path, n, msg + f"; Ratio waived: {t['id']} — {reason}")
         else:
@@ -508,7 +480,7 @@ def check_plan(run, rep, behaviours):
     require_sections(doc, rep, PLAN_SECTIONS, strict)
     tickets = check_tickets(run, doc, rep, behaviours, strict)
     accepts = sum(bool(re.match(r"^\s*- \[[ x]\] ", x)) for t in tickets for _, x in t["lines"])
-    if strict and doc.slop_gated(LEAN_SINCE) and accepts > PLAN_ACCEPT_MAX and not any(
+    if strict and accepts > PLAN_ACCEPT_MAX and not any(
             re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
         rep.error(doc.path, doc.heading("Tickets"),
                   f"{accepts} acceptance lines; at most {PLAN_ACCEPT_MAX}: propose the split into two runs "
@@ -531,7 +503,7 @@ def check_review(run, rep):
     elif not any("Independence:" in x for _, x in doc.section("Coverage")):
         rep.warn(doc.path, 0, "Coverage has no `Independence: cross-vendor | same-vendor (degraded)` line")
     cover = doc.section("Coverage")
-    if doc.slop_gated() and status in ("complete", "done") and cover is not None and not any(
+    if status in ("complete", "done") and cover is not None and not any(
             x.startswith("Size:") for _, x in cover):
         rep.error(doc.path, 0, "Coverage has no Size: line (`Size: +<code> code · +<tests> tests · ratio · net · over 1,000`)")
     cycles = sorted(int(m.group(1)) for t in doc.sections if (m := re.match(r"Cycle (\d+) findings", t)))
@@ -539,7 +511,7 @@ def check_review(run, rep):
         rep.error(doc.path, 0, f"Status {status} but no `## Cycle {cycles[-1]} verdict`")
     open_fix = []
     for c in cycles:
-        if c >= 3 and doc.slop_gated(SIZING_SINCE) and not any(
+        if c >= 3 and not any(
                 re.match(rf"Cycle {c} approved by human:\s*\S", x) for x in doc.lines):
             rep.error(doc.path, doc.heading(f"Cycle {c} findings"),
                       f"cycle {c} needs a `Cycle {c} approved by human: <when>` line: review stops after two")
@@ -591,12 +563,11 @@ def check_wrap(run, rep):
     if doc.status() == "done":
         if doc.section("Steps") is not None:
             rep.error(doc.path, doc.heading("Steps"), "done wrap still has `## Steps`: 9a rewrites it into the summary")
-        if doc.slop_gated() and not any(t.startswith("Retired:") for t in doc.lines):
+        if not any(t.startswith("Retired:") for t in doc.lines):
             rep.error(doc.path, 0, "wrap.md has no Retired: line: step 5b records what was deleted, or `none` with a reason")
         if len(doc.lines) > WRAP_DONE_BUDGET:
             rep.warn(doc.path, 0, f"{len(doc.lines)} lines; a finished run's summary is ~{WRAP_DONE_BUDGET}")
-        if doc.slop_gated():
-            check_worklog(run, rep)
+        check_worklog(run, rep)
     else:
         if doc.section("Steps") is None:
             rep.warn(doc.path, 0, "wrap in progress but no `## Steps` checklist")
@@ -710,14 +681,19 @@ def check_run(run_dir, rep):
             run["docs"][a] = Doc(p)
     if "brainstorm.md" not in run["docs"]:
         rep.error(run_dir, 0, "no brainstorm.md: it holds the run's status of record")
-    rep.done = run["docs"]["brainstorm.md"].status() == "done" if "brainstorm.md" in run["docs"] else False
+    brief = run["docs"].get("brainstorm.md")
+    rep.done = bool(brief and brief.status() == "done"
+                    and git_out(rep.repo, "ls-files", "--", brief.path)
+                    and not git_out(rep.repo, "status", "--porcelain", "--", brief.path))
     for name, doc in run["docs"].items():
         if name != "learnings.md":
             check_header(doc, rep)
-        if name in BUDGET:
+        if not rep.done and name in BUDGET:
             check_budget(doc, rep, BUDGET[name])
     run_status = run["docs"]["brainstorm.md"].status() if "brainstorm.md" in run["docs"] else ""
-    if is_legacy(run, run_status):
+    if rep.done:
+        rep.note(run_dir, "done run: only header, sha and layout checks apply")
+    elif is_legacy(run, run_status):
         rep.note(run_dir, "v2.02 run shape (checklist plan, no behaviours): only header, budget and "
                           "layout checks apply")
     else:
@@ -731,7 +707,7 @@ def check_run(run_dir, rep):
             check_review(run, rep)
         if "wrap.md" in run["docs"]:
             check_wrap(run, rep)
-    if run_status == "done" and "patch_plan.md" in run["docs"]:
+    if not rep.done and run_status == "done" and "patch_plan.md" in run["docs"]:
         rep.warn(run["docs"]["patch_plan.md"].path, 0, "run is done but patch_plan.md remains (wrap 9a deletes it)")
     check_layout(run, rep)
     return run_status
