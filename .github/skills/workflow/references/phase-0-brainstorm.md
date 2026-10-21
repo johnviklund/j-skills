@@ -191,10 +191,16 @@ by a later phase.
 
 A brainstorm seeded by a code audit instead of a blank idea: one feature, one pass. Read the
 feature's code and list concrete improvement findings (correctness, tech debt, performance,
-missing tests, DX), each citing `file:line` and weighed against the goal. Show them as a short
-table in round 1 and ask which to pursue. Each chosen finding becomes a behaviour ("<input> no
-longer <bad result>; → <good result>"); rejected ones go under Out of scope with the reason. Same
-brief, same shape.
+missing tests, DX, simplification), each citing `file:line` and weighed against the goal. Show
+them as a short table in round 1 and ask which to pursue. Each chosen finding becomes a behaviour
+("<input> no longer <bad result>; → <good result>"); rejected ones go under Out of scope with the
+reason. Same brief, same shape.
+
+A **simplification** finding names what to delete, inline or merge: a helper with one caller, a
+pass-through wrapper, duplicated logic, dead branches. Its behaviour keeps every output and the
+existing tests unchanged, so a test that must change marks a behaviour change, not a
+simplification. Before proposing a deletion, `git log -S` says why the code exists. Each
+simplification is its own ticket, apart from feature work.
 
 ## Park — `workflow park [slug]`
 

@@ -415,6 +415,14 @@ class WrapTests(unittest.TestCase):
         out = check(files, self.worklog(header="GPT-6.1 Sol (writer) + reviewer model unrecorded"), args=("--all",))
         self.assertRegex(out, r"(?m)^ERROR WORKLOG.md:3 .*says unrecorded, but review.md names the reviewer")
 
+    def test_wrap_in_progress_notes_net_code_and_tests_since_plan_base(self):
+        wrap = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").replace("complete", "drafting") + "\n## Steps\n"
+        seed = {"src/old.py": lines(10), "tests/test_old.py": lines(8)}
+        ticket = {"src/x.py": lines(12), "src/old.py": lines(4), "tests/test_x.py": lines(5),
+                  "tests/test_old.py": lines(2), "docs/x.md": lines(40)}
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "wrap.md": wrap}, ticket, seed=seed)
+        self.assertRegex(out, r"(?m)^note .*wrap.md .*run net since plan Base: code \+6 · tests -1 ")
+
     def test_wrap_all_warns_on_a_test_reading_the_run_folder(self):
         pin = {"tests/test_x.py": f"open('{RUN}/data.json')\n", "src/x.py": f"open('{RUN}/data.json')\n"}
         out = check({"brainstorm.md": BRIEF, "plan.md": plan()}, pin, args=("--all",))

@@ -17,7 +17,8 @@ Checks what a script can count, so no phase has to eyeball it:
   keep added-line ratios and any-mention skips; added
   test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
-  a `Size:` line in a complete review's Coverage; a `Retired:` line in a done wrap, and a
+  a `Size:` line in a complete review's Coverage; a wrap in progress notes the run's net code and test
+  lines since plan.md's Base; a `Retired:` line in a done wrap, and a
   WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete;
   from SIZING_SINCE, a third or later cycle carries `Cycle N approved by human:`;
@@ -597,8 +598,28 @@ def check_wrap(run, rep):
             rep.warn(doc.path, 0, f"{len(doc.lines)} lines; a finished run's summary is ~{WRAP_DONE_BUDGET}")
         if doc.slop_gated():
             check_worklog(run, rep)
-    elif doc.section("Steps") is None:
-        rep.warn(doc.path, 0, "wrap in progress but no `## Steps` checklist")
+    else:
+        if doc.section("Steps") is None:
+            rep.warn(doc.path, 0, "wrap in progress but no `## Steps` checklist")
+        note_net_growth(run, rep)
+
+
+def note_net_growth(run, rep):
+    """Net product lines from plan.md's Base to HEAD, receipts excluded, for wrap's `Run:` line."""
+    base = re.match(SHA, run["docs"]["plan.md"].header().get("Base", "")) if "plan.md" in run["docs"] else None
+    if not base or not git_has(rep.repo, base.group(0)):
+        return
+    code = tests = 0
+    for row in git_out(rep.repo, "diff", "--numstat", base.group(0), "HEAD").splitlines():
+        added, deleted, path = row.split("\t", 2)
+        if added == "-" or re.search(RECEIPTS, path):
+            continue
+        if re.search(TEST_FILE, path):
+            tests += int(added) - int(deleted)
+        else:
+            code += int(added) - int(deleted)
+    rep.note(run["docs"]["wrap.md"].path, f"run net since plan Base: code {code:+d} · tests {tests:+d} "
+                                          "(copy onto the WORKLOG.md `Run:` line)")
 
 
 def check_worklog(run, rep):

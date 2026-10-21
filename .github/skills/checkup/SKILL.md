@@ -203,7 +203,7 @@ git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.p
 ### 6. Seat & skill performance, reviewer exam set
 
 Models earn seats on **trial runs**, not exams: every `workflow wrap` appends a `WORKLOG.md`
-entry with a `Run:` line (tickets · sessions · review cycles · deviations · findings overturned) and a
+entry with a `Run:` line (tickets · sessions · review cycles · deviations · findings overturned · net code and tests) and a
 `Seats:` line (model per phase). Checkup turns those into a per-seat comparison and
 *detects the need* to promote, demote, or run the one exam. It never edits `ROUTING.md`.
 
@@ -237,6 +237,10 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
   cycles and deviations: ⚠️ recommend the human promote it in `ROUTING.md` (quote the row).
 - **Regression.** The incumbent's last 2–3 runs clearly worse than its earlier average, or a
   candidate worse than the incumbent: ⚠️ say so with the numbers; the decision is the human's.
+- **Code growth.** Report the summed `net code` of the last ~10 entries that carry it, and the
+  directory that grew most (`git diff --dirstat=lines <oldest entry's first commit>^ HEAD -- .
+  ':(exclude).workflow'`). When none of those runs shrank the code: ⚠️ ten runs with no pay-down,
+  recommend `workflow improve <that directory> - goal: simpler, same behaviour`.
 - **Missing evidence.** Recent entries without `Run:`/`Seats:` lines: ⚠️ the wrap step is being
   skipped -- nothing can be judged until it isn't.
 - **Stale routing.** `ROUTING.md`'s *Last verified* date > 90 days old, or a *Trial* entry with no

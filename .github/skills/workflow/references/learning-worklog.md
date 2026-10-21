@@ -105,7 +105,7 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   - <1–4 terse bullets: what shipped / changed>
   - Commits: <sha> <sha> ... (+ <other-repo> <sha> if it spanned repos)
   - Review: <verdict> @ <reviewed sha>   (workflow runs only — omit when no review ran)
-  - Run: <tickets> tickets · <sessions> sessions · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned   (workflow runs only)
+  - Run: <tickets> tickets · <sessions> sessions · <cycles> review cycles · <deviations> deviations · <overturned> findings overturned · net code <±n> · tests <±n>   (workflow runs only)
   - Seats: 0 <model> · 2 <model> · 3 <model> · 4 <model>   (workflow runs only — brainstorm · plan · execute · review; suffix "(trial)" where a trial model ran)
   - Skills: workflow@<sha>[, <other skill>@<sha>]   (workflow runs only — the skill versions that ran, so a skill change can be judged like a model; <sha> is the folder tree hash above)
   - Why: <one line>
@@ -117,7 +117,9 @@ capped and rolls off. Never let it grow into a second memory file that confuses 
   The `Run:` and `Seats:` lines are how models are evaluated: read the numbers from `plan.md`
   (ticket count, `## Deviations`, `Writer:` lines) and `review.md` (`## Cycle N` count,
   dispositions marked wrong-by-human) at wrap, so `checkup` can compare a candidate's runs on a
-  seat against the incumbent's without opening every archived run folder.
+  seat against the incumbent's without opening every archived run folder. The net code and test
+  lines come from `check-run.py`'s `run net since plan Base` note, so `checkup` can see the
+  code base grow run by run.
 
 - **When it's written:**
   - `workflow wrap` appends an entry automatically as part of wrap-up.

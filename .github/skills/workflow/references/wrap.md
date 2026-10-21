@@ -137,7 +137,8 @@ Commit, push, curate, and clean up — in one go:
    git-pointing entry, rolling the oldest off if over ~15; commit and push it with the rest.
    Take the models from the run, not from `ROUTING.md`: seats 0 and 2 from the `Created:` lines of
    `brainstorm.md` and `plan.md`, the writer from `plan.md`'s `Writer:` lines, the reviewer from
-   `review.md`'s `Independence:` line. The `Run:` line's sessions count
+   `review.md`'s `Independence:` line. The `Run:` line's net code and tests are `check-run.py`'s
+   `run net since plan Base` note, read after 5b's retire commit. Its sessions count
    the `Session N:` lines in `plan.md`'s `## Execution state`, before 9a strips it; the count
    includes patch sessions, which execute records there too. Write `Seats:`
    and `Skills:`, each skill's sha read from the lock file or `git rev-parse` as
