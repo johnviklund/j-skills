@@ -1,6 +1,6 @@
 # SKILL-IMPACT archive — closed changes to these skills
 
-Rows moved from `SKILL-IMPACT.md` once their outcome is kept or superseded, newest first.
+Rows moved from `SKILL-IMPACT.md` once their outcome is kept, superseded or applied, newest first.
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
@@ -37,3 +37,4 @@ Rows moved from `SKILL-IMPACT.md` once their outcome is kept or superseded, newe
 | 2026-09-12 | workflow · memory.remember · memory.compact | v2.01: static-review fixes — code identity by receipt rule (review receipts no longer stale the gate), resumable `wrap.md`, `workflow execute` runs patch plans, open-finding gate (`Resolved:` stamps, human-approved P0/P1 deferral), per-file freshness check, brainstorm coverage in plan and review, idempotent routing (`[routed → …]`, unique evidence), guarded compact acceptance, tracked `.workflow/` enforced at bootstrap and brainstorm | external static review | 3 runs | superseded — by v2.1 (runs since 2026-09-12: 2, 2 and 4 review cycles) |
 | 2026-09-12 | workflow | v2: one run per `.workflow/<slug>/`, runs kept as archive, `park`, `memory/` pages, trial-gated skill changes | design session | 3 runs | superseded — by v2.1 (runs since 2026-09-12: 2, 2 and 4 review cycles) |
 | 2026-09-12 | workflow | reporting rule, plan budget (≤100 lines / ≤12 steps), scope-locked executor, optional spec, vendor-only routing, trial column | design session | 3 runs | superseded — by v2.1 (runs since 2026-09-12: 2, 2 and 4 review cycles) |
+| 2026-09-11 | evals / checkup | exams reduced to a ≤8-case reviewer recall check; seats judged on trial runs | design session | — | applied |

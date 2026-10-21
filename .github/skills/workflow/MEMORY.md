@@ -26,7 +26,7 @@ else.
 
 ### A new guard needs one test per key it matches on
 - **Topic:** Review practice — mutation-checking checker conditions
-- **Status:** promoted to `references/tests.md`, `references/phase-4-review.md` and `references/phase-3-execute.md` by guard-keys (2026-10-18); trial in `SKILL-IMPACT.md`. Kept as the why.
+- **Status:** promoted to `references/tests.md`, `references/phase-4-review.md` and `references/phase-3-execute.md` by guard-keys (2026-10-18); trial closed in `SKILL-IMPACT_ARCHIVE.md`. Kept as the why.
 - **Decision:** When a checker condition matches on an ID, a date, a lane or a kind, add one case in which only that key differs. When a review finds one untested key, list every key the guard matches on and mutate each. Measure doc growth in words, not lines, because unwrapping text meets a line cap.
 - **Supersedes:** —
 - **Superseded by:** —
