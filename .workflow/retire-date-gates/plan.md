@@ -9,7 +9,15 @@ Decisions: 1a (a done run is history once its `done` status is committed) · tic
 Size: code 794 · tests 436 · ratio 0.55 · largest touched check-run.py 794, test_check_run.py 436 · over 1,000: none
 
 ## Execution state
-<filled by execute>
+Current: T1 done; T2 ready.
+T1 @ fc99027
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: 44 tests passed; final T1 suite: 47 passed on the code committed at fc99027.
+No separate build, lint or typecheck declared; no baseline failures.
+Reuse: Report.done and git_out; no helper added.
+Receipt: receipts/t1-verification.md
+Uncommitted: this execution ledger only. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -30,15 +38,16 @@ Delivers: B1, B2, B3, B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +25 · tests +60 · why: replaces date-pinned cases and adds the uncommitted-done fixture (F3, F8)
 Seam: `check-run.py` as a subprocess on fixture repos (`scripts/tests/test_check_run.py`, `check()`)
 Accept:
-- [ ] plan Created 2026-10-08, logic T2 without Budget → `T2: no Budget: line` warning (B1)
-- [ ] brief Created 2026-10-08 with 9 behaviours → ERROR `9 behaviours; at most 8`; 4 behaviours → no `behaviours;` message (B2)
-- [ ] plan Created 2026-10-08, done logic T1 with tests net +76, code +50, bare `T1:` deviation → ERROR `tests net +76` (B3)
-- [ ] review Created 2026-10-09 with a Cycle 3 and no approval → ERROR `cycle 3 needs` (B4)
-- [ ] brief committed done, 9 behaviours, `--all` → `0 errors`; same brief done but uncommitted, done wrap without Retired → ERROR `no Retired:` (B5)
-- [ ] parked brief with `## Parked` and 9 behaviours → ERROR `9 behaviours; at most 8` (B6)
+- [x] plan Created 2026-10-08, logic T2 without Budget → `T2: no Budget: line` warning (B1)
+- [x] brief Created 2026-10-08 with 9 behaviours → ERROR `9 behaviours; at most 8`; 4 behaviours → no `behaviours;` message (B2)
+- [x] plan Created 2026-10-08, done logic T1 with tests net +76, code +50, bare `T1:` deviation → ERROR `tests net +76` (B3)
+- [x] review Created 2026-10-09 with a Cycle 3 and no approval → ERROR `cycle 3 needs` (B4)
+- [x] brief committed done, 9 behaviours, `--all` → `0 errors`; same brief done but uncommitted, done wrap without Retired → ERROR `no Retired:` (B5)
+- [x] parked brief with `## Parked` and 9 behaviours → ERROR `9 behaviours; at most 8` (B6)
 Verify: `python3 -m unittest discover -s skills/workflow/scripts/tests` (pre: 44 passed)
 Skills: none
-Status: todo
+Status: done @ fc99027
+Writer: GPT-6.1 Sol
 
 ### T2 — Docs drop the start dates
 Delivers: B7 · Blocked by: T1 · Lane: mechanical
@@ -69,3 +78,8 @@ none (the brief names no TODO.md item)
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: absent in this repo.
 - ROADMAP.md (skills/workflow/ROADMAP.md): step 2 is delivered by this run; wrap marks it done.
+
+## Deviations
+- T1: existing date-exemption and legacy-ratio assertions now assert the approved universal rules; assertions 61 → 66.
+- T1: clean fixture Budgets now give a reason for larger test budgets; existing clean assertions remain unchanged.
+- T1: the old plan-limit fixture now isolates acceptance lines instead of also exceeding the behaviour limit.
