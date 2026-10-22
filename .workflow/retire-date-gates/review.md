@@ -2,7 +2,7 @@ Command: workflow review retire-date-gates
 Created: 2026-10-21 · Claude Opus 5.5
 Base:    98b87f9
 Inputs:  .workflow/retire-date-gates/plan.md @ 6a2dec0
-Status:  complete
+Status: done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing; B5's ticket and Resolved shas now tested (C1-1)

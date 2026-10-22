@@ -2,25 +2,11 @@ Command: workflow plan retire-date-gates
 Created: 2026-10-21 · Claude Opus 5.5
 Base:    6a2dec0
 Inputs:  .workflow/retire-date-gates/brainstorm.md @ 6a2dec0
-Status:  complete
+Status: done
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md in this repo)
 Decisions: 1a (a done run is history once its `done` status is committed) · ticket list approved 2026-10-21
 Size: code 794 · tests 436 · ratio 0.55 · largest touched check-run.py 794, test_check_run.py 436 · over 1,000: none
-
-## Execution state
-Current: C1-T1 and C1-T2 done in patch_plan.md; ready for review cycle 2.
-T1 @ fc99027
-T2 @ 281f4a9
-writer: GPT-6.1 Sol
-Session 1: T1, T2
-Session 2: C1-T1, C1-T2
-Baseline: 44 passed; T1 and T2 final suites: 47 passed each; no baseline failures.
-No separate build, lint or typecheck declared; --all and T2 content checks passed.
-Reuse: Report.done and git_out; no helper added.
-Receipts: receipts/t1-verification.md, receipts/t2-verification.md, receipts/c1-verification.md
-Uncommitted: none after ledger commit. Pending decision: none; push approved by user 2026-10-21 (1a).
-Limit: Copilot registration check could not start; launcher DNS failed.
 
 ## Findings
 | # | What is true | What it changes |

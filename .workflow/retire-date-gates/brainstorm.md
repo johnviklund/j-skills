@@ -2,7 +2,7 @@ Command: workflow brainstorm retire-date-gates
 Created: 2026-10-21 · Sonnet 5.5
 Base:    118ec61
 Inputs:  none
-Status:  complete
+Status: done
 
 ## Problem
 `check-run.py` picks the rules for a run from its `Created:` date (`SLOP_SINCE`, `SIZING_SINCE`, `LEAN_SINCE`, `GROWTH_SINCE`) and keeps legacy branches for older runs. A rule shipped today silently skips today's runs, and the user found this confusing (ROADMAP step 2).

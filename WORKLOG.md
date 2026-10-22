@@ -5,6 +5,17 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-22 · retire-date-gates · check-run applies one rule set to every run not yet done · GPT-6.1 Sol
+- `check-run.py` no longer picks rules by `Created:` date: the four `*_SINCE` gates, `LEGACY_TEST_RATIO`, `deviated()` and the behaviour minimum are gone. Done runs keep header, sha and layout checks only; parked runs are checked like live ones, except a drafting brief.
+- The docs that said "earlier plans keep their rules" now state the universal rules.
+- Review cycle 1 found two P1s (done runs lost their sha walk, parked drafts failed section checks), both fixed with red tests first. Two P3s deferred.
+- Commits: fc99027 281f4a9 fbb1fdc 2aac08b
+- Review: ship as-is (cycle 2, 0 open) @ dbccc12
+- Run: 2 tickets · 2 sessions · 2 review cycles · 3 deviations · 0 findings overturned · net code -9 · tests +59
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@416076a3ef59
+- Why: a rule shipped today silently skipped today's runs, and the date gates confused the user.
+
 ## 2026-10-18 · guard-keys · writers and reviewers test every key a guard matches on · GPT-6.1 Sol
 - The test, review and execute references now say: one case per guard key, a reviewer who finds one untested key lists and mutates all of them, and execute regains its acceptance-seam and scope wording. A trial row sits in `SKILL-IMPACT.md`.
 - Review found 3 P3s (Verify greps one phrase per rule, rule placement, conditional reviewer trigger), all deferred.
