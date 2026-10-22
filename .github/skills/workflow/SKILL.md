@@ -185,7 +185,9 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   Receipts are the usual source: a live query or log with a token in it. Exit 0 → push. A finding
   → no push; name file, line and rule, and ask: ➡️ **a** remove it from the unpushed commits and
   rotate it (a real value has already been in the session) · **b** false positive: add its
-  fingerprint to `.gitleaksignore`. Scanner missing → no push; ask: ➡️ **a** install it · **b** push
+  fingerprint to `.gitleaksignore`; a pattern that will recur (an ID field, a public token) gets an
+  allowlist in `.gitleaks.toml` instead, extending the default rules, proven by a rescan where
+  the pattern is gone and a planted key is still caught. Scanner missing → no push; ask: ➡️ **a** install it · **b** push
   unscanned, noted on the card.
 - **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
   A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
