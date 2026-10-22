@@ -9,15 +9,17 @@ Decisions: 1a (trigger list in both references) · 2a (`Threats: none` line on r
 Size: code 0 · tests 495 · ratio n/a (doc run) · largest touched test_check_run.py 495, phase-0-brainstorm.md 215 (13,294 B), phase-4-review.md 179 (13,053 B), README.md 220 · over 1,000: none
 
 ## Execution state
-Current: T2 todo; T1 done.
+Current: all tickets done; next is cross-vendor review.
 T1 @ b4866b1
+T2 @ 2460066
 writer: GPT-6.1 Sol
-Session 1: T1
+Session 1: T1, T2
 Baseline: 50 tests pass at f3b2581; no build/typecheck/lint configured.
 T1 proof: 51 tests pass; all three content counts = 1; phase-0 = 13,747 B ≤ 13,994.
 Reuse: existing check()/BRIEF/plan() fixtures; no new helper or checker change.
 Mutation: none — doc ticket; B6 already holds, pinned by both fixture variants.
-Uncommitted: this execution record. Pending decision: none.
+T2 proof: all content checks pass; four severity rows; phase-4 = 13,729 B ≤ 13,953.
+Receipt: receipts/execute-verification.md. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -53,15 +55,16 @@ Delivers: B2, B3, B4, B5 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `references/phase-4-review.md` *Defects* and the `review.md` template; `SKILL-IMPACT.md`; `README.md`
 Accept:
-- [ ] phase-4-review.md holds the T1 trigger string and `who can send input, what it can reach, what it can change, what is logged, what fails open, what is the worst case` → 1 match each (B3)
-- [ ] the review.md template's Coverage holds `Threats: none — the brief and the diff add no boundary`, and the pass fires on `a trigger the brief does not list` → 1 match each (B2, B3)
-- [ ] severity: `grep -c '^| \*\*P'` = 4 (no second table) and `unmitigated plausible threat` → 1 match (B4)
-- [ ] SKILL-IMPACT.md line 13 is the new row: `Trust boundaries` … `| 3 runs | trialing |`, its judge naming boundaries on trigger runs and no false alarm otherwise → 1 match (B5)
-- [ ] README.md's guard list names the pass → `grep -ci 'trust boundar'` = 1 (B3)
-- [ ] `wc -c references/phase-4-review.md` ≤ 13,953, the baseline plus 900 (B3)
+- [x] phase-4-review.md holds the T1 trigger string and `who can send input, what it can reach, what it can change, what is logged, what fails open, what is the worst case` → 1 match each (B3)
+- [x] the review.md template's Coverage holds `Threats: none — the brief and the diff add no boundary`, and the pass fires on `a trigger the brief does not list` → 1 match each (B2, B3)
+- [x] severity: `grep -c '^| \*\*P'` = 4 (no second table) and `unmitigated plausible threat` → 1 match (B4)
+- [x] SKILL-IMPACT.md line 13 is the new row: `Trust boundaries` … `| 3 runs | trialing |`, its judge naming boundaries on trigger runs and no false alarm otherwise → 1 match (B5)
+- [x] README.md's guard list names the pass → `grep -ci 'trust boundar'` = 1 (B3)
+- [x] `wc -c references/phase-4-review.md` ≤ 13,953, the baseline plus 900 (B3)
 Verify: `f=skills/workflow/references/phase-4-review.md && grep -c 'outside input, auth or credentials, file or network writes, shell execution, new permissions' $f && grep -c 'who can send input, what it can reach, what it can change, what is logged, what fails open, what is the worst case' $f && grep -c '^Threats: none — the brief and the diff add no boundary' $f && grep -c 'a trigger the brief does not list' $f && test $(grep -c '^| \*\*P' $f) -eq 4 && grep -c 'unmitigated plausible threat' $f && sed -n 13p skills/workflow/SKILL-IMPACT.md | grep -c 'Trust boundaries.*| 3 runs | trialing |' && grep -ci 'trust boundar' skills/workflow/README.md && test $(wc -c < $f) -le 13953` (pre: fails — 0 trigger-string matches, exit 1; severity rows already 4)
 Skills: skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 2460066
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (the brief names boundaries) · T2 (review.md checks each, on the reference docs)
