@@ -5,6 +5,17 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-22 · threat-model-review · briefs name trust boundaries and review runs a threat pass on each · GPT-6.1 Sol
+- A brief that touches outside input, credentials, writes, shell or permissions gets an optional `## Trust boundaries` section. Review answers six fixed questions per boundary in a `Threats:` line, rated on the existing severity bar. A run with no trigger writes `Threats: none`.
+- `check-run.py` needed no change; one test pins that the section is optional. A trial row sits in `SKILL-IMPACT.md`.
+- Review found 3 P3s (completion line, `Threats:` line shape, unwrapped lines), all deferred.
+- Commits: b4866b1 2460066
+- Review: ship as-is (cycle 1, 0 open) @ 5e5abe1
+- Run: 2 tickets · 1 sessions · 1 review cycles · 0 deviations · 0 findings overturned · net code +0 · tests +7
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@1da975d
+- Why: review's only security check was one clause, so a run that added a trust boundary got no systematic question about it.
+
 ## 2026-10-22 · retire-date-gates · check-run applies one rule set to every run not yet done · GPT-6.1 Sol
 - `check-run.py` no longer picks rules by `Created:` date: the four `*_SINCE` gates, `LEGACY_TEST_RATIO`, `deviated()` and the behaviour minimum are gone. Done runs keep header, sha and layout checks only; parked runs are checked like live ones, except a drafting brief.
 - The docs that said "earlier plans keep their rules" now state the universal rules.

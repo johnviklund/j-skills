@@ -2,7 +2,7 @@ Command: workflow review threat-model-review
 Created: 2026-10-22 · Claude Opus 5.5
 Base:    0abe05e
 Inputs:  .workflow/threat-model-review/plan.md @ 4486102
-Status: complete
+Status: done
 
 Reviewed against the repo reference `.github/skills/workflow/references/phase-4-review.md` @ 0abe05e (the installed copy predates T2).
 

@@ -2,7 +2,7 @@ Command: workflow brainstorm threat-model-review
 Created: 2026-10-22 · Sonnet 5.5
 Base:    6aa7823
 Inputs:  none
-Status: complete
+Status: done
 
 ## Problem
 Review's only security check is the one clause "security flaws" (`phase-4-review.md:31`) plus the dependency check and the push-time secret scan. A run that adds a trust boundary (outside input, credentials, writes, shell, permissions) gets no systematic question about what an attacker could do there.

@@ -2,24 +2,11 @@ Command: workflow plan threat-model-review
 Created: 2026-10-22 · Claude Opus 5.5
 Base:    4486102
 Inputs:  .workflow/threat-model-review/brainstorm.md @ 6aa7823
-Status: complete
+Status: done
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md in this repo)
 Decisions: 1a (trigger list in both references) · 2a (`Threats: none` line on runs with no trigger) · 3a (no reviewer exam; the trial judges) · 4a ticket list approved 2026-10-22
 Size: code 0 · tests 495 · ratio n/a (doc run) · largest touched test_check_run.py 495, phase-0-brainstorm.md 215 (13,294 B), phase-4-review.md 179 (13,053 B), README.md 220 · over 1,000: none
-
-## Execution state
-Current: all tickets done; next is cross-vendor review.
-T1 @ b4866b1
-T2 @ 2460066
-writer: GPT-6.1 Sol
-Session 1: T1, T2
-Baseline: 50 tests pass at f3b2581; no build/typecheck/lint configured.
-T1 proof: 51 tests pass; all three content counts = 1; phase-0 = 13,747 B ≤ 13,994.
-Reuse: existing check()/BRIEF/plan() fixtures; no new helper or checker change.
-Mutation: none — doc ticket; B6 already holds, pinned by both fixture variants.
-T2 proof: all content checks pass; four severity rows; phase-4 = 13,729 B ≤ 13,953.
-Receipt: receipts/execute-verification.md. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
