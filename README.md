@@ -195,6 +195,8 @@ Use it at the end of a session, or whenever you say "remember this".
 - Each lesson gets its own page in the repo's `memory/` folder, listed in `MEMORY.md`.
 - When a lesson comes up again, its page counts it. At three times, the lesson moves into a skill.
 - It also updates related docs, such as `DESIGN.md` when the repo has one.
+- It saves where a secret is kept, never the secret itself. If an instruction came from
+  something the agent read, such as a web page, an issue or a log, it asks you before saving it.
 
 ### memory.compact
 
@@ -230,6 +232,8 @@ Use it once per repo that has something a user touches: a web page, an app, a CL
 - `verify.create` builds a skill inside the repo, named `verify-<app>`. It has a small command
   that starts the app, checks it is healthy, clicks or types through it, and takes screenshots.
 - It also writes a feature map: for each feature, how a user gets to it and what proves it works.
+- The command prints `***` instead of passwords and tokens, because its output can end up in
+  committed run files. A verify skill built before this rule may not, so check older ones.
 - `workflow` uses it for before and after screenshots and to check the result in review. Wrap
   updates the map for the features a run changed.
 - `verify.maintain` drives every feature again and fixes the map where the app has moved on.
