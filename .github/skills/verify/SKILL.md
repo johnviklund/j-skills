@@ -97,9 +97,13 @@ It is built for an agent reader: output in JSON, subcommands that reveal detail 
 `--help` on every level with an example, `--dry-run` on anything with side effects, and errors
 that say what to do instead ("port 4173 busy: run `control down` or pass `--port`"). Evidence
 goes to the `--out` directory the caller names, or `.verify-evidence/` when none is named;
-add that folder to `.gitignore`.
+add that folder to `.gitignore`. Evidence often lands in a committed run folder, so the CLI masks
+secrets before it writes or prints anything: auth headers, cookies, tokens, passwords and keys in
+captured requests, logs and env dumps become `***`. Test credentials are read from env vars or an
+ignored file, and the skill and feature files name where they live, never their values.
 
-Done when `up`, `doctor`, one drive, `shot` and `down` run clean twice in a row.
+Done when `up`, `doctor`, one drive, `shot` and `down` run clean twice in a row, and their output
+holds no credential value.
 
 **4. Write `verify-APP/SKILL.md`.** Frontmatter `name: verify-APP` and a `description` that names
 the app and its surface and says to use it to prove a change works in the running app, take

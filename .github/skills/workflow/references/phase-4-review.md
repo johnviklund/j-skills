@@ -37,6 +37,10 @@ Review answers two questions, kept apart so one can't hide the other:
   merely awkward. Report it as a P2 naming the design flaw, not the line (the type that should
   carry the fact, the boundary that should parse it); P1 when it breaks a behaviour. A hatch at a
   boundary that parses outside data is fine.
+  **New dependencies** are supply chain. For each package the diff adds, check that a ticket or the
+  brief needs it, that the lockfile pins it, and that it is maintained and is the package it
+  claims to be (recent releases, the expected publisher, not a near-miss of a popular name).
+  Any check failing is a P2 naming the package; P1 when the package is not the one claimed.
   **Simplicity** is part of Defects, with three checks:
   - **Same-run waste.** A copy of an existing helper, a pass-through wrapper, an unused
     parameter or branch, or a test that asserts nothing a sibling test doesn't. P1 when this run's
