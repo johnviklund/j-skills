@@ -61,6 +61,8 @@ The agent works on its own between these points:
 - Steps that touch live systems or cannot be undone become **operator tickets**. The agent
   prepares the commands, you run them, and a saved receipt shows they ran.
 - Wrap refuses to ship code the review never saw.
+- A push stops if [gitleaks](https://github.com/gitleaks/gitleaks) finds a secret in the new
+  commits, or if gitleaks is not installed. You choose how to handle it.
 
 ## Seats and models
 

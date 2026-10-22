@@ -171,6 +171,11 @@ Use it for any coding task bigger than a quick fix.
 Each step ends with a card that names the next command and the model to use. Before a step marks
 its file complete, `workflow/scripts/check-run.py` checks the run folder's format, so mistakes
 in headers, tickets or review notes are caught by a script.
+
+Before every push, the agent scans the new commits for secrets with
+[gitleaks](https://github.com/gitleaks/gitleaks). Install it once, for example with
+`brew install gitleaks` or `mise use -g gitleaks`. Without it the agent asks before pushing.
+
 [`ROUTING.md`](.github/skills/workflow/ROUTING.md) sets the models, and the
 [workflow guide](.github/skills/workflow/README.md) explains every command.
 

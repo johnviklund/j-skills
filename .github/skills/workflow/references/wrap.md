@@ -181,7 +181,8 @@ then everything worth keeping is in git, the exam set, `memory/` or the kept art
 if not committing straight to `main`.
 
 **Wrap's chat receipt is fixed, one line per step:** final checks (pass / known-environmental);
-shortcut grep (clean / what was found); commits + push (shas); learnings routed (count → where);
+shortcut grep (clean / what was found); secret scan (clean per push / findings and their
+decision / pushed unscanned); commits + push (shas); learnings routed (count → where);
 product-doc truth (per doc: no changes, or the edit — one line each, ESCALATE items as a lettered
 decision list); feature map (files updated, `no feature changed`, or `no verify skill`); retired
 (files and lines @ sha, or none); TODO hygiene (items archived/rewritten, or none); eval cases deposited (count);

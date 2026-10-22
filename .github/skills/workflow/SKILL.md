@@ -180,6 +180,13 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
 - **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
+- **Secret scan before every push.** `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`
+  (no upstream: `origin/<primary>..HEAD`); `--redact` keeps the value out of the transcript.
+  Receipts are the usual source: a live query or log with a token in it. Exit 0 → push. A finding
+  → no push; name file, line and rule, and ask: ➡️ **a** remove it from the unpushed commits and
+  rotate it (a real value has already been in the session) · **b** false positive: add its
+  fingerprint to `.gitleaksignore`. Scanner missing → no push; ask: ➡️ **a** install it · **b** push
+  unscanned, noted on the card.
 - **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
   A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
   and shas that do not exist. Write an artifact only after the reads it reports on have returned.
