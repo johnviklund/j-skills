@@ -41,6 +41,11 @@ Review answers two questions, kept apart so one can't hide the other:
   brief needs it, that the lockfile pins it, and that it is maintained and is the package it
   claims to be (recent releases, the expected publisher, not a near-miss of a popular name).
   Any check failing is a P2 naming the package; P1 when the package is not the one claimed.
+  **Threat model.** Check the brief and diff for outside input, auth or credentials, file or network writes, shell execution, new permissions.
+  With `## Trust boundaries` or a trigger the brief does not list, write one `Threats:` Coverage line
+  per boundary, answering: who can send input, what it can reach, what it can change, what is logged, what fails open, what is the worst case.
+  Cite code or tests for the answers; a trigger alone is not a finding. With no boundary, use the template's `none` line.
+  Rate exploitable holes P0/P1 on the existing bar, an unmitigated plausible threat P2, a hardening idea P3.
   **Simplicity** is part of Defects, with three checks:
   - **Same-run waste.** A copy of an existing helper, a pass-through wrapper, an unused
     parameter or branch, or a test that asserts nothing a sibling test doesn't. P1 when this run's
@@ -95,6 +100,7 @@ is a pointer plus the number that proves it (`file:line`, command, count) — ne
 Size: +<code> code · +<tests> tests · ratio <tests/code> · net +<n> · over 1,000: <files | none>
 Reachability: <each new file → its live importer | none new> · guards shown failing: <ids | none>
 Independence: cross-vendor | same-vendor (degraded)
+Threats: none — the brief and the diff add no boundary
 
 ## Resolved                    ← from cycle 2: a finding moves here once stamped or settled
 | Finding | Sev | Title | Disposition | Resolved |

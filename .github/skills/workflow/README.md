@@ -63,6 +63,7 @@ The agent works on its own between these points:
 - Wrap refuses to ship code the review never saw.
 - A push stops if [gitleaks](https://github.com/gitleaks/gitleaks) finds a secret in the new
   commits, or if gitleaks is not installed. You choose how to handle it.
+- The brief names trust boundaries, where outside callers reach protected data or actions; review checks each with six security questions.
 
 ## Seats and models
 
