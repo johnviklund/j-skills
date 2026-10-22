@@ -9,7 +9,15 @@ Decisions: 1a (trigger list in both references) · 2a (`Threats: none` line on r
 Size: code 0 · tests 495 · ratio n/a (doc run) · largest touched test_check_run.py 495, phase-0-brainstorm.md 215 (13,294 B), phase-4-review.md 179 (13,053 B), README.md 220 · over 1,000: none
 
 ## Execution state
-<filled by execute>
+Current: T2 todo; T1 done.
+T1 @ b4866b1
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: 50 tests pass at f3b2581; no build/typecheck/lint configured.
+T1 proof: 51 tests pass; all three content counts = 1; phase-0 = 13,747 B ≤ 13,994.
+Reuse: existing check()/BRIEF/plan() fixtures; no new helper or checker change.
+Mutation: none — doc ticket; B6 already holds, pinned by both fixture variants.
+Uncommitted: this execution record. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -30,14 +38,15 @@ Delivers: B1, B2, B6 · Blocked by: none · Lane: logic
 Budget: code +0 · tests +8 · why: B6 is pinned by a test; the rest is reference text
 Seam: `references/phase-0-brainstorm.md` §4 and §5; `check-run.py` through `scripts/tests/test_check_run.py`
 Accept:
-- [ ] §5 brief template has an optional `## Trust boundaries` section, one line per boundary → `grep -c '^## Trust boundaries'` = 1 (B1)
-- [ ] §4 names the triggers verbatim: `outside input, auth or credentials, file or network writes, shell execution, new permissions` → 1 match (B1)
-- [ ] §4 says `touches none has no `## Trust boundaries`` → 1 match (B2)
-- [ ] fixture brief with `## Trust boundaries` and the plain fixture brief, each with `plan()` → `0 errors · 0 warnings` (B6)
-- [ ] `wc -c references/phase-0-brainstorm.md` ≤ 13,994, the baseline plus 700 (B1)
+- [x] §5 brief template has an optional `## Trust boundaries` section, one line per boundary → `grep -c '^## Trust boundaries'` = 1 (B1)
+- [x] §4 names the triggers verbatim: `outside input, auth or credentials, file or network writes, shell execution, new permissions` → 1 match (B1)
+- [x] §4 says `touches none has no `## Trust boundaries`` → 1 match (B2)
+- [x] fixture brief with `## Trust boundaries` and the plain fixture brief, each with `plan()` → `0 errors · 0 warnings` (B6)
+- [x] `wc -c references/phase-0-brainstorm.md` ≤ 13,994, the baseline plus 700 (B1)
 Verify: `python3 -m unittest discover -s skills/workflow/scripts/tests && f=skills/workflow/references/phase-0-brainstorm.md && grep -c '^## Trust boundaries' $f && grep -c 'outside input, auth or credentials, file or network writes, shell execution, new permissions' $f && grep -c 'touches none has no `## Trust boundaries`' $f && test $(wc -c < $f) -le 13994` (pre: fails — 50 tests pass, then 0 `## Trust boundaries` lines, exit 1)
 Skills: skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ b4866b1
+Writer: GPT-6.1 Sol
 
 ### T2 — Review runs the threat pass on each boundary
 Delivers: B2, B3, B4, B5 · Blocked by: T1 · Lane: logic
