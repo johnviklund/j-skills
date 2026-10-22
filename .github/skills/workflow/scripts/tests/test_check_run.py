@@ -98,6 +98,13 @@ def write(repo, files):
 
 
 class SeatTests(unittest.TestCase):
+    def test_brief_trust_boundaries_are_optional(self):
+        for section in ("", "## Trust boundaries\n- External request → protected file write\n"):
+            with self.subTest(section=section):
+                brief = BRIEF.replace("## Test seams", section + "## Test seams")
+                out = check({"brainstorm.md": brief, "plan.md": plan()})
+                self.assertIn("0 errors · 0 warnings", out)
+
     def test_brief_and_plan_name_their_model_on_created(self):
         for created, status, warns in (("2026-10-09 · ", "complete", True), ("2026-10-09 · m", "complete", False),
                                        ("2026-10-09 · ", "done", False)):

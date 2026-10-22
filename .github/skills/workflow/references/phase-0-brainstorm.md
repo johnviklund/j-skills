@@ -146,6 +146,9 @@ the final round:
   1–8 behaviours; split above that, or record the human's refusal as in SKILL.md.
 - **Test seams** — the public interfaces where tests will observe those behaviours. Prefer seams
   that already exist; use the highest one that can see the behaviour; fewer is better, one is ideal.
+- **Trust boundaries** — check for outside input, auth or credentials, file or network writes, shell execution, new permissions.
+  Name where a less-trusted caller or source reaches protected data or actions, one line per boundary.
+  A run that touches none has no `## Trust boundaries` section.
 
 The phase is complete when the human confirms the outcome, behaviours and seams — "shared
 understanding" is that confirmation, not a feeling — and, after `Status: complete` is set,
@@ -177,6 +180,10 @@ Status:  complete
 
 ## Test seams
 - <public interface> — observes B1, B2 (existing | new)
+
+## Trust boundaries
+- <source or caller> → <protected data or action>; <boundary crossed>
+<!-- Optional: omit this section when no trigger applies. -->
 
 ## Out of scope
 - <item> — <one-clause why>   (every TODO item considered and excluded, by name)
