@@ -1,0 +1,4 @@
+# Learnings — run-ratio-and-retire
+
+- [durable→memory] review — a guard's matcher was narrower than the real input forms and its tests probed only the plain form (run gate: `fullmatch` on `done @ <sha>` while 6 cx-intelligence plans add a note after the sha). Same class as the exam cases `missed-sql-safety-guard-misses-write-forms` and `missed-non-cars-filter-misses-company-domains`: when a check parses a field another check already parses, reuse that pattern, and test one case per real form found in the corpus.
+- [durable→eval] code-review — run gate fails open on `Status: done @ <sha> · note`; missed by the writer (GPT-6.1 Sol), caught by the reviewer (Claude Opus 5.5) in cycle 1 (C1-1).
