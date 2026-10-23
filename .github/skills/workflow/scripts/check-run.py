@@ -422,7 +422,7 @@ def growth(repo, a, b):
 
 
 def check_run_ratio(doc, tickets, rep):
-    shas = [re.fullmatch(r"done @ (" + SHA + r")", field(t, "Status")[1] or "") for t in tickets]
+    shas = [re.match(r"done @ (" + SHA + r")\b", field(t, "Status")[1] or "") for t in tickets]
     base = re.match(SHA, doc.header().get("Base", ""))
     if not shas or not all(shas) or not base:
         return
