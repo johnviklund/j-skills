@@ -1,0 +1,27 @@
+cx-intelligence/agents-md-trim: pass
+cx-intelligence/cli-split: pass
+cx-intelligence/governed-execution-completion: pass
+cx-intelligence/governed-execution-discovery: pass
+cx-intelligence/live-run-guardrails: ERROR .workflow/live-run-guardrails/plan.md  run: tests net +679 over 1.5× code added +442 (allowed 663): cut tests or record `Ratio waived: run — <reason>` under `## Deviations`
+cx-intelligence/test-suite-cleanup: pass
+cx-intelligence/topic-agent-context: pass
+cx-intelligence/topic-agent-refresh: pass
+cx-intelligence/topic-assistant: pass
+cx-intelligence/topic-assistant-live: pass
+cx-intelligence/workflow-repository-split: pass
+cx-intelligence/workspace-topic-ownership: pass
+agent-cv/brush-up: pass
+agent-cv/forkable-cutover: pass
+agent-cv/forkable-example-owner: pass
+agent-cv/forkable-live-verify: pass
+agent-cv/forkable-maintenance-tooling: pass
+agent-cv/forkable-owner-artifacts: pass
+agent-cv/forkable-owner-loader: pass
+agent-cv/forkable-setup: pass
+agent-cv/forkable-site-rendering: pass
+j-skills/growth-ratchets: pass
+j-skills/guard-keys: pass
+j-skills/lean-runs: pass
+j-skills/retire-date-gates: pass
+j-skills/threat-model-review: pass
+26 runs; 1 flagged

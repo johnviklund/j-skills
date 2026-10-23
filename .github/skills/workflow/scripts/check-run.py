@@ -57,7 +57,8 @@ MAX_PROTOTYPES = 3                         # phase-0-brainstorm §3a
 BIG_FILE = 100_000                         # wrap 9b flags files over ~100 KB
 ACCEPT_WORDS = 40                          # phase-2-plan asks ~25; warn above this
 OVERRUN = 2                                # a ticket commit's net lines over 2× its Budget warns
-TEST_RATIO, TEST_FLOOR = 1.5, 50           # lean-runs: tests over 1.5× code and ≥ 50 lines error
+TEST_RATIO, TEST_FLOOR = 1.5, 50           # ticket warning: tests net ≥ 50 and over 1.5× code added
+RUN_TEST_FLOOR = 100                      # run gate: ignore smaller test changes
 MERGE_BELOW, MERGE_MIN_TICKETS = 40, 4      # a median code Budget under 40 over 4+ tickets warns: merge
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/[^/]+/(screens|prototypes|understand)/"
 TEST_FILE = r"(^|/)(tests?|__tests__)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(test|spec)\.[^/]*$"
@@ -388,16 +389,8 @@ def check_risk(run, t, doc, rep):
 
 def check_overrun(t, lane, sha, doc, rep, n):
     """The `done @` commit alone, receipts excluded: net lines against the Budget, tests against code."""
-    code = tests = net = 0
-    for row in git_out(rep.repo, "diff", "--numstat", f"{sha}^", sha).splitlines():
-        added, deleted, path = row.split("\t", 2)
-        if added == "-" or re.search(RECEIPTS, path):
-            continue
-        net += int(added) - int(deleted)
-        if re.search(TEST_FILE, path):
-            tests += int(added) - int(deleted)
-        else:
-            code += int(added)
+    code, code_net, tests = growth(rep.repo, f"{sha}^", sha)
+    net = code_net + tests
     parts = re.findall(r"\+(\d+)", field(t, "Budget")[1] or "")
     budget = sum(int(x) for x in parts)
     if parts and net > OVERRUN * budget:
@@ -408,13 +401,42 @@ def check_overrun(t, lane, sha, doc, rep, n):
         else:
             rep.warn(doc.path, n, msg + f": record `Budget waived: {t['id']} — <reason>` under `## Deviations`")
     if lane and lane.split()[0] in ("logic", "contract") and tests >= TEST_FLOOR and tests > TEST_RATIO * code:
-        reason = waiver(doc, "Ratio", t["id"])
-        msg = f"{t['id']}: tests net +{tests} over {TEST_RATIO}× code +{code} (allowed {TEST_RATIO * code:g})"
-        if reason:
-            rep.warn(doc.path, n, msg + f"; Ratio waived: {t['id']} — {reason}")
+        rep.warn(doc.path, n, f"{t['id']}: tests net +{tests} over {TEST_RATIO}× code +{code} "
+                              f"(allowed {TEST_RATIO * code:g}): cut to one test per behaviour")
+
+
+def growth(repo, a, b):
+    """Code added, code net and tests net over a git range, receipts and binaries excluded."""
+    code = code_net = tests = 0
+    for row in git_out(repo, "diff", "--numstat", a, b).splitlines():
+        added, deleted, path = row.split("\t", 2)
+        if added == "-" or re.search(RECEIPTS, path):
+            continue
+        if re.search(TEST_FILE, path):
+            tests += int(added) - int(deleted)
         else:
-            rep.error(doc.path, n, msg + f": cut to one test per behaviour, or record "
-                      f"`Ratio waived: {t['id']} — <reason>` under `## Deviations`")
+            code += int(added)
+            code_net += int(added) - int(deleted)
+    return code, code_net, tests
+
+
+def check_run_ratio(doc, tickets, rep):
+    shas = [re.fullmatch(r"done @ (" + SHA + r")", field(t, "Status")[1] or "") for t in tickets]
+    base = re.match(SHA, doc.header().get("Base", ""))
+    if not shas or not all(shas) or not base:
+        return
+    commits = [base.group(0)] + [m.group(1) for m in shas]
+    if not all(git_has(rep.repo, sha) for sha in commits):
+        return  # header and ticket checks report dangling pointers
+    last = max(commits[1:], key=lambda sha: int(git_out(rep.repo, "rev-list", "--count", sha)))
+    code, _, tests = growth(rep.repo, commits[0], last)
+    if tests >= RUN_TEST_FLOOR and tests > TEST_RATIO * code:
+        reason = waiver(doc, "Ratio", "run")
+        msg = f"run: tests net +{tests} over {TEST_RATIO}× code added +{code} (allowed {TEST_RATIO * code:g})"
+        if reason:
+            rep.warn(doc.path, 0, msg + f"; Ratio waived: run — {reason}")
+        else:
+            rep.error(doc.path, 0, msg + ": cut tests or record `Ratio waived: run — <reason>` under `## Deviations`")
 
 
 def check_test_smells(t, sha, doc, rep, n):
@@ -479,6 +501,7 @@ def check_plan(run, rep, behaviours):
     strict = doc.status() in ("complete", "done")
     require_sections(doc, rep, PLAN_SECTIONS, strict)
     tickets = check_tickets(run, doc, rep, behaviours, strict)
+    check_run_ratio(doc, tickets, rep)
     accepts = sum(bool(re.match(r"^\s*- \[[ x]\] ", x)) for t in tickets for _, x in t["lines"])
     if strict and accepts > PLAN_ACCEPT_MAX and not any(
             re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
@@ -579,15 +602,7 @@ def note_net_growth(run, rep):
     base = re.match(SHA, run["docs"]["plan.md"].header().get("Base", "")) if "plan.md" in run["docs"] else None
     if not base or not git_has(rep.repo, base.group(0)):
         return
-    code = tests = 0
-    for row in git_out(rep.repo, "diff", "--numstat", base.group(0), "HEAD").splitlines():
-        added, deleted, path = row.split("\t", 2)
-        if added == "-" or re.search(RECEIPTS, path):
-            continue
-        if re.search(TEST_FILE, path):
-            tests += int(added) - int(deleted)
-        else:
-            code += int(added) - int(deleted)
+    _, code, tests = growth(rep.repo, base.group(0), "HEAD")
     rep.note(run["docs"]["wrap.md"].path, f"run net since plan Base: code {code:+d} · tests {tests:+d} "
                                           "(copy onto the WORKLOG.md `Run:` line)")
 
