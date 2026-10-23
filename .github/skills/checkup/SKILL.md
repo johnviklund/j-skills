@@ -241,6 +241,27 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
   directory that grew most (`git diff --dirstat=lines <oldest entry's first commit>^ HEAD -- .
   ':(exclude).workflow'`). When none of those runs shrank the code: ⚠️ ten runs with no pay-down,
   recommend `workflow improve <that directory> - goal: simpler, same behaviour`.
+- **Test growth.** Over the same range as Code growth, report net tests and net code plus the current tracked-text tests ÷ code ratio. When net tests exceed net code, ⚠️ recommend `workflow improve tests - goal: fewer tests, same coverage`. The ratio is context only. Run this block with the loaded workflow skill's path; Python 3 and git are required. It prints one line.
+
+```sh
+python3 - "<workflow skill folder>/scripts/check-run.py" "<oldest entry's first commit>^" HEAD <<'PY'
+import pathlib, re, runpy, sys
+rules = runpy.run_path(sys.argv[1])
+_, code, tests = rules["growth"](".", sys.argv[2], sys.argv[3])
+stock = [0, 0]  # code, tests; use check-run's receipt and test-file definitions
+for name in rules["git_out"](".", "ls-files", "-z").split("\0"):
+    path = pathlib.Path(name)
+    if not name or re.search(rules["RECEIPTS"], name) or not path.is_file():
+        continue
+    data = path.read_bytes()
+    if b"\0" not in data:
+        stock[bool(re.search(rules["TEST_FILE"], name))] += len(data.splitlines())
+ratio = f"{stock[1] / stock[0]:.2f}" if stock[0] else "n/a"
+advice = "⚠️ workflow improve tests - goal: fewer tests, same coverage" if tests > code else "✅"
+print(f"tests net {tests:+d} · code net {code:+d} · tracked tests/code {ratio} · {advice}")
+PY
+```
+
 - **Missing evidence.** Recent entries without `Run:`/`Seats:` lines: ⚠️ the wrap step is being
   skipped -- nothing can be judged until it isn't.
 - **Stale routing.** `ROUTING.md`'s *Last verified* date > 90 days old, or a *Trial* entry with no

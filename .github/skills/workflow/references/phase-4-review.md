@@ -46,6 +46,8 @@ Review answers two questions, kept apart so one can't hide the other:
   per boundary, answering: who can send input, what it can reach, what it can change, what is logged, what fails open, what is the worst case.
   Cite code or tests for the answers; a trigger alone is not a finding. With no boundary, use the template's `none` line.
   Rate exploitable holes P0/P1 on the existing bar, an unmitigated plausible threat P2, a hardening idea P3.
+  **Run test growth.** Run `check-run.py` before the verdict. Judge each `Ratio waived: run — <reason>`
+  under the plan's `## Deviations`: does the added coverage justify the numbers, or should tests shrink?
   **Simplicity** is part of Defects, with three checks:
   - **Same-run waste.** A copy of an existing helper, a pass-through wrapper, an unused
     parameter or branch, or a test that asserts nothing a sibling test doesn't. P1 when this run's

@@ -12,7 +12,8 @@ Checks what a script can count, so no phase has to eyeball it:
   blocked-by cycle; operator tickets verify a receipt;
 - slop guards for every run not yet done: a `Budget:` on logic and contract plan
   tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
-  OVERRUN× its budget and net tests within TEST_RATIO× code; waivers need a reason under `Ratio waived:` or `Budget waived:`;
+  OVERRUN× its budget; ticket test ratios warn, and the completed-run test ratio gates before review;
+  run ratio and ticket budget waivers need a reason under `Ratio waived:` or `Budget waived:`;
   added test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a wrap in progress notes the run's net code and test
