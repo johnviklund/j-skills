@@ -2,11 +2,11 @@ Command: workflow plan run-ratio-and-retire
 Created: 2026-10-23 · Claude Opus 5.5
 Base:    cafdfaa
 Inputs:  .workflow/run-ratio-and-retire/brainstorm.md @ 43e006b
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (workflow and checkup skills only; no PRODUCT.md or DESIGN.md)
 Size: code 785 · tests 502 · ratio 0.64 · largest touched check-run.py 785, test_check_run.py 502, checkup/SKILL.md 320 (doc) · over 1,000: none
-Decisions: pending — 1 (B7 data source), 2 (absolute ratio trigger), ticket list
+Decisions: 1a (git numstat over the Code growth range) · 2a (ratio shown, trend triggers) · tickets approved 2026-10-23 on the condition the run adds little token cost: the gate is a script, checkup adds one short command block with a one-line result
 
 ## Execution state
 <filled by execute>
@@ -61,7 +61,7 @@ Status: todo
 
 ## Risks
 T1 is the risk: it rewrites six existing ratio tests, and a lost assertion would hide a regression; review counts assertions before and after.
-A run whose tickets land out of order: the latest `done @` is picked by commit count, as P1 did.
+A run whose tickets land out of order: the latest `done @` is picked by commit count, as P1 did. Token cost: the gate runs in check-run (no model reads), and T2's checkup block prints one line per repo.
 Not taken: gating on net code (P1 variant B), which flags refactor runs.
 
 ## TODO impacts
