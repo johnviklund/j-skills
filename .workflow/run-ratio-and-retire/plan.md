@@ -82,3 +82,4 @@ none (the brief names no TODO item)
 
 ## Deviations
 - T1 planned test consolidation: assertion sites 76 → 74; ratio methods 7 → 5. Details: receipts/t1-verification.md. Budget assertions unchanged.
+- Budget waived: T2 — the check-run docstring gains one line describing the new gate; no executable code or tests changed.
