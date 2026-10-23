@@ -200,6 +200,8 @@ class RatioTests(unittest.TestCase):
 
     def test_run_ratio_at_completion(self):
         for tests, status, error in ((151, "done @ {t1}\nWriter: m", True),
+                (151, "done @ {t1} · T2 delegated on 2026-10-02\nWriter: m", True),
+                (151, "done @ {t1} (proof in receipts/t2.md)\nWriter: m", True),
                 (150, "done @ {t1}\nWriter: m", False), (151, "todo", False),
                 (151, "awaiting-human", False)):
             with self.subTest(tests=tests, status=status):
