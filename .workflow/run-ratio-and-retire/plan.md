@@ -13,6 +13,7 @@ All tickets done; ready for review · writer: GPT-6.1 Sol
 T1 @ 577a33a
 T2 @ b8c24ce
 Session 1: T1, T2
+Session 2: C1-T1
 Baseline: 51 tests passed; no additional build/lint commands.
 Proof: receipts/t1-verification.md, receipts/t1-replay.txt, receipts/t2-checkup-cx.md
 Uncommitted: none after this state commit · Pending decision: none
