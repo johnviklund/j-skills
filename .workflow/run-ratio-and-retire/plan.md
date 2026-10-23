@@ -9,7 +9,11 @@ Size: code 785 · tests 502 · ratio 0.64 · largest touched check-run.py 785, t
 Decisions: 1a (git numstat over the Code growth range) · 2a (ratio shown, trend triggers) · tickets approved 2026-10-23 on the condition the run adds little token cost: the gate is a script, checkup adds one short command block with a one-line result
 
 ## Execution state
-<filled by execute>
+T1 done; T2 ready · writer: GPT-6.1 Sol
+T1 @ 577a33a
+Session 1: T1
+Baseline: 51 tests passed; no additional build/lint commands.
+Uncommitted: plan.md execution state · Pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -31,15 +35,17 @@ Delivers: B1, B2, B3, B4, B5, B8 · Blocked by: none · Lane: logic
 Budget: code +45 · tests +30
 Seam: `check-run.py` run as a subprocess on fixture runs (`test_check_run.py` `check()`); `growth()` extracted from the two numstat loops (F5); replay script in the run's `scripts/`
 Accept:
-- [ ] both tickets done, tests net +151, code added +100, no run waiver → ERROR line contains `run: tests net +151 over 1.5× code added +100 (allowed 150)` (B1)
-- [ ] same run plus `Ratio waived: run — fixture rewrite` under `## Deviations` → warn repeats `+151` and `fixture rewrite`; output has `0 errors` (B2)
-- [ ] tests net +150 with code added +100, and tests net +99 with code added +0 → no line contains `run: tests net` (B3)
-- [ ] logic and contract ticket, tests net +76, code +50, no waiver → warn `T1: tests net +76 over 1.5× code +50`; output has `0 errors` (B4)
-- [ ] B1's run with T2 `Status: todo` → no line contains `run: tests net` (B5)
-- [ ] `receipts/t1-replay.txt`, the new gate over P1's 26 runs → 1 flagged: `live-run-guardrails` tests +679 · code added +442 (B8)
+- [x] both tickets done, tests net +151, code added +100, no run waiver → ERROR line contains `run: tests net +151 over 1.5× code added +100 (allowed 150)` (B1)
+- [x] same run plus `Ratio waived: run — fixture rewrite` under `## Deviations` → warn repeats `+151` and `fixture rewrite`; output has `0 errors` (B2)
+- [x] tests net +150 with code added +100, and tests net +99 with code added +0 → no line contains `run: tests net` (B3)
+- [x] logic and contract ticket, tests net +76, code +50, no waiver → warn `T1: tests net +76 over 1.5× code +50`; output has `0 errors` (B4)
+- [x] B1's run with T2 `Status: done @ 577a33a
+Writer: GPT-6.1 Sol` → no line contains `run: tests net` (B5)
+- [x] `receipts/t1-replay.txt`, the new gate over P1's 26 runs → 1 flagged: `live-run-guardrails` tests +679 · code added +442 (B8)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k ratio` and `receipts/t1-replay.txt` (pre: 7 passed · no receipt)
 Skills: none
-Status: todo
+Status: done @ 577a33a
+Writer: GPT-6.1 Sol
 
 ### T2 — docs state the run rule; checkup reports test growth
 Delivers: B6, B7 · Blocked by: T1 · Lane: logic
@@ -70,3 +76,6 @@ none (the brief names no TODO item)
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: not present
 - workflow `ROADMAP.md` row 3 ("gate the run, keep the per-ticket ratio as a warning") → delivered by this run; wrap updates the row
+
+## Deviations
+- T1 planned test consolidation: assertion sites 76 → 74; ratio methods 7 → 5. Details: receipts/t1-verification.md. Budget assertions unchanged.
