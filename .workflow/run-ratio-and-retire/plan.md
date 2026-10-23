@@ -2,21 +2,11 @@ Command: workflow plan run-ratio-and-retire
 Created: 2026-10-23 · Claude Opus 5.5
 Base:    cafdfaa
 Inputs:  .workflow/run-ratio-and-retire/brainstorm.md @ 43e006b
-Status:  complete
+Status:  done
 
 Docs read: none in scope (workflow and checkup skills only; no PRODUCT.md or DESIGN.md)
 Size: code 785 · tests 502 · ratio 0.64 · largest touched check-run.py 785, test_check_run.py 502, checkup/SKILL.md 320 (doc) · over 1,000: none
 Decisions: 1a (git numstat over the Code growth range) · 2a (ratio shown, trend triggers) · tickets approved 2026-10-23 on the condition the run adds little token cost: the gate is a script, checkup adds one short command block with a one-line result
-
-## Execution state
-All tickets done; ready for review · writer: GPT-6.1 Sol
-T1 @ 577a33a
-T2 @ b8c24ce
-Session 1: T1, T2
-Session 2: C1-T1
-Baseline: 51 tests passed; no additional build/lint commands.
-Proof: receipts/t1-verification.md, receipts/t1-replay.txt, receipts/t2-checkup-cx.md
-Uncommitted: none after this state commit · Pending decision: none
 
 ## Findings
 | # | What is true | What it changes |

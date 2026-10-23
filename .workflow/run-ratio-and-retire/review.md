@@ -2,7 +2,7 @@ Command: workflow review run-ratio-and-retire
 Created: 2026-10-23 · Claude Opus 5.5
 Base:    d1f9b5f
 Inputs:  .workflow/run-ratio-and-retire/plan.md @ cafdfaa
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing (`test_run_ratio_at_completion`, `test_run_ratio_floor_and_waiver`, `test_committed_test_ratio`; replay receipt re-checked: 26 runs, 1 flagged)

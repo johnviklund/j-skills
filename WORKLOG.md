@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-23 · run-ratio-and-retire · check-run judges test growth once per run · GPT-6.1 Sol
+- `check-run.py` errors when tests net exceed 1.5× code added across the whole run, checked once every ticket is done; `Ratio waived: run — <reason>` turns it into a warning. The per-ticket ratio is now a warning. `checkup` reports test growth next to code growth and points at `workflow improve` when tests outgrow code.
+- Replaying the new gate over P1's 26 runs flags one (`live-run-guardrails`). Review cycle 1 found the gate skipped plans whose done status carries a note after the sha (6 such plans in cx-intelligence); fixed with a red test first. Three P3s deferred.
+- Commits: 577a33a b8c24ce 40f9e4f
+- Review: ship as-is (cycle 2, 0 open) @ 52e7b3b
+- Run: 3 tickets · 2 sessions · 2 review cycles · 2 deviations · 0 findings overturned · net code +16 · tests +1
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@e712b74ba5ce
+- Why: 7 of 16 per-ticket ratio hits were false and absorbed by waivers while nothing judged growth at run level.
+
 ## 2026-10-22 · threat-model-review · briefs name trust boundaries and review runs a threat pass on each · GPT-6.1 Sol
 - A brief that touches outside input, credentials, writes, shell or permissions gets an optional `## Trust boundaries` section. Review answers six fixed questions per boundary in a `Threats:` line, rated on the existing severity bar. A run with no trigger writes `Threats: none`.
 - `check-run.py` needed no change; one test pins that the section is optional. A trial row sits in `SKILL-IMPACT.md`.
