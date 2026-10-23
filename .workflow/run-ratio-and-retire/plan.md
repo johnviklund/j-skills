@@ -9,11 +9,13 @@ Size: code 785 · tests 502 · ratio 0.64 · largest touched check-run.py 785, t
 Decisions: 1a (git numstat over the Code growth range) · 2a (ratio shown, trend triggers) · tickets approved 2026-10-23 on the condition the run adds little token cost: the gate is a script, checkup adds one short command block with a one-line result
 
 ## Execution state
-T1 done; T2 ready · writer: GPT-6.1 Sol
+All tickets done; ready for review · writer: GPT-6.1 Sol
 T1 @ 577a33a
-Session 1: T1
+T2 @ b8c24ce
+Session 1: T1, T2
 Baseline: 51 tests passed; no additional build/lint commands.
-Uncommitted: plan.md execution state · Pending decision: none
+Proof: receipts/t1-verification.md, receipts/t1-replay.txt, receipts/t2-checkup-cx.md
+Uncommitted: none after this state commit · Pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -52,13 +54,14 @@ Delivers: B6, B7 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `grep` over the workflow `references/`, `MAINTAINING.md`, `check-run.py` and `checkup/SKILL.md`; checkup §6 commands run on cx-intelligence
 Accept:
-- [ ] `grep -c 'Ratio waived: run'` over tests.md, phase-2-plan.md, phase-3-execute.md, phase-4-review.md → ≥ 1 in each file (B6)
-- [ ] `grep -rnE 'Ratio waived: T#|error above 1\.5'` over workflow `references/`, `MAINTAINING.md`, `scripts/check-run.py` → no output (B6)
-- [ ] `grep -c 'Test growth' .github/skills/checkup/SKILL.md` → 1; that bullet contains `workflow improve tests - goal: fewer tests, same coverage` (B7)
-- [ ] `receipts/t2-checkup-cx.md`, §6 test-growth commands on cx-intelligence `50ef5321^..a5f0f341` → net tests +3535 · net code +2885 · ⚠️ with that recommendation (B7)
+- [x] `grep -c 'Ratio waived: run'` over tests.md, phase-2-plan.md, phase-3-execute.md, phase-4-review.md → ≥ 1 in each file (B6)
+- [x] `grep -rnE 'Ratio waived: T#|error above 1\.5'` over workflow `references/`, `MAINTAINING.md`, `scripts/check-run.py` → no output (B6)
+- [x] `grep -c 'Test growth' .github/skills/checkup/SKILL.md` → 1; that bullet contains `workflow improve tests - goal: fewer tests, same coverage` (B7)
+- [x] `receipts/t2-checkup-cx.md`, §6 test-growth commands on cx-intelligence `50ef5321^..a5f0f341` → net tests +3535 · net code +2885 · ⚠️ with that recommendation (B7)
 Verify: `grep -c 'Ratio waived: run' .github/skills/workflow/references/{tests,phase-2-plan,phase-3-execute,phase-4-review}.md; grep -rnE 'Ratio waived: T#|error above 1\.5' .github/skills/workflow/references .github/skills/workflow/MAINTAINING.md .github/skills/workflow/scripts/check-run.py; grep -c 'Test growth' .github/skills/checkup/SKILL.md` (pre: 0 · 0 · 0 · 0 · 3 hits · 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ b8c24ce
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (the gate fires once per run, on check-run's output) and T2 (checkup's test-growth line on cx-intelligence)
