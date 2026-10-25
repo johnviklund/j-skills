@@ -9,10 +9,10 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25)
 
 ## Execution state
-Current: T5 done; next T4, then T2 (paid fixture sessions pre-approved, 3a)
-T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
+Current: T5 and T4 done; next T2 (paid fixture sessions pre-approved, 3a)
+T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2 · Session 2: T3, T2
-Session 3: T5, T4 · Uncommitted: T4 and execution state until commit
+Session 3: T5, T4, T2 · Uncommitted: T2 handoff and execution state until commit
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -64,13 +64,14 @@ Delivers: B2, B3, B6 · Blocked by: T3 · Lane: logic
 Budget: code +0 · tests +0 · why: doc-only, about 6 lines in report.md
 Seam: `grep` over `skills/checkup/references/report.md`
 Accept:
-- [ ] §Skill to seat names `../workflow/ROUTING.md` as the rows to read; `grep -c 'workflow/ROUTING.md'` → ≥ 1, `grep -cE 'Sonnet|Opus|GPT'` → 0 (B3)
-- [ ] Model and Fallback hold a model and effort copied from those rows; `grep -c 'never a seat name'` → 1 (B3)
-- [ ] §Questions → a question cites every path its finding rests on, and the section line reads "see Question N" without the consequence; `grep -c 'see Question'` → ≥ 1 (B6)
-- [ ] §Safe-fix line → `grep -c 'Nothing follows the safe-fix line'` → 1 (B2)
+- [x] §Skill to seat names `../workflow/ROUTING.md` as the rows to read; `grep -c 'workflow/ROUTING.md'` → ≥ 1, `grep -cE 'Sonnet|Opus|GPT'` → 0 (B3)
+- [x] Model and Fallback hold a model and effort copied from those rows; `grep -c 'never a seat name'` → 1 (B3)
+- [x] §Questions → a question cites every path its finding rests on, and the section line reads "see Question N" without the consequence; `grep -c 'see Question'` → ≥ 1 (B6)
+- [x] §Safe-fix line → `grep -c 'Nothing follows the safe-fix line'` → 1 (B2)
 Verify: `R=skills/checkup/references/report.md; grep -c 'workflow/ROUTING.md' $R; grep -c 'never a seat name' $R; grep -c 'see Question' $R; grep -c 'Nothing follows the safe-fix line' $R; grep -cE 'Sonnet|Opus|GPT' $R` (pre: 0 · 0 · 0 · 0 · 0)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ bfa6d38
+Writer: GPT-6.1 Sol
 
 ### T5 — a fixture repo that holds the three live findings
 Delivers: B2, B6 · Blocked by: none · Lane: logic
