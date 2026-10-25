@@ -1,15 +1,15 @@
 Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
-Base:    3480338
+Base:    37f7b44
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  complete
+Status:  drafting
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lines, 23,646 B (doc) · over 1,000: none
-Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone)
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: pending
 
 ## Execution state
-Current: T2 stopped after failed receipt verification; replan needed
+Current: replan drafted — T3 added before a T2 retry; awaiting approval
 T1 @ bc2a0e2
 writer: GPT-6.1 Sol
 Baseline: approved content checks; check-run 0 errors, 0 warnings
@@ -30,6 +30,9 @@ Pending decision: revise T2 seam or approve a paid retry; see receipts/t2-verifi
 | F8 | cx WORKLOG: no non-incumbent has 2+ runs on a seat (Opus 5.5 at brainstorm: 1 run) | no live promotion candidate; B5 is checked in T1's text only |
 | F9 | `claude` and `codex` are installed on this server; `claude -p --permission-mode plan` runs a fresh session that cannot write | T2's sessions run headless and read-only in the clone, which must not be edited |
 | F10 | SKILL.md §Output format (lines 280-308) is 1,350 B | moving it and adding 2 pointer lines leaves about 22.4 KB; B1's `< 23646` holds |
+| F12 | T2 receipt: cx `TODO.md` is 19,012 B, over the ~15 KB check (checkup SKILL.md:191, "grounding cost repeats every phase"); the report named that cost, then gave no card: "a call about your own backlog" | report.md has no home for a costed finding whose fix needs a human call, so it was dropped. T3 closes the gap: such a finding gets a card whose prompt proposes the change for approval |
+| F13 | cx @ 24d07d68 still holds that `TODO.md` (19,012 B, rechecked) | the retried T2 has a live finding that must yield a card: `workflow todo` → Brainstorm partner, TODO intake row → `Sonnet 5.5 · medium` / `GPT-6 Sol · high` |
+| F14 | The headless run skipped Seats (receipt: "Not examined") and said so | an honest gap, not a T2 failure; running the battery is out of scope (checks unchanged). T2's prompt stays the human's literal `checkup` |
 | F11 | `SKILL-IMPACT.md:18` trials checkup's "each action names the cost of leaving it" rule (trialing, 3 checkups) | report.md keeps that rule word for word, so the trial goes on measuring the same thing |
 
 ## Tickets
@@ -50,29 +53,41 @@ Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
 Status: done @ bc2a0e2
 Writer: GPT-6.1 Sol
 
+### T3 — a costed finding is never dropped for needing a human call
+Delivers: B2, B7 · Blocked by: T1 · Lane: logic
+Budget: code +0 · tests +0 · why: doc-only, 3–5 lines in report.md
+Seam: `grep` over `skills/checkup/references/report.md`
+Accept:
+- [ ] report.md §Action cards → a finding with a stated cost whose fix needs a human call gets a card whose prompt has the agent propose the change and wait for approval; `grep -c 'propose'` → ≥ 1 (B2)
+- [ ] report.md §Action cards → an example: `TODO.md` over ~15 KB → a `workflow todo` card that proposes what to archive; `grep -c 'TODO.md'` → ≥ 1 (B2)
+- [ ] report.md → a line allowing "No action earns a card" only when no ⚠️/🔴 names a cost; `grep -c 'No action earns a card'` → 1 (B7)
+Verify: `grep -c 'propose' skills/checkup/references/report.md; grep -c 'TODO.md' skills/checkup/references/report.md; grep -c 'No action earns a card' skills/checkup/references/report.md` (pre: 0 · 0 · 0)
+Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
+Status: todo
+
 ### T2 — receipts: checkup on cx-intelligence, then one card's prompt in a fresh session
-Delivers: B2, B3, B4, B6, B7 · Blocked by: T1 · Lane: operator
+Delivers: B2, B3, B4, B6, B7 · Blocked by: T1, T3 · Lane: operator
 Budget: code +0 · tests +0
 Seam: the installed checkup run headless in `~/cx-intelligence`; the receipts
 Runner: agent after approval · Risk: cheap (read-only sessions in the read-only clone; no repo writes)
-Handoff: after push, `npx skills update -g` on this server (background, long timeout) and `diff -q ~/.agents/skills/checkup/references/report.md .github/skills/checkup/references/report.md` → no output; pull the clone (memory: cx-intelligence-reference); `cd ~/cx-intelligence && claude -p --permission-mode plan "checkup"` → `receipts/t2-cx-checkup.md`; pick the first agent card, run its prompt the same way → `receipts/t2-fresh-session.md`
+Handoff: after push, `npx skills update -g` on this server (background, long timeout) and `diff -q ~/.agents/skills/checkup/references/report.md .github/skills/checkup/references/report.md` → no output; pull the clone (memory: cx-intelligence-reference); `cd ~/cx-intelligence && claude -p --permission-mode plan "checkup"` → `receipts/t2-cx-checkup-2.md`; pick the first agent card, run its prompt the same way → `receipts/t2-fresh-session.md`
 Accept:
-- [ ] `receipts/t2-cx-checkup.md` → ends with numbered questions, then 1 to 3 cards each with `Why:`, `Reset:`, `Model:`, `Fallback:` and a fenced `text` prompt, then the safe-fix line; 0 `Reads:` (B2)
-- [ ] each agent card's `Model:` and `Fallback:` → equal its seat's `ROUTING.md` row (a `memory.*` card: `Sonnet 5.5 · high` / `GPT-6 Sol · high`) (B3)
+- [ ] `receipts/t2-cx-checkup-2.md` → ends with numbered questions, then 1 to 3 cards each with `Why:`, `Reset:`, `Model:`, `Fallback:` and a fenced `text` prompt, then the safe-fix line; 0 `Reads:` (B2)
+- [ ] a card for the cx `TODO.md` size finding (F13) whose prompt names `workflow todo` and `TODO.md`; `Model:` `Sonnet 5.5 · medium`, `Fallback:` `GPT-6 Sol · high`; every other agent card equals its seat's `ROUTING.md` row (B3)
 - [ ] the verify-link finding → a numbered question citing `.agents/skills/verify-cx-intelligence` and the missing `.claude/`; no 🔴 line for it (B6)
 - [ ] no two cards in the receipt run the same command (B7)
 - [ ] `receipts/t2-fresh-session.md` → its first actions read the paths the prompt names; it asks nothing about the checkup's context (B4)
-Verify: receipt: `receipts/t2-cx-checkup.md` — questions → cards → safe-fix line, 0 `Reads:`; `receipts/t2-fresh-session.md` — named paths read, no context question (pre: no receipt)
+Verify: receipt: `receipts/t2-cx-checkup-2.md` (the first receipt stays as the failed attempt) — questions → cards → safe-fix line, 0 `Reads:`; `receipts/t2-fresh-session.md` — named paths read, no context question (pre: no receipt)
 Skills: none
 Status: todo
 
 ## Coverage
 - Outcome → T2 (the cx-intelligence checkup receipt shows questions, cards and the safe-fix line in that order)
-- B1 → T1 · B2 → T1, T2 · B3 → T1, T2 · B4 → T2 · B5 → T1 · B6 → T1, T2 · B7 → T1, T2 · B8 → T1
+- B1 → T1 · B2 → T1, T3, T2 · B3 → T1, T2 · B4 → T2 · B5 → T1 · B6 → T1, T2 · B7 → T1, T3, T2 · B8 → T1
 - Out of scope: full SKILL.md trim → untouched · `ROUTING.md` → untouched · checks, severities, safe-fix allow-list → untouched (F6) · cx-intelligence → read only
 
 ## Risks
-T2 is the risk: a headless checkup may differ from an interactive one (it cannot be asked the safe-fix question), and the receipt depends on what cx holds that day. If the headless run stalls on a question, the human runs `checkup` once in their own session instead.
+T2 is the risk: one more paid headless session (~40 s), and the model may still punt; if it does, the next replan builds a fixture repo instead. A headless checkup may differ from an interactive one (it cannot be asked the safe-fix question), and the receipt depends on what cx holds that day. If the headless run stalls on a question, the human runs `checkup` once in their own session instead.
 Outside its files: `npx skills update -g` refreshes every installed j-skill on this server to current main.
 Not taken: pointing report.md at workflow `SKILL.md` for the card shape (saves ~10 lines but makes every checkup read ~12 KB more).
 
