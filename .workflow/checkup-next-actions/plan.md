@@ -2,14 +2,14 @@ Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    ce84693
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lines (doc), report.md 89 lines · over 1,000: none
-Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25) · replan 3: pending
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25) · replan 3: 1a (fallback keeps the phase row's effort) · 2a (T6, revised T2 approved) · 3a (one last fixture run, two sessions, USD 1 cap each; a failure goes to wrap) — 2026-10-25 · 4a split declined
 
 ## Execution state
-Current: replan 3 drafting after T2 fixture FAIL · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
+Current: replan 3 approved; next T6, then T2 · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -90,7 +90,7 @@ Status: todo
 Delivers: B2, B3, B4, B6, B7 · Blocked by: T1, T3, T4, T5, T6 · Lane: operator
 Budget: code +0 · tests +0
 Seam: the installed checkup run headless in `/tmp/checkup-fixture`; the receipts
-Runner: agent after approval · Risk: costly (two paid sessions, no stated ceiling; each capped `--max-budget-usd 1`; fixture only, no private data)
+Runner: agent after approval · Risk: costly (two paid sessions, approved 3a, no stated ceiling; each capped `--max-budget-usd 1`; fixture only, no private data)
 Handoff: push; `npx skills update -g` (background, long timeout); `diff -q ~/.agents/skills/checkup/references/report.md .github/skills/checkup/references/report.md` → no output. Dry run: T5's script, then its Verify. Run `cd /tmp/checkup-fixture && claude -p --permission-mode default --allowedTools "Read Grep Glob Bash Skill" --disallowedTools "Write Edit NotebookEdit" --max-budget-usd 1 --verbose --output-format stream-json "checkup"` → stream in /tmp, final `result` → `receipts/t2-fixture-checkup-2.md` (the first fixture receipt stays as the failed attempt). Pass → run the `workflow todo` card's prompt the same way → `receipts/t2-fresh-session.md`. A failed clause stops the ticket.
 Accept:
 - [ ] the final `result` ends: numbered questions, 1 to 3 cards, then exactly `Safe fixes: none applied.`; no two cards run the same command (B2, B7)
@@ -114,7 +114,8 @@ none (the brief names no TODO item)
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md, ROADMAP.md: absent at the root; `SKILL-IMPACT.md:18` checkup trial → still true (F11)
 ## Deviations
+Split declined by human: 2026-10-25 (25 acceptance lines; T1–T5 done hold 15)
 - T1: agent-docs required the SKILL-IMPACT.md trial row; added it. No test assertions changed. - Replan 2 (2a, 3a): T2 moves to a `/tmp` fixture (F19), default mode, writes disallowed (F15); T4 closes F16, F17.
 - T2 cx: 0 cards, Seats skipped (t2-cx-checkup.md, t2-verification.md). Retry after private-data approval 1a: 3 cards, seat names as models, verify question missing a path, summary after the report (t2-retry-*.md, t2-verification-2.md).
 - T2 fixture: USD 0.1944416, fixture unchanged; clauses 1 and 3 pass, clause 2 fails (F20, F21), fresh session not run (t2-fixture-verification.md).
-- Replan 3: T6 closes F20–F22 before one more fixture attempt.
+- Replan 3 (1a, 2a, 3a): T6 closes F20–F22 before one last fixture attempt.
