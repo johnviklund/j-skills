@@ -9,7 +9,8 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25) · replan 3: 1a (fallback keeps the phase row's effort) · 2a (T6, revised T2 approved) · 3a (one last fixture run, two sessions, USD 1 cap each; a failure goes to wrap) — 2026-10-25 · 4a split declined
 
 ## Execution state
-Current: replan 3 approved; next T6, then T2 · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
+Current: T6 done; next T2, final approved fixture attempt · T6 @ b68c1ad · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
+Session 4: T6, T2
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -79,13 +80,14 @@ Delivers: B2, B3 · Blocked by: T4 · Lane: logic
 Budget: code +0 · tests +0 · why: doc-only, about 5 lines in report.md
 Seam: `grep` over `skills/checkup/references/report.md`
 Accept:
-- [ ] §Skill to seat → Model and Fallback drop the vendor; `grep -c 'drop the vendor'` → 1; `grep -cE 'Sonnet|Opus|GPT'` → 0 (B3)
-- [ ] §Skill to seat → the fallback effort rule from Q1; `grep -c 'phase row.s effort'` → 1 (B3)
-- [ ] §Skill to seat → read both ROUTING.md tables whole; `grep -c 'tables whole'` → 1 (B3)
-- [ ] §Safe-fix line → `grep -c 'exactly .Safe fixes: none applied.'` → 1 (B2)
+- [x] §Skill to seat → Model and Fallback drop the vendor; `grep -c 'drop the vendor'` → 1; `grep -cE 'Sonnet|Opus|GPT'` → 0 (B3)
+- [x] §Skill to seat → the fallback effort rule from Q1; `grep -c 'phase row.s effort'` → 1 (B3)
+- [x] §Skill to seat → read both ROUTING.md tables whole; `grep -c 'tables whole'` → 1 (B3)
+- [x] §Safe-fix line → `grep -c 'exactly .Safe fixes: none applied.'` → 1 (B2)
 Verify: `R=skills/checkup/references/report.md; grep -c 'drop the vendor' $R; grep -c 'phase row.s effort' $R; grep -c 'tables whole' $R; grep -c 'exactly .Safe fixes: none applied.' $R; grep -cE 'Sonnet|Opus|GPT' $R` (pre: 0 · 0 · 0 · 0 · 0)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ b68c1ad
+Writer: GPT-6.1 Sol
 ### T2 — receipts: checkup on the fixture, then one card's prompt in a fresh session
 Delivers: B2, B3, B4, B6, B7 · Blocked by: T1, T3, T4, T5, T6 · Lane: operator
 Budget: code +0 · tests +0
@@ -110,7 +112,7 @@ Status: todo
 T2 is the risk: the fourth paid attempt (USD 0.19 last time); one sample can still miss a clause. A failure now ends the run's proof attempts: wrap records the gap. A fixture may miss a cx-only behaviour; the cx receipts stay as the record of the live repo.
 Outside its files: `npx skills update -g` refreshes every installed j-skill here. Not taken: another cx run (private data, same results); an edit to ROUTING.md (human only, out of scope).
 ## TODO impacts
-none (the brief names no TODO item)
+none
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md, ROADMAP.md: absent at the root; `SKILL-IMPACT.md:18` checkup trial → still true (F11)
 ## Deviations
