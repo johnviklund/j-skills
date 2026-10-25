@@ -12,7 +12,7 @@ Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agen
 Current: T5 and T4 done; T2 fixture FAIL; next workflow plan (no further paid retry)
 T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2 · Session 2: T3, T2
-Session 3: T5, T4, T2 · Uncommitted: none after fixture receipt commit · Pending: approval to publish new receipts
+Session 3: T5, T4, T2 · Uncommitted: none after approval receipt commit · Publication approved: user 1a, receipts/t2-publication-approval.md
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
