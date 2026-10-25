@@ -67,8 +67,9 @@ to "the findings above". For finished-run cleanup, name the runs and route unsav
 
 ## Skill to seat
 
-Read `../workflow/ROUTING.md` relative to this checkup folder for the seat and phase rows.
-This table selects a seat. Copy the model and effort into Model and Fallback, never a seat name.
+Read `../workflow/ROUTING.md` relative to this checkup folder; read the seat and phase tables whole.
+This table selects a seat. Copy the model into Model and Fallback, never a seat name; drop the vendor.
+Use the phase row's effort for both Model and Fallback, including when the fallback chain names another effort.
 Read context from the phase row. A trial replaces
 the primary, is marked `(trial)`, and uses the primary as fallback. Follow the fallback chain
 when a model is unavailable and name the switch.
@@ -88,6 +89,6 @@ the reviewer exam uses the review row. Human-only decisions use the human card r
 ## Safe-fix line
 
 End with the safe-fix status. If fixes were requested, offer only the next allowed fix and
-wait for its approval. Otherwise say "Safe fixes: none applied." The allow-list in `SKILL.md`
+wait for its approval. Otherwise print exactly `Safe fixes: none applied.` The allow-list in `SKILL.md`
 still governs every fix.
 Nothing follows the safe-fix line. It is the final line of the report.
