@@ -9,13 +9,15 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25)
 
 ## Execution state
-Current: replan approved — next T3, then T2 retry
+Current: T3 done; approved T2 retry ready
 T1 @ bc2a0e2
+T3 @ 51a1e53
 writer: GPT-6.1 Sol
 Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2
+Session 2: T3, T2
 Uncommitted: none after receipt commit
-Pending decision: revise T2 seam or approve a paid retry; see receipts/t2-verification.md
+Pending decision: none; paid read-only retry approved in Decisions
 
 ## Findings
 | # | What is true | What it changes |
@@ -58,12 +60,13 @@ Delivers: B2, B7 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0 · why: doc-only, 3–5 lines in report.md
 Seam: `grep` over `skills/checkup/references/report.md`
 Accept:
-- [ ] report.md §Action cards → a finding with a stated cost whose fix needs a human call gets a card whose prompt has the agent propose the change and wait for approval; `grep -c 'propose'` → ≥ 1 (B2)
-- [ ] report.md §Action cards → an example: `TODO.md` over ~15 KB → a `workflow todo` card that proposes what to archive; `grep -c 'TODO.md'` → ≥ 1 (B2)
-- [ ] report.md → a line allowing "No action earns a card" only when no ⚠️/🔴 names a cost; `grep -c 'No action earns a card'` → 1 (B7)
+- [x] report.md §Action cards → a finding with a stated cost whose fix needs a human call gets a card whose prompt has the agent propose the change and wait for approval; `grep -c 'propose'` → ≥ 1 (B2)
+- [x] report.md §Action cards → an example: `TODO.md` over ~15 KB → a `workflow todo` card that proposes what to archive; `grep -c 'TODO.md'` → ≥ 1 (B2)
+- [x] report.md → a line allowing "No action earns a card" only when no ⚠️/🔴 names a cost; `grep -c 'No action earns a card'` → 1 (B7)
 Verify: `grep -c 'propose' skills/checkup/references/report.md; grep -c 'TODO.md' skills/checkup/references/report.md; grep -c 'No action earns a card' skills/checkup/references/report.md` (pre: 0 · 0 · 0)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ 51a1e53
+Writer: GPT-6.1 Sol
 
 ### T2 — receipts: checkup on cx-intelligence, then one card's prompt in a fresh session
 Delivers: B2, B3, B4, B6, B7 · Blocked by: T1, T3 · Lane: operator
