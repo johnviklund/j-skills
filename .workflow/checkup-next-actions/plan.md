@@ -9,10 +9,10 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25)
 
 ## Execution state
-Current: T5 and T4 done; next T2 (paid fixture sessions pre-approved, 3a)
+Current: T5 and T4 done; T2 fixture FAIL; next workflow plan (no further paid retry)
 T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2 · Session 2: T3, T2
-Session 3: T5, T4, T2 · Uncommitted: T2 handoff and execution state until commit
+Session 3: T5, T4, T2 · Uncommitted: none after fixture receipt commit · Pending: approval to publish new receipts
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -109,11 +109,10 @@ T2 is the risk: two paid sessions (about USD 0.30 each on the cx retry), and the
 Outside its files: `npx skills update -g` refreshes every installed j-skill on this server to current main. Not taken: a third cx run (private data gate, larger repo, the same plan-mode ending); pointing report.md at workflow `SKILL.md` for the card shape (every checkup would read ~12 KB more).
 ## TODO impacts
 none (the brief names no TODO item)
-
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md, ROADMAP.md: not present at the repo root; `SKILL-IMPACT.md:18` (checkup trial) → still true; the rule moves to report.md unchanged (F11)
-
 ## Deviations
+- T2 fixture: first session cost USD 0.1944416 and left the fixture unchanged, but the TODO card adds vendor prefixes and copies fallback effort medium instead of high. Clause 2 fails; no fresh session or retry. See receipts/t2-fixture-verification.md and t2-fixture-checkup.md. Next: workflow plan.
 - T2: first paid session returned 0 cards and skipped Seats; B2 fails, B3/B7 unexercised, B4 not run. No retry. Receipts: t2-cx-checkup.md, t2-verification.md.
 - T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration initially needed network access; its T2 retry passed. No test assertions changed.
 - T2 retry: automatic approval review rejected the Claude launch before execution, requiring explicit authorization to send private cx-intelligence contents to Anthropic. Installation and clone refresh passed; no paid retry or fresh session started. See receipts/t2-retry-preflight.md and receipts/t2-retry-handoff.md. Then, after explicit user 1a: three cards appeared, including workflow todo for TODO.md, but model/fallback fields remained seat placeholders. The verify question omitted the required .agents/skills path, and a later final summary replaced the report ending. Verification failed; no fresh-session test or additional paid retry ran. See receipts/t2-verification-2.md. The earlier preflight entry records the initial rejection only.
