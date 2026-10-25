@@ -6,7 +6,7 @@ Status:  drafting
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lines (doc), report.md 89 lines · over 1,000: none
-Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2 (fixture): pending
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2, 3 pending
 
 ## Execution state
 Current: replan 2 drafted (T4, T5, then T2 on a fixture); awaiting ticket approval · pending: replan 2 ticket list and the fixture seam (D8)
