@@ -18,7 +18,7 @@ The checkup report in chat ends with numbered questions, then at most three acti
 - B5 — a seat promotion candidate → a numbered question with the ➡️ option first and a reason on every option, above the cards; its card reads `Model: human · <the edit>` and quotes the new `ROUTING.md` row
 - B6 — a finding whose severity hangs on a fact no file shows (cx: the missing `.claude/skills/verify-*` link, where "Claude Code is blocked here" was assumed) → asked as a question with its evidence, not settled by a guess
 - B7 — warnings that share one fix → one card (cx: leftover `## Execution state` blocks, `.DS_Store` and loose files in finished runs → one "tidy finished runs" card); never more than three cards
-- B8 — `SKILL.md` tells checkup to invoke `plain` once before writing the report (grep)
+- B8 — `grep plain skills/checkup/SKILL.md` → a line telling checkup to invoke `plain` once before writing the report
 
 ## Decisions
 - D1 — Each action is a workflow-style closing card: Why, Reset, Model, Fallback, then a fenced prompt — the shape the human already reads after every phase; the fence gives a copy button (product call)
