@@ -9,7 +9,7 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25)
 
 ## Execution state
-Current: T3 done; approved T2 retry ready
+Current: T3 done; T2 retry awaiting specific private-data authorization
 T1 @ bc2a0e2
 T3 @ 51a1e53
 writer: GPT-6.1 Sol
@@ -17,7 +17,7 @@ Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2
 Session 2: T3, T2
 Uncommitted: none after receipt commit
-Pending decision: none; paid read-only retry approved in Decisions
+Pending decision: approve private cx contents being sent to Anthropic for T2; receipts/t2-retry-handoff.md
 
 ## Findings
 | # | What is true | What it changes |
@@ -82,7 +82,7 @@ Accept:
 - [ ] `receipts/t2-fresh-session.md` → its first actions read the paths the prompt names; it asks nothing about the checkup's context (B4)
 Verify: receipt: `receipts/t2-cx-checkup-2.md` (the first receipt stays as the failed attempt) — questions → cards → safe-fix line, 0 `Reads:`; `receipts/t2-fresh-session.md` — named paths read, no context question (pre: no receipt)
 Skills: none
-Status: todo
+Status: awaiting-human
 
 ## Coverage
 - Outcome → T2 (the cx-intelligence checkup receipt shows questions, cards and the safe-fix line in that order)
@@ -104,3 +104,4 @@ none (the brief names no TODO item)
 ## Deviations
 - T2: first paid session returned 0 cards and skipped Seats; B2 fails, B3/B7 unexercised, B4 not run. No retry. Receipts: t2-cx-checkup.md, t2-verification.md.
 - T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration initially needed network access; its T2 retry passed. No test assertions changed.
+- T2 retry: automatic approval review rejected the Claude launch before execution, requiring explicit authorization to send private cx-intelligence contents to Anthropic. Installation and clone refresh passed; no paid retry or fresh session started. See receipts/t2-retry-preflight.md and receipts/t2-retry-handoff.md.
