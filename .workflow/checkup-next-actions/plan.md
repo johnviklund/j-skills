@@ -9,7 +9,13 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone)
 
 ## Execution state
-<filled by execute>
+Current: T2 preparing authorized read-only receipts
+T1 @ bc2a0e2
+writer: GPT-6.1 Sol
+Baseline: approved content checks; check-run 0 errors, 0 warnings
+Session 1: T1, T2
+Uncommitted: plan state and T2 handoff
+Pending decision: none; T2 agent runner approved in plan Decisions 2a
 
 ## Findings
 | # | What is true | What it changes |
@@ -33,15 +39,16 @@ Delivers: B1, B2, B3, B5, B6, B7, B8 · Blocked by: none · Lane: logic
 Budget: code +0 · tests +0
 Seam: `grep` and `wc -c` over `skills/checkup/SKILL.md` and `skills/checkup/references/report.md`
 Accept:
-- [ ] `wc -c < skills/checkup/SKILL.md` → under 23646; `grep -c '^## Output format\|Recommended next'` on it → 0; `grep -c 'references/report.md'` → ≥ 1 (B1)
-- [ ] `grep -n '`plain`' skills/checkup/SKILL.md` → a line telling checkup to invoke `plain` once before writing the report (B8)
-- [ ] report.md card template → bullets `Why:`, `Reset:`, `Model:`, `Fallback:`, then a fenced `text` prompt; `grep -c 'Reads:'` on report.md → 0 (B2)
-- [ ] report.md skill → seat table → `memory.*` maps to `Brainstorm partner`, model and fallback read from `ROUTING.md`; `grep -cE 'Sonnet|Opus|GPT'` on report.md → 0 (B3)
-- [ ] report.md question rule → ➡️ option first, a reason on every option, at most 5 questions, unknown facts asked with their evidence (the cx verify-link case); human card reads `Model: human · ` (B5, B6)
-- [ ] report.md order → questions, then at most 3 cards, then the safe-fix line; warnings that share one fix → one card (B7)
+- [x] `wc -c < skills/checkup/SKILL.md` → under 23646; `grep -c '^## Output format\|Recommended next'` on it → 0; `grep -c 'references/report.md'` → ≥ 1 (B1)
+- [x] `grep -n '`plain`' skills/checkup/SKILL.md` → a line telling checkup to invoke `plain` once before writing the report (B8)
+- [x] report.md card template → bullets `Why:`, `Reset:`, `Model:`, `Fallback:`, then a fenced `text` prompt; `grep -c 'Reads:'` on report.md → 0 (B2)
+- [x] report.md skill → seat table → `memory.*` maps to `Brainstorm partner`, model and fallback read from `ROUTING.md`; `grep -cE 'Sonnet|Opus|GPT'` on report.md → 0 (B3)
+- [x] report.md question rule → ➡️ option first, a reason on every option, at most 5 questions, unknown facts asked with their evidence (the cx verify-link case); human card reads `Model: human · ` (B5, B6)
+- [x] report.md order → questions, then at most 3 cards, then the safe-fix line; warnings that share one fix → one card (B7)
 Verify: `wc -c < skills/checkup/SKILL.md; grep -c '^## Output format\|Recommended next' skills/checkup/SKILL.md; grep -n '`plain`' skills/checkup/SKILL.md; grep -cE 'Why:|Reset:|Model:|Fallback:|Brainstorm partner|➡️|Model: human' skills/checkup/references/report.md; grep -cE 'Reads:|Sonnet|Opus|GPT' skills/checkup/references/report.md` (pre: 23646 · 3 · no output · new file · new file)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ bc2a0e2
+Writer: GPT-6.1 Sol
 
 ### T2 — receipts: checkup on cx-intelligence, then one card's prompt in a fresh session
 Delivers: B2, B3, B4, B6, B7 · Blocked by: T1 · Lane: operator
@@ -75,3 +82,6 @@ none (the brief names no TODO item)
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md, ROADMAP.md: not present at the repo root
 - `SKILL-IMPACT.md:18` (checkup trial) → still true; the rule moves to report.md unchanged (F11)
+
+## Deviations
+- T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration needs network access and is retried with T2 installation. No test assertions changed.
