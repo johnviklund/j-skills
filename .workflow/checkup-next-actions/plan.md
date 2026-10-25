@@ -2,14 +2,14 @@ Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    e192505
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lines (doc), report.md 89 lines · over 1,000: none
-Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2, 3 pending
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25)
 
 ## Execution state
-Current: replan 2 drafted (T4, T5, then T2 on a fixture); awaiting ticket approval · pending: replan 2 ticket list and the fixture seam (D8)
+Current: replan 2 approved; next T5, T4, then T2 (paid fixture sessions pre-approved, 3a)
 T1 @ bc2a0e2 · T3 @ 51a1e53 · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2 · Session 2: T3, T2 · Uncommitted: none after receipt commit
 
@@ -118,4 +118,4 @@ none (the brief names no TODO item)
 - T2: first paid session returned 0 cards and skipped Seats; B2 fails, B3/B7 unexercised, B4 not run. No retry. Receipts: t2-cx-checkup.md, t2-verification.md.
 - T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration initially needed network access; its T2 retry passed. No test assertions changed.
 - T2 retry: automatic approval review rejected the Claude launch before execution, requiring explicit authorization to send private cx-intelligence contents to Anthropic. Installation and clone refresh passed; no paid retry or fresh session started. See receipts/t2-retry-preflight.md and receipts/t2-retry-handoff.md. Then, after explicit user 1a: three cards appeared, including workflow todo for TODO.md, but model/fallback fields remained seat placeholders. The verify question omitted the required .agents/skills path, and a later final summary replaced the report ending. Verification failed; no fresh-session test or additional paid retry ran. See receipts/t2-verification-2.md. The earlier preflight entry records the initial rejection only.
-- Replan 2 (drafting): T2 moves to a `/tmp` fixture (F19) in default mode with writes disallowed (F15); T4 closes the model and evidence-path gaps (F16, F17).
+- Replan 2 (approved 2a, 3a): T2 moves to a `/tmp` fixture (F19) in default mode with writes disallowed (F15); T4 closes the model and evidence-path gaps (F16, F17).
