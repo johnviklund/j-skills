@@ -2,11 +2,11 @@ Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    3480338
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lines, 23,646 B (doc) · over 1,000: none
-Decisions: pending (ticket-list round)
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone)
 
 ## Execution state
 <filled by execute>
