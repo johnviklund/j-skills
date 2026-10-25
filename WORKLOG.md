@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-25 · checkup-next-actions · checkup reports questions, three action cards and a fixed ending · GPT-6.1 Sol
+- Checkup's report format moved to `references/report.md`: numbered questions, at most three cards with a fresh-session prompt, the line `Safe fixes: none applied.`. Model lines come from ROUTING.md; unknown facts become questions with evidence paths.
+- Proven on a synthetic fixture, not the live repo: the ending, card shape and question clauses passed. The model lines failed four paid attempts and the fresh-session proof never ran; a script for the model lines is in TODO.md.
+- Commits: bc2a0e2 51a1e53 ee4c44e bfa6d38 b68c1ad
+- Review: ship to wrap, two approved P1 deferrals (cycle 1, 2 open P1) @ 659d054
+- Run: 5 tickets · 4 sessions · 1 review cycles · 6 deviations · 0 findings overturned · net code +0 · tests +0
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@b222ba534b11, checkup@a9b74b6e2ae5
+- Why: checkup ended in a summary with no way to act on it, and a copied action had no tested path.
+
 ## 2026-10-23 · run-ratio-and-retire · check-run judges test growth once per run · GPT-6.1 Sol
 - `check-run.py` errors when tests net exceed 1.5× code added across the whole run, checked once every ticket is done; `Ratio waived: run — <reason>` turns it into a warning. The per-ticket ratio is now a warning. `checkup` reports test growth next to code growth and points at `workflow improve` when tests outgrow code.
 - Replaying the new gate over P1's 26 runs flags one (`live-run-guardrails`). Review cycle 1 found the gate skipped plans whose done status carries a note after the sha (6 such plans in cx-intelligence); fixed with a red test first. Three P3s deferred.

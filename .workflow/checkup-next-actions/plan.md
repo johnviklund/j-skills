@@ -2,15 +2,12 @@ Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    ce84693
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  complete
+Status:  done
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lines (doc), report.md 89 lines · over 1,000: none
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25) · replan 3: 1a (fallback keeps the phase row's effort) · 2a (T6, revised T2 approved) · 3a (one last fixture run, two sessions, USD 1 cap each; a failure goes to wrap) — 2026-10-25 · 4a split declined
 
-## Execution state
-Current: T6 done; T2 final attempt FAILED, no retry; next wrap records the gap per approved replan 3 · T6 @ b68c1ad · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
-Session 4: T6, T2
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|

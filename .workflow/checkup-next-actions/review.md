@@ -2,7 +2,7 @@ Command: workflow review checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    659d054
 Inputs:  .workflow/checkup-next-actions/plan.md @ ce84693
-Status:  complete
+Status:  done
 
 Scope: the whole run, `080ecdf..659d054`. The plan's Base moved with each replan, and T1 @ bc2a0e2 sits before it.
 
