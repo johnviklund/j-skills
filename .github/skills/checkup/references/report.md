@@ -35,6 +35,11 @@ minutes per run). Findings that share one fix are one row (`memory.compact` for 
 A ⚠️ with no such cost, or a "worth a human skim", stays a line in its section and is never an
 action.
 
+A finding with a stated cost earns a card even when its fix needs a human call.
+Its prompt tells the agent to propose the change and wait for approval.
+For example, `TODO.md` over ~15 KB gets a `workflow todo` card that proposes what to archive.
+Say "No action earns a card" only when no ⚠️/🔴 finding names a cost.
+
 Group warnings that share one fix into one card and one prompt. For example, leftover
 `## Execution state` blocks, tracked `.DS_Store` and loose files in finished runs get one
 "tidy finished runs" card. Prioritize by the cost of leaving the finding; stop at three cards.
