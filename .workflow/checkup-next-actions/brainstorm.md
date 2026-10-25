@@ -2,7 +2,7 @@ Command: workflow brainstorm checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    080ecdf
 Inputs:  none
-Status:  drafting
+Status:  complete
 
 ## Problem
 A checkup ends with "Recommended next": at most three one-line actions that name a skill but give no prompt to paste, no model to pick and no word on starting a new session. The human finishes the report and still has to work out how to act, and where checkup lacked a fact it guessed instead of asking (example: cx-intelligence checkup, 2026-10-25).
