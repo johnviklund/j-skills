@@ -14,6 +14,8 @@ When severity or a fix depends on intent, tool use or whether a parked run is st
 cite the evidence and ask; settle that finding after the answer. For example,
 `.agents/skills/verify-cx-intelligence` exists and `.claude/` is absent: ask whether Claude Code
 is used here before calling its missing verify link 🔴.
+Each question cites every path its finding rests on. Until answered, the section line says
+"see Question N" with those paths; state the consequence only after the answer.
 
 Use workflow `SKILL.md` §Talking to the human as the source for this default shape.
 Put the ➡️ recommended option first and give every option a reason:
@@ -65,8 +67,9 @@ to "the findings above". For finished-run cleanup, name the runs and route unsav
 
 ## Skill to seat
 
-Use the `ROUTING.md` read for the seat checks. This table selects a seat, never a model.
-Read its model, effort, context and fallback from the seat and phase rows. A trial replaces
+Read `../workflow/ROUTING.md` relative to this checkup folder for the seat and phase rows.
+This table selects a seat. Copy the model and effort into Model and Fallback, never a seat name.
+Read context from the phase row. A trial replaces
 the primary, is marked `(trial)`, and uses the primary as fallback. Follow the fallback chain
 when a model is unavailable and name the switch.
 
@@ -87,3 +90,4 @@ the reviewer exam uses the review row. Human-only decisions use the human card r
 End with the safe-fix status. If fixes were requested, offer only the next allowed fix and
 wait for its approval. Otherwise say "Safe fixes: none applied." The allow-list in `SKILL.md`
 still governs every fix.
+Nothing follows the safe-fix line. It is the final line of the report.

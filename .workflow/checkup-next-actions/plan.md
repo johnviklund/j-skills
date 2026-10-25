@@ -9,10 +9,10 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25)
 
 ## Execution state
-Current: replan 2 approved; next T5, T4, then T2 (paid fixture sessions pre-approved, 3a)
-T1 @ bc2a0e2 · T3 @ 51a1e53 · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
-Session 1: T1, T2 · Session 2: T3, T2 · Uncommitted: none after receipt commit
-
+Current: T5 done; next T4, then T2 (paid fixture sessions pre-approved, 3a)
+T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · writer: GPT-6.1 Sol · Baseline: approved content checks; check-run 0 errors, 0 warnings
+Session 1: T1, T2 · Session 2: T3, T2
+Session 3: T5, T4 · Uncommitted: T4 and execution state until commit
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -77,11 +77,12 @@ Delivers: B2, B6 · Blocked by: none · Lane: logic
 Budget: code +40 · tests +0 · why: the Verify run is the script's test
 Seam: `.workflow/checkup-next-actions/scripts/make-fixture.sh` → `/tmp/checkup-fixture`
 Accept:
-- [ ] run twice → a clean git repo each time, one commit; `TODO.md` over 15,360 B (copied shape, synthetic text); `.agents/skills/verify-fixture/SKILL.md` present; no `.claude/` (B6)
-- [ ] the fixture holds an `AGENTS.md`, a `MEMORY.md` with one page, and a done `.workflow/` run, so every report section has something to read; no file copied from cx (B2)
+- [x] run twice → a clean git repo each time, one commit; `TODO.md` over 15,360 B (copied shape, synthetic text); `.agents/skills/verify-fixture/SKILL.md` present; no `.claude/` (B6)
+- [x] the fixture holds an `AGENTS.md`, a `MEMORY.md` with one page, and a done `.workflow/` run, so every report section has something to read; no file copied from cx (B2)
 Verify: `S=.workflow/checkup-next-actions/scripts/make-fixture.sh; bash $S && bash $S && cd /tmp/checkup-fixture && git status --short | wc -l && git rev-list --count HEAD && wc -c < TODO.md && ls .agents/skills/verify-fixture/SKILL.md AGENTS.md MEMORY.md && ! test -e .claude` (pre: new file)
 Skills: none
-Status: todo
+Status: done @ ee4c44e
+Writer: GPT-6.1 Sol
 
 ### T2 — receipts: checkup on the fixture, then one card's prompt in a fresh session
 Delivers: B2, B3, B4, B6, B7 · Blocked by: T1, T3, T4, T5 · Lane: operator
@@ -98,16 +99,13 @@ Accept:
 Verify: receipt: `receipts/t2-fixture-checkup.md` — questions → 1–3 cards → safe-fix line, `Sonnet 5.5 · medium` on the TODO card, 0 `Reads:`; `receipts/t2-fresh-session.md` — `TODO.md` read first, no context question (pre: no receipt; cx receipts stay as the failed attempts)
 Skills: none
 Status: todo
-
 ## Coverage
 - Outcome → T2 (the fixture checkup receipt shows questions, cards and the safe-fix line in that order)
 - B1 → T1 · B2 → T1, T3, T4, T5, T2 · B3 → T1, T4, T2 · B4 → T2 · B5 → T1 · B6 → T1, T4, T5, T2 · B7 → T1, T3, T2 · B8 → T1
 - Out of scope: full SKILL.md trim → untouched · `ROUTING.md` → untouched · checks, severities, safe-fix allow-list → untouched (F6) · cx-intelligence → read only
-
 ## Risks
 T2 is the risk: two paid sessions (about USD 0.30 each on the cx retry), and the model may still punt on a clause; a third failure goes back to the human, not to another retry. A fixture may miss a cx-only behaviour; the cx receipts stay as the record of the live repo.
 Outside its files: `npx skills update -g` refreshes every installed j-skill on this server to current main. Not taken: a third cx run (private data gate, larger repo, the same plan-mode ending); pointing report.md at workflow `SKILL.md` for the card shape (every checkup would read ~12 KB more).
-
 ## TODO impacts
 none (the brief names no TODO item)
 
