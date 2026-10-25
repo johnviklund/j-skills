@@ -2,14 +2,14 @@ Command: workflow plan checkup-next-actions
 Created: 2026-10-25 · Claude Opus 5.5
 Base:    37f7b44
 Inputs:  .workflow/checkup-next-actions/brainstorm.md @ 080ecdf
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (checkup and workflow skills only; no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lines, 23,646 B (doc) · over 1,000: none
-Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: pending
+Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25)
 
 ## Execution state
-Current: replan drafted — T3 added before a T2 retry; awaiting approval
+Current: replan approved — next T3, then T2 retry
 T1 @ bc2a0e2
 writer: GPT-6.1 Sol
 Baseline: approved content checks; check-run 0 errors, 0 warnings
