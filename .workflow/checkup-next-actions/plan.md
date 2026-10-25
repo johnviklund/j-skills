@@ -9,13 +9,13 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 341 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone)
 
 ## Execution state
-Current: T2 preparing authorized read-only receipts
+Current: T2 stopped after failed receipt verification; replan needed
 T1 @ bc2a0e2
 writer: GPT-6.1 Sol
 Baseline: approved content checks; check-run 0 errors, 0 warnings
 Session 1: T1, T2
-Uncommitted: plan state and T2 handoff
-Pending decision: none; T2 agent runner approved in plan Decisions 2a
+Uncommitted: none after receipt commit
+Pending decision: revise T2 seam or approve a paid retry; see receipts/t2-verification.md
 
 ## Findings
 | # | What is true | What it changes |
@@ -84,4 +84,5 @@ none (the brief names no TODO item)
 - `SKILL-IMPACT.md:18` (checkup trial) → still true; the rule moves to report.md unchanged (F11)
 
 ## Deviations
-- T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration needs network access and is retried with T2 installation. No test assertions changed.
+- T2: first paid session returned 0 cards and skipped Seats; B2 fails, B3/B7 unexercised, B4 not run. No retry. Receipts: t2-cx-checkup.md, t2-verification.md.
+- T1: agent-docs requires the SKILL-IMPACT.md trial row; added it. Copilot registration initially needed network access; its T2 retry passed. No test assertions changed.
