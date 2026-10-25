@@ -9,7 +9,7 @@ Size: code 0 · tests 0 · ratio n/a · largest touched checkup/SKILL.md 314 lin
 Decisions: 1a (tickets approved 2026-10-25) · 2a (T2 receipts taken by the agent, headless and read-only in the cx clone) · replan after T2 FAIL: 1a (T3 text fix, then one paid read-only cx retry) · 2a (tickets approved 2026-10-25) · replan 2: 1a (fixture repo, 2026-10-25) · 2a (T4, T5, T2 approved 2026-10-25) · 3a (two paid fixture sessions, USD 1 cap each, approved 2026-10-25) · replan 3: 1a (fallback keeps the phase row's effort) · 2a (T6, revised T2 approved) · 3a (one last fixture run, two sessions, USD 1 cap each; a failure goes to wrap) — 2026-10-25 · 4a split declined
 
 ## Execution state
-Current: T6 done; next T2, final approved fixture attempt · T6 @ b68c1ad · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
+Current: T6 done; T2 final attempt FAILED, no retry; next wrap records the gap per approved replan 3 · T6 @ b68c1ad · T1 @ bc2a0e2 · T3 @ 51a1e53 · T5 @ ee4c44e · T4 @ bfa6d38 · writer: GPT-6.1 Sol · Sessions: 1 T1, T2 · 2 T3, T2 · 3 T5, T4, T2 · Publication of fixture receipts approved (receipts/t2-publication-approval.md)
 Session 4: T6, T2
 ## Findings
 | # | What is true | What it changes |
@@ -95,15 +95,16 @@ Seam: the installed checkup run headless in `/tmp/checkup-fixture`; the receipts
 Runner: agent after approval · Risk: costly (two paid sessions, approved 3a, no stated ceiling; each capped `--max-budget-usd 1`; fixture only, no private data)
 Handoff: push; `npx skills update -g` (background, long timeout); `diff -q ~/.agents/skills/checkup/references/report.md .github/skills/checkup/references/report.md` → no output. Dry run: T5's script, then its Verify. Run `cd /tmp/checkup-fixture && claude -p --permission-mode default --allowedTools "Read Grep Glob Bash Skill" --disallowedTools "Write Edit NotebookEdit" --max-budget-usd 1 --verbose --output-format stream-json "checkup"` → stream in /tmp, final `result` → `receipts/t2-fixture-checkup-2.md` (the first fixture receipt stays as the failed attempt). Pass → run the `workflow todo` card's prompt the same way → `receipts/t2-fresh-session.md`. A failed clause stops the ticket.
 Accept:
-- [ ] the final `result` ends: numbered questions, 1 to 3 cards, then exactly `Safe fixes: none applied.`; no two cards run the same command (B2, B7)
-- [ ] every card has `Why:`, `Reset:`, `Model:`, `Fallback:` and a fenced `text` prompt; 0 `Reads:` (B2)
+- [x] the final `result` ends: numbered questions, 1 to 3 cards, then exactly `Safe fixes: none applied.`; no two cards run the same command (B2, B7)
+- [x] every card has `Why:`, `Reset:`, `Model:`, `Fallback:` and a fenced `text` prompt; 0 `Reads:` (B2)
 - [ ] the `TODO.md` card names `workflow todo`; `Model:` starts `Sonnet 5.5 · medium`, `Fallback:` is `GPT-6 Sol · medium`; `Anthropic` and `OpenAI` appear on no card line (B3)
-- [ ] a numbered question cites `.agents/skills/verify-fixture` and the missing `.claude/`; no 🔴 line for it (B6)
+- [x] a numbered question cites `.agents/skills/verify-fixture` and the missing `.claude/`; no 🔴 line for it (B6)
 - [ ] `receipts/t2-fresh-session.md` → its first tool calls read `TODO.md`; it asks nothing about the checkup's context (B4)
 - [ ] fixture HEAD and `git status --short` are the same before and after both sessions; `~/cx-intelligence` is not touched
 Verify: receipt: `receipts/t2-fixture-checkup-2.md` — questions → 1–3 cards → safe-fix line, `Sonnet 5.5 · medium` on the TODO card, 0 `Reads:`; `receipts/t2-fresh-session.md` — `TODO.md` read first, no context question (pre: no receipt; cx and first fixture receipts stay as failed attempts)
 Skills: none
 Status: todo
+Writer: GPT-6.1 Sol · final attempt failed; fresh-session proof not run
 ## Coverage
 - Outcome → T2 (the fixture checkup receipt shows questions, cards and the safe-fix line in that order)
 - B1 → T1 · B2 → T1, T3, T4, T5, T6, T2 · B3 → T1, T4, T6, T2 · B4 → T2 · B5 → T1 · B6 → T1, T4, T5, T2 · B7 → T1, T3, T2 · B8 → T1
@@ -121,3 +122,4 @@ Split declined by human: 2026-10-25 (25 acceptance lines; T1–T5 done hold 15)
 - T2 cx: 0 cards, Seats skipped (t2-cx-checkup.md, t2-verification.md). Retry after private-data approval 1a: 3 cards, seat names as models, verify question missing a path, summary after the report (t2-retry-*.md, t2-verification-2.md).
 - T2 fixture: USD 0.1944416, fixture unchanged; clauses 1 and 3 pass, clause 2 fails (F20, F21), fresh session not run (t2-fixture-verification.md).
 - Replan 3 (1a, 2a, 3a): T6 closes F20–F22 before one last fixture attempt.
+- T2 final fixture: USD 0.1371781; clauses 1, 2, 4 pass, clause 3 fails with `claude-opus-5.5` for both model lines. Session admits it did not read routing whole. Fixture unchanged; dependent fresh session not run. Approved replan 3 sends this failure to wrap with the proof gap, without another paid attempt.
