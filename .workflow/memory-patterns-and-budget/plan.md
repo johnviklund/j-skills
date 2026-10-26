@@ -2,11 +2,11 @@ Command: workflow plan memory-patterns-and-budget
 Created: 2026-10-26 · claude-opus-5-5
 Base:    2d3a44a
 Inputs:  .workflow/memory-patterns-and-budget/brainstorm.md @ 068776c
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (j-skills has no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a (doc run) · largest touched memory.remember/SKILL.md 296 (26,820 B), memory.compact/SKILL.md 250 (16,246 B), SKILL-IMPACT.md 34 · over 1,000: none
-Decisions: pending — ticket list round
+Decisions: 1a (a run missing from a matching page is added to its proposed copy, count bumped) · 2a (T2 desk-check receipt) · 3a ticket list approved 2026-10-26
 
 ## Execution state
 <filled by execute>
