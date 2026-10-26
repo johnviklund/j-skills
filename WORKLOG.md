@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-26 · memory-patterns-and-budget · compact finds repeated lessons without a page; remember checks what an AGENTS.md rule costs · GPT-6.1 Sol
+- `memory.compact` now reads the last ~10 done runs' `learnings.md` and proposes a page when two runs share a cause and a fix. `memory.remember` asks whether removing a new `AGENTS.md` rule would cause a mistake; a no routes it to a memory page or skill reference, and a rule near a stated line cap names one line to move.
+- Proved by desk checks on the real `learnings.md` files, not live runs. Review cycle 1 found the cost test left an operating rule with no destination (the admission test refused a page for it); fixed in one line. Four P3s deferred.
+- Commits: 94f353b 43588b3 fec0e26
+- Review: ship as-is (cycle 2, 0 open) @ 0e9d13b
+- Run: 3 tickets · 2 sessions · 2 review cycles · 0 deviations · 0 findings overturned · net code +0 · tests +0
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@b2bdc7fb117d, memory.remember@4416cf26dc14, memory.compact@6af004059efe
+- Why: a lesson repeated across runs never got a page, and AGENTS.md took rules whose removal would cost nothing.
+
 ## 2026-10-25 · checkup-next-actions · checkup reports questions, three action cards and a fixed ending · GPT-6.1 Sol
 - Checkup's report format moved to `references/report.md`: numbered questions, at most three cards with a fresh-session prompt, the line `Safe fixes: none applied.`. Model lines come from ROUTING.md; unknown facts become questions with evidence paths.
 - Proven on a synthetic fixture, not the live repo: the ending, card shape and question clauses passed. The model lines failed four paid attempts and the fresh-session proof never ran; a script for the model lines is in TODO.md.

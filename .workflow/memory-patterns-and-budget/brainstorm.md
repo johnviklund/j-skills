@@ -2,7 +2,7 @@ Command: workflow brainstorm memory-patterns-and-budget
 Created: 2026-10-26 · claude-sonnet-5-5
 Base:    068776cec34bf0efb0e2ec87204ab64378e62b53
 Inputs:  none
-Status:  complete
+Status: done
 
 ## Problem
 `memory.compact` compares done runs only against pages that already exist, so a lesson that appears in two runs and has no page is never noticed. `memory.remember` promotes a rule into `AGENTS.md` with no cost check, so that always-loaded file only grows. Source: the ai-memory review.

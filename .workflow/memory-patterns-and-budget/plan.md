@@ -2,24 +2,11 @@ Command: workflow plan memory-patterns-and-budget
 Created: 2026-10-26 · claude-opus-5-5
 Base:    2d3a44a
 Inputs:  .workflow/memory-patterns-and-budget/brainstorm.md @ 068776c
-Status:  complete
+Status:  done
 
 Docs read: none in scope (j-skills has no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a (doc run) · largest touched memory.remember/SKILL.md 296 (26,820 B), memory.compact/SKILL.md 250 (16,246 B), SKILL-IMPACT.md 34 · over 1,000: none
 Decisions: 1a (a run missing from a matching page is added to its proposed copy, count bumped) · 2a (T2 desk-check receipt) · 3a ticket list approved 2026-10-26
-
-## Execution state
-Current: all tickets and patch C1-T1 done; ready for cross-vendor review cycle 2.
-T1 @ 94f353b
-T2 @ 43588b3
-writer: GPT-6.1 Sol · high
-Session 1: T1, T2
-Session 2: C1-T1
-Baseline: no AGENTS.md or build/lint block; proposed baseline in chat, no extra command supplied.
-Checks: ticket content checks, desk receipts, check-run.py, git diff --check; no pre-existing failures.
-Contracts: none; skill frontmatter unchanged.
-Uncommitted: none after the execution-record commit.
-Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |

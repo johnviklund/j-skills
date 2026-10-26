@@ -2,7 +2,7 @@ Command: workflow review memory-patterns-and-budget
 Created: 2026-10-26 · claude-opus-5-5
 Base:    e4df252
 Inputs:  .workflow/memory-patterns-and-budget/plan.md @ 2d3a44a
-Status:  complete
+Status: done
 
 ## Coverage
 - [x] T1 — acceptance 6/6: 10 Verify greps print 1 each (0 at 2d3a44a), 17,119 B ≤ 17,446, 94f353b holds SKILL.md + SKILL-IMPACT.md only, receipt present
