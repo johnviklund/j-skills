@@ -142,6 +142,15 @@ If a candidate fails the test, it does not "wait" in memory to be promoted later
 exactly how memory drifts into a second product/design ledger. Route it to its real home in the
 **same pass**, or drop it.
 
+## The AGENTS.md cost test
+
+Before any addition or promotion to `AGENTS.md`, ask: would removing this rule
+cause a mistake on a typical task in this repo? If no, route it to a memory page that passes
+the admission test or its owning skill reference, leaving at most a one-line pointer in `AGENTS.md`.
+With a stated line cap, if the file is within 10% of it or over it, the pass
+names one existing line to remove or move and does so in the same pass. With no stated cap,
+only the removal test runs. See `agent-docs` for Context load.
+
 ## Keeping memory bounded (cap + consolidate-before-add)
 
 Memory has no automatic compaction, so this skill enforces the bound at write time (inspired by
@@ -170,7 +179,7 @@ When the user invokes `/remember`:
    - Read `MEMORY_ARCHIVE.md` only when needed to check likely duplicates, superseded context, or archive destinations.
 
 2. **Classify the target layer before writing**
-   - `AGENTS.md`: stable operating rules, command-contract requirements, agent workflow boundaries, repeated gotchas, and "never do X" guidance.
+   - `AGENTS.md`: stable operating rules, command-contract requirements, agent workflow boundaries, repeated gotchas, and "never do X" guidance; apply the AGENTS.md cost test before writing.
    - `README.md`: operator-facing setup, usage, workflow shape, output structure, and troubleshooting.
    - A `memory/` page: current behavior-shaping lessons that future sessions need but that are not yet stable enough or broad enough for AGENTS/README — as a new page, or an occurrence on an existing one.
    - `MEMORY_ARCHIVE.md`: history, evidence, old baselines, long explanations, and superseded decisions.
