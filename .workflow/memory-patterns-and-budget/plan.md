@@ -9,7 +9,15 @@ Size: code 0 · tests 0 · ratio n/a (doc run) · largest touched memory.remembe
 Decisions: 1a (a run missing from a matching page is added to its proposed copy, count bumped) · 2a (T2 desk-check receipt) · 3a ticket list approved 2026-10-26
 
 ## Execution state
-<filled by execute>
+Current: T2 todo; T1 verified and committed.
+T1 @ 94f353b
+writer: GPT-6.1 Sol · high
+Session 1: T1
+Baseline: no AGENTS.md or build/lint block; proposed baseline in chat, no extra command supplied.
+Checks: ticket content checks, desk receipts, check-run.py, git diff --check; no pre-existing failures.
+Contracts: none; skill frontmatter unchanged.
+Uncommitted: plan.md and receipts/t1-compact-dry-run.md pending record commit.
+Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -33,15 +41,16 @@ Delivers: B1, B2, B3, B6 · Blocked by: none · Lane: logic
 Budget: code +0 · tests +0 · why: doc-only, about 12 lines in memory.compact/SKILL.md
 Seam: `skills/memory.compact/SKILL.md` steps 1, 3, 6; `skills/workflow/SKILL-IMPACT.md`
 Accept:
-- [ ] Step 1 reads `learnings.md` of the `10 most recent done runs`, every line, `` `[drop]` and `routed → none` `` lines included → 1 match each (B1)
-- [ ] Step 3 defines `**Unpaged repeat**`: 2+ runs with the `same cause and the same fix`, no page yet → 1 match each (B1)
-- [ ] Proposed page: `Occurrences: 2`, `one entry per run`, admission test applied; skill-owned match `named in the duplication report, not paged`; summary `Unpaged repeats: U` → 1 match each (B2)
-- [ ] A page that `already lists the run` → not proposed again; one that `does not list the run yet` → the run is added to its proposed copy and `Occurrences` bumped → 1 match each (B3)
-- [ ] `receipts/t1-compact-dry-run.md`: 7 real files → `new pages: 0`, `retire-date-gates → added to A new guard needs one test per key`, grep pair `different fix`; planted pair → `new pages: 1`, `Occurrences: 2` (B1, B2, B3)
-- [ ] SKILL-IMPACT.md gains `| memory.compact | … | 3 runs | trialing |`, judge "a proposed repeat page in the next 3 runs", in one commit with the SKILL.md edit only (`git show --stat --format= <sha>`); `wc -c` ≤ 17,446 (B6)
+- [x] Step 1 reads `learnings.md` of the `10 most recent done runs`, every line, `` `[drop]` and `routed → none` `` lines included → 1 match each (B1)
+- [x] Step 3 defines `**Unpaged repeat**`: 2+ runs with the `same cause and the same fix`, no page yet → 1 match each (B1)
+- [x] Proposed page: `Occurrences: 2`, `one entry per run`, admission test applied; skill-owned match `named in the duplication report, not paged`; summary `Unpaged repeats: U` → 1 match each (B2)
+- [x] A page that `already lists the run` → not proposed again; one that `does not list the run yet` → the run is added to its proposed copy and `Occurrences` bumped → 1 match each (B3)
+- [x] `receipts/t1-compact-dry-run.md`: 7 real files → `new pages: 0`, `retire-date-gates → added to A new guard needs one test per key`, grep pair `different fix`; planted pair → `new pages: 1`, `Occurrences: 2` (B1, B2, B3)
+- [x] SKILL-IMPACT.md gains `| memory.compact | … | 3 runs | trialing |`, judge "a proposed repeat page in the next 3 runs", in one commit with the SKILL.md edit only (`git show --stat --format= <sha>`); `wc -c` ≤ 17,446 (B6)
 Verify: `C=skills/memory.compact/SKILL.md; grep -c '10 most recent done runs' $C; grep -c 'routed → none' $C; grep -c '\*\*Unpaged repeat\*\*' $C; grep -c 'same cause and the same fix' $C; grep -c 'one entry per run' $C; grep -c 'named in the duplication report, not paged' $C; grep -c 'Unpaged repeats: U' $C; grep -c 'already lists the run' $C; grep -c 'does not list the run yet' $C; grep -c '| memory.compact | .*| 3 runs | trialing |' skills/workflow/SKILL-IMPACT.md; test $(wc -c < $C) -le 17446 && test -f .workflow/memory-patterns-and-budget/receipts/t1-compact-dry-run.md` (pre: 0 on every grep; size passes; receipt missing, exit 1)
 Skills: skills/agent-docs/SKILL.md · skills/plain/SKILL.md
-Status: todo
+Status: done @ 94f353b
+Writer: GPT-6.1 Sol
 
 ### T2 — remember routes a low-value AGENTS.md rule elsewhere
 Delivers: B4, B5, B6 · Blocked by: none · Lane: logic
