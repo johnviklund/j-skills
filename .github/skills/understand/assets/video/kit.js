@@ -64,7 +64,8 @@
     return box(e, x, y, 0, size);
   }
   function tag(text, x, y, kind = "new", size = 32) {
-    const e = el("div", "k-tag", { left: `${x}px`, top: `${y}px`, fontSize: `${size}px`, color: EDGE[kind],
+    // Green text on its tint fails contrast (2.84:1), so a "new" tag keeps navy text in a green outline.
+    const e = el("div", "k-tag", { left: `${x}px`, top: `${y}px`, fontSize: `${size}px`, color: kind === "new" ? C.blue : EDGE[kind],
       background: FILL[kind], borderColor: EDGE[kind] });
     e.textContent = text;
     gsap.set(e, { xPercent: -50, yPercent: -50 });
