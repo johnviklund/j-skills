@@ -80,6 +80,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | When you need… | Skill | Example message | Result |
 |---|---|---|---|
 | A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
 | A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
 | A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams and source links |
 | A repeatable way to check a runnable app | [verify](#verify) | `verify.create` | An app-checking skill and a map of features and how to test them |
@@ -160,6 +161,24 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   The video step also loads HyperFrames' own `hyperframes` and `hyperframes-registry` skills for
   motion craft and ready-made blocks. Install them once per machine:
   `npx skills add heygen-com/hyperframes -g -a claude-code codex github-copilot -s hyperframes hyperframes-cli hyperframes-registry -y`.
+
+### design
+
+Use it when a change only alters how a screen looks or feels. A full workflow run is more than
+that needs.
+
+- Session 1 grounds itself in `DESIGN.md` and screenshots of the current screen. It invents 2–3
+  directions as HTML mockups with your real tokens and content, and shows them side by side in
+  `compare.html`. You pick one or mix them. The same session builds it and screenshots before
+  and after at desktop and phone width. You try it, then it commits.
+- `design check <slug>` runs in a fresh session on the other vendor. It sees only the goal, the
+  picked mockup and the screenshots, and reports drift, accessibility failures and unfinished
+  details.
+- Every screen meets a fixed floor: contrast, keyboard focus, reduced motion, a phone layout
+  that fits, and real content only.
+- When the change turns out to need new data, an API, a schema or logic, it hands over to
+  `workflow brainstorm`, bringing the mockups along as evidence.
+- The record is `.design/<slug>/design.md` with its mockups and screens.
 
 ### workflow
 

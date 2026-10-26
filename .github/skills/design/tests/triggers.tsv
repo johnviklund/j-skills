@@ -1,0 +1,7 @@
+# Trigger cases for design. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/design/tests/triggers.tsv
+design	design settings-page - goal: the settings page feels cluttered, group the options so the important ones stand out
+design	design check settings-page
+design	/design pricing-table - goal: make the plan comparison easier to scan on a phone
+!design	What design pattern should I use for a plugin system in Python?
+!design	workflow brainstorm settings-page-ui
+!design	Fix the CSS bug where the save button overlaps the footer on mobile.
