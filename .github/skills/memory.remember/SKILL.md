@@ -147,6 +147,7 @@ exactly how memory drifts into a second product/design ledger. Route it to its r
 Before any addition or promotion to `AGENTS.md`, ask: would removing this rule
 cause a mistake on a typical task in this repo? If no, route it to a memory page that passes
 the admission test or its owning skill reference, leaving at most a one-line pointer in `AGENTS.md`.
+A rule this test keeps out of `AGENTS.md` counts as fitting nowhere else for the admission test's item 2.
 With a stated line cap, if the file is within 10% of it or over it, the pass
 names one existing line to remove or move and does so in the same pass. With no stated cap,
 only the removal test runs. See `agent-docs` for Context load.
