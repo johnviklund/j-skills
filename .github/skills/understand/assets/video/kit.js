@@ -178,6 +178,7 @@
   function morph(a, b, t, d = 0.8) {
     tl.to(a, { x: b.cx - a.cx, y: b.cy - a.cy, scale: Math.min(b.w / (a.w || b.w), 1.4), opacity: 0, duration: d, ease: GLIDE }, t);
     tl.fromTo(b, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: d * 0.7, ease: GLIDE }, t + d * 0.3);
+    tl.set(a, { visibility: "hidden" }, t + d); // gone once it has handed over, so it overlaps nothing
   }
   // Before/after on one spot: the after pushes the before out to the left.
   function swap(before, after, t, d = 0.8) {
@@ -197,6 +198,17 @@
 
   // ---- running the scene ------------------------------------------------------------------
   function beat(id, fn) { scenes[id] = fn; }
+
+  // Each recorded clip fades in at its start and out at its end; the scene may move its wrapper.
+  function clips() {
+    document.querySelectorAll(".k-clipbox").forEach((box) => {
+      const t0 = Number(box.dataset.in), t1 = Number(box.dataset.out);
+      tl.fromTo(box, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.out", immediateRender: false }, t0);
+      tl.to(box, { opacity: 0, duration: 0.4, ease: "power1.in" }, Math.max(t0 + 0.4, t1 - 0.4));
+    });
+  }
+  // The wrapper of a clip listed in script.json, by its id: move or zoom it with K.tl.
+  const clip = (id) => document.getElementById(id);
 
   function captions() {
     // A captioned video shows each sentence of the narration while it is read.
@@ -231,13 +243,14 @@
       cur.beat = b;
       scenes[id]({ at, start, end });
     });
+    clips();
     captions();
     tl.seek(0);
     return tl; // index.html registers it as window.__timelines["main"]
   }
 
   window.K = {
-    C, tl, beat, run, at, start, end, node, label, tag, screen, focus, code, arrow, path, circle, bar, rng,
+    C, tl, beat, run, at, start, end, clip, node, label, tag, screen, focus, code, arrow, path, circle, bar, rng,
     grow, pop, enter, draw, fill, fade, dim, show, indicate, flow, morph, swap, count, look, home, SETTLE, SNAP, GLIDE,
   };
 })();

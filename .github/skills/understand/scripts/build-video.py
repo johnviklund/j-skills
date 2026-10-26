@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build an understand explainer video from a video folder holding script.json, scene.js, kit.js.
 
-Steps: lint script.json, narrate each beat (ElevenLabs when ELEVENLABS_API_KEY is set, else
-on-screen captions) with a time for every word, lay the beats end to end into one voice track,
-write a HyperFrames project (index.html with one scene per chapter, timings.js, kit.js, scene.js,
-the voice and the output folder's screens/), run HyperFrames' check, render it, and write
+Steps: lint script.json, narrate the script (ElevenLabs in one take when ELEVENLABS_API_KEY is
+set, else on-screen captions) with a time for every word, cut the beats from those times, write a
+HyperFrames project (index.html with one scene per chapter, registry blocks and recorded clips
+from script.json, timings.js, kit.js, scene.js, the voice and the output folder's screens/), run
+HyperFrames' check, render it, and write
 explainer.mp4, explainer.vtt, poster.jpg into the folder. A contact sheet with one still per beat
 goes to the build folder for checking the look, and a motion check reports every hold (the
 picture standing still) and pop (a jump in one frame).
@@ -70,7 +71,6 @@ VOICE = os.environ.get("ELEVENLABS_VOICE_ID", "JBFqnCBsd6RMkjVDRZzb")
 # Their most natural long-form model at the time of writing; override per account.
 MODEL = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2")
 
-BREATH = 0.6           # quiet after each voiced beat, so beats do not run together
 TAIL = 1.5             # s: the last picture holds after the voice ends; the film's closing still
 READ_WPS = 2.5         # silent beats: ~150 words a minute, a relaxed reading pace beside motion
 MIN_BEAT = 3.0         # a beat shorter than this flashes past before the eye settles
@@ -79,9 +79,11 @@ KINDS = ("built", "feature")  # the two stories in video.md: what a run built, h
 LENGTH_OK = (45, 180)  # seconds: under 45 says too little to beat the page, over 180 loses people
 VIDEO_WARN = 25_000_000  # bytes: a 26 s 1080p test build was 0.6 MB (2026-10-04); 25 MB leaves
                          # room for 3 minutes with many screenshots
-MAX_HOLD = 2.0         # s: a still picture longer than this reads as the video stalling, while
-                       # 2 s still lets the eye read a three-word label after it lands
-MAX_HOLD_READ = 3.0    # s: the same in a captioned video, where the eye is busy reading the caption
+MAX_HOLD = 3.5         # s: a still picture longer than this reads as the video stalling. A landed
+                       # label needs 0.5 s + 0.3 s a word to read (HyperFrames' motion guide), a small
+                       # diagram 3-4 s; at 2 s the topic-assistant film filled 8 holds with pulses
+                       # that read as twitching (2026-10-26)
+MAX_HOLD_READ = 4.0    # s: the same in a captioned video, where the eye is busy reading the caption
 STILL_DIFF = 0.05      # mean luma change (0-255) under which two frames count as the same; a
                        # 1080p test showed text anti-aliasing noise at 0.00-0.02 (2026-10-05)
 POP_RATIO = 3          # a frame changing 3x more than both neighbours appeared all at once
@@ -188,6 +190,17 @@ def lint(script):
             box = blk.get("box", [0, 0, 1920, 1080])
             if not (isinstance(box, list) and len(box) == 4 and all(isinstance(v, (int, float)) for v in box)):
                 errors.append(f'{where}: "box" must be [x, y, width, height] in stage pixels')
+        for k, clip in enumerate(b.get("clips") or []):
+            where = f"beat {bid} clip {k + 1}"
+            if not str(clip.get("src", "")).startswith("clips/"):
+                errors.append(f'{where}: "src" must be a file under the video folder\'s clips/')
+            if not clip.get("at") or norm(str(clip["at"])) not in [norm(w) for w in say.split()]:
+                errors.append(f'{where}: "at" must be a word of the beat\'s "say"')
+            if not isinstance(clip.get("seconds"), (int, float)) or clip["seconds"] <= 0:
+                errors.append(f'{where}: "seconds" must be a positive number')
+            box = clip.get("box")
+            if not (isinstance(box, list) and len(box) == 4 and all(isinstance(v, (int, float)) for v in box)):
+                errors.append(f'{where}: "box" must be [x, y, width, height] in stage pixels')
     if not 4 <= len(beats) <= 14:
         warnings.append(f"{len(beats)} beats; 4 to 14 keeps one idea per beat at 45-180 s")
     return errors, warnings, beats
@@ -272,23 +285,15 @@ def tts(text, prev_text, next_text, key):
 
 
 def narrate(beats, voiced, build):
-    """Each beat's length and word times; beats play end to end, so the voice is the clock."""
+    """Each beat's length and word times; the voice is the clock."""
     timings, key = {"voiced": voiced, "beats": {}}, os.environ.get("ELEVENLABS_API_KEY", "")
-    paid = 0
-    for i, b in enumerate(beats):
-        if voiced:
-            prev = beats[i - 1]["say"] if i else ""
-            nxt = beats[i + 1]["say"] if i + 1 < len(beats) else ""
-            audio, words, cached = tts(b["say"], prev, nxt, key)
-            paid += 0 if cached else len(b["say"])
-            secs = duration(audio) + BREATH
-            timings["beats"][b["id"]] = {"seconds": round(secs, 3), "audio": str(audio),
-                                         "words": words}
-        else:
-            read = len(b["say"].split()) / READ_WPS
-            secs = max(MIN_BEAT, read + 1.0)
-            timings["beats"][b["id"]] = {"seconds": round(secs, 3),
-                                         "words": estimate_words(b["say"], read)}
+    if voiced:
+        return one_take(beats, timings, key, build)
+    for b in beats:
+        read = len(b["say"].split()) / READ_WPS
+        secs = max(MIN_BEAT, read + 1.0)
+        timings["beats"][b["id"]] = {"seconds": round(secs, 3),
+                                     "words": estimate_words(b["say"], read)}
     spans, t, chapter = [], 0.0, beats[0]["id"]
     for i, b in enumerate(beats):
         if b.get("chapter"):
@@ -297,7 +302,33 @@ def narrate(beats, voiced, build):
         spans.append({"id": b["id"], "start": round(t, 3), "end": round(t + secs, 3), "chapter": chapter})
         t += secs
     (build / "timings.json").write_text(json.dumps(timings, indent=1))
-    return timings, spans, paid
+    return timings, spans, 0
+
+
+def one_take(beats, timings, key, build):
+    """The whole script voiced in one request, so the read flows as one narration instead of
+    starting and stopping at every beat; each beat is cut from the word times, from the middle
+    of the pause before its first word to the middle of the pause after its last."""
+    text = "\n\n".join(b["say"].strip() for b in beats)  # a paragraph break: the voice pauses between beats
+    audio, words, cached = tts(text, "", "", key)
+    counts = [len(b["say"].split()) for b in beats]
+    if len(words) != sum(counts):
+        fail(f"ElevenLabs timed {len(words)} words for a script of {sum(counts)}; "
+             "check the script for characters it reads as extra words, such as symbols")
+    firsts = [sum(counts[:i]) for i in range(len(beats))]
+    bounds = [0.0] + [round((words[f - 1][2] + words[f][1]) / 2, 3) for f in firsts[1:]]
+    bounds.append(round(duration(audio) + TAIL, 3))
+    spans, chapter = [], beats[0]["id"]
+    for i, b in enumerate(beats):
+        if b.get("chapter"):
+            chapter = b["id"]
+        start, end = bounds[i], bounds[i + 1]
+        timings["beats"][b["id"]] = {"seconds": round(end - start, 3), "words": [
+            [w, round(a - start, 3), round(e - start, 3)] for w, a, e in words[firsts[i]:firsts[i] + counts[i]]]}
+        spans.append({"id": b["id"], "start": start, "end": end, "chapter": chapter})
+    timings["one_take"] = str(audio)
+    (build / "timings.json").write_text(json.dumps(timings, indent=1))
+    return timings, spans, 0 if cached else len(text)
 
 
 def norm(word):
@@ -316,18 +347,10 @@ def sentences(say, start, end):
 
 
 def voice_track(spans, timings, out):
-    """One audio file with each beat's clip at the second its beat starts."""
-    inputs, delays = [], []
-    for n, span in enumerate(spans):
-        ms = int(span["start"] * 1000)
-        inputs += ["-i", timings["beats"][span["id"]]["audio"]]
-        delays.append(f"[{n}:a]adelay={ms}|{ms}[a{n}]")
-    mix = ";".join(delays) + ";" + "".join(f"[a{n}]" for n in range(len(spans))) + \
-        f"amix=inputs={len(spans)}:normalize=0:dropout_transition=0,apad[voice]"
-    # apad fills the last breath and the closing still with quiet, so the track spans the film.
-    run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", mix, "-map", "[voice]",
+    """The one-take narration as the film's audio, padded with quiet to the closing still."""
+    run(["ffmpeg", "-y", "-v", "error", "-i", timings["one_take"], "-af", "apad",
          "-t", f"{spans[-1]['end']:.3f}", "-c:a", "aac", "-b:a", "128k", str(out)],
-        "laying the narration into one track")
+        "writing the narration track")
 
 
 def block_source(video_dir, name):
@@ -384,6 +407,38 @@ def block_hosts(video_dir, project, beats, spans, timings):
     return hosts
 
 
+def clip_hosts(video_dir, project, beats, spans, timings):
+    """One video per clip in script.json, starting LEAD before its cue word, from its in-point.
+    The video is the timed element; its wrapper is untimed, so the scene can move or zoom the
+    wrapper (HyperFrames times a video or its wrapper, never both). kit.js fades each in and out."""
+    lead = 0.15  # the kit's LEAD
+    span = {s["id"]: s for s in spans}
+    hosts = []
+    for b in beats:
+        for k, clip in enumerate(b.get("clips") or []):
+            src = video_dir / clip["src"]
+            if not src.is_file():
+                fail(f'beat {b["id"]}: clip {src} not found; record it into {video_dir / "clips"}', 2)
+            dest = project / "assets" / clip["src"]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, dest)
+            hits = [a for w, a, _ in timings["beats"][b["id"]]["words"] if norm(w) == norm(clip["at"])]
+            nth = clip.get("nth", 1)
+            if len(hits) < nth:
+                fail(f'beat {b["id"]}: clip cue "{clip["at"]}" (nth {nth}) is not said', 2)
+            start = max(0.0, span[b["id"]]["start"] + hits[nth - 1] - lead)
+            seconds = min(clip["seconds"], spans[-1]["end"] - start)
+            x, y, w, h = clip["box"]
+            cid = clip.get("id") or f'clip-{b["id"]}-{k + 1}'
+            hosts.append(
+                f'      <div id="{cid}" class="k-clipbox" data-layout-allow-overflow data-in="{start:.3f}" data-out="{start + seconds:.3f}" '
+                f'style="left:{x}px;top:{y}px;width:{w}px;height:{h}px">'
+                f'<video id="{cid}-video" class="clip" src="assets/{clip["src"]}" muted playsinline '
+                f'data-start="{start:.3f}" data-duration="{seconds:.3f}" '
+                f'data-media-start="{clip.get("from", 0):.3f}" data-track-index="{6 + k}"></video></div>')
+    return hosts
+
+
 def compose(video_dir, build, script, beats, spans, timings):
     """Write the HyperFrames project into the build folder: index.html, timings.js, kit.js,
     scene.js, GSAP, the voice track and the output folder's screens/."""
@@ -414,7 +469,8 @@ def compose(video_dir, build, script, beats, spans, timings):
         first.setdefault(span["chapter"], span)
     starts = [first[c]["start"] for c in first] + [total]
     for n, c in enumerate(first):
-        chapters.append(f'      <div id="ch-{c}" class="clip chapter" data-start="{starts[n]:.3f}" '
+        # data-layout-allow-overflow: a chapter is a stage the camera moves over, wider than the frame on purpose.
+        chapters.append(f'      <div id="ch-{c}" class="clip chapter" data-layout-allow-overflow data-start="{starts[n]:.3f}" '
                         f'data-duration="{starts[n + 1] - starts[n]:.3f}" data-track-index="0" '
                         f'data-track-kind="graphics"><div class="cam"></div></div>')
     audio = ""
@@ -425,7 +481,8 @@ def compose(video_dir, build, script, beats, spans, timings):
     page = (SKILL / "assets/video/index.html").read_text()
     for key, value in {"{{TITLE}}": html_escape(script["title"]), "{{DURATION}}": f"{total:.3f}",
                        "{{AUDIO}}": audio,
-                       "{{CHAPTERS}}": "\n".join(chapters + block_hosts(video_dir, project, beats, spans, timings)),
+                       "{{CHAPTERS}}": "\n".join(chapters + block_hosts(video_dir, project, beats, spans, timings)
+                                                + clip_hosts(video_dir, project, beats, spans, timings)),
                        "{{CAPTIONS}}": "" if timings["voiced"] else '      <div id="captions"></div>'}.items():
         page = page.replace(key, value)
     (project / "index.html").write_text(page)
@@ -514,7 +571,7 @@ def stills(video, spans, build, poster):
     return sheet
 
 
-def motion(video, spans, voiced):
+def motion(video, spans, voiced, skip=()):
     """Holds (still runs over MAX_HOLD) and pops (one-frame jumps), each as (seconds, beat id).
     The last beat's closing still is the poster moment and is left out; so are a captioned
     video's caption swaps at beat edges."""
@@ -546,13 +603,17 @@ def motion(video, spans, voiced):
             run_start = i
         elif m and run_start is not None:
             length = (i - run_start) / fps
-            if length > (MAX_HOLD if voiced else MAX_HOLD_READ) and i < len(diff):
+            mid = (run_start / fps + i / fps) / 2
+            in_clip = any(a <= mid <= b for a, b in skip)  # a recording moves as the product does
+            if length > (MAX_HOLD if voiced else MAX_HOLD_READ) and i < len(diff) and not in_clip:
                 holds.append((round(run_start / fps, 1), round(length, 1), beat_at(run_start / fps)))
             run_start = None
     edges = [s["start"] for s in spans]
     pops = []
     for i in range(1, len(coarse) - 1):
         t = (i + 1) / fps  # tblend's frame i is the change into frame i+1
+        if any(a <= t <= b for a, b in skip):
+            continue
         if coarse[i] > POP_MIN and coarse[i] > POP_RATIO * max(coarse[i - 1], coarse[i + 1]):
             if not voiced and any(abs(t - e) < 2 / fps for e in edges):
                 continue
@@ -689,7 +750,9 @@ def main():
     if size > VIDEO_WARN and not args.draft:
         warnings.append(f"explainer.mp4 is {size // 1_000_000} MB (budget ~{VIDEO_WARN // 1_000_000} MB);"
                         " cut beats or hold still images for less time")
-    still, holds, pops = motion(out, spans, voiced)
+    page = (project / "index.html").read_text()
+    clips = [(float(a), float(b)) for a, b in re.findall(r'class="k-clipbox" data-layout-allow-overflow data-in="([\d.]+)" data-out="([\d.]+)"', page)]
+    still, holds, pops = motion(out, spans, voiced, clips)
     for start, length, bid in holds:
         warnings.append(f"hold {length} s at {start} s in beat {bid}; cue its next picture to a "
                         "word inside the still, or move the camera")

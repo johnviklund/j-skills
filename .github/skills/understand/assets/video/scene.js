@@ -51,6 +51,9 @@ beat("change", ({ at }) => {
 });
 
 beat("close", ({ at }) => {
-  K.tl.to(S.wait, { x: -480, y: -300, scale: 1, duration: 0.8, ease: K.GLIDE }, at("one")); // above the editor
+  // Fade out, move above the editor, fade back in, so the counter never crosses the Editor box.
+  fade(S.wait, at("one"), 0.25);
+  K.tl.set(S.wait, { x: -480, y: -300, scale: 1 }, at("one") + 0.25);
+  K.tl.to(S.wait, { opacity: 1, duration: 0.35 }, at("one") + 0.3);
   count(S.wait, at("gone"), 0.1, 0.8, (v) => `${v.toFixed(1)} s`, 2.0);
 });

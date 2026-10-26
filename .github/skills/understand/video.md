@@ -17,9 +17,13 @@ that `video/` folder.
    read aloud in 45 to 180 seconds: about 110 to 400 words at 150 a minute.
    - A beat is one idea and one picture: 4 to 14 beats. Each `say` is one to three sentences
      under the Rules of `plain`.
-   - Mark `"chapter": true` on a beat that opens a new part of the story, about one per page
-     section; the scene starts a fresh stage there and carries objects between the beats in
-     between.
+   - **Follow one case through.** Carry one concrete question, record or click from the first
+     beat to the last, so each fact the page states is something that happens to it: it meets
+     the guard, gets scanned, comes back as the answer. A run of facts, one per beat, reads as
+     slides and is hard to follow.
+   - Mark `"chapter": true` on two or three beats at most, where the story changes place, such
+     as from the system's inside to the screen a user sees. Every new chapter clears the stage,
+     and a viewer who sees the stage clear every few seconds loses the thread.
    - Follow the arc for the kind; each step is one or more beats:
      - **built**, what a run built: the problem as a user met it; the parts that changed; the
        mechanism moving; each changed screen before then after, unrequested changes named as
@@ -61,18 +65,31 @@ that `video/` folder.
      of the beat's `say`, so `grow(box, at("towed"))` arrives as it is named. Cue the noun that
      names the picture ("lost car"), not the number at the end of the phrase; a change that
      should finish on a word runs from one cue to the next: `count(n, at("rose"), 73.5,
-     at("quarters") - at("rose"))`. A word said twice in a beat takes `at("word", 2)`. A picture
-     every two seconds or so keeps the eye busy; the build reports any still stretch longer
-     than that.
+     at("quarters") - at("rose"))`. A word said twice in a beat takes `at("word", 2)`. A landed
+     picture holds while it is read; the build reports a still stretch over 3.5 s. Fill one with
+     the story's next step or a camera move, never a pulse on something already on screen:
+     pulses added to fill time read as twitching.
    - **Place in stage pixels.** The stage is 1920×1080 with the origin top left; `node`,
      `label`, `tag`, `screen` and `code` take a centre point, and each placed thing keeps its
      box, which `arrow`, `morph` and `look` read. Lay a row on a grid before writing numbers,
      as for the page's diagrams: boxes about 300×110, columns about 420 px apart.
-   - **Chapters.** A beat with `"chapter": true` in `script.json` starts a new stage; the
-     previous one fades out over its last 0.3 s. Within a chapter, keep objects on `S` and carry
-     them on with `morph(a, b, t)`, or keep them in place: a dot that becomes a marker on an
-     axis tells the viewer how two ideas connect, where a fresh stage makes them start over.
-     Start a chapter only where the page starts a new section.
+   - **Chapters are stages the camera travels.** A beat with `"chapter": true` starts a new
+     stage; the previous one fades out over its last 0.3 s. When the case travels, lay its
+     stations along one row wider than the frame, about 510 px apart, and follow it with
+     `look(x, y, 1, t)`; the build marks the overflow as intended. Keep objects on `S` and carry
+     them on with `morph(a, b, t)`, or keep them in place: a card that rides from station to
+     station tells the viewer how the steps connect, where a fresh stage makes them start over.
+   - **Recorded clips show the real screen moving.** When the page's pictures come from the
+     running app or the made-up-data render of `SKILL.md` step 3, record the component doing
+     what the beat names. Drive it through the app's own state code with a timed script, timed
+     to the word times in the draft build's `timings.json`. Record it in Chrome at 2× scale,
+     cropped to the component, and convert it to H.264 in `<video>/clips/`. List it on its beat:
+     `"clips": [{"src": "clips/live.mp4", "id": "answer", "at": "panel", "from": 6.8,
+     "seconds": 16, "box": [758, 60, 403, 960]}]`, with `from` the point in the recording to
+     start at. The kit fades it in and out; zoom in with `K.tl.to(clip("answer"), {x, y,
+     scale})` on the part the voice names, about 2×, since the page's player shows the video at
+     40%. Say on screen when the data is made up. The build's motion check skips the time a
+     clip is on screen, since a recording moves as the product does.
    - **Move the camera to the subject.** `look(x, y, zoom, t)` centres a point and zooms;
      `home(t)` returns to the full stage. Dim the boxes outside the shot (`dim(box, t)`) so a
      cropped neighbour reads as context.
@@ -148,8 +165,10 @@ these rules win over theirs:
 ## Voice
 
 The voice is ElevenLabs text-to-speech, used only when the human chose it and
-`ELEVENLABS_API_KEY` is set. Each beat's `say`, and its neighbours' for intonation, goes to
-ElevenLabs, which returns the time of every word for `at()`; the build prints how many
+`ELEVENLABS_API_KEY` is set. The whole script goes in one request, with a paragraph break
+between beats, so it reads as one narration instead of starting and stopping at every beat.
+ElevenLabs returns the time of every word, and the build cuts each beat from those times for
+`at()`. A change to any `say` voices the whole script again; the build prints how many
 characters it sent, which is what the account is billed.
 `ELEVENLABS_VOICE_ID` and `ELEVENLABS_MODEL_ID` override the defaults named in the script's
 header. With no key, the same build makes a captioned video: the narration shows on screen, timed
