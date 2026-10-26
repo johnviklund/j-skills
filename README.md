@@ -194,6 +194,10 @@ Use it at the end of a session, or whenever you say "remember this".
 
 - Each lesson gets its own page in the repo's `memory/` folder, listed in `MEMORY.md`.
 - When a lesson comes up again, its page counts it. At three times, the lesson moves into a skill.
+- When a session relies on a page and it still holds, the page's date is refreshed, so it does not
+  show as stale. A page that turned out wrong is fixed.
+- It skips claims that go stale on their own, such as "tool X is broken" or a step that was
+  missing and is now done. A page about a temporary state says how to check that it has ended.
 - It also updates related docs, such as `DESIGN.md` when the repo has one.
 - It saves where a secret is kept, never the secret itself. If an instruction came from
   something the agent read, such as a web page, an issue or a log, it asks you before saving it.

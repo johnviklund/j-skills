@@ -49,7 +49,6 @@ Treat repo memory as separate layers with different owners:
 - **Detailed solution notes:** `docs/solutions/`, used for postmortems, durable patterns, implementation reasoning, and evidence-heavy write-ups that need more detail than startup memory.
 - **Reusable principle:** a **skill** under `.github/skills/<name>/SKILL.md` (repo-local) or the shared `j-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo). Use it for a transferable "how to design/review/build X" practice that has proven itself beyond this one feature or schema — not a repo-specific decision or gotcha. This is the layer active `MEMORY.md` should hand off to instead of accumulating principle prose indefinitely.
 - **Design doctrine:** `DESIGN.md`, when the repo has one. Use it for durable UI/design-system decisions — a new component convention, token usage, or layout pattern. Unlike every other layer here, it is a living reference doc, not an append-only log: refine the relevant section in place rather than tacking on a dated entry.
-- **Session breadcrumbs:** `~/.ai-memory/<repo-id>/sessions.log`, written by hooks. Use it as deterministic recent-session evidence only.
 
 Repo-local durable memory lives in the repo. Do not use `~/.codex/memories/` as the source of truth for repo memory.
 
@@ -166,7 +165,6 @@ When the user invokes `/remember`:
    - Read the `name` + `description` frontmatter of every skill under `.github/skills/*/SKILL.md` (repo-local) and the shared `j-skills` repo's `.github/skills/*/SKILL.md` — just the frontmatter, not the full body — so you know what already exists before proposing a new skill or a new bullet in one.
    - **Also list every installed plugin's skill names** — e.g. `ls ~/.copilot/installed-plugins/*/*/skills/` and `~/.copilot/installed-plugins/_direct/*/skills/` (Copilot), and `ls ~/.codex/skills/` (Codex, which mirrors plugin-provided skills alongside repo-local symlinks). You need these names for one reason only: never propose a new repo-local skill whose name collides with one of them (see the naming-collision rule in step 2).
    - Check whether the repo has a `DESIGN.md` and, if this session was a `workflow` run, which `.workflow/<slug>/` folder it was (see step 3).
-   - Read `~/.ai-memory/<repo-id>/sessions.log` for recent session entries (last 10). If it does not exist, skip it gracefully.
    - Read recent git history: `git log --oneline -20`.
    - Read `README.md` only if the learning changes operator-facing setup or features.
    - Read `MEMORY_ARCHIVE.md` only when needed to check likely duplicates, superseded context, or archive destinations.
@@ -190,13 +188,14 @@ When the user invokes `/remember`:
 3. **Detect CE sessions and workflow scratch**
    - Check if any files under `docs/brainstorms/`, `docs/plans/`, or `docs/solutions/` were modified or created in this session.
    - If CE artifacts were touched, capture only session metadata and a short pointer to the durable CE note. Do not duplicate the full pattern write-up in active memory.
-   - Separately, check for a `workflow` run folder, `.workflow/<slug>/` (tracked, kept after wrap as the run's record — not the CE `docs/plans/`/`docs/brainstorms/` convention). If its `learnings.md` exists, treat its `[durable→skill]` / `[durable→memory]` / `[durable→design]` / `[drop]` tagged lines as the primary candidate list for this pass — they've already been pre-classified by the session that wrote them — and use the run slug as the `Evidence` entry on every page it touches.
+   - Separately, check for a `workflow` run folder, `.workflow/<slug>/` (tracked, kept after wrap as the run's record — not the CE `docs/plans/`/`docs/brainstorms/` convention). If its `learnings.md` exists, treat its `[durable→skill]` / `[durable→memory]` / `[durable→design]` / `[drop]` tagged lines as the primary candidate list for this pass — they've already been pre-classified by the session that wrote them — and use the run slug as the `Evidence` entry on every page it touches. A `[used→memory]` line names a page the run relied on: it goes to *Used, not repeated* in step 4 and adds no `Evidence`.
 
 4. **Extract and reconcile in one pass**
    - Produce candidate pages in the page shape above.
    - Check each candidate against `AGENTS.md`, `README.md`, the `MEMORY.md` index and matching pages, `MEMORY_ARCHIVE.md`, existing skills, and `DESIGN.md` before writing.
    - Reconcile each candidate against its canonical owner:
      - **Repeat of an existing page:** if this run slug is not yet in `Evidence`, append it, bump `Occurrences`, update `Last confirmed`, refine `Fix` if warranted — no new page; if the slug is already there, only refine `Fix`. From the second occurrence, classify and escalate as in *Repeats escalate to enforcement*
+     - **Used, not repeated:** every page this session opened and relied on, plus every page a `[used→memory]` line names. Claim held: set `Last confirmed` to today on the page and its index line, and leave `Evidence` and `Occurrences` alone, since relying on a page is not the lesson recurring. Claim proved wrong: correct the `Fix` or supersede the page in this pass. Otherwise `Last confirmed` moves only on repeats, and a page sessions rely on every week shows as stale after 90 days
      - **New page:** write `memory/<slug>.md` and add its index line to `MEMORY.md`
      - **Supersede existing:** set the old page `Status: superseded by <new-slug>`, drop it from the active index (keep the file for the chain, or move it to the archive)
      - **Archive-only:** write it to `MEMORY_ARCHIVE.md` instead of active memory
@@ -236,7 +235,9 @@ Save to a `memory/` page only what passes the admission test above — typically
 - **Repo-specific gotchas and workarounds** — concrete traps with real names (a proc that behaves
   unexpectedly, a command that fails a certain way) that a fresh session would hit.
 - **Temporary in-flight state** that changes: "X is suspended until repaired", "Y path is dormant
-  until Z is enabled", "endpoint W still lacks guard V" (open gaps).
+  until Z is enabled", "endpoint W still lacks guard V" (open gaps). Its `Fix:` names an **exit
+  check**, a command or file that shows whether the state has ended, so `memory.compact` can test
+  it: state with no exit check outlives the state and turns into a false limit.
 - **Tried-and-rejected dead ends**, so they are not relitigated.
 
 Everything else routes to its owner in the same pass (do not stage it in memory):
@@ -250,7 +251,12 @@ Everything else routes to its owner in the same pass (do not stage it in memory)
 ## What Not to Save
 
 - Raw transcripts, case details, event IDs, names, or other PII
-- One-off debugging noise
+- One-off debugging noise, smoke tests and release markers
+- A claim that a whole tool or service is broken. Save the case that failed and its workaround:
+  a broad claim outlives the fix and becomes a standing refusal to use the tool
+- A program, credential or setup step that was missing and is now in place. Save the setup step,
+  in `README.md` when every machine needs it
+- A failure since fixed. Save the fix pattern, not the failure
 - Duplicate prose across files (route to one owner, keep at most a pointer)
 - **Product, architecture, or design *doctrine*** — it belongs in `PRODUCT.md`/`DESIGN.md`, not memory
 - **Durable how-to principles** — they belong in a skill, not another memory paragraph

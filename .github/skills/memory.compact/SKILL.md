@@ -47,8 +47,6 @@ Reduce memory to its essential active pages without losing audit trail or search
 - **Run records:** `.workflow/<slug>/` folders, kept by the `workflow` skill after wrap (`Status:
   done`). Read-only evidence: a done run's `review.md`/`learnings.md` can confirm or contradict a
   page, and a page's `Evidence` entries should resolve to a run slug or a sha.
-- **Session breadcrumbs:** `~/.ai-memory/<repo-id>/sessions.log`, deterministic hook output. Use
-  as evidence, not as durable memory.
 
 ## When to Use
 
@@ -113,6 +111,11 @@ For each page (and each legacy inline entry), classify as:
   claim/slug, Decision → Fix, Source → Evidence, `Last confirmed` carried over, `Occurrences: 1`
   unless the entry itself records repeats.
 - **Stale** — active but `Last confirmed` > 90 days ago. Flag for re-confirmation or supersession.
+- **Ended state** — a temporary-state page ("X is suspended until …"), at any age. Run the exit
+  check its `Fix:` names when the check only reads (a file test, a grep, a status command): still
+  in force → active, with `Last confirmed` set to today; ended → archive-only. A check that writes
+  or calls a live service goes in the report for the user to run, since this pass only proposes.
+  A state page with no exit check gets one proposed in its corrected page.
 - **Superseded** — `Status: superseded by <slug>`. Keep the chain intact; move the page to the
   archive when it no longer shapes normal work, and drop its index line.
 - **Same-claim duplicate** — two pages whose claims are the same lesson. Merge into one page: union

@@ -14,6 +14,7 @@ any time something worth keeping gets solved — don't wait for wrap-up:
 ```text
 ## Phase N — <name> (YYYY-MM-DD)
 - [durable→memory] <the fix, gotcha, or decision>
+- [used→memory] <slug> — held | wrong: <what was wrong>   ← a memory page this session relied on
 - [durable→skill] <the transferable principle, stripped of concrete schema/names/logic>
 - [durable→design] <the UI pattern/convention/token decision>
 - [durable→eval] code-review — <the P0/P1 that was missed, and by whom> (artifacts: the diff + the finding)
