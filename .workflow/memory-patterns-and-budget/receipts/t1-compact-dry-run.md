@@ -43,3 +43,7 @@ The case now reaches a proposed page; the old instructions leave it undiscovered
 The scratch assertions check page counts and unique Evidence after manual classification.
 They do not prove an independent agent follows the new instructions. Review should repeat one case.
 No actual memory page or done run was changed. No paid model or trigger test was run; frontmatter is unchanged.
+
+## Green checks
+T1 Verify exits 0. All ten grep counts are 1. SKILL.md is 17,119 bytes, below 17,446.
+The skill commit 94f353b contains only memory.compact/SKILL.md and SKILL-IMPACT.md.

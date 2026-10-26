@@ -9,14 +9,15 @@ Size: code 0 · tests 0 · ratio n/a (doc run) · largest touched memory.remembe
 Decisions: 1a (a run missing from a matching page is added to its proposed copy, count bumped) · 2a (T2 desk-check receipt) · 3a ticket list approved 2026-10-26
 
 ## Execution state
-Current: T2 todo; T1 verified and committed.
+Current: all tickets done; ready for cross-vendor review.
 T1 @ 94f353b
+T2 @ 43588b3
 writer: GPT-6.1 Sol · high
-Session 1: T1
+Session 1: T1, T2
 Baseline: no AGENTS.md or build/lint block; proposed baseline in chat, no extra command supplied.
 Checks: ticket content checks, desk receipts, check-run.py, git diff --check; no pre-existing failures.
 Contracts: none; skill frontmatter unchanged.
-Uncommitted: plan.md and receipts/t1-compact-dry-run.md pending record commit.
+Uncommitted: none after the execution-record commit.
 Pending decision: none.
 
 ## Findings
@@ -57,15 +58,16 @@ Delivers: B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +0 · tests +0 · why: doc-only, about 10 lines in memory.remember/SKILL.md
 Seam: `skills/memory.remember/SKILL.md` new section and step 2; `skills/workflow/SKILL-IMPACT.md`
 Accept:
-- [ ] `## The AGENTS.md cost test` sits after the admission test and step 2's `AGENTS.md` bullet names it → `grep -c 'AGENTS.md cost test'` = 2 (B4)
-- [ ] The test asks `cause a mistake on a typical task in this repo`; a no routes the rule to its owner, leaving `at most a one-line pointer` in `AGENTS.md` → 1 match each (B4)
-- [ ] A stated cap with the file `within 10% of` it → remember `names one existing line to remove or move`; `no stated cap` → only the removal test runs → 1 match each (B5)
-- [ ] The section points to agent-docs for `Context load` instead of defining it → 1 match (B4)
-- [ ] `receipts/t2-remember-desk-check.md`: live-run-finder rule → `routed to a memory page`; `npx skills update -g` rule → `kept in AGENTS.md`; fixture capped at 40 holding 37 lines → `names 1 line to move` (B4, B5)
-- [ ] SKILL-IMPACT.md gains `| memory.remember | … | 3 runs | trialing |`, judge "a routed-away rule in the next 3 runs", in one commit with the SKILL.md edit only; `wc -c` ≤ 27,720 (B6)
+- [x] `## The AGENTS.md cost test` sits after the admission test and step 2's `AGENTS.md` bullet names it → `grep -c 'AGENTS.md cost test'` = 2 (B4)
+- [x] The test asks `cause a mistake on a typical task in this repo`; a no routes the rule to its owner, leaving `at most a one-line pointer` in `AGENTS.md` → 1 match each (B4)
+- [x] A stated cap with the file `within 10% of` it → remember `names one existing line to remove or move`; `no stated cap` → only the removal test runs → 1 match each (B5)
+- [x] The section points to agent-docs for `Context load` instead of defining it → 1 match (B4)
+- [x] `receipts/t2-remember-desk-check.md`: live-run-finder rule → `routed to a memory page`; `npx skills update -g` rule → `kept in AGENTS.md`; fixture capped at 40 holding 37 lines → `names 1 line to move` (B4, B5)
+- [x] SKILL-IMPACT.md gains `| memory.remember | … | 3 runs | trialing |`, judge "a routed-away rule in the next 3 runs", in one commit with the SKILL.md edit only; `wc -c` ≤ 27,720 (B6)
 Verify: `R=skills/memory.remember/SKILL.md; grep -c 'AGENTS.md cost test' $R; grep -c 'cause a mistake on a typical task in this repo' $R; grep -c 'at most a one-line pointer' $R; grep -c 'within 10% of' $R; grep -c 'names one existing line to remove or move' $R; grep -c 'no stated cap' $R; grep -c 'Context load' $R; grep -c '| memory.remember | .*| 3 runs | trialing |' skills/workflow/SKILL-IMPACT.md; test $(wc -c < $R) -le 27720 && test -f .workflow/memory-patterns-and-budget/receipts/t2-remember-desk-check.md` (pre: 0 on every grep; size passes; receipt missing, exit 1)
 Skills: skills/agent-docs/SKILL.md · skills/plain/SKILL.md
-Status: todo
+Status: done @ 43588b3
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (compact text + dry-run receipt) · T2 (remember text + desk-check receipt)
