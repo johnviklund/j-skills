@@ -65,6 +65,17 @@ video question in advance. `<skill>` below is this skill's folder.
    - **Screens changed** (slug): UI files in the run's diff — components, pages, styles, templates;
      tests excluded. Map each to the screen a user reaches and to the B# or ticket that asked for
      it. A visible change no behaviour or acceptance line asked for is **unrequested**.
+   - **Screens shown** (area with a UI): the screens and states a user meets the area through,
+     each with its route and how to reach that state, from the feature map of the repo's verify
+     skill when one exists. A reader understands a UI feature from seeing it, so an area page
+     shows it even though nothing changed.
+   - **Pictures question:** when step 3 needs a capture and the app cannot run here (missing
+     data, credentials or dependencies), ask in the same message as the video question,
+     lettered d to f: d) the human captures them, with each screen listed by route, state and
+     the 1280×800 viewport, and the folder to drop JPEGs in; e) a render of the real UI
+     components with made-up data, step 3.4; f) *not captured* boxes. Recommend d when a screen
+     only makes sense with real data, e otherwise. With no human to ask, e when the UI can be
+     exported, else f.
    - **Video question:** settle it now, so the rest runs without stopping. A video retells the
      page in motion and earns its cost when the story moves: screens changed, or the work spans
      several parts or steps, such as three or more behaviours or tickets, or a flow or states
@@ -72,24 +83,35 @@ video question in advance. `<skill>` below is this skill's folder.
      fit. When it fits, ask once, lettered, recommending a when `ELEVENLABS_API_KEY` is set and
      b otherwise: a) video with voice, b) video with on-screen captions, c) no video. Each option
      names its cost: roughly how many characters go to ElevenLabs, whether the key is set, and a
-     one-time Manim install when `build-video.py` finds none. In the same question, numbered,
+     one-time `build-video.py --setup` on a machine that has not built a video. In the same question, numbered,
      ask which story the video tells: 1) built, what the run built, the default for a slug; 2)
      feature, why the feature exists, what it is and how it works, the default for an area. The
      human answers both at once, such as `a1`. `--video` means a, or b without a key, with the
      default story; `--no-video` or no fit means c. With no human to ask, c, and the receipt
      names `understand <target> --video`.
 
-3. **Pictures.** Done when every changed screen has a before and an after picture, or a stated
-   reason for each one missing. Skip this step when no screen changed. Take the cheapest source
-   that exists:
+3. **Pictures.** Done when every screen the page shows has its picture, a before and an after
+   for a slug's changed screen and one for an area's screen, or a stated reason for each one
+   missing. Skip this step when the page shows no screen. Take the cheapest source that exists:
    1. The run's own `screens/` (execute saves them per UI ticket): use them as they are.
-   2. Capture with a browser tool. *After*: run the app at `HEAD`. *Before*: a worktree at the
+   2. The repo's verify skill (`verify-<app>`, made by `verify.create`): its control CLI starts
+      the app and saves a screenshot of a route, with the same data every time.
+   3. Capture with a browser tool. *After*: run the app at `HEAD`. *Before*: a worktree at the
       plan's `Base` (`git worktree add $TMPDIR/understand-before <Base>`; reuse the main
       checkout's dependencies when the lockfile is unchanged; another port). Same route, viewport
       1280×800 and data for both; crop to the changed region; JPEG into the output folder's
       `screens/`. Remove the worktree after.
-   3. The app cannot run (credentials, live data): leave that side as a *not captured* box and say
-      why in the caption.
+   4. The app cannot run here: follow the answer to step 2's pictures question.
+      - **d, the human captures:** go on with steps 4 and 5 while they do, and place the files
+        when they arrive; a screen still missing at step 6 gets a *not captured* box.
+      - **e, made-up data:** export the UI with `git archive HEAD <ui folder> | tar -x -C
+        $TMPDIR/understand-ui`, so the target checkout stays untouched, and install its
+        dependencies there. Add one page that renders the real components with data shaped
+        like the repo's own test fixtures, and screenshot each state at 1280×800. Where the
+        backend builds what a component shows, such as chart values, run that backend code on
+        the made-up data instead of writing the values by hand. The page says the data is made
+        up, in the section's opening line and in no customer's words.
+      - **f:** a *not captured* box, with the reason in the caption.
 
    Open each picture at most once, to write its caption.
 
@@ -114,7 +136,9 @@ video question in advance. `<skill>` below is this skill's folder.
      When screens changed, one of them says how many, and how many were unrequested.
    - **Screens** (only when screens changed) — one figure per changed screen, unrequested ones
      first: tag, before/after pair, one-sentence caption with a cite. Side by side when each crop
-     is under ~400 px wide; `.stack` otherwise.
+     is under ~400 px wide; `.stack` otherwise. An area page titles the section *What it looks
+     like* instead: its screens in the order a user meets them, two to a figure, each caption
+     citing the code that draws it.
    - **Why it exists** — slug: the brief's problem. Area: its purpose and who relies on it.
    - **How it works** — diagrams, each followed by the prose it illustrates; depth that a first
      read can skip goes in `<details>`. On a UI run the pictures carry the story: keep this to

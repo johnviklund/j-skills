@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""Build an understand explainer video from a video folder holding script.json, scene.py, kit.py.
+"""Build an understand explainer video from a video folder holding script.json, scene.js, kit.js.
 
 Steps: lint script.json, narrate each beat (ElevenLabs when ELEVENLABS_API_KEY is set, else
-on-screen captions) with a time for every word, render scene.py with Manim, lay each beat's voice
-at the second its beat starts, and write explainer.mp4, explainer.vtt, poster.jpg into the
-folder. A contact sheet with one still per beat goes to the build folder for checking the look,
-and a motion check reports every hold (the picture standing still) and pop (a jump in one frame).
+on-screen captions) with a time for every word, lay the beats end to end into one voice track,
+write a HyperFrames project (index.html with one scene per chapter, timings.js, kit.js, scene.js,
+the voice and the output folder's screens/), run HyperFrames' check, render it, and write
+explainer.mp4, explainer.vtt, poster.jpg into the folder. A contact sheet with one still per beat
+goes to the build folder for checking the look, and a motion check reports every hold (the
+picture standing still) and pop (a jump in one frame).
 
 Usage:
     build-video.py VIDEO_DIR [--silent] [--draft] [--embed PAGE]
     build-video.py VIDEO_DIR --standalone PAGE   one-file copy of PAGE, no render
-    build-video.py --setup            install Manim into ~/.cache/j-skills/manim-venv
+    build-video.py --setup            fetch the pinned HyperFrames CLI, Chrome and GSAP once
 
     --silent  no voice even when a key is set; narration shows as on-screen captions
-    --draft   480p at 15 fps into the build folder only, for checking timing and layout fast
+    --draft   draft quality at 15 fps into the build folder only, for checking timing and layout fast
     --embed   put this build in PAGE's Watch section, adding the section after In short when
               missing. Captions go in inline: browsers refuse a caption file next to a page
               opened from disk (tested in Chromium, 2026-10-04)
@@ -21,7 +23,9 @@ Usage:
               inside it, for sharing as one file (Teams, mail, a shared folder). PAGE must
               already have its Watch section; nothing is rendered or narrated
 
-Needs: Python 3.10+, ffmpeg and ffprobe, and Manim Community Edition (cairo and pango libraries).
+Needs: Python 3.10+, ffmpeg and ffprobe, Node.js 22+ with npx, and Chrome (the HyperFrames CLI
+finds a system Chrome or downloads its own in --setup). The build folder is a HyperFrames project:
+`npx hyperframes@VERSION preview` inside it opens the Studio preview of the last build.
 Narration: ELEVENLABS_API_KEY; optional ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL_ID. Voice files are
 cached by text, voice and model in ~/.cache/j-skills/understand-tts, so a rebuild costs nothing;
 word times are cached beside each clip, and estimated from its length for a clip that has none.
@@ -43,9 +47,22 @@ import urllib.request
 from html import escape as html_escape
 
 CACHE = pathlib.Path(os.environ.get("XDG_CACHE_HOME", pathlib.Path.home() / ".cache")) / "j-skills"
-VENV = CACHE / "manim-venv"
 TTS_CACHE = CACHE / "understand-tts"
 SKILL = pathlib.Path(__file__).resolve().parent.parent
+# Pinned so every rebuild renders the same way, and because this script reads the CLI's check JSON
+# and flags; 0.8.203 built the 2-minute test film (2026-10-26). Bump only after a test build.
+HYPERFRAMES = "hyperframes@0.8.203"
+GSAP_VERSION = "3.14.2"  # the version HyperFrames 0.8.203 scaffolds new projects with
+GSAP = CACHE / f"gsap-{GSAP_VERSION}.min.js"
+GSAP_URL = f"https://cdn.jsdelivr.net/npm/gsap@{GSAP_VERSION}/dist/gsap.min.js"
+# No telemetry, and no skill installs into the build folder from the CLI's init checks.
+HF_ENV = {"HYPERFRAMES_NO_TELEMETRY": "1", "DO_NOT_TRACK": "1", "HYPERFRAMES_SKIP_SKILLS": "1"}
+# Check findings left out of the build's warnings: the generated index.html keeps every chapter in
+# one file on purpose (one scene file for the agent to write), and holds are measured below with
+# this script's own thresholds instead of HyperFrames' dead_stretch. film_silent asks for music and
+# sound effects, which these videos leave out: the voice carries them, or captions do.
+HF_IGNORED = {"timeline_track_too_dense", "nested_structure_needs_subcomposition", "dead_stretch",
+              "film_silent"}
 
 API = os.environ.get("ELEVENLABS_BASE_URL", "https://api.elevenlabs.io")
 # George: a calm, warm narrator from ElevenLabs' default library, available on every account.
@@ -54,6 +71,7 @@ VOICE = os.environ.get("ELEVENLABS_VOICE_ID", "JBFqnCBsd6RMkjVDRZzb")
 MODEL = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2")
 
 BREATH = 0.6           # quiet after each voiced beat, so beats do not run together
+TAIL = 1.5             # s: the last picture holds after the voice ends; the film's closing still
 READ_WPS = 2.5         # silent beats: ~150 words a minute, a relaxed reading pace beside motion
 MIN_BEAT = 3.0         # a beat shorter than this flashes past before the eye settles
 SENTENCE_WORDS = 25    # the plain skill's sentence limit, so narration reads as the page does
@@ -67,15 +85,15 @@ MAX_HOLD_READ = 3.0    # s: the same in a captioned video, where the eye is busy
 STILL_DIFF = 0.05      # mean luma change (0-255) under which two frames count as the same; a
                        # 1080p test showed text anti-aliasing noise at 0.00-0.02 (2026-10-05)
 POP_RATIO = 3          # a frame changing 3x more than both neighbours appeared all at once
-POP_MIN = 0.15         # ...measured at 64 px wide, where Manim's edge flicker between moving and
-                       # still frames (up to 8.7 at 320 px) reads 0.00-0.01, a counter's last
-                       # two-digit tick 0.14, and a three-word label appearing about 0.2 (2026-10-05)
+POP_MIN = 0.15         # ...measured at 64 px wide, where edge flicker between moving and still
+                       # frames reads 0.00-0.01, a counter's last two-digit tick 0.14, and a
+                       # three-word label appearing about 0.2 (Manim renders, 2026-10-05)
 MOTION_FPS = 15        # the check samples at the draft's rate, so its thresholds hold for both
 SHARE_HEIGHT = 720     # px: the standalone copy; labels stay crisp, and the 2-minute test film
                        # went from 6.7 MB at 1080p to a page of about 4 MB (2026-10-05)
 SHARE_CRF = 28         # x264 quality for that copy: flat diagrams on white compress well
-FINAL = ["-r", "1920,1080", "--fps", "30"]
-DRAFT = ["-r", "854,480", "--fps", "15"]
+FINAL = ["--quality", "looks", "--fps", "30"]
+DRAFT = ["--quality", "draft", "--fps", "15"]  # half the frames: a 2-minute draft in about 2 minutes
 
 
 def fail(msg, code=1):
@@ -91,26 +109,41 @@ def run(cmd, what):
     return res
 
 
-def manim_python():
-    """The interpreter that has Manim: this one, else the skill's venv."""
-    for py in (sys.executable, VENV / "bin" / "python"):
-        if pathlib.Path(py).exists() and not subprocess.run(
-                [str(py), "-c", "import manim"], capture_output=True).returncode:
-            return str(py)
-    fail(f"Manim not found. Install it with: python3 {__file__} --setup "
-         f"(a venv in {VENV}; needs the cairo and pango libraries and ffmpeg)")
+def hf(args, what, cwd=None, check=True):
+    """Run the pinned HyperFrames CLI through npx."""
+    if not shutil.which("npx"):
+        fail("npx not found; install Node.js 22 or newer (it brings npx)")
+    res = subprocess.run(["npx", "--yes", HYPERFRAMES, *args], capture_output=True, text=True,
+                         cwd=cwd, env=dict(os.environ, **HF_ENV))
+    if check and res.returncode:
+        tail = "\n".join((res.stderr or res.stdout).strip().splitlines()[-25:])
+        fail(f"{what} failed (exit {res.returncode}):\n{tail}")
+    return res
+
+
+def gsap():
+    """GSAP from the cache, fetched once, so a render needs no network."""
+    if not GSAP.exists():
+        try:
+            with urllib.request.urlopen(GSAP_URL, timeout=60) as resp:
+                data = resp.read()
+        except urllib.error.URLError as e:
+            fail(f"could not fetch GSAP from {GSAP_URL} ({e.reason}); run --setup with network")
+        GSAP.parent.mkdir(parents=True, exist_ok=True)
+        GSAP.write_bytes(data)
+    return GSAP
 
 
 def setup():
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             fail(f"{tool} not found; install ffmpeg with the system package manager first")
-    run([sys.executable, "-m", "venv", str(VENV)], "creating the venv")
-    print(f"installing manim into {VENV} ...")
-    run([str(VENV / "bin" / "pip"), "install", "-q", "manim"], "pip install manim")
-    ver = run([str(VENV / "bin" / "python"), "-c", "import manim; print(manim.__version__)"],
-              "importing manim").stdout.strip()
-    print(f"ok      manim {ver} in {VENV}")
+    print(f"fetching {HYPERFRAMES} and checking Chrome ...")
+    hf(["browser", "ensure"], "finding or downloading Chrome")
+    hf(["telemetry", "disable"], "turning telemetry off", check=False)
+    gsap()
+    ver = hf(["--version"], "reading the HyperFrames version").stdout.strip()
+    print(f"ok      {HYPERFRAMES} ({ver}) · Chrome ready · GSAP {GSAP_VERSION} in {GSAP.parent}")
 
 
 def lint(script):
@@ -134,6 +167,8 @@ def lint(script):
         seen.add(bid)
         if not say:
             errors.append(f"beat {bid or n}: empty \"say\"")
+        if "chapter" in b and not isinstance(b["chapter"], bool):
+            errors.append(f'beat {bid}: "chapter" must be true or false')
         if not (b.get("show") or "").strip():
             warnings.append(f'beat {bid}: no "show"; write what is on screen when it ends and '
                             'what it carries into the next beat')
@@ -142,6 +177,17 @@ def lint(script):
         for s in re.split(r"(?<=[.!?])\s+", say):
             if len(s.split()) > SENTENCE_WORDS:
                 warnings.append(f"beat {bid}: {len(s.split())}-word sentence: \"{s[:60]}...\"")
+        for k, blk in enumerate(b.get("blocks") or []):
+            where = f"beat {bid} block {k + 1}"
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", str(blk.get("name", ""))):
+                errors.append(f'{where}: "name" must be a registry block name, such as "data-chart"')
+            if not blk.get("at") or norm(str(blk["at"])) not in [norm(w) for w in say.split()]:
+                errors.append(f'{where}: "at" must be a word of the beat\'s "say"')
+            if not isinstance(blk.get("seconds"), (int, float)) or blk["seconds"] <= 0:
+                errors.append(f'{where}: "seconds" must be a positive number')
+            box = blk.get("box", [0, 0, 1920, 1080])
+            if not (isinstance(box, list) and len(box) == 4 and all(isinstance(v, (int, float)) for v in box)):
+                errors.append(f'{where}: "box" must be [x, y, width, height] in stage pixels')
     if not 4 <= len(beats) <= 14:
         warnings.append(f"{len(beats)} beats; 4 to 14 keeps one idea per beat at 45-180 s")
     return errors, warnings, beats
@@ -226,6 +272,7 @@ def tts(text, prev_text, next_text, key):
 
 
 def narrate(beats, voiced, build):
+    """Each beat's length and word times; beats play end to end, so the voice is the clock."""
     timings, key = {"voiced": voiced, "beats": {}}, os.environ.get("ELEVENLABS_API_KEY", "")
     paid = 0
     for i, b in enumerate(beats):
@@ -242,43 +289,186 @@ def narrate(beats, voiced, build):
             secs = max(MIN_BEAT, read + 1.0)
             timings["beats"][b["id"]] = {"seconds": round(secs, 3),
                                          "words": estimate_words(b["say"], read)}
+    spans, t, chapter = [], 0.0, beats[0]["id"]
+    for i, b in enumerate(beats):
+        if b.get("chapter"):
+            chapter = b["id"]
+        secs = timings["beats"][b["id"]]["seconds"] + (TAIL if i == len(beats) - 1 else 0)
+        spans.append({"id": b["id"], "start": round(t, 3), "end": round(t + secs, 3), "chapter": chapter})
+        t += secs
     (build / "timings.json").write_text(json.dumps(timings, indent=1))
-    return timings, paid
+    return timings, spans, paid
 
 
-def render(video_dir, build, quality):
-    py = manim_python()
-    media = build / "media"
-    env = dict(os.environ, UNDERSTAND_VIDEO_DIR=str(video_dir), UNDERSTAND_BUILD_DIR=str(build),
-               PYTHONPATH=str(video_dir), PYTHONDONTWRITEBYTECODE="1")
-    cmd = [py, "-m", "manim", "render", str(video_dir / "scene.py"), "Explainer", *quality,
-           "--media_dir", str(media), "--disable_caching", "-o", "render", "--progress_bar", "none"]
-    res = subprocess.run(cmd, capture_output=True, text=True, env=env)
-    if res.returncode:
-        msg = "\n".join((res.stderr or res.stdout).strip().splitlines()[-30:])
-        fail(f"Manim render failed:\n{msg}")
-    found = sorted(media.glob("videos/**/render.mp4"), key=lambda p: p.stat().st_mtime)
-    if not found:
-        fail(f"Manim finished but wrote no render.mp4 under {media}")
-    return found[-1]
+def norm(word):
+    return re.sub(r"[^a-z0-9]", "", word.lower())
 
 
-def mux(silent_mp4, spans, timings, out):
-    if not timings["voiced"]:
-        run(["ffmpeg", "-y", "-v", "error", "-i", str(silent_mp4), "-c", "copy",
-             "-movflags", "+faststart", str(out)], "writing the video")
-        return
+def sentences(say, start, end):
+    """Each sentence of a beat with its start, by its share of the beat's words."""
+    parts = [s for s in re.split(r"(?<=[.!?])\s+", say.strip()) if s]
+    words = sum(len(s.split()) for s in parts) or 1
+    out, t = [], start
+    for s in parts:
+        out.append({"text": s, "start": round(t, 3)})
+        t += (end - start) * len(s.split()) / words
+    return out
+
+
+def voice_track(spans, timings, out):
+    """One audio file with each beat's clip at the second its beat starts."""
     inputs, delays = [], []
     for n, span in enumerate(spans):
         ms = int(span["start"] * 1000)
         inputs += ["-i", timings["beats"][span["id"]]["audio"]]
-        delays.append(f"[{n + 1}:a]adelay={ms}|{ms}[a{n}]")
+        delays.append(f"[{n}:a]adelay={ms}|{ms}[a{n}]")
     mix = ";".join(delays) + ";" + "".join(f"[a{n}]" for n in range(len(spans))) + \
-        f"amix=inputs={len(spans)}:normalize=0:dropout_transition=0[voice]"
-    run(["ffmpeg", "-y", "-v", "error", "-i", str(silent_mp4), *inputs,
-         "-filter_complex", mix, "-map", "0:v", "-map", "[voice]", "-c:v", "copy",
-         "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", str(out)],
-        "mixing the narration into the video")
+        f"amix=inputs={len(spans)}:normalize=0:dropout_transition=0,apad[voice]"
+    # apad fills the last breath and the closing still with quiet, so the track spans the film.
+    run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", mix, "-map", "[voice]",
+         "-t", f"{spans[-1]['end']:.3f}", "-c:a", "aac", "-b:a", "128k", str(out)],
+        "laying the narration into one track")
+
+
+def block_source(video_dir, name):
+    """A registry block's source, installed once into the video folder so a rebuild uses the
+    same file; HyperFrames components paste into a composition and cannot be mounted here."""
+    path = video_dir / "blocks" / f"{name}.html"
+    if path.exists():
+        return path
+    with tempfile.TemporaryDirectory() as tmp:
+        (pathlib.Path(tmp) / "hyperframes.json").write_text(json.dumps({"paths": {
+            "blocks": "compositions", "components": "compositions/components", "assets": "assets"}}))
+        res = hf(["add", name, "--dir", tmp, "--json", "--no-clipboard"], f"installing block {name}")
+        try:
+            info = json.loads(res.stdout[res.stdout.index("{"):])
+        except ValueError:
+            fail(f"hyperframes add {name} gave no JSON; is {name} in `npx {HYPERFRAMES} catalog`?")
+        if info.get("type") != "hyperframes:block":
+            fail(f"{name} is a {info.get('type', 'non-block')}, not a block; pick a block from "
+                 f"`npx {HYPERFRAMES} catalog --json` (type block)", 2)
+        path.parent.mkdir(exist_ok=True)
+        shutil.copy(info["written"][0], path)
+    print(f"added   block {name} into {path.parent}")
+    return path
+
+
+def block_hosts(video_dir, project, beats, spans, timings):
+    """One host per block in script.json, starting LEAD before its cue word, scaled into its box.
+    The host is the timed element; the block runs its own timeline inside it."""
+    lead = 0.15  # the kit's LEAD: a picture starts moving just before its word
+    span = {s["id"]: s for s in spans}
+    hosts = []
+    for b in beats:
+        for k, blk in enumerate(b.get("blocks") or []):
+            src = block_source(video_dir, blk["name"])
+            dest = project / "compositions" / src.name
+            dest.parent.mkdir(exist_ok=True)
+            shutil.copy(src, dest)
+            words = [(norm(w), a) for w, a, _ in timings["beats"][b["id"]]["words"]]
+            hits = [a for w, a in words if w == norm(blk["at"])]
+            nth = blk.get("nth", 1)
+            if len(hits) < nth:
+                fail(f'beat {b["id"]}: block cue "{blk["at"]}" (nth {nth}) is not said', 2)
+            start = max(0.0, span[b["id"]]["start"] + hits[nth - 1] - lead)
+            seconds = min(blk["seconds"], spans[-1]["end"] - start)  # the film's end cuts a block off
+            x, y, w, h = blk.get("box", [0, 0, 1920, 1080])
+            scale = min(w / 1920, h / 1080)
+            values = html_escape(json.dumps(blk.get("values", {})), quote=True)
+            hosts.append(
+                f'      <div id="blk-{b["id"]}-{k + 1}" class="clip block" data-composition-id="{blk["name"]}" '
+                f'data-composition-src="compositions/{src.name}" data-start="{start:.3f}" '
+                f'data-duration="{seconds:.3f}" data-width="1920" data-height="1080" '
+                f'data-track-index="{2 + k}" data-track-kind="graphics" data-variable-values="{values}" '
+                f'style="left:{x}px;top:{y}px;transform:scale({scale:.4f})"></div>')
+    return hosts
+
+
+def compose(video_dir, build, script, beats, spans, timings):
+    """Write the HyperFrames project into the build folder: index.html, timings.js, kit.js,
+    scene.js, GSAP, the voice track and the output folder's screens/."""
+    project = build / "project"
+    shutil.rmtree(project, ignore_errors=True)
+    (project / "assets").mkdir(parents=True)
+    shutil.copy(gsap(), project / "assets" / "gsap.min.js")
+    screens = video_dir.parent / "screens"
+    if screens.is_dir():
+        shutil.copytree(screens, project / "assets" / "screens")
+    for name in ("kit.js", "scene.js"):
+        shutil.copy(video_dir / name, project / name)
+    say = {b["id"]: b["say"] for b in beats}
+    data = {}
+    for span in spans:
+        words = timings["beats"][span["id"]]["words"]
+        data[span["id"]] = {
+            "start": span["start"], "end": span["end"], "chapter": span["chapter"],
+            "words": [[norm(w), round(span["start"] + a, 3), round(span["start"] + b, 3)]
+                      for w, a, b in words if norm(w)],
+            "sentences": sentences(say[span["id"]], span["start"], span["end"])}
+    (project / "timings.js").write_text(
+        f"window.BEATS = {json.dumps(data, indent=1)};\n"
+        f"window.BEATS_CAPTIONED = {'false' if timings['voiced'] else 'true'};\n")
+    total = spans[-1]["end"]
+    chapters, first = [], {}
+    for span in spans:
+        first.setdefault(span["chapter"], span)
+    starts = [first[c]["start"] for c in first] + [total]
+    for n, c in enumerate(first):
+        chapters.append(f'      <div id="ch-{c}" class="clip chapter" data-start="{starts[n]:.3f}" '
+                        f'data-duration="{starts[n + 1] - starts[n]:.3f}" data-track-index="0" '
+                        f'data-track-kind="graphics"><div class="cam"></div></div>')
+    audio = ""
+    if timings["voiced"]:
+        voice_track(spans, timings, project / "assets" / "voice.m4a")
+        audio = (f'      <audio id="voice" src="assets/voice.m4a" data-start="0" '
+                 f'data-duration="{total:.3f}" data-track-index="9"></audio>')
+    page = (SKILL / "assets/video/index.html").read_text()
+    for key, value in {"{{TITLE}}": html_escape(script["title"]), "{{DURATION}}": f"{total:.3f}",
+                       "{{AUDIO}}": audio,
+                       "{{CHAPTERS}}": "\n".join(chapters + block_hosts(video_dir, project, beats, spans, timings)),
+                       "{{CAPTIONS}}": "" if timings["voiced"] else '      <div id="captions"></div>'}.items():
+        page = page.replace(key, value)
+    (project / "index.html").write_text(page)
+    return project
+
+
+def check(project):
+    """HyperFrames' own check: lint, runtime errors (a scene.js exception lands here), layout
+    and contrast. Lint and runtime errors stop the build, since the render would be blank or
+    broken; layout and contrast findings come back as WARN lines, so a draft still renders and
+    the overlap can be seen and fixed."""
+    res = hf(["check", "--json"], "HyperFrames check", cwd=project, check=False)
+    try:
+        report = json.loads(res.stdout[res.stdout.index("{"):])
+    except ValueError:
+        tail = "\n".join((res.stderr or res.stdout).strip().splitlines()[-25:])
+        fail(f"HyperFrames check gave no report (exit {res.returncode}):\n{tail}")
+    errors, warnings = [], []
+    for part in ("lint", "runtime", "layout", "motion", "contrast", "craft"):
+        for f in (report.get(part) or {}).get("findings", []):
+            if f.get("code") in HF_IGNORED:
+                continue
+            msg = f"{part}: {f.get('code')}: {f.get('message', '')}".strip()
+            if f.get("time"):
+                msg += f" (at {f['time']:.1f} s)"
+            fatal = f.get("severity") == "error" and part in ("lint", "runtime")
+            (errors if fatal else warnings).append(msg)
+    if report.get("browserSkipped"):
+        warnings.append("HyperFrames check could not start Chrome; run build-video.py --setup")
+    if errors:
+        fail("HyperFrames check found errors:\n        " + "\n        ".join(errors))
+    return warnings
+
+
+def render(project, out, quality):
+    hf(["render", "--output", str(out), *quality], "HyperFrames render", cwd=project)
+    if not out.exists():
+        fail(f"HyperFrames render finished but wrote no {out}")
+    # Move the index to the front, so the page's player starts before the whole file loads.
+    fast = out.with_suffix(".fast.mp4")
+    run(["ffmpeg", "-y", "-v", "error", "-i", str(out), "-c", "copy", "-movflags", "+faststart",
+         str(fast)], "writing the video")
+    fast.replace(out)
 
 
 def stamp(t):
@@ -345,7 +535,7 @@ def motion(video, spans, voiced):
 
     def beat_at(t):
         return next((s["id"] for s in spans if s["start"] <= t < s["end"]), spans[-1]["id"])
-    # A lone changed frame between two still ones is Manim's edge flicker, or a pop reported
+    # A lone changed frame between two still ones is edge flicker, or a pop reported
     # below; either way the picture did not move, so it does not end a hold.
     moving = [d >= STILL_DIFF and (i > 0 and diff[i - 1] >= STILL_DIFF or
                                    i + 1 < len(diff) and diff[i + 1] >= STILL_DIFF)
@@ -462,12 +652,12 @@ def main():
                           pathlib.Path(args.video_dir).resolve())
 
     video_dir = pathlib.Path(args.video_dir).resolve()
-    for name in ("script.json", "scene.py"):
+    for name in ("script.json", "scene.js"):
         if not (video_dir / name).is_file():
             fail(f"{video_dir / name} missing; copy it from {SKILL / 'assets/video'}", 2)
-    if not (video_dir / "kit.py").is_file():
-        shutil.copy(SKILL / "assets/video/kit.py", video_dir / "kit.py")
-        print("copied  kit.py into the video folder")
+    if not (video_dir / "kit.js").is_file():
+        shutil.copy(SKILL / "assets/video/kit.js", video_dir / "kit.js")
+        print("copied  kit.js into the video folder")
     try:
         script = json.loads((video_dir / "script.json").read_text())
     except json.JSONDecodeError as e:
@@ -483,15 +673,13 @@ def main():
         hashlib.sha256(str(video_dir).encode()).hexdigest()[:12]
     build.mkdir(parents=True, exist_ok=True)
 
-    timings, paid = narrate(beats, voiced, build)
-    raw = render(video_dir, build, DRAFT if args.draft else FINAL)
-    spans = json.loads((build / "beats.json").read_text())
-    if [s["id"] for s in spans] != [b["id"] for b in beats]:
-        fail("beats.json does not match script.json; was construct() overridden in scene.py?")
+    timings, spans, paid = narrate(beats, voiced, build)
+    project = compose(video_dir, build, script, beats, spans, timings)
+    warnings += check(project)
 
     out_dir = build if args.draft else video_dir
     out = out_dir / ("draft.mp4" if args.draft else "explainer.mp4")
-    mux(raw, spans, timings, out)
+    render(project, out, DRAFT if args.draft else FINAL)
     captions(beats, spans, out_dir / ("draft.vtt" if args.draft else "explainer.vtt"))
     sheet = stills(out, spans, build, out_dir / ("draft-poster.jpg" if args.draft else "poster.jpg"))
 
@@ -501,20 +689,12 @@ def main():
     if size > VIDEO_WARN and not args.draft:
         warnings.append(f"explainer.mp4 is {size // 1_000_000} MB (budget ~{VIDEO_WARN // 1_000_000} MB);"
                         " cut beats or hold still images for less time")
-    for s in spans:
-        for note in s.get("late", []):
-            warnings.append(f"beat {s['id']}: cue {note}; the animation before it runs long")
     still, holds, pops = motion(out, spans, voiced)
     for start, length, bid in holds:
         warnings.append(f"hold {length} s at {start} s in beat {bid}; cue its next picture to a "
                         "word inside the still, or move the camera")
     for t, bid in pops:
         warnings.append(f"pop at {t} s in beat {bid}: something appeared in one frame; animate it in")
-    over = [s["id"] for s in spans
-            if s["end"] - s["start"] > timings["beats"][s["id"]]["seconds"] + 0.5]
-    if over:
-        warnings.append("animation outlasts the narration in beats: " + ", ".join(over) +
-                        "; shorten their run_time or add words")
     for w in warnings:
         print(f"WARN    {w}")
     voice = f"voiced ({VOICE}, {MODEL}; {paid} characters sent)" if voiced else "silent, captions on screen"
@@ -523,6 +703,7 @@ def main():
     print(f"motion: {round(still * 100)}% of frames still · {len(holds)} holds over {MAX_HOLD if voiced else MAX_HOLD_READ} s · "
           f"{len(pops)} pops")
     print(f"look:  {sheet}")
+    print(f"studio: cd {project} && npx --yes {HYPERFRAMES} preview")
     if args.embed and not args.draft:
         embed(pathlib.Path(args.embed).resolve(), video_dir, out, video_dir / "explainer.vtt",
               script["title"], total, voiced)

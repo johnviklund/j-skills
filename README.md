@@ -153,8 +153,13 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   ```
 
   Then restart your agent so it picks up the key.
-- Videos need `ffmpeg` and the cairo and pango libraries. Manim, the animation library, installs
-  itself on first use into `~/.cache/j-skills/manim-venv`, after you agree.
+- Videos need `ffmpeg` and Node.js 22 or newer. They render with
+  [HyperFrames](https://hyperframes.heygen.com), an open-source HTML-to-video tool, pinned in
+  `build-video.py`. Run `build-video.py --setup` once per machine; it fetches the tool, finds or
+  downloads Chrome, and turns its telemetry off.
+  The video step also loads HyperFrames' own `hyperframes` and `hyperframes-registry` skills for
+  motion craft and ready-made blocks. Install them once per machine:
+  `npx skills add heygen-com/hyperframes -g -a claude-code codex github-copilot -s hyperframes hyperframes-cli hyperframes-registry -y`.
 
 ### workflow
 

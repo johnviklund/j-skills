@@ -17,6 +17,9 @@ that `video/` folder.
    read aloud in 45 to 180 seconds: about 110 to 400 words at 150 a minute.
    - A beat is one idea and one picture: 4 to 14 beats. Each `say` is one to three sentences
      under the Rules of `plain`.
+   - Mark `"chapter": true` on a beat that opens a new part of the story, about one per page
+     section; the scene starts a fresh stage there and carries objects between the beats in
+     between.
    - Follow the arc for the kind; each step is one or more beats:
      - **built**, what a run built: the problem as a user met it; the parts that changed; the
        mechanism moving; each changed screen before then after, unrequested changes named as
@@ -34,52 +37,72 @@ that `video/` folder.
    - Write for the ear. Say what a name does, not its spelling: "the save handler", not
      `handlers/save.ts`. Numbers as people say them: "two seconds".
 
-2. **Scene.** Copy `<skill>/assets/video/scene.py` and `kit.py` to `<video>/`. Write one
-   `beat_<id>` method per beat, `-` in an id becoming `_`; the example beats show the kit. Done
-   when every beat has a method and each animates what its `show` describes.
-   - **Land each picture on its word.** `self.at("towed")` waits until the voice reaches that
-     word of the beat's `say`, so a picture arrives as it is named. Cue the noun that names
-     the picture ("lost car"), not the number at the end of the phrase; for a change that
-     should finish on a word, pass `run_time=self.until("eighty")`, then `pop` the number.
-     A word said twice in a beat takes `nth=2`. A picture every two seconds or so keeps
-     the eye busy; the build reports any still stretch longer than that.
-   - **Carry objects between beats.** Keep objects on `self` and turn one into the next with
-     `self.morph(a, b)`, or keep it with `self.clear(keep)`: a dot that becomes a marker on an
-     axis tells the viewer how two ideas connect, where a fade to white makes them start
-     over. Call `self.clear()` only for a new chapter.
-   - **Move the camera to the subject.** `self.look(*mobs)` fills the frame with what the
-     sentence is about; `self.home()` returns to the full stage. Both return an animation when
-     given `animate=False`, to play beside the change they frame. Set the camera instantly
-     only when the stage is empty, right after `clear()`. Dim the boxes outside the shot
-     (`set_opacity(0.25)`) so a cropped neighbour reads as context.
-   - **Give things weight.** Small parts enter with `pop(...)`; boxes and bars with
-     `GrowFromCenter` or `GrowFromEdge(..., rate_func=SETTLE)`, which overshoots a little and
-     settles, as real objects do; the camera and morphs use `GLIDE`. Numbers are a
-     `counter(...)` that counts as its `tracker` moves; count with `rate_func=linear`, since
-     a slow start ticks once after a still frame and reads as a pop. Draw a `NumberLine` with
-     `GrowFromEdge(line, LEFT)`, not `Create`, and bring every object in with an animation
-     rather than `self.add`: both otherwise appear in one frame, which the build reports as a
-     pop.
-   - **Motion means something.** A `flow` pulse is data or a request moving; a morph is the same
-     thing in a new state; `self.swap(before, after)` is the before/after moment on a
-     screenshot, the after pushing the before out, with `focus()` boxing the changed region and
-     `tag("unrequested", "risk")` beside it.
-   - **Colour keeps the page's meaning:** the kit uses the page's palette and diagram styles,
-     navy for structure and the main path, green for new, red for risk or unrequested, gray for
-     the rest. Use the kit's names (`BLUE`, `GREEN`, ...), never Manim's own colours. Labels on
-     screen stay at three words or fewer; the voice carries the sentences.
+2. **Scene.** Copy `<skill>/assets/video/scene.js` to `<video>/`; the build copies `kit.js`
+   beside it. Write one `beat("id", ({ at, start }) => { ... })` per beat, in the script's order;
+   the example beats show the kit, and each section of `kit.js` opens with what its functions do.
+   Done when every beat has a `beat()` and each animates what its `show` describes.
+   - **Craft from HyperFrames.** Before the first beat, load the `hyperframes` skill and read
+     its `references/motion.md` and `references/types/explainer.md`: eases by role, move and
+     hold timings, transitions with a cause, and the picture devices that explain. Before
+     drawing a named visual by hand, such as a chart, a code change or a transition, search
+     the `hyperframes-registry` skill's catalog for a block. Their numbers set the motion;
+     the rules in *HyperFrames, and where understand differs* below win wherever the two differ.
+   - **Registry blocks.** A block is a whole 1920×1080 scene with its own timeline; a
+     component pastes into a page and does not mount here. List a block on its beat in
+     `script.json`: `"blocks": [{"name": "data-chart", "at": "rose", "seconds": 4, "box": [960,
+     120, 900, 506]}]`, with `at` the word it starts on and `box` its place in stage pixels;
+     `"values"` passes its variables. The build installs it once into `<video>/blocks/`, and
+     every rebuild uses that file. Edit it there before the first draft: the page's figures and
+     words in place of its sample data, the colours in `kit.js`, Arial in place of its web
+     fonts, `assets/gsap.min.js` in place of its CDN script, and text that stays at 28 px or
+     more once scaled into its box. A block made for the full frame reads best at full stage
+     or half of it.
+   - **Land each picture on its word.** `at("towed")` is the time the voice reaches that word
+     of the beat's `say`, so `grow(box, at("towed"))` arrives as it is named. Cue the noun that
+     names the picture ("lost car"), not the number at the end of the phrase; a change that
+     should finish on a word runs from one cue to the next: `count(n, at("rose"), 73.5,
+     at("quarters") - at("rose"))`. A word said twice in a beat takes `at("word", 2)`. A picture
+     every two seconds or so keeps the eye busy; the build reports any still stretch longer
+     than that.
+   - **Place in stage pixels.** The stage is 1920×1080 with the origin top left; `node`,
+     `label`, `tag`, `screen` and `code` take a centre point, and each placed thing keeps its
+     box, which `arrow`, `morph` and `look` read. Lay a row on a grid before writing numbers,
+     as for the page's diagrams: boxes about 300×110, columns about 420 px apart.
+   - **Chapters.** A beat with `"chapter": true` in `script.json` starts a new stage; the
+     previous one fades out over its last 0.3 s. Within a chapter, keep objects on `S` and carry
+     them on with `morph(a, b, t)`, or keep them in place: a dot that becomes a marker on an
+     axis tells the viewer how two ideas connect, where a fresh stage makes them start over.
+     Start a chapter only where the page starts a new section.
+   - **Move the camera to the subject.** `look(x, y, zoom, t)` centres a point and zooms;
+     `home(t)` returns to the full stage. Dim the boxes outside the shot (`dim(box, t)`) so a
+     cropped neighbour reads as context.
+   - **Give things weight.** Small parts enter with `pop`; boxes, bars and screenshots with
+     `grow` or `fill`, which overshoot a little and settle, as real objects do; `enter` slides
+     a thing in from one side. Numbers `count` up while their bar fills; give every object an
+     entrance, since an object with none stays invisible.
+   - **Motion means something.** A `flow` pulse is data or a request moving; a `morph` is the
+     same thing in a new state; `swap(before, after, t)` is the before/after moment on a
+     screenshot, the after pushing the before out, with `focus(shot, x, y, w, h)` boxing the
+     changed region and `tag("unrequested", ...)` beside it in `"risk"`.
+   - **Colour keeps the page's meaning:** `kind` is `"plain"`, `"main"` (navy, structure and the
+     main path), `"new"` (green) or `"risk"` (red); free colours come from `C`, the page's
+     palette. Labels on screen stay at three words or fewer; the voice carries the sentences.
    - Screenshots come from the output folder's `screens/`, the same files the page shows:
-     `screen("screens/x-after.jpg")`.
-   - A captioned video keeps everything above the caption band, the bottom fifth of the frame;
-     `look` allows for it.
-   - Manim Community Edition API; Text only, never `Tex`, `MathTex` or `DecimalNumber`, so LaTeX
-     is not needed.
+     `screen("screens/x-after.jpg", 960, 500, { w: 1100, h: 690 })`, with `h` the picture's
+     height at that width.
+   - A captioned video keeps everything above the caption band, the bottom fifth of the frame.
+   - Everything on screen is a function of timeline time: place tweens with the kit or on
+     `K.tl` at a cue, and draw scatter with `rng(seed)`, never `Math.random()`, so every render
+     is identical.
 
 3. **Draft.** Run `python3 <skill>/scripts/build-video.py <video> --draft`, adding `--silent`
-   when the human chose captions. It prints a `motion:` line (share of still frames, holds over
-   2 s, pops) and a `WARN` for each hold, pop and late cue, with its time and beat. Open the
-   `look:` contact sheet, one still per beat. Done when every still shows its beat's `show`
-   whole and legible, nothing overlaps or leaves the frame, and no `WARN` is left.
+   when the human chose captions. It runs HyperFrames' check first, which stops on a scene error
+   with the beat and cue at fault, then prints a `motion:` line (share of still frames, holds
+   over 2 s, pops) and a `WARN` for each hold, pop, overlap, overflow and low-contrast text, with
+   its time and beat. Open the `look:` contact sheet, one still per beat. Done when every still
+   shows its beat's `show` whole and legible, nothing overlaps or leaves the frame, and no `WARN`
+   is left.
+   - Look at the sheet against `hyperframes`' `references/review.md` §2, *What to look for*.
    - Each pass, name the three worst defects with their timestamps, from the warnings and the
      sheet, fix those three, and rerun. Three at a time keeps each fix checkable; fixing
      everything at once tends to move timing and create new holds.
@@ -101,11 +124,32 @@ that `video/` folder.
      for two minutes, and renders nothing. The page in git keeps linking the mp4, so its diffs
      stay small; the standalone file is for sending, so leave it out of the commit.
 
+## HyperFrames, and where understand differs
+
+The HyperFrames skills are installed per machine; `checkup` warns when they are missing, with
+the install command. Their skill makes a film from a brief. This one retells a checked page, so
+these rules win over theirs:
+
+- **The story is `script.json`.** Skip *Story* §2, three storylines and a pick, and the spec
+  and storyboard files: the arc in step 1 and the page decide the beats. *Story* §3, the hook,
+  and §8, the tells of a generated film, still apply.
+- **No music and no sound effects.** The voice is the only sound, or captions carry the words;
+  skip *Sound*.
+- **No stops.** Skip the work loop's Studio preview before rendering and the desktop-app
+  offers; `build-video.py` checks, renders and embeds in one run.
+- **`build-video.py` owns the project.** It writes `index.html` with every chapter in one
+  file, so ignore the one-scene-per-file rule. Edit `scene.js` and the files in
+  `<video>/blocks/`; place blocks through `script.json` and everything else through the kit,
+  never as new `data-start` elements in `index.html`.
+- **The page's look.** Colours, type and diagram styles come from the page and `kit.js`; skip
+  *Look*'s presets and brand steps.
+- **Facts.** A block from the registry shows only figures the page states, as every beat does.
+
 ## Voice
 
 The voice is ElevenLabs text-to-speech, used only when the human chose it and
 `ELEVENLABS_API_KEY` is set. Each beat's `say`, and its neighbours' for intonation, goes to
-ElevenLabs, which returns the time of every word for `self.at`; the build prints how many
+ElevenLabs, which returns the time of every word for `at()`; the build prints how many
 characters it sent, which is what the account is billed.
 `ELEVENLABS_VOICE_ID` and `ELEVENLABS_MODEL_ID` override the defaults named in the script's
 header. With no key, the same build makes a captioned video: the narration shows on screen, timed
@@ -113,11 +157,12 @@ at reading pace, with word cues spread evenly over each beat.
 
 ## Setup
 
-`build-video.py` finds Manim in the running Python or in its own venv. When it reports Manim
-missing, run `python3 <skill>/scripts/build-video.py --setup` once; it installs Manim into
-`~/.cache/j-skills/manim-venv`. It needs `ffmpeg` and the cairo and pango libraries from the
-system package manager. The build folder and the voice cache live outside the repo, so only the
-files in `<video>` are committed.
+`build-video.py` renders with the HyperFrames CLI, pinned in the script and run through `npx`,
+so it needs Node.js 22 or newer and `ffmpeg`. Run `python3 <skill>/scripts/build-video.py
+--setup` once per machine: it fetches the CLI, finds Chrome or downloads one, and caches GSAP,
+so a render needs no network. Telemetry stays off. The build folder and the voice cache live
+outside the repo, so only the files in `<video>` are committed. The build folder is a HyperFrames
+project; the `studio:` line the build prints opens it in the browser preview.
 
 ## Receipt line
 

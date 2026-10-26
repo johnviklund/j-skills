@@ -100,6 +100,10 @@ Then check:
   backticked names used *as skills* ("the `x` skill", "invoke `x`", "read `x`'s") against that folder
   list, not every backticked word. A name that is not a j-skill is 🔴: port it or drop the reference.
   Exception: `verify-*` (and `verify-APP`) names the repo-local skill that `verify.create` generates.
+  Exception: `understand`'s `video.md` names `hyperframes` and `hyperframes-registry`, the
+  HyperFrames video skills the user chose on 2026-10-26. Check instead that both are installed:
+  `ls ~/.agents/skills/hyperframes*`, ⚠️ when missing, fixed by
+  `npx skills add heygen-com/hyperframes -g -a claude-code codex github-copilot -s hyperframes hyperframes-cli hyperframes-registry -y`.
 - **Self-publish drift.** For a skill packaged as its own plugin (e.g. a `.github/copilot-plugins/<name>/`
   whose `skills/<name>` symlinks back to `.github/skills/<name>`), confirm it is still a symlink (single
   source) and that the installed snapshot matches the repo source. A materialized copy or a stale
