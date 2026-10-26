@@ -9,11 +9,12 @@ Size: code 0 · tests 0 · ratio n/a (doc run) · largest touched memory.remembe
 Decisions: 1a (a run missing from a matching page is added to its proposed copy, count bumped) · 2a (T2 desk-check receipt) · 3a ticket list approved 2026-10-26
 
 ## Execution state
-Current: all tickets done; ready for cross-vendor review.
+Current: all tickets and patch C1-T1 done; ready for cross-vendor review cycle 2.
 T1 @ 94f353b
 T2 @ 43588b3
 writer: GPT-6.1 Sol · high
 Session 1: T1, T2
+Session 2: C1-T1
 Baseline: no AGENTS.md or build/lint block; proposed baseline in chat, no extra command supplied.
 Checks: ticket content checks, desk receipts, check-run.py, git diff --check; no pre-existing failures.
 Contracts: none; skill frontmatter unchanged.
