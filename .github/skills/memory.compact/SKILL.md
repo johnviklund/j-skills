@@ -76,6 +76,9 @@ Read all of these before starting analysis:
 - **Run records** (read-only context): `.workflow/*/` folders with `Status: done` — scan
   `review.md` and `learnings.md` for content that contradicts or confirms a page, and check that
   page `Evidence` entries resolve to a run slug or a sha in `git log`.
+  Also read every line of `learnings.md` from the 10 most recent done runs, including headerless
+  files, `[drop]` and `routed → none` lines, wherever the mark appears. Compare runs with each other
+  so a lesson missing from memory can be found.
 - **CE artifact directories** where the repo uses that convention (read-only context):
   `docs/brainstorms/`, `docs/plans/`, `docs/solutions/`.
 - **`AGENTS.md`** — check for pages already promoted.
@@ -110,6 +113,12 @@ For each page (and each legacy inline entry), classify as:
 - **Legacy inline** — a v1 `### Topic` entry still inside `MEMORY.md`. Convert to a page: Topic →
   claim/slug, Decision → Fix, Source → Evidence, `Last confirmed` carried over, `Occurrences: 1`
   unless the entry itself records repeats.
+- **Unpaged repeat** — 2+ distinct runs teach the same cause and the same fix, with no page yet.
+  Apply `memory.remember`'s admission test; a passing pair gets a page in `memory.proposed/` with
+  `Occurrences: 2` and Evidence containing one entry per run; larger groups use their distinct-run
+  count. A match owned by a skill, `AGENTS.md` or `README.md` is named in the duplication report, not paged.
+  If a matching page already lists the run, leave its count alone. If it does not list the run yet,
+  add the run to its proposed copy and bump `Occurrences`; legacy entries follow the same rule.
 - **Stale** — active but `Last confirmed` > 90 days ago. Flag for re-confirmation or supersession.
 - **Ended state** — a temporary-state page ("X is suspended until …"), at any age. Run the exit
   check its `Fix:` names when the check only reads (a file test, a grep, a status command): still
@@ -184,6 +193,7 @@ proposal was computed from — acceptance is refused if memory moved after it:
      Active: X | Stale: Y | Superseded: Z | Same-claim merges: W | Malformed fixed: F
      Contradicted: C | Skill-promotion candidates (Occurrences 3+): S
      Doctrine-misfiled (relocate-and-delete): D
+     Unpaged repeats: U
      Cross-file overlaps: R README | A AGENTS | Pr PRODUCT | M archive | K skill | De design
      Net: N → M pages (under ceiling? yes/no)
 -->
