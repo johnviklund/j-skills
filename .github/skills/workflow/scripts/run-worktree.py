@@ -72,13 +72,17 @@ def where(repo, slug):
     return repo
 
 
+def started(run_dir):
+    return any(checks.field(t, "Status")[1] not in (None, "todo")
+               for name in ("plan.md", "patch_plan.md") if (plan := run_dir / name).exists()
+               for t in checks.parse_tickets(checks.Doc(str(plan))))
+
+
 def open_run(repo, slug):
     path = where(repo, slug)
     if path != repo:
         return path
-    if any(checks.field(t, "Status")[1] not in (None, "todo")
-           for name in ("plan.md", "patch_plan.md") if (plan := repo / ".workflow" / slug / name).exists()
-           for t in checks.parse_tickets(checks.Doc(str(plan)))):
+    if started(repo / ".workflow" / slug):
         return repo
     busy = bool(git(repo, "status", "--porcelain"))
     for brief in (repo / ".workflow").glob("*/brainstorm.md"):
@@ -86,11 +90,7 @@ def open_run(repo, slug):
             continue
         if checks.Doc(str(brief)).status() in ("done", "parked"):
             continue
-        for name in ("plan.md", "patch_plan.md"):
-            plan = brief.with_name(name)
-            if plan.exists():
-                busy |= any(checks.field(t, "Status")[1] not in (None, "todo")
-                            for t in checks.parse_tickets(checks.Doc(str(plan))))
+        busy |= started(brief.parent)
     return add_worktree(repo, slug, checks.primary_branch(repo)) if busy else repo
 
 
