@@ -12,3 +12,12 @@ Red: all six Open/Where tests failed before the command existed.
 Verify: Open/Where passed 6 tests; full suite passed 55 tests.
 Mutation: inverted the busy decision; Open_isolates failed because it printed a dot. Restored afterward.
 Checks: git diff --check passed. Existing test assertions unchanged.
+
+## T2
+Writer: GPT-6.1 Sol
+Commit: c601aa0
+Reuse: existing git command helper and worktree lookup. No new helper.
+Red: Land rejected the absent command; all three test methods failed.
+Verify: Land passed 3 tests across 5 acceptance cases; full suite passed 58 tests.
+Mutation: disabled the conflict preflight branch; both code and document conflict cases failed. Restored afterward.
+Checks: git diff --check passed. Existing test assertions unchanged.

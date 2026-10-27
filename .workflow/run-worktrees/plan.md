@@ -10,11 +10,12 @@ Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `o
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 
 ## Execution state
-Current: T1 done; T2 ready
+Current: T2 done; T3 ready
 T1 @ 81aa880
+T2 @ c601aa0
 writer: GPT-6.1 Sol
 Baseline: 49 tests passed at c626d11; user approved suite plus ticket Verify commands.
-Session 1: T1
+Session 1: T1, T2
 Uncommitted: none · Pending decision: none
 ## Findings
 | # | What is true | What it changes |
@@ -57,14 +58,15 @@ Delivers: B5, B6 · Blocked by: T1 · Lane: logic
 Budget: code +90 · tests +150 · why: one temp repo with a bare `origin` per merge shape
 Seam: `run-worktree.py land <slug> --repo <dir>` run as a subprocess on temp repos
 Accept:
-- [ ] `main` not moved → `main` equals `run/B`'s tip, `origin/main` equals `main`, no `.worktrees/B`, no `run/B` branch here and none on `origin` (B5)
-- [ ] `main` moved by a non-conflicting commit → `main`'s tip has 2 parents and every `done @` sha in B's plan is an ancestor of `main` (B5)
-- [ ] `main` changed `src.py` against `run/B` → exit 3, `main`'s sha unchanged, `.worktrees/B` mid-merge of `main` with `src.py` conflicted, output names `workflow review B` (B6)
-- [ ] the only conflict is in `WORKLOG.md` → exit 4, `main`'s sha unchanged, output says resolve keeping both sides, commit, land again (B6)
-- [ ] repo folder has an uncommitted edit to a file `run/B` changes → exit 1, `main`'s sha unchanged, output names that file (B5)
+- [x] `main` not moved → `main` equals `run/B`'s tip, `origin/main` equals `main`, no `.worktrees/B`, no `run/B` branch here and none on `origin` (B5)
+- [x] `main` moved by a non-conflicting commit → `main`'s tip has 2 parents and every `done @` sha in B's plan is an ancestor of `main` (B5)
+- [x] `main` changed `src.py` against `run/B` → exit 3, `main`'s sha unchanged, `.worktrees/B` mid-merge of `main` with `src.py` conflicted, output names `workflow review B` (B6)
+- [x] the only conflict is in `WORKLOG.md` → exit 4, `main`'s sha unchanged, output says resolve keeping both sides, commit, land again (B6)
+- [x] repo folder has an uncommitted edit to a file `run/B` changes → exit 1, `main`'s sha unchanged, output names that file (B5)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Land` (pre: new file — NO TESTS RAN)
 Skills: none
-Status: todo
+Status: done @ c601aa0
+Writer: GPT-6.1 Sol
 ### T3 — Checks know a run's own worktree
 Delivers: B4, B8 · Blocked by: T1 · Lane: logic
 Budget: code +40 · tests +80 · why: each case builds a repo with a linked worktree
@@ -104,12 +106,10 @@ Accept:
 Verify: `grep -c '^ok ' .workflow/run-worktrees/receipts/t5-dry-run.md` → 4 (pre: new file — exit 2)
 Skills: none
 Status: todo
-
 ## Coverage
 - Outcome → T5 (the phase commands and status on a scratch repo with two runs)
 - B1 → T1, T4 · B2 → T1 · B3 → T1, T4 · B4 → T3 · B5 → T2, T4 · B6 → T2, T4 · B7 → T4, T5 · B8 → T3, T4
 - Out of scope: own ports per worktree → untouched · conductor skill and T3 launching → untouched · GitHub PRs as landing → untouched · worktrees for brainstorm and plan → untouched · rebasing a run branch → untouched
-
 ## Risks
 - T2 is riskiest: it moves `main` in a folder another run may be editing; `merge-tree` first and git's dirty-file refusal bound it. Outside its files: every card step reads `check-run.py`'s checkout warnings (T3). Not taken: a pull request as the landing step.
 
