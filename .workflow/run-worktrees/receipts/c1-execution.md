@@ -30,6 +30,16 @@ Mutation: changed the fetch handler to raise again; both offline subcases failed
 Commit: c65c961. Existing assertions remain unchanged; no visible screen changes. Noticed: none.
 
 ## Handoff
+Session 5 entry: clean main at 00929bd, patch input complete and fresh. Only the recorded C1-T1 through C1-T3 commits changed ticket files since f445741. The prior final suite covers the unchanged code at entry. No applicable AGENTS.md, root MEMORY.md, build, lint or typecheck configuration exists. Lookup returned `.` after warning that FETCH_HEAD is read-only in the sandbox. The harness records GPT-6.1 Sol at high effort; the session retains that configured effort.
+
+## C1-T4
+Reuse: kept `parse_tickets` and `field` for started-ticket detection; no helper added.
+Red: the new Open test failed for both plan.md and patch_plan.md when a started run moved away from unfinished t2.py.
+Green: 6 Open tests passed, including four new subcases. Planned-only runs with dirty src.py still isolate. The documentation grep printed 1; all 65 workflow tests passed. Both changed Python files compile; diff check passed.
+Mutation: disabled only the own-started-ticket guard in a temporary script copy; both started-run subcases failed. Production files stayed unchanged.
+Commit: 31b78b4. Existing assertions remain unchanged. Noticed: none.
+
+## Earlier handoff
 Session 4 completed C1-T1, C1-T2 and C1-T3, reaching execute's three-ticket cap. Next: C1-T4, then C1-T5. Re-review remains pending; review findings are left for that phase to resolve.
 Final suite: 64 passing tests on the code at c65c961; subsequent changes are run metadata only. Check-run still reports the two pre-existing original-plan test ratio warnings, with no errors.
 

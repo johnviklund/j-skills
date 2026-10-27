@@ -5,11 +5,12 @@ Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
 ## Execution state
-Current: C1-T3 done; next C1-T4; C1-T5 waits for C1-T4 · writer: GPT-6.1 Sol · baseline failures: none
+Current: C1-T4 done; next C1-T5 · writer: GPT-6.1 Sol · baseline failures: none
 C1-T1 red @ 3c2b19f
 C1-T1 @ b890db3
 C1-T2 @ d75f8cd
 C1-T3 @ c65c961
+C1-T4 @ 31b78b4
 
 ## Tickets
 
@@ -64,12 +65,13 @@ Budget: code +4 · tests +12
 Seam: `run-worktree.py open` as a subprocess on temp repos; `open_run` (`run-worktree.py:68-83`); `references/worktrees.md` §Start execution
 Change: when the slug's own `plan.md` or `patch_plan.md` in the primary checkout has a ticket not `todo`, and it has no worktree, `open` returns `.` before the busy check.
 Accept:
-- [ ] B on `main` with T1 `done @`, T2 `todo` and untracked `t2.py` → `open B` prints `.`; `git worktree list` gains no line; `t2.py` untouched (B2)
-- [ ] B planned with only `todo` tickets and uncommitted `src.py` → `open B` still prints `.worktrees/B` (B1)
-- [ ] `worktrees.md` §Start execution: a run with a started ticket stays in the checkout where it started (B2)
+- [x] B on `main` with T1 `done @`, T2 `todo` and untracked `t2.py` → `open B` prints `.`; `git worktree list` gains no line; `t2.py` untouched (B2)
+- [x] B planned with only `todo` tickets and uncommitted `src.py` → `open B` still prints `.worktrees/B` (B1)
+- [x] `worktrees.md` §Start execution: a run with a started ticket stays in the checkout where it started (B2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Open && grep -c 'started ticket stays' .github/skills/workflow/references/worktrees.md` (pre: 4 Open tests pass, grep 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 31b78b4
+Writer: GPT-6.1 Sol
 
 ### C1-T5 — Tests pin the seven unguarded checks
 Delivers: B1, B2, B5, B6 · Blocked by: C1-T1, C1-T2, C1-T3, C1-T4 · Lane: logic
