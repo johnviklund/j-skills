@@ -5,10 +5,11 @@ Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
 ## Execution state
-Current: C1-T2 done; next C1-T3 · writer: GPT-6.1 Sol · baseline failures: none
+Current: C1-T3 done; next C1-T4; C1-T5 waits for C1-T4 · writer: GPT-6.1 Sol · baseline failures: none
 C1-T1 red @ 3c2b19f
 C1-T1 @ b890db3
 C1-T2 @ d75f8cd
+C1-T3 @ c65c961
 
 ## Tickets
 
@@ -48,12 +49,13 @@ Budget: code +5 · tests +15
 Seam: `run-worktree.py where <slug> --repo <dir>` with `origin` set to a missing path; `where` (`run-worktree.py:52-53`); `references/worktrees.md` §Find the run step 3
 Change: a failed fetch prints `could not fetch origin: <git's error>; using local refs` to stderr and continues; nothing else in `where` changes.
 Accept:
-- [ ] Lone run, `origin` unreachable → `where B` exits 0, prints `.`, stderr says `using local refs` (B2)
-- [ ] Existing `.worktrees/B`, `origin` unreachable → `where B` exits 0 and prints `.worktrees/B` (B3)
-- [ ] `worktrees.md` step 3: a failed fetch warns, uses local refs, and a second clone may then read a stale copy (B3)
+- [x] Lone run, `origin` unreachable → `where B` exits 0, prints `.`, stderr says `using local refs` (B2)
+- [x] Existing `.worktrees/B`, `origin` unreachable → `where B` exits 0 and prints `.worktrees/B` (B3)
+- [x] `worktrees.md` step 3: a failed fetch warns, uses local refs, and a second clone may then read a stale copy (B3)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Where && grep -c 'local refs' .github/skills/workflow/references/worktrees.md` (pre: 2 Where tests pass, grep 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ c65c961
+Writer: GPT-6.1 Sol
 
 ### C1-T4 — A run already started in the primary checkout stays there
 Delivers: B2 · Blocked by: none · Lane: logic

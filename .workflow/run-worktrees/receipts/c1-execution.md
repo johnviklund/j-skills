@@ -21,3 +21,14 @@ Red: the new setup test failed because stderr omitted `touch ready`. Green: all 
 Mutation: restored the old section regex alone; the new test failed again because stderr omitted `touch ready`. Restored the fix.
 Commit: d75f8cd. Existing Open, Doctor and check-run tests and all prior assertions remain unchanged.
 Noticed: corrected the ticket's Verify command to compare grep's zero count explicitly, since no matches makes grep exit 1. This changes no acceptance line. Removed a redundant docs-read line from the plan to keep it at 120 lines; the absence of applicable repo docs remains recorded above.
+
+## C1-T3
+Reuse: retained the existing git wrapper and lookup flow; catch only the fetch failure and warn on stderr. No helper added.
+Red: both new offline lookup subcases failed with exit 1, for a lone run and for an existing isolated run.
+Green: 3 Where tests passed, including both offline subcases; the local-refs documentation grep printed 1. All 64 workflow tests passed. Compilation and diff checks passed.
+Mutation: changed the fetch handler to raise again; both offline subcases failed. Restored the fallback.
+Commit: c65c961. Existing assertions remain unchanged; no visible screen changes. Noticed: none.
+
+## Handoff
+Session 4 completed C1-T1, C1-T2 and C1-T3, reaching execute's three-ticket cap. Next: C1-T4, then C1-T5. Re-review remains pending; review findings are left for that phase to resolve.
+Final suite: 64 passing tests on the code at c65c961; subsequent changes are run metadata only. Check-run still reports the two pre-existing original-plan test ratio warnings, with no errors.
