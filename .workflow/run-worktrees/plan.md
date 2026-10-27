@@ -8,16 +8,15 @@ Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, t
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 ## Execution state
-Current: T4 done; T5 ready
+Current: T5 done; review ready · writer: GPT-6.1 Sol · baseline failures: none
 T1 @ 81aa880
 T2 @ c601aa0
 T3 @ 7473b02
 T4 @ 27f1f39
-writer: GPT-6.1 Sol
-Baseline: 49 tests at c626d11; session 2: 61 tests passed at ab94793; user approved suite plus ticket checks.
+T5 @ b7d369a
 Session 1: T1, T2, T3
 Session 2: T4
-Uncommitted: none · Pending decision: none; push approved and completed
+Session 3: T5
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -102,13 +101,14 @@ Delivers: B7 · Blocked by: T4 · Lane: logic
 Budget: code +40 · tests +0
 Seam: the phase commands on a scratch repo with a local bare `origin`, built by `.workflow/run-worktrees/scripts/make-fixture.sh`
 Accept:
-- [ ] run A executing on `main`, `workflow execute B` from the repo folder → B's ticket commit is on `run/B`; the repo folder's `git status --porcelain` is unchanged
-- [ ] `workflow status` from the repo folder after B's ticket → B's line reads `review` and `workflow review B`
-- [ ] the closing card after B's ticket → command `workflow review B`; `origin/run/B` equals local `run/B` (B7)
-- [ ] wrap B after A wrapped → `main` contains B's ticket sha; `.worktrees/B` and `run/B` are gone
+- [x] run A executing on `main`, `workflow execute B` from the repo folder → B's ticket commit is on `run/B`; the repo folder's `git status --porcelain` is unchanged
+- [x] `workflow status` from the repo folder after B's ticket → B's line reads `review` and `workflow review B`
+- [x] the closing card after B's ticket → command `workflow review B`; `origin/run/B` equals local `run/B` (B7)
+- [x] wrap B after A wrapped → `main` contains B's ticket sha; `.worktrees/B` and `run/B` are gone
 Verify: `grep -c '^ok ' .workflow/run-worktrees/receipts/t5-dry-run.md` → 4 (pre: new file — exit 2)
 Skills: none
-Status: todo
+Status: done @ b7d369a
+Writer: GPT-6.1 Sol
 ## Coverage
 - Outcome → T5 (two runs on a scratch repo); B1 → T1, T4 · B2 → T1 · B3 → T1, T4 · B4 → T3 · B5 → T2, T4 · B6 → T2, T4 · B7 → T4, T5 · B8 → T3, T4
 - Out of scope: own ports per worktree → untouched · conductor skill and T3 launching → untouched · GitHub PRs as landing → untouched · worktrees for brainstorm and plan → untouched · rebasing a run branch → untouched

@@ -66,3 +66,19 @@ Destination: https://github.com/johnviklund/j-skills, branch main. No workaround
 Approval: user chose 1a on 2026-10-27, authorizing the three T4 commits to origin/main.
 Push completed: ab94793..bfa6a00 to https://github.com/johnviklund/j-skills, branch main.
 Gitleaks rescanned all three commits immediately before pushing; no leaks found.
+
+## T5
+Writer: GPT-6.1 Sol
+Commit: b7d369a
+Reuse: adapted the existing scratch fixture pattern and used the shipped worktree commands; no new product helper.
+Red: ticket Verify exited 2 because t5-dry-run.md did not exist. B's import failed before its code existed.
+Verify: receipt has 4 ok lines. Isolation, resolved status, unchanged card command, branch push and merge cleanup passed.
+Scope: the main agent followed phase references. A's wrapped checkpoint is synthetic; no separate review model ran.
+Mutation: bypassing isolation in a temporary script copy made the first acceptance probe exit 1. Tracked code unchanged.
+Baseline: 61 tests passed at 019d84c. Final: 61 passed with the T5 fixture present; user-approved suite plus ticket checks.
+Checks: bash syntax, git diff --check and scratch run checks passed. Existing assertions unchanged.
+Completed-run gate: 0 errors, 2 existing ticket-ratio warnings. Code added 215; code net 209; tests net 260; ratio 1.21.
+Details: receipts/t5-dry-run.md; raw synthetic evidence stays in /tmp.
+
+## Session 3 handoff
+All five tickets are done. The next phase is cross-vendor review.
