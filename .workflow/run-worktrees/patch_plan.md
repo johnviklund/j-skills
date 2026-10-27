@@ -5,9 +5,10 @@ Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
 ## Execution state
-Current: C1-T1 done; next C1-T2 · writer: GPT-6.1 Sol · baseline failures: none
+Current: C1-T2 done; next C1-T3 · writer: GPT-6.1 Sol · baseline failures: none
 C1-T1 red @ 3c2b19f
 C1-T1 @ b890db3
+C1-T2 @ d75f8cd
 
 ## Tickets
 
@@ -33,11 +34,12 @@ Budget: code +6 · tests +10
 Seam: `run-worktree.py open` as a subprocess on temp repos; `worktree_setup` (`run-worktree.py:22-25`); `check-run.py` `Doc` (`:100-127`)
 Change: replace the section regex with `checks.Doc` sections. Let `Doc` take text as well as a path (for example an optional `text` argument) so `git show <primary>:AGENTS.md` output needs no temp file. Fence extraction (`:44`) stays.
 Accept:
-- [ ] Committed `## Worktree setup` whose ```` ```sh ```` fence holds `# install deps` then `touch ready` → `open B` prints `touch ready` and `.worktrees/B/ready` exists (B1)
-- [ ] `run-worktree.py` has no section regex of its own (`grep -cF '(?=^#{1,2} |'` → 0); the existing Open, Doctor and check-run tests pass unchanged (B1, B8)
+- [x] Committed `## Worktree setup` whose ```` ```sh ```` fence holds `# install deps` then `touch ready` → `open B` prints `touch ready` and `.worktrees/B/ready` exists (B1)
+- [x] `run-worktree.py` has no section regex of its own (`grep -cF '(?=^#{1,2} |'` → 0); the existing Open, Doctor and check-run tests pass unchanged (B1, B8)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && test "$(grep -cF '(?=^#{1,2} |' .github/skills/workflow/scripts/run-worktree.py)" -eq 0` (pre: 61 pass, grep 1)
 Skills: none
-Status: todo
+Status: done @ d75f8cd
+Writer: GPT-6.1 Sol
 
 ### C1-T3 — Lookup keeps working when origin cannot be fetched
 Delivers: B2, B3 · Blocked by: none · Lane: logic

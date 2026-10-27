@@ -14,3 +14,10 @@ Green: 4 Land tests passed; worktrees.md range grep printed 1; all 62 workflow t
 Mutation: disabled `if unpushed`; the refusal test failed with 0 != 1. Restored the guard.
 Commit: b890db3 changes no test file, as required. The main and remote tips and run checkout tip remain unchanged on refusal. Documentation names the primary range to scan and push before retrying.
 Noticed: none. Existing assertions remain unchanged.
+
+## C1-T2
+Reuse: `Doc.section` already understands headings outside fences. Its optional text argument parses the committed `git show` result without a temp file; existing path callers stay unchanged.
+Red: the new setup test failed because stderr omitted `touch ready`. Green: all 63 workflow tests passed; the section-regex grep count is 0. Both changed Python scripts compile; diff check passed.
+Mutation: restored the old section regex alone; the new test failed again because stderr omitted `touch ready`. Restored the fix.
+Commit: d75f8cd. Existing Open, Doctor and check-run tests and all prior assertions remain unchanged.
+Noticed: corrected the ticket's Verify command to compare grep's zero count explicitly, since no matches makes grep exit 1. This changes no acceptance line. Removed a redundant docs-read line from the plan to keep it at 120 lines; the absence of applicable repo docs remains recorded above.
