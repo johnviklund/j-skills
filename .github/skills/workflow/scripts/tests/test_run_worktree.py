@@ -51,6 +51,24 @@ class RepoTests(unittest.TestCase):
 
 
 class OpenTests(RepoTests):
+    def test_Open_keeps_primary_free_for_an_unstarted_run(self):
+        self.started("A")
+        self.write(".workflow/A/plan.md", "### T1 — ticket\nStatus: todo\n")
+        self.commit("planned only")
+        before = self.git("worktree", "list").stdout
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), ".")
+        self.assertEqual(self.git("worktree", "list").stdout, before)
+
+    def test_Open_excludes_multiple_isolated_runs_once(self):
+        self.started()
+        for slug in ("B", "C"):
+            result = self.run_command("open", slug)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), f".worktrees/{slug}")
+        self.assertEqual((self.repo / ".git/info/exclude").read_text().splitlines().count(".worktrees/"), 1)
+
     def test_Open_keeps_started_run_with_its_uncommitted_work(self):
         for name in ("plan.md", "patch_plan.md"):
             for started in (False, True):
@@ -172,6 +190,39 @@ class WhereTests(RepoTests):
 
 
 class LandTests(RepoTests):
+    def test_Land_routes_mixed_and_text_only_conflicts(self):
+        for paths, expected in ((("src.py", "WORKLOG.md"), 3), (("notes.txt",), 4)):
+            with self.subTest(paths=paths):
+                self.setUp()
+                tree, _, _ = self.run_branch(paths[0])
+                for path in paths[1:]:
+                    self.write(path, "run change\n", repo=tree)
+                if len(paths) > 1:
+                    self.commit("extra conflict", repo=tree)
+                for path in paths:
+                    self.write(path, "primary change\n")
+                primary = self.commit("primary conflicts")
+                result = self.run_command("land")
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                self.assertEqual(self.git("rev-parse", "main").stdout.strip(), primary)
+                self.assertEqual(set(self.git("diff", "--name-only", "--diff-filter=U", repo=tree).stdout.splitlines()), set(paths))
+
+    def test_Land_refuses_dirty_or_wrong_branch_checkouts(self):
+        for state in ("dirty run", "primary branch", "run branch"):
+            with self.subTest(state=state):
+                self.setUp()
+                tree, _, _ = self.run_branch()
+                primary = self.git("rev-parse", "main").stdout
+                if state == "dirty run":
+                    self.write("unfinished.py", "unfinished\n", repo=tree)
+                elif state == "primary branch":
+                    self.git("checkout", "-qb", "feature")
+                else:
+                    self.git("checkout", "-qb", "feature", repo=tree)
+                result = self.run_command("land")
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(self.git("rev-parse", "main").stdout, primary)
+
     def run_branch(self, path="src.py"):
         self.started()
         self.git("push", "-q", "origin", "main")
