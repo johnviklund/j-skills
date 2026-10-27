@@ -37,3 +37,7 @@ Final suite: 64 passing tests on the code at c65c961; subsequent changes are run
 Gitleaks scanned all 7 outgoing commits through a0574e7 and found no leaks. The worktree was clean, and check-run reported 0 errors and the same 2 pre-existing warnings.
 Automatic approval review rejected `git push origin main`: workflow execution alone does not explicitly authorize publishing the new payload to the external GitHub destination. No workaround or push retry was attempted.
 Destination: https://github.com/johnviklund/j-skills, branch main. Pending approval covers C1-T1 through C1-T3, the regression-test commit, execution records, and this publication-block record. All work remains committed locally.
+
+## Approved publication
+The human approved option 1a, `push`, on 2026-10-27. Gitleaks rescanned all 8 outgoing commits through 76be534 and found no leaks. Check-run reported 0 errors and the same 2 pre-existing warnings.
+`git push origin main` exited 0 and advanced https://github.com/johnviklund/j-skills main from 42d00c4 to 76be534. The earlier publication block is resolved; the execution-state lines now name C1-T4 as next.

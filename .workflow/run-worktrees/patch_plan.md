@@ -5,7 +5,7 @@ Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
 ## Execution state
-Current: C1-T3 done; push approval pending; next C1-T4; C1-T5 waits for C1-T4 · writer: GPT-6.1 Sol · baseline failures: none
+Current: C1-T3 done; next C1-T4; C1-T5 waits for C1-T4 · writer: GPT-6.1 Sol · baseline failures: none
 C1-T1 red @ 3c2b19f
 C1-T1 @ b890db3
 C1-T2 @ d75f8cd
