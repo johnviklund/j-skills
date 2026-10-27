@@ -10,12 +10,13 @@ Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `o
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 
 ## Execution state
-Current: T2 done; T3 ready
+Current: T3 done; T4 ready
 T1 @ 81aa880
 T2 @ c601aa0
+T3 @ 7473b02
 writer: GPT-6.1 Sol
 Baseline: 49 tests passed at c626d11; user approved suite plus ticket Verify commands.
-Session 1: T1, T2
+Session 1: T1, T2, T3
 Uncommitted: none · Pending decision: none
 ## Findings
 | # | What is true | What it changes |
@@ -72,14 +73,15 @@ Delivers: B4, B8 · Blocked by: T1 · Lane: logic
 Budget: code +40 · tests +80 · why: each case builds a repo with a linked worktree
 Seam: `check-run.py` and `run-worktree.py doctor --repo <dir>` run as subprocesses in temp repos
 Accept:
-- [ ] `check-run.py` inside `.worktrees/x` on `run/x` → no `linked worktree` warning and no `on branch` warning (B4)
-- [ ] `check-run.py` inside `.worktrees/x` on branch `feature` → the `on branch` warning (B4)
-- [ ] `check-run.py` inside a linked worktree outside `.worktrees/` → the `linked worktree` warning (B4)
-- [ ] `doctor` with `.worktrees/B` and no `## Worktree setup` in `main`'s `AGENTS.md` → one line naming `## Worktree setup` (B8)
-- [ ] `doctor` with `.worktrees/old` holding no live `.workflow/old/brainstorm.md` → one line naming `.worktrees/old` (B8)
+- [x] `check-run.py` inside `.worktrees/x` on `run/x` → no `linked worktree` warning and no `on branch` warning (B4)
+- [x] `check-run.py` inside `.worktrees/x` on branch `feature` → the `on branch` warning (B4)
+- [x] `check-run.py` inside a linked worktree outside `.worktrees/` → the `linked worktree` warning (B4)
+- [x] `doctor` with `.worktrees/B` and no `## Worktree setup` in `main`'s `AGENTS.md` → one line naming `## Worktree setup` (B8)
+- [x] `doctor` with `.worktrees/old` holding no live `.workflow/old/brainstorm.md` → one line naming `.worktrees/old` (B8)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Checkout -k Doctor` (pre: NO TESTS RAN)
 Skills: none
-Status: todo
+Status: done @ 7473b02
+Writer: GPT-6.1 Sol
 ### T4 — The phase rules send each step to the run's worktree
 Delivers: B1, B3, B5, B6, B7, B8 · Blocked by: T1, T2, T3 · Lane: mechanical
 Budget: code +0 · tests +0
@@ -112,9 +114,7 @@ Status: todo
 - Out of scope: own ports per worktree → untouched · conductor skill and T3 launching → untouched · GitHub PRs as landing → untouched · worktrees for brainstorm and plan → untouched · rebasing a run branch → untouched
 ## Risks
 - T2 is riskiest: it moves `main` in a folder another run may be editing; `merge-tree` first and git's dirty-file refusal bound it. Outside its files: every card step reads `check-run.py`'s checkout warnings (T3). Not taken: a pull request as the landing step.
-
 ## TODO impacts
 - `TODO.md` P2 "`SKILL.md:54` live-run grep misses `Status:  complete`" → completed by T4 (human asked, 2026-10-27).
-
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: none exist. Workflow `ROADMAP.md`: no statement on worktrees or parallel runs; no changes.
