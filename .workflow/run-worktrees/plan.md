@@ -11,7 +11,6 @@ Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alo
 
 ## Execution state
 <filled by execute>
-
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
