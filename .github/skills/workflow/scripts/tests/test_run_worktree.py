@@ -143,6 +143,16 @@ class OpenTests(RepoTests):
         self.assertIn("touch ready", result.stderr)
         self.assertTrue((self.repo / ".worktrees/B/ready").exists())
 
+    def test_Open_setup_stops_at_top_level_heading(self):
+        self.write("AGENTS.md", "## Worktree setup\n```sh\ntouch ready\n```\n# Appendix\n```sh\ntouch appendix_ran\n```\n")
+        self.commit("setup and appendix")
+        self.write("src.py", "uncommitted\n")
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.repo / ".worktrees/B/ready").exists())
+        self.assertFalse((self.repo / ".worktrees/B/appendix_ran").exists())
+        self.assertNotIn("appendix_ran", result.stderr)
+
 
 class WhereTests(RepoTests):
     def test_Where_uses_local_refs_when_origin_is_unreachable(self):
