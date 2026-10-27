@@ -5,9 +5,10 @@ Inputs:  .workflow/run-worktrees/review.md @ bc15275
 Status:  complete
 
 ## Execution state
-Current: C2-T3 next · writer: GPT-6.1 Sol · baseline failures: none
+Current: all cycle 2 patches done; next review · writer: GPT-6.1 Sol · baseline failures: none
 C2-T1 @ b0b55af
 C2-T2 @ 791ff62
+C2-T3 @ f7a6658
 
 ## Tickets
 
@@ -48,11 +49,12 @@ Budget: code +0 · tests +0
 Seam: `open_run` (`run-worktree.py:71-90`); the existing Open tests, which pin both callers (cycle 2 mutations M3, M4, M9)
 Change: one helper, `started(run_dir)`: true when the run's `plan.md` or `patch_plan.md` has a ticket whose Status is not `todo`. The own-run check and the busy loop both call it. A refactor: no test file changes.
 Accept:
-- [ ] `run-worktree.py` holds `not in (None, "todo")` once (B1, B2)
-- [ ] The fix commit's net lines in `run-worktree.py` are at most 0, it changes no test file, and the full suite passes (B1, B2)
+- [x] `run-worktree.py` holds `not in (None, "todo")` once (B1, B2)
+- [x] The fix commit's net lines in `run-worktree.py` are at most 0, it changes no test file, and the full suite passes (B1, B2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && grep -c 'not in (None, "todo")' .github/skills/workflow/scripts/run-worktree.py` (pre: 69 pass; grep 2)
 Skills: none
-Status: todo
+Status: done @ f7a6658
+Writer: GPT-6.1 Sol
 
 ## Deviations
 - none

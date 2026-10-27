@@ -20,3 +20,14 @@ Red: 3880941 adds one parametrized test with zsh and spaced-sh cases. Both fail 
 Green: the exact Verify passes all 10 Open tests and prints 1 for the untagged instructions. The full suite passes all 71 tests. Both changed Python files compile and git diff --check passes.
 Mutation: the new test fails when trailing-space support is removed, and when validation is moved after checkout creation. Both checks used temporary script copies; production files stayed unchanged.
 Commit: 791ff62 changes no test file and adds 4 net Python lines. The routing reference names accepted fence tags and the early failure. Noticed: none. Frontmatter and trigger descriptions are unchanged.
+
+## C2-T3
+Reuse: extracted the two existing started-ticket predicates into started(run_dir), called for the current run and the busy-primary check. No other caller needs a separate rule.
+Green: the exact Verify passes all 71 tests and prints 1 for the single predicate. The changed script compiles and git diff --check passes. The preceding ticket's passing suite is the baseline.
+Mutation: counting todo as started in a temporary script copy makes existing tests fail for both callers, including own plan.md and patch_plan.md. Production files stayed unchanged.
+Commit: f7a6658 changes only run-worktree.py, with 8 added and 8 deleted lines. No test file changed. Noticed: none. No screen changes.
+
+## Session 6 handoff
+All three approved patch tickets are done. Review findings remain unchanged for cross-vendor review to resolve independently.
+Final suite: 71 passing tests on the code at f7a6658; later edits are execution records only. All 87 pre-existing assertion calls remain unchanged; the two new methods add 10 assertion calls, for 97 total in test_run_worktree.py.
+Completed-run range: plan Base 743eb2e through f7a6658 has +236 code added, +227 code net and +394 tests net, ratio 1.67. The existing reasoned waiver now records these final numbers. Patch cycle alone has +16 code added, +6 code net and +27 tests net. The split refusal remains in force; the session ledger adds one line to the plan's existing length warning.

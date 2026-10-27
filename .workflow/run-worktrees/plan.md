@@ -7,7 +7,7 @@ Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, t
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 ## Execution state
-Current: C2-T3 next · writer: GPT-6.1 Sol · baseline failures: none
+Current: all cycle 2 patches done; next review · writer: GPT-6.1 Sol · baseline failures: none
 T1 @ 81aa880
 T2 @ c601aa0
 T3 @ 7473b02
@@ -18,7 +18,7 @@ Session 2: T4
 Session 3: T5
 Session 4: C1-T1, C1-T2, C1-T3
 Session 5: C1-T4, C1-T5
-Session 6: C2-T1, C2-T2
+Session 6: C2-T1, C2-T2, C2-T3
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -121,4 +121,4 @@ Writer: GPT-6.1 Sol
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: none exist. Workflow `ROADMAP.md`: no statement on worktrees or parallel runs; no changes.
 ## Deviations
-Ratio waived: run — +367 test lines against +230 code added, ratio 1.60. Four parametrized C1-T5 methods pin the seven review-listed guards; the other patch regressions cover setup, offline lookup and preserving unfinished work. Existing assertions stay unchanged.
+Ratio waived: run — +394 test lines against +236 code added, ratio 1.67. Four parametrized C1-T5 methods pin the seven review-listed guards; the other patch regressions cover setup, offline lookup and preserving unfinished work. Two C2 methods pin setup boundaries and fence validation. Existing assertions stay unchanged.
