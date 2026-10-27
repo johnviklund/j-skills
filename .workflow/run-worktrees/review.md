@@ -1,24 +1,22 @@
 Command: workflow review run-worktrees
 Created: 2026-10-27 · claude-opus-5-5
-Base:    bc15275
-Inputs:  .workflow/run-worktrees/plan.md @ 743eb2e · .workflow/run-worktrees/patch_plan.md @ f445741
+Base:    baa7476
+Inputs:  .workflow/run-worktrees/plan.md @ 743eb2e · .workflow/run-worktrees/patch_plan.md @ bc15275
 Status:  complete
 
 ## Coverage
-- [x] C1-T1 — 3/3: red `3c2b19f` fails without the guard (M1); fix `b890db3` changes no test file; `worktrees.md:65-66` and `wrap.md:156-157` name the scan range
-- [x] C1-T2 — 2/2: comment-fence test passes, section-regex grep 0, the old regex back fails it (M5); but see C2-1
-- [x] C1-T3 — 3/3: both offline subcases pass, re-raising fails them (M2); a fetch that always fails breaks the second-clone test (M8), so the catch-all hides no working path
-- [x] C1-T4 — 3/3: four subcases; own `patch_plan.md` ignored (M3), `todo` counted (M4), check skipped (M9) each fail
-- [x] C1-T5 — 5/5; receipt holds 7 `KILLED`; I re-ran 6 of them (M6, M7, M10–M13), all killed
-- [x] Class sweep — C1-1: the other pushes are the scanned card push (`worktrees.md:44-48`) and `push --delete`; exit 3/4 merges reach origin only by a scanned card push or a later land · C1-2: no other section regex in either script · C1-3: land's push and `ls-remote` need origin by nature; `status`'s own fetch line has no failure rule (P3) · C1-5: `where` still wins for a run with a worktree or `run/<slug>` ref
-- [x] Full suite 69/69 · `test_check_run.py` untouched · existing `test_run_worktree.py` assertions unchanged (only C1-T1's `git push` fixture lines) · escape-hatch scan 0 · no new dependencies · `.workflow/` check: 2 hits, both temp-repo fixtures in `test_run_worktree.py`, as in cycle 1
-- [x] Outcome: probes on scratch repos (manual, no verify skill); B1 broken for one `AGENTS.md` shape (C2-1)
-Size: +192 code · +367 tests · ratio 1.91 · net +550 · over 1,000: none
-Ratio waiver accepted: every test the patch cycle added kills at least one mutation (its own count, +230 code and 1.60, differs from numstat; the reasoning holds)
-Reachability: no new file; new branches are reached through `open`, `where`, `land` · guards shown failing: M1–M13, all killed
+- [x] C2-T1 — 3/3: red `832e12d` fails at the parent code; fix `b0b55af` changes only `check-run.py`; `check-run.py` output for all runs identical at `832e12d` and `b0b55af` (37 lines, `diff` empty); removing the `# ` reset fails it (M14)
+- [x] C2-T2 — 3/3: red `3880941` fails 2 subtests at the parent; fix `791ff62` changes no test file; `worktrees.md:40-41`; removing the raise (M15), the `[ \t]*` (M16), the check (M17) or moving it after `worktree add` (M18) each fail
+- [x] C2-T3 — 2/2: `not in (None, "todo")` once; `f7a6658` is +8/−8 in `run-worktree.py` only; `started()` ignoring `patch_plan.md` (M19) or counting `todo` (M20) fails
+- [x] Class sweep — C2-1: every other `Doc.section` caller reads run artifacts (output unchanged), but the setup block can also be unfenced, where a `# ` shell comment is now a heading (C3-1) · C2-2: a non-shell fence before a shell fence still breaks fence pairing (C2-2 reopened) · C2-3: no third copy of the started test
+- [x] Full suite 71/71 · `test_check_run.py` untouched · existing `test_run_worktree.py` assertions unchanged (only two new methods) · escape-hatch scan 0 · no new dependencies · `.workflow/` check: 2 hits, the same temp-repo fixtures as cycle 1
+- [x] Outcome: probes on scratch repos at `baa7476` and `bc15275` (manual, no verify skill); B1 broken for two `AGENTS.md` shapes (C3-1, C2-2)
+Size: +198 code · +394 tests · ratio 1.99 · net +583 · over 1,000: none
+Ratio waiver accepted: cycle 2's +27 test lines each kill a mutation (M14–M18)
+Reachability: no new file; `started()` has two callers in `open_run` · guards shown failing: M1–M20, all killed
 Independence: cross-vendor (writer GPT-6.1 Sol, OpenAI · reviewer Opus 5.5, Anthropic)
-Threats: `AGENTS.md` setup → shell — who: anyone who commits to the primary branch's `AGENTS.md` · reaches: a shell in the new checkout · logged: printed before it runs (`run-worktree.py:45`) · fails open: fences from a later `# ` section run (C2-1); a non-`sh` fence is skipped silently (C2-2) · worst case: a deploy or release snippet in a later top-level section runs during `open`
-Threats: pushes → origin — `land` refuses unpushed primary commits before merging (`run-worktree.py:120-122`, `test_Land_refuses_unpushed_primary_commits`) · fails open: none found
+Threats: `AGENTS.md` setup → shell — who: anyone who commits to the primary branch's `AGENTS.md` · reaches: a shell in the new checkout · logged: printed before it runs (`run-worktree.py:49`) · fails open: prose between a non-shell and a shell fence runs as shell (C2-2) · worst case: a prose line that is also a valid command runs during `open`; same writers as the setup itself, so no new privilege
+Threats: pushes → origin — unchanged since cycle 2 · fails open: none found
 Threats: slug → paths and refs — unchanged since cycle 1 · worst case: none found
 
 ## Resolved
@@ -30,30 +28,35 @@ Threats: slug → paths and refs — unchanged since cycle 1 · worst case: none
 | C1-4 | P1 | Seven guard mutations survive the suite | fix now | @ 59bfc5c (cycle 2) |
 | C1-5 | P2 | `open` moves a run already on `main` into a worktree | fix now | @ 31b78b4 (cycle 2) |
 | C1-6 | P3 | Four minor notes | defer — text in git at `42d00c4` | settled (cycle 2) |
+| C2-1 | P1 | Setup ran shell fences from a later `# ` section | fix now | @ b0b55af (cycle 3) |
+| C2-3 | P2 | `open_run` held two copies of the started-ticket test | fix now | @ f7a6658 (cycle 3) |
+| C2-4 | P3 | Two minor notes | defer — text in git at `c6362bc` | settled (cycle 3) |
 
 ## Cycle 2 findings
-### P1 — C2-1 · Setup now also runs shell fences from a later `# ` section
-- Evidence: regression from C1-T2 (`d75f8cd`); breaks B1 ("the `## Worktree setup` commands ran"). `Doc` (`check-run.py:111`) ends a section only at `## `, while the old regex also ended it at `# `. Probe: `AGENTS.md` = `## Worktree setup` + ```` ```sh ```` `touch ready`, then `# Appendix` + ```` ```sh ```` `touch appendix_ran` → `open B` exits 0 and `.worktrees/B/appendix_ran` exists; at `f445741` it does not. Any shell fence in a later top-level section (a deploy or release snippet) runs as setup when no `## ` heading comes between. Real shape: `~/cx-intelligence/AGENTS.md` has a `# Repo Context` preamble (lines 31–39) right after an `## ` section.
-- Disposition: fix now
-- Resolved: —
 ### P2 — C2-2 · A setup fence tagged other than `sh`/`bash`/`shell` is skipped without a word
-- Evidence: `run-worktree.py:44`, from T1, not touched by the fix. Probes: ```` ```zsh ````, ```` ```console ```` and ```` ```sh ```` with a trailing space each print a blank line, exit 0, and leave no `ready`. The old code does the same (pre-existing in this run, outside the C1-2 fix). Small remedy: when the block has a fence but no shell fence matched, exit 1 naming the block.
-- Disposition: fix now — new and outside the cycle 2 scope, so deferred by default; the human chose to fix it (1b, 2026-10-27)
+- Evidence: original text in git at `c6362bc`. Reopened in cycle 3: `791ff62` raises only when no fence matches. When a non-shell fence comes first, the regex (`run-worktree.py:31`) takes that fence's closing ```` ``` ```` as an opener. Probes (same at `bc15275`): ```` ```zsh ```` fence, blank line, ```` ```sh ```` `touch ready` → exit 0, nothing runs, no `ready`; with `Then run:` between them → bash runs `Then run:` (exit 127) and the `sh` fence never runs.
+- Disposition: fix now — the human chose to fix it (1b, 2026-10-27)
 - Resolved: —
-### P2 — C2-3 · `open_run` now holds two copies of the started-ticket test
-- Evidence: C1-T4 added `run-worktree.py:75-77`, the same `any(field(t, "Status")[1] not in (None, "todo") …)` over `plan.md`/`patch_plan.md` as the busy loop at `:85-89`. Same-run waste in the fix diff. Small remedy: one `started(run_dir)` helper with both as callers (net about −3 lines).
-- Disposition: fix now
-- Resolved: —
-### P3 — C2-4 · Two minor notes
-- Disposition: defer — P3s stay in review.md
-- Resolved: —
-- `worktrees.md:22`: `status`'s own `git fetch` line gives no rule for a failed fetch, unlike `where` (C1-3's class, prose only).
-- `where`'s fetch runs with git's terminal prompt allowed; `GIT_TERMINAL_PROMPT=0` would make an expired HTTPS credential fail fast instead of waiting for input in a terminal session.
 
-## Pre-existing / environmental
-- none
 
 ## Cycle 2 verdict
 All five cycle 1 fix-now findings are fixed and stamped; 13 mutations of the new guards all fail the suite. New: 1 P1 (C2-1, a regression from C1-T2) and 1 small P2 (C2-3), both fix now; 1 P2 deferred to `TODO.md` (C2-2); 2 P3 deferred here (C2-4). Cycle bound reached: C2-1 and C2-3 go to the human as one decision, ➡️ a) one more cycle, since C2-1 breaks B1 · b) defer both to `TODO.md`. Wrap waits for the answer.
 
 Cycle 3 approved by human: 2026-10-27 — option 1b, one more cycle fixing C2-1, C2-2 and C2-3. Patch cycle 2 (`patch_plan.md`): C2-T1 fixes C2-1, C2-T2 fixes C2-2, C2-T3 fixes C2-3.
+
+## Cycle 3 findings
+### P1 — C3-1 · An unfenced setup block stops at its first `# ` comment
+- Evidence: regression from C2-T1 (`b0b55af`); breaks B1 ("the `## Worktree setup` commands ran"). `README.md:114-115` says to add shell commands under the heading and requires no fence; unfenced text runs as-is (`run-worktree.py:34`). `Doc` (`check-run.py:114`) now treats an unfenced `# ` line as a heading. Probe: `## Worktree setup` / `# install deps` / `touch ready` → `open B` exits 0, prints a blank line, no `ready`; at `bc15275` `ready` exists. A comment mid-block drops every line after it, again without a word.
+- Disposition: fix now
+- Resolved: —
+### P3 — C3-2 · Two minor notes
+- Disposition: defer — P3s stay in review.md
+- Resolved: —
+- ```` ```bash title="setup" ```` gets `requires sh, bash, shell or untagged fences`: the message names the tag it rejects as allowed.
+- `assertIn("sh", result.stderr)` (`test_run_worktree.py:167`) also passes on `bash`/`shell`; it meets the acceptance literal but proves little.
+
+## Pre-existing / environmental
+- none
+
+## Cycle 3 verdict
+C2-1 and C2-3 are fixed and stamped; 7 new mutations (M14–M20) all fail the suite. Open: C3-1 (P1, a regression from the C2-1 fix) and C2-2 (P2, reopened at a second fence shape). Both silently skip setup commands, so both break B1. One fix ticket closes both: read the setup block line by line, take commands only from `sh`/`bash`/`shell`/untagged fences by their opening line, and stop `open` when the block has text but no shell fence. Cycle bound passed: both go to the human as one decision, ➡️ a) one more cycle · b) defer both to `TODO.md` (C3-1 needs `Approved by human:`). Wrap waits for the answer.
