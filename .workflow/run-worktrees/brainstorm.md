@@ -38,6 +38,7 @@ From the repo folder, `workflow execute <slug>` on a second run quietly gives it
 - D10 — Two runs starting the app at once stays out of scope: `verify-APP up` refuses a busy port and the agent waits or asks — product call
 - D11 — A worktree run's artifacts are committed on `run/<slug>` with its code, so one branch holds the run; `where` points readers at them — code: SKILL.md state table reads the run folder
 - D12 — The run branch is pushed at every closing card, keeping today's "committed and pushed" rule; wrap deletes it — code: SKILL.md closing card
+- D13 — Wrap bumps the plugin version to 2.4.0 (human asked for 2.2.0, but 2.2.0 and 2.3.0 already shipped) — product call
 
 ## Test seams
 - `scripts/run-worktree.py open|where|land <slug>` — observes B1, B2, B3, B5, B6 (new; unittest on temp git repos in `scripts/tests/`)
