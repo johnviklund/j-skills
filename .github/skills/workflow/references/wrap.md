@@ -22,9 +22,12 @@ say the evidence is missing/stale and print the closing card routing to `workflo
 
 **Precondition — clean code tree.** Then run `git status --porcelain`. Every modified or untracked
 path must be a receipt (per `SKILL.md`'s receipt rule) or `.gitignore`; a script, config, or data file
-anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never saw: stop,
-name the paths, and route to `workflow review`. Wrap does not launder unreviewed code through its
-own commit. Receipt dirt is wrap's normal input and gets committed in step 3.
+anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never saw. Stop
+and ask one Decision question naming the paths: ➡️ a) leave them uncommitted and wrap without them,
+recommended when no run commit touched them (`git diff --name-only <plan Base>..HEAD`), since that
+is the human's own work; b) route to `workflow review`. Record the answer in `wrap.md`; on
+re-entry it stands, so the question is asked once. Wrap never commits unreviewed code. Receipt dirt is wrap's normal input and gets
+committed in step 3.
 
 **Checkpoint — `wrap.md`.** Wrap makes several commits and can be interrupted between them, so it
 keeps its own artifact: on first entry create `.workflow/<slug>/wrap.md` with the provenance header
@@ -50,7 +53,7 @@ Commit, push, curate, and clean up — in one go:
 2. Grep for leftover shortcuts: `TODO: Implement`, `NotImplementedError`, `...`, `placeholder`,
    `real implementation`, and any old contract version literal — nothing should still pin it.
 3. Commit the remaining changes — which the entry gate has already narrowed to allowlisted
-   doc/scratch paths. **Commit discipline:** use session-level messages that read as a
+   doc/scratch paths, never a path the human chose to leave. **Commit discipline:** use session-level messages that read as a
    worklog line on their own (what shipped + why), not terse "fix" stubs — the commit log is the
    portable backtrack record, so make it carry the narrative.
 3a. **Capture gate** — if `review.md`/`plan.md` or the run folder records two or more failed
