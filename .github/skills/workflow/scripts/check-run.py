@@ -111,6 +111,8 @@ class Doc:
         for n, text in enumerate(self.lines, 1):
             if text.lstrip().startswith("```"):
                 fence = not fence
+            if not fence and text.startswith("# "):
+                current = None
             if not fence and text.startswith("## "):
                 current = text[3:].strip()
                 self.sections[current] = (n, [])
