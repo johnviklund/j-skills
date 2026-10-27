@@ -153,6 +153,23 @@ class OpenTests(RepoTests):
         self.assertFalse((self.repo / ".worktrees/B/appendix_ran").exists())
         self.assertNotIn("appendix_ran", result.stderr)
 
+    def test_Open_setup_validates_shell_fence_before_creating_checkout(self):
+        for tag, expected in (("zsh", 1), ("sh ", 0)):
+            with self.subTest(tag=tag):
+                self.setUp()
+                self.write("AGENTS.md", f"## Worktree setup\n```{tag}\ntouch ready\n```\n")
+                self.commit("setup fence")
+                self.write("src.py", "uncommitted\n")
+                result = self.run_command("open")
+                self.assertEqual(result.returncode, expected, result.stderr)
+                if expected:
+                    self.assertIn("## Worktree setup", result.stderr)
+                    self.assertIn("sh", result.stderr)
+                    self.assertFalse((self.repo / ".worktrees/B").exists())
+                    self.assertNotEqual(self.git("rev-parse", "--verify", "refs/heads/run/B", check=False).returncode, 0)
+                else:
+                    self.assertTrue((self.repo / ".worktrees/B/ready").exists())
+
 
 class WhereTests(RepoTests):
     def test_Where_uses_local_refs_when_origin_is_unreachable(self):
