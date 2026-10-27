@@ -32,13 +32,15 @@ committed in step 3.
 **Checkpoint — `wrap.md`.** Wrap makes several commits and can be interrupted between them, so it
 keeps its own artifact: on first entry create `.workflow/<slug>/wrap.md` with the provenance header
 (`Inputs: review.md @ <its Base>`, `Base:` = that reviewed sha, `Status: drafting`) and a `## Steps`
-checklist of the nine steps below; tick each step as it lands (with the commit sha where one was
+checklist of the ten steps below; tick each step as it lands (with the commit sha where one was
 made). On re-entry with a `wrap.md` present, re-run the preconditions against *its* `Base`, then
 resume at the first unticked step — never redo a ticked one. Steps are written to be safe to
 repeat if a tick was lost: step 3 commits only what is dirty, step 4 skips lines already marked
-routed, step 8 skips if `WORKLOG.md` already has an entry for this slug, step 9 is a no-op on an
-already-archived folder. Step 9a replaces the checklist with the run summary and sets `Status: done` in
+routed, step 8 skips if `WORKLOG.md` already has an entry for this slug, step 9 skips a landed run,
+and step 10 skips an already-archived folder. Step 10a replaces the checklist and sets `Status: done` in
 the same edit, so a `wrap.md` with no `## Steps` is a finished wrap.
+After a landing-conflict review passes, advance the checkpoint's `Base` and `Inputs` to that
+verdict and repeat step 1 before retrying step 9; keep the other completed steps.
 
 **Escalate on failure, don't fix in wrap:** if step 1's final checks surface a regression, stop —
 that's a mini review→patch cycle (route it through the patch-cycle rows in `ROUTING.md`), not
@@ -143,15 +145,22 @@ Commit, push, curate, and clean up — in one go:
    `brainstorm.md` and `plan.md`, the writer from `plan.md`'s `Writer:` lines, the reviewer from
    `review.md`'s `Independence:` line. The `Run:` line's net code and tests are `check-run.py`'s
    `run net since plan Base` note, read after 5b's retire commit. Its sessions count
-   the `Session N:` lines in `plan.md`'s `## Execution state`, before 9a strips it; the count
+   the `Session N:` lines in `plan.md`'s `## Execution state`, before 10a strips it; the count
    includes patch sessions, which execute records there too. Write `Seats:`
    and `Skills:`, each skill's sha read from the lock file or `git rev-parse` as
    `learning-worklog.md` says;
    `check-run.py` errors on a done run whose entry lacks them.
-9. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 9a's transient files, nothing is deleted from the run folder.** Once
+9. **Land an isolated run.** From the primary checkout, run
+   `python3 <skill>/scripts/run-worktree.py land <slug> --repo <repo>` when the run has a worktree.
+   Follow `references/worktrees.md` for its exit codes. Commit and secret-scan before landing,
+   since landing pushes the primary branch. Keep the run live on conflicts; after a resolved
+   code merge, run the full suite and return to review. After success, work in the primary
+   checkout. Skip this step for a run already there; if landing already removed the worktree,
+   confirm the run's ticket shas are ancestors of the primary branch before marking it done.
+10. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 10a's transient files, nothing is deleted from the run folder.** Once
    `memory.remember` confirms every line is routed and step 7's cases are deposited:
 
-   **9a. Drop the transient, keep the record, leave a summary.** In the run folder: delete
+   **10a. Drop the transient, keep the record, leave a summary.** In the run folder: delete
    `patch_plan.md` (its content is in `review.md`); strip the `## Execution state` block from
    `plan.md`; keep `brainstorm.md`, `plan.md` (with `## Deviations`), `review.md`, `learnings.md`
    (fully routed — the record of *what* was learned) as **history only**. Rewrite `wrap.md` last into
@@ -162,7 +171,7 @@ Commit, push, curate, and clean up — in one go:
    its `plan.md`/`review.md` are searched with `grep` on demand, never loaded. Set `Status: done` in
    `brainstorm.md` (the run's status of record) and in the kept artifacts, `wrap.md` last.
 
-   **9b. Anything else the run left** — receipts, verification output, one-off scripts, live
+   **10b. Anything else the run left** — receipts, verification output, one-off scripts, live
    harnesses — stays in the run folder as evidence, listed in `wrap.md` and never read by later
    runs. **Tidy the top level** to `SKILL.md`'s *Layout*: a stray receipt (`*.md`, `*.txt`, an
    image) moves into its subfolder, and the run's own artifacts that name it get the new path. A
@@ -170,18 +179,18 @@ Commit, push, curate, and clean up — in one go:
    review never saw. Flag any file over ~100 KB to the human as a lettered decision (move it out of git, or keep
    it); never move it unasked. Before moving or renaming any file, grep
    the repo *outside* `.workflow/` for its filename and bare module stem (`grep -rn -F '<stem>'
-   --exclude-dir=.workflow --exclude-dir=.git .`); a hit means it is load-bearing — leave it exactly where it is and tell
+   --exclude-dir=.workflow --exclude-dir=.worktrees --exclude-dir=.git .`); a hit means it is load-bearing — leave it exactly where it is and tell
    the human. A run folder is history: it is never emptied, never renamed, never reused.
 
-   Rerun the checker after 9a (the run is now `done`): no ERROR, and its warnings named in the
-   receipt. Commit the archive and push it, so the tree the next run re-grounds from is the tree that's
+   Rerun the checker after 10a (the run is now `done`): no ERROR, and its warnings named in the
+   receipt. Commit only `.workflow/<slug>/` for the archive and push, so the tree the next run re-grounds from is the tree that's
    in git. `.workflow/` is tracked — if this repo ignores it, stop and say so; a run archive that
    lives on one machine is not an archive.
 
 **Why this order:** code → learnings routed, evals deposited, committed → **push** → archive the run.
 Archiving is last because it is the only step that removes anything from the run folder (the transient files), and by
-then everything worth keeping is in git, the exam set, `memory/` or the kept artifacts. Open a PR only
-if not committing straight to `main`.
+then everything worth keeping is in git, the exam set, `memory/` or the kept artifacts.
+Run branches land through step 9.
 
 **Wrap's chat receipt is fixed, one line per step:** final checks (pass / known-environmental);
 shortcut grep (clean / what was found); secret scan (clean per push / findings and their

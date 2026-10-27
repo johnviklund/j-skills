@@ -166,6 +166,11 @@ ls -d MEMORY.proposed.md memory.proposed MEMORY_ARCHIVE.proposed.md skill-promot
 
 ### 4. Workspace cleanliness
 
+Run `python3 <workflow skill folder>/scripts/run-worktree.py doctor --repo <repo>` when that
+script exists; `<repo>` is the primary checkout from `git worktree list --porcelain`.
+Report each missing setup block or orphan directory as one warning. Resolve each run through
+the workflow skill's `references/worktrees.md` before its status and run-shape checks below.
+
 ```sh
 for d in .workflow/*/; do printf '%s ' "$d"; grep -m1 '^Status:' "$d/brainstorm.md" 2>/dev/null; done   # runs + status
 ls .workflow/*.md 2>/dev/null                                             # v1 flat scratch (needs migration)

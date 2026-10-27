@@ -19,6 +19,9 @@ vendors, models and efforts.
 **Invocation:** `workflow <command> [slug]`; the card's command line carries the CLI's own skill
 prefix if it has one.
 
+**Checkout:** Before reading a run, follow [references/worktrees.md](references/worktrees.md).
+It resolves every phase and status to the run's checkout; execute opens isolation, wrap lands it.
+
 ## The run — `.workflow/<slug>/`
 
 One run = one folder, tracked in git, kept forever; its files are the state machine.
@@ -51,7 +54,7 @@ Every artifact header carries `Status:` — `drafting` (resume that phase) · `c
 | `review.md` with no open finding and no code change since its `Base` | wrap |
 
 **Slug:** the command names one, or exactly one run is live — otherwise list the live runs,
-lettered, and ask. Live runs: `grep -l 'Status: \(drafting\|complete\)' .workflow/*/brainstorm.md`.
+lettered, and ask. Live runs in each resolved checkout: `grep -l 'Status: *\(drafting\|complete\)' .workflow/*/brainstorm.md`.
 `workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`
 (an `awaiting-human` ticket is the blocker, with its action). A command that doesn't fit the run's
 state gets named and asked about.
@@ -156,8 +159,8 @@ before the fence, and the command is always its own fenced `text` block, even wh
 short, so it has a copy button.
 
 **Reads:** names run files and receipts only; the CLI already loads `AGENTS.md` and its kin. Before
-the card, the run's commits are on the primary branch and pushed: the next phase opens the primary
-checkout, so a `check-run.py` worktree or branch warning is resolved first, or asked about.
+the card, commit and push from the resolved checkout per `references/worktrees.md`.
+Resolve unexpected `check-run.py` worktree or branch warnings first, or ask about them.
 Reset is `yes` at every handoff, `no` only for same-seat work continuing. A human-only step (an
 operator ticket, an escalation) reads `- **Model:** human · <the one action>` with **Reads:** naming
 the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).

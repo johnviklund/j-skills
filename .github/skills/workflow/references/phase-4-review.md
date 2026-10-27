@@ -11,6 +11,11 @@ available: stop with the card naming that model instead of signing off degraded.
 review once passed an unapproved UI fallback that the human caught only after wrap.
 Read-only sub-agents may split a wide diff.
 
+**Landing-conflict review.** When wrap sends a resolved code merge back here, review only
+`git show --remerge-diff <merge-sha>` and run the full suite. Preserve the prior verdict's
+coverage, record the merge sha and this scope in the new cycle, and set `Base` to the reviewed
+merge. A passing verdict returns to wrap; findings follow the usual patch-cycle rules below.
+
 **Blind first.** Read the brief, the tickets' acceptance lines and the diff, and draft findings.
 Only then read the writer's reports, `## Deviations` and `learnings.md`, so the writer's framing
 does not set yours.
@@ -132,7 +137,7 @@ and test files (a `tests/` folder, `test_*`, `*_test.*`, `*.test.*`, `*.spec.*`;
 lists every hatch the diff adds; read each hit against the rule under *Defects*:
 `git diff <plan Base>..HEAD -U0 -- . ':(exclude).workflow' | grep -nE '^\+[^+].*(: any\b|<any>|as any\b|as unknown as|@ts-(ignore|expect-error|nocheck)|eslint-disable|# type: ignore|# noqa|\bcast\(|\bunsafe\b|\.unwrap\(\)|//\s*nolint|[A-Za-z0-9_)\]]!\.)'`.
 Third, nothing outside `.workflow/` references it
-(`grep -rn --exclude-dir=.workflow --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
+(`grep -rn --exclude-dir=.workflow --exclude-dir=.worktrees --exclude-dir=understand --exclude='*.md' --exclude='*.txt' '\.workflow/' .` — a hit is
 P1), and the full test suite — unless the receipt-rule diff `<plan Base>..HEAD` (`SKILL.md`) is
 empty, in which case that empty diff is the regression proof.
 

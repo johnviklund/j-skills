@@ -13,6 +13,9 @@ Read `references/tests.md` once per session before the first test.
 
 ## Before the first ticket
 
+Resolve isolation with `python3 <skill>/scripts/run-worktree.py open <slug> --repo <repo>`
+per `references/worktrees.md`; run the following checks in the returned checkout.
+
 1. **Ready:** the file's header says `Status: complete` (a `drafting` plan is unfinished — stop),
    and `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR. An ERROR is a plan defect: stop and route to `workflow plan <slug>`
    (`workflow review <slug>` for a patch plan).
