@@ -5,8 +5,9 @@ Inputs:  .workflow/run-worktrees/review.md @ bc15275
 Status:  complete
 
 ## Execution state
-Current: C2-T2 next · writer: GPT-6.1 Sol · baseline failures: none
+Current: C2-T3 next · writer: GPT-6.1 Sol · baseline failures: none
 C2-T1 @ b0b55af
+C2-T2 @ 791ff62
 
 ## Tickets
 
@@ -32,12 +33,13 @@ Budget: code +4 · tests +15 · why: two fence shapes, each a temp repo
 Seam: `run-worktree.py open` as a subprocess on temp repos; `add_worktree` (`run-worktree.py:28-47`); `references/worktrees.md` §Start execution
 Change: read the setup commands before `git worktree add`. The fence regex (`:44`) also accepts spaces after the tag. When the block has a fence but none is `sh`, `bash`, `shell` or untagged, raise naming `## Worktree setup` and those tags, so `open` exits 1 and creates nothing. Red commit first; the fix commit changes no test file.
 Accept:
-- [ ] Setup fence tagged `zsh` → `open B` exits 1, stderr names `## Worktree setup` and `sh`, and neither `.worktrees/B` nor a `run/B` branch exists (B1)
-- [ ] Setup fence tagged `sh` followed by a space → `open B` exits 0 and `.worktrees/B/ready` exists (B1)
-- [ ] `worktrees.md` §Start execution: setup runs only `sh`, `bash`, `shell` and untagged fences; any other tag stops `open` before a checkout exists (B1)
+- [x] Setup fence tagged `zsh` → `open B` exits 1, stderr names `## Worktree setup` and `sh`, and neither `.worktrees/B` nor a `run/B` branch exists (B1)
+- [x] Setup fence tagged `sh` followed by a space → `open B` exits 0 and `.worktrees/B/ready` exists (B1)
+- [x] `worktrees.md` §Start execution: setup runs only `sh`, `bash`, `shell` and untagged fences; any other tag stops `open` before a checkout exists (B1)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Open && grep -c 'untagged' .github/skills/workflow/references/worktrees.md` (pre: 8 Open tests pass; grep 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 791ff62
+Writer: GPT-6.1 Sol
 
 ### C2-T3 — One started-ticket test in `open_run`
 Delivers: B1, B2 · Blocked by: none · Lane: logic

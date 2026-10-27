@@ -13,3 +13,10 @@ Red: 832e12d adds one 10-line regression test, seen failing because appendix_ran
 Green: all 70 tests passed. The ticket's exact Verify exited 0; all run checker output was byte-identical before and after the fix. Comparison files: /tmp/c2-t1-before.txt and /tmp/c2-t1-after.txt. Both changed Python files compile and git diff --check passes.
 Mutation: removed the two-line heading boundary in a temporary script copy; the regression test failed because appendix_ran exists. Production files stayed unchanged.
 Commit: b0b55af adds only 2 lines to check-run.py; no test file changed. Noticed: none. No screen changes.
+
+## C2-T2
+Reuse: retained worktree_setup, the existing fence extraction and the real-git Open fixture. Parsing and validation now precede git worktree add; accepted tags allow trailing spaces.
+Red: 3880941 adds one parametrized test with zsh and spaced-sh cases. Both fail before the fix: zsh exits 0, and spaced-sh creates no ready file. No existing assertion changed.
+Green: the exact Verify passes all 10 Open tests and prints 1 for the untagged instructions. The full suite passes all 71 tests. Both changed Python files compile and git diff --check passes.
+Mutation: the new test fails when trailing-space support is removed, and when validation is moved after checkout creation. Both checks used temporary script copies; production files stayed unchanged.
+Commit: 791ff62 changes no test file and adds 4 net Python lines. The routing reference names accepted fence tags and the early failure. Noticed: none. Frontmatter and trigger descriptions are unchanged.
