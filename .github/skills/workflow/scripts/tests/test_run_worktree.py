@@ -129,3 +129,76 @@ class WhereTests(RepoTests):
             self.assertEqual(result.stdout.strip(), ".worktrees/B")
             self.assertEqual(self.git("rev-parse", "HEAD", repo=clone / ".worktrees/B").stdout.strip(), expected)
         self.assertEqual(self.git("status", "--porcelain", repo=clone).stdout, "")
+
+
+class LandTests(RepoTests):
+    def run_branch(self, path="src.py"):
+        self.started()
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        tree = self.repo / ".worktrees/B"
+        self.write(path, "run change\n", repo=tree)
+        ticket = self.commit("run ticket", repo=tree)
+        self.write(Path(".workflow") / "B/plan.md", f"### T1 — ticket\nStatus: done @ {ticket}\n", repo=tree)
+        tip = self.commit("run state", repo=tree)
+        self.git("push", "-qu", "origin", "run/B", repo=tree)
+        return tree, ticket, tip
+
+    def test_Land_preserves_history_and_cleans_up(self):
+        for shape in ("fast-forward", "merge"):
+            with self.subTest(shape=shape):
+                if shape == "merge":
+                    self.setUp()
+                tree, ticket, tip = self.run_branch()
+                if shape == "merge":
+                    self.write("other.py", "primary change\n")
+                    self.commit("primary advance")
+                result = self.run_command("land")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                head = self.git("rev-parse", "HEAD").stdout.strip()
+                if shape == "fast-forward":
+                    self.assertEqual(head, tip)
+                else:
+                    self.assertEqual(len(self.git("rev-list", "--parents", "-n1", "HEAD").stdout.split()), 3)
+                self.assertEqual(self.git("merge-base", "--is-ancestor", ticket, "HEAD", check=False).returncode, 0)
+                self.assertEqual(self.git("rev-parse", "refs/heads/main", repo=self.remote).stdout.strip(), head)
+                self.assertFalse(tree.exists())
+                self.assertEqual(self.git("branch", "--list", "run/B").stdout, "")
+                self.assertEqual(self.git("ls-remote", "--heads", "origin", "run/B").stdout, "")
+
+    def test_Land_leaves_conflicts_only_in_the_run_worktree(self):
+        for path, expected in (("src.py", 3), ("WORKLOG.md", 4)):
+            with self.subTest(path=path):
+                if path == "WORKLOG.md":
+                    self.setUp()
+                    self.write(path, "base log\n")
+                    self.commit("base log")
+                tree, _, _ = self.run_branch(path)
+                self.write(path, "primary change\n")
+                primary = self.commit("primary conflict")
+                self.write("unrelated.py", "uncommitted\n")
+                dirty = self.git("status", "--porcelain").stdout
+                result = self.run_command("land")
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
+                self.assertEqual(self.git("status", "--porcelain").stdout, dirty)
+                self.assertEqual(self.git("rev-parse", "MERGE_HEAD", repo=tree).stdout.strip(), primary)
+                self.assertEqual(self.git("diff", "--name-only", "--diff-filter=U", repo=tree).stdout.strip(), path)
+                self.assertNotEqual(self.git("rev-parse", "--verify", "MERGE_HEAD", check=False).returncode, 0)
+                if expected == 3:
+                    self.assertIn("workflow review B", result.stderr)
+                else:
+                    self.assertIn("keeping both sides", result.stderr)
+                    self.assertIn("commit", result.stderr)
+                    self.assertIn("land again", result.stderr)
+                (self.repo / "unrelated.py").unlink()
+
+    def test_Land_preserves_overlapping_uncommitted_work(self):
+        self.run_branch()
+        primary = self.git("rev-parse", "HEAD").stdout.strip()
+        self.write("src.py", "uncommitted\n")
+        result = self.run_command("land")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("src.py", result.stderr)
+        self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
+        self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")

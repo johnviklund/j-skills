@@ -79,9 +79,46 @@ def open_run(repo, slug):
     return add_worktree(repo, slug, checks.primary_branch(repo)) if busy else repo
 
 
+def land(repo, slug):
+    primary, branch = checks.primary_branch(repo), f"run/{slug}"
+    if git(repo, "branch", "--show-current") != primary:
+        raise RuntimeError(f"primary checkout must be on {primary}")
+    path = where(repo, slug)
+    if path == repo:
+        raise RuntimeError(f"no worktree for {slug}")
+    dirty = git(path, "status", "--porcelain")
+    if dirty:
+        raise RuntimeError(f"commit or remove uncommitted work in {path}:\n{dirty}")
+    preview = subprocess.run(["git", "-C", str(repo), "merge-tree", "--write-tree", "--name-only", "-z",
+                              primary, branch], capture_output=True, text=True)
+    if preview.returncode == 1:
+        # Only the run checkout enters a merge, even when the primary checkout is dirty.
+        merge = subprocess.run(["git", "-C", str(path), "merge", "--no-edit", primary],
+                               capture_output=True, text=True)
+        conflicts = git(path, "diff", "--name-only", "--diff-filter=U", "-z").strip("\0").split("\0")
+        if not conflicts or conflicts == [""]:
+            raise RuntimeError(merge.stderr or merge.stdout or "merge preflight changed; retry land")
+        print(merge.stdout + merge.stderr, file=sys.stderr)
+        if all(Path(p).suffix in (".md", ".txt") for p in conflicts):
+            print("Resolve keeping both sides, commit, land again.", file=sys.stderr)
+            return 4
+        print(f"Resolve in {path}, commit, run tests, then workflow review {slug}.", file=sys.stderr)
+        return 3
+    if preview.returncode:
+        raise RuntimeError(preview.stderr or preview.stdout)
+    git(repo, "merge", "--ff", "--no-edit", branch)
+    git(repo, "push", "origin", primary)
+    if git(repo, "ls-remote", "--heads", "origin", branch):
+        git(repo, "push", "origin", "--delete", branch)
+    git(repo, "worktree", "remove", str(path))
+    git(repo, "branch", "-d", branch)
+    print(f"landed {slug} on {primary}; pushed and removed {branch} and its worktree")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("open", "where"))
+    parser.add_argument("command", choices=("open", "where", "land"))
     parser.add_argument("slug")
     parser.add_argument("--repo", default=".")
     args = parser.parse_args()
@@ -92,6 +129,8 @@ def main():
         git(repo, "check-ref-format", "--branch", f"run/{args.slug}")
         if not checks.primary_branch(repo):
             raise RuntimeError("no primary branch found")
+        if args.command == "land":
+            return land(repo, args.slug)
         path = open_run(repo, args.slug) if args.command == "open" else where(repo, args.slug)
         print(path.relative_to(repo).as_posix())
     except (RuntimeError, OSError, subprocess.CalledProcessError) as error:
