@@ -1,7 +1,7 @@
 {
   "name": "j-skills",
-  "version": "2.2.0",
-  "description": "Global, cross-repo agent skills: capture durable session learnings (memory.remember), periodically compact MEMORY.md (memory.compact), run a personal five-phase dev workflow (workflow), run a read-first workspace health check (checkup), grade candidate models against eval golden sets (evals), run a session retrospective that proposes environment fixes (retro), write a cited, human-friendly HTML explainer for a finished run or a codebase area (understand), explain things or rewrite text in plain English (plain), write documents agents read (agent-docs), and build and maintain a repo's own app-driving verification skill with a feature map (verify).",
+  "version": "2.3.0",
+  "description": "Global, cross-repo agent skills: capture durable session learnings (memory.remember), periodically compact MEMORY.md (memory.compact), run a personal five-phase dev workflow (workflow), run a read-first workspace health check (checkup), grade candidate models against eval golden sets (evals), run a session retrospective that proposes environment fixes (retro), write a cited, human-friendly HTML explainer for a finished run or a codebase area (understand), explain things or rewrite text in plain English (plain), write documents agents read (agent-docs), make pure UI changes from rendered mockups without a full run (design), and build and maintain a repo's own app-driving verification skill with a feature map (verify).",
   "author": {
     "name": "johnviklund"
   },
@@ -17,6 +17,7 @@
     "understand",
     "plain",
     "agent-docs",
-    "verify"
+    "verify",
+    "design"
   ]
 }

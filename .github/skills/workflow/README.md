@@ -183,6 +183,7 @@ These live in the same repo and plug into the workflow:
 | `checkup` | A read-only health report. It also compares models and skill changes using worklog numbers |
 | `evals` | Tests a reviewer model on up to ten diffs with known bugs, before it takes the reviewer seat |
 | `retro` | Finds where a run or session lost time and suggests fixes |
+| `design` | Instead of a run, for a pure UI change: mockups to pick from, then the build with before/after screenshots. Hands over to `brainstorm` when the change needs logic |
 | `understand` | After wrap, writes a cited HTML page that explains the run |
 
 ## Trying a new model or a skill change

@@ -1,6 +1,6 @@
 # j-skills
 
-Ten skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
+Eleven skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
 Use `workflow` to take a coding task from idea to reviewed code. Use the other skills when you
 need an explanation, app checks, saved lessons or help improving how you work.
 
@@ -300,7 +300,7 @@ Install every skill:
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
 mkdir -p ~/.codex/skills
-for n in agent-docs checkup evals memory.compact memory.remember plain retro understand verify workflow; do
+for n in agent-docs checkup design evals memory.compact memory.remember plain retro understand verify workflow; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
 done
 ```

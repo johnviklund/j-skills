@@ -1,7 +1,8 @@
 # Roadmap
 
 Updated: 2026-10-23. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
-`memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`).
+`memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
+`design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
 
 ## Goal: keep the code base and test suites from growing unchecked
