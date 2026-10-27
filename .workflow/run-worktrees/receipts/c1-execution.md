@@ -39,6 +39,17 @@ Green: 6 Open tests passed, including four new subcases. Planned-only runs with 
 Mutation: disabled only the own-started-ticket guard in a temporary script copy; both started-run subcases failed. Production files stayed unchanged.
 Commit: 31b78b4. Existing assertions remain unchanged. Noticed: none.
 
+## C1-T5
+Reuse: the existing real-git fixtures and run_branch cover all new cases; no helper or product code added.
+Green: the final Verify ran all 69 tests successfully and printed 7 KILLED lines. The changed test file compiles; diff check passed. All 76 existing assertion calls remain unchanged.
+Mutation: each of the seven C1-4 guards failed one new subcase in its own full 69-test run. The mutation receipt names each guard and failure; raw logs remain outside the repo. The throwaway worktree was removed.
+Commit: 59bfc5c. Noticed: no existing assertion or product code changed. The ticket intentionally adds only tests, 51 lines against its 60-line budget.
+
+## Session 5 handoff
+Both remaining patch tickets are done; next is cross-vendor review of cycle 1. The review artifact remains unchanged for the reviewer to resolve findings independently.
+Completed-run check: check-run has no errors. Its plan ratio range ends at the original T5 commit; checking plan Base 743eb2e through the final patch 59bfc5c gives +230 code added and +367 tests, ratio 1.60. A reasoned run waiver is recorded under plan Deviations for the required regression coverage.
+The plan now has 123 lines after adding the session ledger and ratio waiver. The existing split refusal remains in force; acceptance lines are unchanged. Final suite: 69 passing tests on 59bfc5c; only receipt and execution-state edits follow.
+
 ## Earlier handoff
 Session 4 completed C1-T1, C1-T2 and C1-T3, reaching execute's three-ticket cap. Next: C1-T4, then C1-T5. Re-review remains pending; review findings are left for that phase to resolve.
 Final suite: 64 passing tests on the code at c65c961; subsequent changes are run metadata only. Check-run still reports the two pre-existing original-plan test ratio warnings, with no errors.

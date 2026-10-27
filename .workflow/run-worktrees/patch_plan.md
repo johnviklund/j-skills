@@ -5,12 +5,13 @@ Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
 ## Execution state
-Current: C1-T4 done; next C1-T5 · writer: GPT-6.1 Sol · baseline failures: none
+Current: all cycle 1 tickets done; next review · writer: GPT-6.1 Sol · baseline failures: none
 C1-T1 red @ 3c2b19f
 C1-T1 @ b890db3
 C1-T2 @ d75f8cd
 C1-T3 @ c65c961
 C1-T4 @ 31b78b4
+C1-T5 @ 59bfc5c
 
 ## Tickets
 
@@ -80,14 +81,15 @@ Budget: code +0 · tests +60 · why: four fixture shapes; no product code
 Seam: `run-worktree.py open|land` as subprocesses on temp repos; mutations applied only in a throwaway `git worktree`, never committed
 Change: tests only. Then apply each mutation listed in C1-4 (`review.md`) alone, run the suite, restore, and record one `KILLED <mutation>` line each in the receipt.
 Accept:
-- [ ] Conflicts in `src.py` and `WORKLOG.md` together → `land B` exits 3; a conflict only in `notes.txt` → exit 4 (B6)
-- [ ] Run A on `main` with only `todo` tickets, clean folder → `open B` prints `.` (B2)
-- [ ] `open B` then `open C`, both isolated → `.git/info/exclude` holds `.worktrees/` once (B1)
-- [ ] `land B` with a dirty `.worktrees/B`, with the primary checkout off `main`, with `.worktrees/B` off `run/B` → each exits 1, `main` unchanged (B5)
-- [ ] `receipts/c1-t5-mutations.md` holds 7 `KILLED` lines, one per C1-4 mutation (B1, B2, B5, B6)
+- [x] Conflicts in `src.py` and `WORKLOG.md` together → `land B` exits 3; a conflict only in `notes.txt` → exit 4 (B6)
+- [x] Run A on `main` with only `todo` tickets, clean folder → `open B` prints `.` (B2)
+- [x] `open B` then `open C`, both isolated → `.git/info/exclude` holds `.worktrees/` once (B1)
+- [x] `land B` with a dirty `.worktrees/B`, with the primary checkout off `main`, with `.worktrees/B` off `run/B` → each exits 1, `main` unchanged (B5)
+- [x] `receipts/c1-t5-mutations.md` holds 7 `KILLED` lines, one per C1-4 mutation (B1, B2, B5, B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && grep -c '^KILLED ' .workflow/run-worktrees/receipts/c1-t5-mutations.md` (pre: 61 pass; receipt missing, grep exit 2)
 Skills: none
-Status: todo
+Status: done @ 59bfc5c
+Writer: GPT-6.1 Sol
 
 ## Deviations
 - C1-T2 Verify checks grep's count with `test ... -eq 0`: grep exits 1 on the required zero matches. Acceptance stays unchanged.
