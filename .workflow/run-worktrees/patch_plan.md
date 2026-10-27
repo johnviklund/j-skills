@@ -5,7 +5,8 @@ Inputs:  .workflow/run-worktrees/review.md @ bc15275
 Status:  complete
 
 ## Execution state
-Current: C2-T1 next · writer: — · baseline failures: none
+Current: C2-T2 next · writer: GPT-6.1 Sol · baseline failures: none
+C2-T1 @ b0b55af
 
 ## Tickets
 
@@ -16,12 +17,13 @@ Budget: code +2 · tests +10 · why: one temp repo with a two-section `AGENTS.md
 Seam: `run-worktree.py open` as a subprocess on temp repos; `Doc.__init__` (`check-run.py:103-117`)
 Change: `Doc` ends the current `## ` section at a `# ` heading outside a fence, as markdown does. Red commit first: the new Open test, run and seen failing, committed alone; the fix commit changes no test file. Class sites, searched at planning time: every `Doc.section` caller in `check-run.py` reads run artifacts, and their `# ` lines outside fences sit before the first `## ` (line 1 of two `learnings.md`, line 7 of three `wrap.md`), so no existing section changes.
 Accept:
-- [ ] `## Worktree setup` with a `sh` fence `touch ready`, then `# Appendix` with a `sh` fence `touch appendix_ran` → `open B` exits 0, `.worktrees/B/ready` exists, `.worktrees/B/appendix_ran` does not, stderr lacks `appendix_ran` (B1)
-- [ ] The fix commit changes no test file; `test_check_run.py` and the other Open tests pass (B1)
-- [ ] `check-run.py` prints the same output for every run under `.workflow/` at the red commit and at the fix commit (B1)
+- [x] `## Worktree setup` with a `sh` fence `touch ready`, then `# Appendix` with a `sh` fence `touch appendix_ran` → `open B` exits 0, `.worktrees/B/ready` exists, `.worktrees/B/appendix_ran` does not, stderr lacks `appendix_ran` (B1)
+- [x] The fix commit changes no test file; `test_check_run.py` and the other Open tests pass (B1)
+- [x] `check-run.py` prints the same output for every run under `.workflow/` at the red commit and at the fix commit (B1)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && for r in .workflow/*/; do python3 .github/skills/workflow/scripts/check-run.py "$(basename "$r")"; done > /tmp/c2-t1-after.txt 2>&1; diff /tmp/c2-t1-before.txt /tmp/c2-t1-after.txt` (pre: 69 pass; the new test does not exist yet; capture `/tmp/c2-t1-before.txt` with the same loop at the red commit)
 Skills: none
-Status: todo
+Status: done @ b0b55af
+Writer: GPT-6.1 Sol
 
 ### C2-T2 — A setup block with no shell fence stops `open`
 Delivers: B1 · Blocked by: C2-T1 · Lane: logic
