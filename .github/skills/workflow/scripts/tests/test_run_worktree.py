@@ -99,6 +99,15 @@ class OpenTests(RepoTests):
         self.assertTrue((self.repo / ".worktrees/B/ready").exists())
         self.assertFalse((self.repo / ".worktrees/B/untrusted").exists())
 
+    def test_Open_setup_keeps_shell_comments_inside_fences(self):
+        self.write("AGENTS.md", "## Worktree setup\n```sh\n# install deps\ntouch ready\n```\n## Other\nfalse\n")
+        self.commit("commented setup")
+        self.write("src.py", "uncommitted\n")
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("touch ready", result.stderr)
+        self.assertTrue((self.repo / ".worktrees/B/ready").exists())
+
 
 class WhereTests(RepoTests):
     def test_Where_finds_an_existing_worktree(self):

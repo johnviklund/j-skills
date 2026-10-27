@@ -21,8 +21,8 @@ def git(repo, *args):
 
 def worktree_setup(repo):
     agents = checks.git_out(repo, "show", f"{checks.primary_branch(repo)}:AGENTS.md")
-    block = re.search(r"^## Worktree setup\s*\n(.*?)(?=^#{1,2} |\Z)", agents, re.M | re.S)
-    return block.group(1) if block else None
+    block = checks.Doc("AGENTS.md", text=agents).section("Worktree setup")
+    return "\n".join(text for _, text in block) if block is not None else None
 
 
 def add_worktree(repo, slug, start):

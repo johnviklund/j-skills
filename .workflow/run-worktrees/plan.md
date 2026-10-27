@@ -3,7 +3,6 @@ Created: 2026-10-27 · Opus 5.5
 Base:    743eb2e
 Inputs:  .workflow/run-worktrees/brainstorm.md @ c3a29f1
 Status:  complete
-Docs read: none in scope (j-skills has no PRODUCT.md, DESIGN.md or AGENTS.md)
 Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, test_check_run.py 503 · over 1,000: none (new: run-worktree.py, test_run_worktree.py, references/worktrees.md)
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)

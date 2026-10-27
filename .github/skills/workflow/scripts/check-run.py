@@ -100,10 +100,12 @@ class Report:
 class Doc:
     """A markdown artifact: its lines, and its `## ` sections outside code fences."""
 
-    def __init__(self, path):
+    def __init__(self, path, text=None):
         self.path = path
-        with open(path, encoding="utf-8") as f:
-            self.lines = f.read().splitlines()
+        if text is None:
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+        self.lines = text.splitlines()
         self.sections = {}                 # title -> (heading line no, [(line no, text)])
         current, fence = None, False
         for n, text in enumerate(self.lines, 1):

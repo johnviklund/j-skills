@@ -35,7 +35,7 @@ Change: replace the section regex with `checks.Doc` sections. Let `Doc` take tex
 Accept:
 - [ ] Committed `## Worktree setup` whose ```` ```sh ```` fence holds `# install deps` then `touch ready` → `open B` prints `touch ready` and `.worktrees/B/ready` exists (B1)
 - [ ] `run-worktree.py` has no section regex of its own (`grep -cF '(?=^#{1,2} |'` → 0); the existing Open, Doctor and check-run tests pass unchanged (B1, B8)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && grep -cF '(?=^#{1,2} |' .github/skills/workflow/scripts/run-worktree.py` (pre: 61 pass, grep 1)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && test "$(grep -cF '(?=^#{1,2} |' .github/skills/workflow/scripts/run-worktree.py)" -eq 0` (pre: 61 pass, grep 1)
 Skills: none
 Status: todo
 
@@ -82,3 +82,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && grep -c '^KILLED ' .workflow/run-worktrees/receipts/c1-t5-mutations.md` (pre: 61 pass; receipt missing, grep exit 2)
 Skills: none
 Status: todo
+
+## Deviations
+- C1-T2 Verify checks grep's count with `test ... -eq 0`: grep exits 1 on the required zero matches. Acceptance stays unchanged.
