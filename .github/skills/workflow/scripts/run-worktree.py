@@ -110,6 +110,9 @@ def land(repo, slug):
         return 3
     if preview.returncode:
         raise RuntimeError(preview.stderr or preview.stdout)
+    unpushed = git(repo, "log", "--oneline", f"origin/{primary}..{primary}")
+    if unpushed:
+        raise RuntimeError(f"scan and push unpushed primary commits before landing:\n{unpushed}")
     git(repo, "merge", "--ff", "--no-edit", branch)
     git(repo, "push", "origin", primary)
     if git(repo, "ls-remote", "--heads", "origin", branch):

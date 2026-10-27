@@ -153,7 +153,9 @@ Commit, push, curate, and clean up — in one go:
 9. **Land an isolated run.** From the primary checkout, run
    `python3 <skill>/scripts/run-worktree.py land <slug> --repo <repo>` when the run has a worktree.
    Follow `references/worktrees.md` for its exit codes. Commit and secret-scan before landing,
-   since landing pushes the primary branch. Keep the run live on conflicts; after a resolved
+   since landing pushes the primary branch. If unpushed primary commits block landing, run
+   `gitleaks git --log-opts="origin/<primary>..<primary>" --redact -v --no-banner`; after a clean scan, push and land again.
+   Keep the run live on conflicts; after a resolved
    code merge, run the full suite and return to review. After success, work in the primary
    checkout. Skip this step for a run already there; if landing already removed the worktree,
    confirm the run's ticket shas are ancestors of the primary branch before marking it done.
