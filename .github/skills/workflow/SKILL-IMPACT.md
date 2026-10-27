@@ -10,6 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-10-27 | workflow | Lookup warns on an unreachable origin and continues using local refs; the routing reference names the stale-copy risk on another clone. Judge: offline lookup reaches the local run without stopping the phase | run-worktrees C1-3 | 3 offline lookups | trialing |
 | 2026-10-27 | workflow | Setup reuses check-run's fence-aware sections from committed AGENTS.md text. Judge: shell comments inside a setup fence never hide its commands | run-worktrees C1-2 | 3 setups | trialing |
 | 2026-10-27 | workflow | Landing refuses unpushed primary commits before merging or pushing; wrap names the full primary range to scan and push before retrying. Judge: landing never publishes another run's unscanned primary commits | run-worktrees C1-1 | 3 landings | trialing |
 | 2026-10-27 | workflow · checkup | Run worktrees: every phase resolves the slug before reading artifacts; execute opens isolation only when the primary checkout is occupied; cards push the run branch after scanning; wrap lands before archiving, preserving ticket shas and routing code conflicts to merge-resolution review. Checkup reports missing setup and orphan directories. Judge: the next 3 parallel runs keep their commits separate, status reads the current checkout, and wrap leaves no run branches or worktrees | run-worktrees B1–B8, T1–T4 | 3 parallel runs | trialing |

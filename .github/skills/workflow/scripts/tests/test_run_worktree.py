@@ -110,6 +110,20 @@ class OpenTests(RepoTests):
 
 
 class WhereTests(RepoTests):
+    def test_Where_uses_local_refs_when_origin_is_unreachable(self):
+        for isolated in (False, True):
+            with self.subTest(isolated=isolated):
+                self.setUp()
+                if isolated:
+                    self.started()
+                    self.assertEqual(self.run_command("open").returncode, 0)
+                self.git("remote", "set-url", "origin", str(self.root / "missing.git"))
+                result = self.run_command("where")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), ".worktrees/B" if isolated else ".")
+                self.assertIn("could not fetch origin:", result.stderr)
+                self.assertIn("using local refs", result.stderr)
+
     def test_Where_finds_an_existing_worktree(self):
         self.assertEqual(self.run_command("where").stdout.strip(), ".")
         self.started()

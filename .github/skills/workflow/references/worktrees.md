@@ -13,7 +13,8 @@ Use an absolute `<skill>` path for the workflow skill before changing directorie
    run. It prints `.` or `.worktrees/<slug>`. Work from that directory for artifact reads,
    git commands, checks, edits and commits. A nonzero exit stops the phase; report the error.
 3. The lookup fetches `origin/run/*`, rebuilds a missing checkout from `origin/run/<slug>`, and
-   fast-forwards a checkout behind that branch. Dirty or diverged checkouts that prevent this
+   fast-forwards a checkout behind that branch. A failed fetch warns and uses local refs;
+   a second clone may then read a stale copy. Dirty or diverged checkouts that prevent updates
    need resolving before the phase continues. Local commits ahead of the remote stay local.
 
 For `status` or an omitted slug, collect slugs from the primary checkout's `.workflow/`, local

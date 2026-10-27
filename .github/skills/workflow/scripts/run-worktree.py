@@ -50,7 +50,10 @@ def add_worktree(repo, slug, start):
 def where(repo, slug):
     remote = f"refs/remotes/origin/run/{slug}"
     if "origin" in git(repo, "remote").splitlines():
-        git(repo, "fetch", "--quiet", "--prune", "origin", "+refs/heads/run/*:refs/remotes/origin/run/*")
+        try:
+            git(repo, "fetch", "--quiet", "--prune", "origin", "+refs/heads/run/*:refs/remotes/origin/run/*")
+        except RuntimeError as error:
+            print(f"could not fetch origin: {error}; using local refs", file=sys.stderr)
     path = repo / ".worktrees" / slug
     remote_sha = checks.git_out(repo, "rev-parse", "--verify", remote)
     if not path.exists() and (remote_sha or checks.git_out(repo, "rev-parse", "--verify", f"refs/heads/run/{slug}")):
