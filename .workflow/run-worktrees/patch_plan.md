@@ -4,6 +4,11 @@ Base:    f445741
 Inputs:  .workflow/run-worktrees/review.md @ f445741
 Status:  complete
 
+## Execution state
+Current: C1-T1 done; next C1-T2 · writer: GPT-6.1 Sol · baseline failures: none
+C1-T1 red @ 3c2b19f
+C1-T1 @ b890db3
+
 ## Tickets
 
 ### C1-T1 — Landing refuses to push primary commits no one scanned
@@ -13,12 +18,13 @@ Budget: code +8 · tests +20
 Seam: `run-worktree.py land <slug> --repo <dir>` as a subprocess on temp repos; `references/worktrees.md` §Land at wrap; `references/wrap.md` step 9
 Change: on the clean path, before the primary checkout's `git merge` (`run-worktree.py:113`), exit 1 when `origin/<primary>..<primary>` is not empty, naming those shas. The conflict path is unchanged. Red commit: the new test, plus a `git push origin main` in `LandTests.run_branch` and after `primary advance`, so the existing Land tests model a scanned primary branch.
 Accept:
-- [ ] `main` has a commit not on `origin/main` → `land B` exits 1; `main`, `origin/main` and `.worktrees/B` unchanged; stderr names that commit's short sha (B5)
-- [ ] The existing Land tests pass, and the fix commit changes no test file (B5)
-- [ ] `worktrees.md` exit 1 and `wrap.md` step 9: unpushed primary commits → scan `origin/<primary>..<primary>` with gitleaks, push, land again (B5)
+- [x] `main` has a commit not on `origin/main` → `land B` exits 1; `main`, `origin/main` and `.worktrees/B` unchanged; stderr names that commit's short sha (B5)
+- [x] The existing Land tests pass, and the fix commit changes no test file (B5)
+- [x] `worktrees.md` exit 1 and `wrap.md` step 9: unpushed primary commits → scan `origin/<primary>..<primary>` with gitleaks, push, land again (B5)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Land && grep -c 'origin/<primary>\.\.<primary>' .github/skills/workflow/references/worktrees.md` (pre: 3 Land tests pass, grep 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ b890db3
+Writer: GPT-6.1 Sol
 
 ### C1-T2 — Setup reads its block through check-run's fence-aware sections
 Delivers: B1, B8 · Blocked by: none · Lane: logic
