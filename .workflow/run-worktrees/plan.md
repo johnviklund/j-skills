@@ -3,21 +3,21 @@ Created: 2026-10-27 · Opus 5.5
 Base:    743eb2e
 Inputs:  .workflow/run-worktrees/brainstorm.md @ c3a29f1
 Status:  complete
-
 Docs read: none in scope (j-skills has no PRODUCT.md, DESIGN.md or AGENTS.md)
 Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, test_check_run.py 503 · over 1,000: none (new: run-worktree.py, test_run_worktree.py, references/worktrees.md)
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
-
 ## Execution state
-Current: T3 done; T4 ready
+Current: T4 done; T5 ready
 T1 @ 81aa880
 T2 @ c601aa0
 T3 @ 7473b02
+T4 @ 27f1f39
 writer: GPT-6.1 Sol
-Baseline: 49 tests passed at c626d11; user approved suite plus ticket Verify commands.
+Baseline: 49 tests at c626d11; session 2: 61 tests passed at ab94793; user approved suite plus ticket checks.
 Session 1: T1, T2, T3
-Uncommitted: none · Pending decision: approve pushing this session to origin/main
+Session 2: T4
+Uncommitted: none · Pending decision: none
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -87,15 +87,16 @@ Delivers: B1, B3, B5, B6, B7, B8 · Blocked by: T1, T2, T3 · Lane: mechanical
 Budget: code +0 · tests +0
 Seam: the text of `SKILL.md`, a new `references/worktrees.md`, `phase-3-execute.md`, `phase-4-review.md`, `wrap.md`, checkup's `SKILL.md`, the workflow `README.md`
 Accept:
-- [ ] `grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` → 4, and the workflow `README.md` links `references/worktrees.md` (B3)
-- [ ] `SKILL.md` names `references/worktrees.md`, its live-run grep reads `Status: *\(drafting`, and it is at most 215 lines (`wc -l`) (B3, B7)
-- [ ] `grep -c 'run-worktree.py open' references/phase-3-execute.md` → 1 (B1)
-- [ ] `grep -c 'run-worktree.py land' references/wrap.md` → 1; `--exclude-dir=.worktrees` in `wrap.md` and `phase-4-review.md` → 2 in total (B5)
-- [ ] `grep -c 'remerge-diff' references/phase-4-review.md` → 1 (B6)
-- [ ] `grep -c 'run-worktree.py doctor' ../checkup/SKILL.md` → 1 (B8)
+- [x] `grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` → 4, and the workflow `README.md` links `references/worktrees.md` (B3)
+- [x] `SKILL.md` names `references/worktrees.md`, its live-run grep reads `Status: *\(drafting`, and it is at most 215 lines (`wc -l`) (B3, B7)
+- [x] `grep -c 'run-worktree.py open' references/phase-3-execute.md` → 1 (B1)
+- [x] `grep -c 'run-worktree.py land' references/wrap.md` → 1; `--exclude-dir=.worktrees` in `wrap.md` and `phase-4-review.md` → 2 in total (B5)
+- [x] `grep -c 'remerge-diff' references/phase-4-review.md` → 1 (B6)
+- [x] `grep -c 'run-worktree.py doctor' ../checkup/SKILL.md` → 1 (B8)
 Verify: `cd .github/skills/workflow && grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` (pre: new file — 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 27f1f39
+Writer: GPT-6.1 Sol
 ### T5 — Two runs side by side on a scratch repo, end to end
 Delivers: B7 · Blocked by: T4 · Lane: logic
 Budget: code +40 · tests +0
@@ -109,8 +110,7 @@ Verify: `grep -c '^ok ' .workflow/run-worktrees/receipts/t5-dry-run.md` → 4 (p
 Skills: none
 Status: todo
 ## Coverage
-- Outcome → T5 (the phase commands and status on a scratch repo with two runs)
-- B1 → T1, T4 · B2 → T1 · B3 → T1, T4 · B4 → T3 · B5 → T2, T4 · B6 → T2, T4 · B7 → T4, T5 · B8 → T3, T4
+- Outcome → T5 (two runs on a scratch repo); B1 → T1, T4 · B2 → T1 · B3 → T1, T4 · B4 → T3 · B5 → T2, T4 · B6 → T2, T4 · B7 → T4, T5 · B8 → T3, T4
 - Out of scope: own ports per worktree → untouched · conductor skill and T3 launching → untouched · GitHub PRs as landing → untouched · worktrees for brainstorm and plan → untouched · rebasing a run branch → untouched
 ## Risks
 - T2 is riskiest: it moves `main` in a folder another run may be editing; `merge-tree` first and git's dirty-file refusal bound it. Outside its files: every card step reads `check-run.py`'s checkout warnings (T3). Not taken: a pull request as the landing step.

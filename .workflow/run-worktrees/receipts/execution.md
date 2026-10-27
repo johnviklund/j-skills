@@ -40,3 +40,21 @@ No AGENTS.md build, lint or typecheck commands exist; the user approved the suit
 Push: gitleaks scanned 6 commits through c914781 and found no leaks.
 Automatic approval review rejected git push origin main because the payload and remote destination lacked explicit user approval.
 Destination: https://github.com/johnviklund/j-skills, branch main. Local work remains committed; approval is pending.
+
+## T4
+Writer: GPT-6.1 Sol
+Commit: 27f1f39
+Reuse: searched and read the shipped worktree script and existing phase rules. The new reference calls those commands; no helper or test code was added.
+Red: ticket Verify printed 0 because references/worktrees.md did not exist.
+Verify: ticket Verify printed 4; all six acceptance content checks passed. The hub is 215 lines, net +3.
+The live-run grep passed six cases: drafting, complete, one/two extra spaces, parked, done.
+Desk check: all four command forms match the script; exit codes and setup source match its implementation.
+Wrap lands before archiving; merge-review resume refreshes checkpoint provenance; both recursive greps exclude .worktrees.
+Mutation: none, mechanical documentation ticket. Existing tests and assertions unchanged.
+Baseline: 61 tests passed at ab94793. No code changed in T4, so the suite was not repeated.
+Checks: git diff --check passed; check-run reported 0 errors and the same 2 ticket test-ratio warnings.
+Environment: copilot skill list --json exited 1 because CLI 1.0.104 could not extract its package into the cache. Registration could not be checked; skill names and descriptions are unchanged.
+
+## Session 2 handoff
+T4 is done; T5 remains. T4 uses medium effort and T5 uses high, so the workflow requires a fresh execution session.
+The prior push block is resolved: at entry HEAD and origin/main both equaled ab94793.
