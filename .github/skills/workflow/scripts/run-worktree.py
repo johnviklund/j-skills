@@ -26,6 +26,12 @@ def worktree_setup(repo):
 
 
 def add_worktree(repo, slug, start):
+    body = worktree_setup(repo)
+    if body is not None:
+        fences = re.findall(r"```(?:sh|bash|shell)?[ \t]*\n(.*?)```", body, re.S)
+        if "```" in body and not fences:
+            raise RuntimeError("## Worktree setup requires sh, bash, shell or untagged fences")
+        commands = "\n".join(fences) if "```" in body else body
     common = Path(git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
     exclude = common / "info/exclude"
     exclude.parent.mkdir(parents=True, exist_ok=True)
@@ -37,11 +43,9 @@ def add_worktree(repo, slug, start):
         git(repo, "worktree", "add", str(path), branch)
     else:
         git(repo, "worktree", "add", "-b", branch, str(path), start)
-    body = worktree_setup(repo)
     if body is None:
         print("no ## Worktree setup in AGENTS.md", file=sys.stderr)
     else:
-        commands = "\n".join(re.findall(r"```(?:sh|bash|shell)?\n(.*?)```", body, re.S)) if "```" in body else body
         print(commands, file=sys.stderr, flush=True)
         subprocess.run(["bash", "-e", "-c", commands], cwd=path, stdout=sys.stderr, check=True)
     return path
