@@ -36,3 +36,7 @@ Completed-run range: plan Base 743eb2e through f7a6658 has +236 code added, +227
 Gitleaks scanned all 8 outgoing commits through df1b390 and found no leaks. The tree was clean; check-run reported 0 errors and the same 3 existing warnings. The completed-run gate including patch commits reported 0 errors with the reasoned ratio waiver.
 Automatic approval review rejected git push origin main because the workflow request does not explicitly authorize this specific payload and external destination. The push did not run; no workaround or retry was attempted.
 Destination: https://github.com/johnviklund/j-skills, branch main. Approval would publish the three C2 fixes, their two regression-test commits, execution records, skill-impact rows and this block record. All work remains committed locally. After approval and a fresh secret scan, push and hand off to workflow review run-worktrees with Opus 5.5 at xhigh effort, large context; fallback Sonnet 5.5 at xhigh.
+
+## Approved publication
+The human approved option 1a, push, on 2026-10-27. Gitleaks rescanned all 9 outgoing commits through a92b797 and found no leaks. Check-run reported 0 errors and the same 3 existing warnings.
+git push origin main exited 0, advancing https://github.com/johnviklund/j-skills main from acce15c to a92b797. The earlier publication block is resolved; the execution-state lines now name review as the next phase.
