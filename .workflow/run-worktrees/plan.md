@@ -17,7 +17,7 @@ writer: GPT-6.1 Sol
 Baseline: 49 tests at c626d11; session 2: 61 tests passed at ab94793; user approved suite plus ticket checks.
 Session 1: T1, T2, T3
 Session 2: T4
-Uncommitted: none · Pending decision: none
+Uncommitted: none · Pending decision: approve pushing T4 commits to https://github.com/johnviklund/j-skills, branch main
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
