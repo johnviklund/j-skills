@@ -19,6 +19,12 @@ def git(repo, *args):
     return result.stdout.strip()
 
 
+def worktree_setup(repo):
+    agents = checks.git_out(repo, "show", f"{checks.primary_branch(repo)}:AGENTS.md")
+    block = re.search(r"^## Worktree setup\s*\n(.*?)(?=^#{1,2} |\Z)", agents, re.M | re.S)
+    return block.group(1) if block else None
+
+
 def add_worktree(repo, slug, start):
     common = Path(git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
     exclude = common / "info/exclude"
@@ -31,12 +37,10 @@ def add_worktree(repo, slug, start):
         git(repo, "worktree", "add", str(path), branch)
     else:
         git(repo, "worktree", "add", "-b", branch, str(path), start)
-    agents = checks.git_out(repo, "show", f"{checks.primary_branch(repo)}:AGENTS.md")
-    block = re.search(r"^## Worktree setup\s*\n(.*?)(?=^#{1,2} |\Z)", agents, re.M | re.S)
-    if not block:
+    body = worktree_setup(repo)
+    if body is None:
         print("no ## Worktree setup in AGENTS.md", file=sys.stderr)
     else:
-        body = block.group(1)
         commands = "\n".join(re.findall(r"```(?:sh|bash|shell)?\n(.*?)```", body, re.S)) if "```" in body else body
         print(commands, file=sys.stderr, flush=True)
         subprocess.run(["bash", "-e", "-c", commands], cwd=path, stdout=sys.stderr, check=True)
@@ -116,19 +120,36 @@ def land(repo, slug):
     return 0
 
 
+def doctor(repo):
+    root = repo / ".worktrees"
+    paths = sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+    if paths and worktree_setup(repo) is None:
+        print("missing ## Worktree setup in committed primary AGENTS.md")
+    for path in paths:
+        brief = path / ".workflow" / path.name / "brainstorm.md"
+        if not brief.is_file() or checks.Doc(str(brief)).status() not in ("drafting", "complete"):
+            print(f"{path.relative_to(repo)} has no live run")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("open", "where", "land"))
-    parser.add_argument("slug")
+    parser.add_argument("command", choices=("open", "where", "land", "doctor"))
+    parser.add_argument("slug", nargs="?")
     parser.add_argument("--repo", default=".")
     args = parser.parse_args()
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", args.slug):
+    if args.command != "doctor" and not args.slug:
+        parser.error("a run slug is required")
+    if args.slug and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", args.slug):
         parser.error("slug must contain only letters, digits, dots, underscores and hyphens")
     try:
-        repo = Path(git(args.repo, "worktree", "list", "--porcelain").splitlines()[0][len("worktree "): ])
-        git(repo, "check-ref-format", "--branch", f"run/{args.slug}")
+        repo = Path(git(args.repo, "worktree", "list", "--porcelain").splitlines()[0][len("worktree "):])
+        if args.slug:
+            git(repo, "check-ref-format", "--branch", f"run/{args.slug}")
         if not checks.primary_branch(repo):
             raise RuntimeError("no primary branch found")
+        if args.command == "doctor":
+            return doctor(repo)
         if args.command == "land":
             return land(repo, args.slug)
         path = open_run(repo, args.slug) if args.command == "open" else where(repo, args.slug)

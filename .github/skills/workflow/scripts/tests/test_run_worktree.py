@@ -41,8 +41,8 @@ class RepoTests(unittest.TestCase):
         return self.git("rev-parse", "HEAD", repo=repo).stdout.strip()
 
     def run_command(self, command, slug="B", repo=None):
-        return subprocess.run([sys.executable, str(SCRIPT), command, slug,
-                               "--repo", str(repo or self.repo)], capture_output=True, text=True)
+        return subprocess.run([sys.executable, str(SCRIPT), command,
+                               *([slug] if slug else []), "--repo", str(repo or self.repo)], capture_output=True, text=True)
 
     def started(self, slug="A", status="complete"):
         self.write(Path(".workflow") / slug / "brainstorm.md", f"Command: brainstorm\nCreated: now\nBase: x\nInputs: none\nStatus:  {status}\n")
@@ -202,3 +202,59 @@ class LandTests(RepoTests):
         self.assertIn("src.py", result.stderr)
         self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
         self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")
+
+
+class CheckoutTests(RepoTests):
+    def test_Checkout_warnings_exempt_only_the_matching_run_checkout(self):
+        for path, branch, expected in ((".worktrees/x", "run/x", (False, False)),
+                                      (".worktrees/x", "feature", (True, True)),
+                                      ("outside/x", "run/x", (True, True)),
+                                      (".worktrees/y", "run/x", (True, True)),
+                                      (".", "feature", (False, True))):
+            with self.subTest(path=path, branch=branch):
+                self.setUp()
+                header = "Command: fixture\nCreated: 2026-10-27 · Test\nBase: " + self.git("rev-parse", "HEAD").stdout.strip() + "\nInputs: none\nStatus: complete\n"
+                self.write(Path(".workflow") / "x/brainstorm.md", header)
+                self.write(Path(".workflow") / "x/plan.md", header + "## Checklist\n- fixture\n")
+                self.commit("checkout fixture")
+                if path == ".":
+                    self.git("checkout", "-qb", branch)
+                else:
+                    self.git("worktree", "add", "-qb", branch, path)
+                result = subprocess.run([sys.executable, str(SCRIPT.with_name("check-run.py")),
+                                         "x", "--repo", str(self.repo / path)], capture_output=True, text=True)
+                self.assertEqual(("linked worktree" in result.stdout, "on branch" in result.stdout), expected, result.stdout)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("== x", result.stdout)
+
+
+class DoctorTests(RepoTests):
+    def test_Doctor_reports_missing_setup_from_committed_primary(self):
+        for setup, expected in ((False, 1), (True, 0)):
+            with self.subTest(setup=setup):
+                self.setUp()
+                self.started("B")
+                if setup:
+                    self.write("AGENTS.md", "## Worktree setup\ntrue\n")
+                    self.commit("setup")
+                self.git("worktree", "add", "-qb", "run/B", ".worktrees/B")
+                self.write("AGENTS.md", "## Worktree setup\ntrue\n" if not setup else "uncommitted removal\n")
+                result = self.run_command("doctor", slug=None)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.count("## Worktree setup"), expected, result.stdout)
+                self.assertEqual(len(result.stdout.splitlines()), expected, result.stdout)
+
+    def test_Doctor_reports_orphan_worktrees(self):
+        for status, expected in ((None, 1), ("done", 1), ("parked", 1), ("complete", 0), ("drafting", 0)):
+            with self.subTest(status=status):
+                self.setUp()
+                self.write("AGENTS.md", "## Worktree setup\ntrue\n")
+                if status:
+                    self.started("old", status=status)
+                else:
+                    self.commit("setup")
+                self.git("worktree", "add", "-qb", "run/old", ".worktrees/old")
+                result = self.run_command("doctor", slug=None)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.count(".worktrees/old"), expected, result.stdout)
+                self.assertEqual(len(result.stdout.splitlines()), expected, result.stdout)

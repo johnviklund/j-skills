@@ -682,12 +682,15 @@ def checkout_warnings(repo):
     out = []
     git_dir = os.path.realpath(os.path.join(repo, git_out(repo, "rev-parse", "--git-dir")))
     common = os.path.realpath(os.path.join(repo, git_out(repo, "rev-parse", "--git-common-dir")))
-    if git_dir != common:
+    branch = git_out(repo, "branch", "--show-current")
+    slug = os.path.basename(os.path.realpath(repo))
+    own_run = (git_dir != common and branch == f"run/{slug}" and
+               os.path.realpath(repo) == os.path.join(os.path.dirname(common), ".worktrees", slug))
+    if git_dir != common and not own_run:
         out.append(f"this is a linked worktree; the primary checkout is {os.path.dirname(common)}: "
                    "fast-forward its branch to this one and push before the closing card")
-    branch = git_out(repo, "branch", "--show-current")
     primary = primary_branch(repo)
-    if branch and primary and branch != primary:
+    if branch and primary and branch != primary and not own_run:
         out.append(f"on branch `{branch}`, not `{primary}`: the next phase will not see this run's commits "
                    f"until `{primary}` includes them")
     return out
