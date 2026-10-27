@@ -51,6 +51,23 @@ class RepoTests(unittest.TestCase):
 
 
 class OpenTests(RepoTests):
+    def test_Open_keeps_started_run_with_its_uncommitted_work(self):
+        for name in ("plan.md", "patch_plan.md"):
+            for started in (False, True):
+                with self.subTest(name=name, started=started):
+                    self.setUp()
+                    self.write(f".workflow/B/{name}", "### T1 — ticket\nStatus: " + ("done @ abc1234" if started else "todo") + "\n### T2 — ticket\nStatus: todo\n")
+                    self.commit("own run")
+                    dirty = "t2.py" if started else "src.py"
+                    self.write(dirty, "unfinished\n")
+                    before = self.git("worktree", "list").stdout
+                    result = self.run_command("open")
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.strip(), "." if started else ".worktrees/B")
+                    if started:
+                        self.assertEqual(self.git("worktree", "list").stdout, before)
+                    self.assertEqual((self.repo / dirty).read_text(), "unfinished\n")
+
     def test_Open_isolates_a_second_run(self):
         base = self.started()
         result = self.run_command("open")

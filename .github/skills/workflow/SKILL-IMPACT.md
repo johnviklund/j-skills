@@ -10,6 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-10-27 | workflow | A run with a started ticket in its primary plan or patch plan keeps its checkout and unfinished files when execution resumes. Judge: resumed primary runs stay there; planned runs still isolate when the checkout is busy | run-worktrees C1-5 | 3 resumed runs | trialing |
 | 2026-10-27 | workflow | Lookup warns on an unreachable origin and continues using local refs; the routing reference names the stale-copy risk on another clone. Judge: offline lookup reaches the local run without stopping the phase | run-worktrees C1-3 | 3 offline lookups | trialing |
 | 2026-10-27 | workflow | Setup reuses check-run's fence-aware sections from committed AGENTS.md text. Judge: shell comments inside a setup fence never hide its commands | run-worktrees C1-2 | 3 setups | trialing |
 | 2026-10-27 | workflow | Landing refuses unpushed primary commits before merging or pushing; wrap names the full primary range to scan and push before retrying. Judge: landing never publishes another run's unscanned primary commits | run-worktrees C1-1 | 3 landings | trialing |

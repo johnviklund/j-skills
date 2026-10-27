@@ -29,8 +29,9 @@ An omitted slug still asks when several runs are live; `status` also lists parke
 
 Before the first ticket, run `python3 <skill>/scripts/run-worktree.py open <slug> --repo <repo>`.
 Use its returned directory and repeat execute's readiness, freshness and baseline checks there.
-It reuses an existing run checkout. Otherwise it creates `.worktrees/<slug>` on `run/<slug>`
-from the primary branch when the primary checkout has uncommitted files or another live run
+It reuses an existing run checkout. A run with a started ticket stays in its original checkout.
+Otherwise it creates `.worktrees/<slug>` on `run/<slug>` from the primary branch
+when the primary checkout has uncommitted files or another live run
 there has a started ticket. A run already isolated in its own worktree does not occupy the
 primary checkout. A free primary checkout keeps the lone run there.
 

@@ -72,6 +72,10 @@ def open_run(repo, slug):
     path = where(repo, slug)
     if path != repo:
         return path
+    if any(checks.field(t, "Status")[1] not in (None, "todo")
+           for name in ("plan.md", "patch_plan.md") if (plan := repo / ".workflow" / slug / name).exists()
+           for t in checks.parse_tickets(checks.Doc(str(plan)))):
+        return repo
     busy = bool(git(repo, "status", "--porcelain"))
     for brief in (repo / ".workflow").glob("*/brainstorm.md"):
         if brief.parent.name == slug or (repo / ".worktrees" / brief.parent.name).exists():
