@@ -671,6 +671,12 @@ def git_out(repo, *args):
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
+def primary_branch(repo):
+    primary = git_out(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD").split("/", 1)[-1]
+    return primary or next((b for b in ("main", "master")
+                            if git_out(repo, "rev-parse", "--verify", "-q", b)), "")
+
+
 def checkout_warnings(repo):
     """The next phase opens the primary checkout on the primary branch; a run committed elsewhere is invisible there."""
     out = []
@@ -680,9 +686,7 @@ def checkout_warnings(repo):
         out.append(f"this is a linked worktree; the primary checkout is {os.path.dirname(common)}: "
                    "fast-forward its branch to this one and push before the closing card")
     branch = git_out(repo, "branch", "--show-current")
-    primary = git_out(repo, "symbolic-ref", "--short", "refs/remotes/origin/HEAD").split("/", 1)[-1]
-    if not primary:
-        primary = next((b for b in ("main", "master") if git_out(repo, "rev-parse", "--verify", "-q", b)), "")
+    primary = primary_branch(repo)
     if branch and primary and branch != primary:
         out.append(f"on branch `{branch}`, not `{primary}`: the next phase will not see this run's commits "
                    f"until `{primary}` includes them")
