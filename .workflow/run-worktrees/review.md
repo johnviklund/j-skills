@@ -38,7 +38,7 @@ Threats: slug → paths and refs — unchanged since cycle 1 · worst case: none
 - Resolved: —
 ### P2 — C2-2 · A setup fence tagged other than `sh`/`bash`/`shell` is skipped without a word
 - Evidence: `run-worktree.py:44`, from T1, not touched by the fix. Probes: ```` ```zsh ````, ```` ```console ```` and ```` ```sh ```` with a trailing space each print a blank line, exit 0, and leave no `ready`. The old code does the same (pre-existing in this run, outside the C1-2 fix). Small remedy: when the block has a fence but no shell fence matched, exit 1 naming the block.
-- Disposition: defer → `TODO.md` (new, outside the cycle 2 scope)
+- Disposition: fix now — new and outside the cycle 2 scope, so deferred by default; the human chose to fix it (1b, 2026-10-27)
 - Resolved: —
 ### P2 — C2-3 · `open_run` now holds two copies of the started-ticket test
 - Evidence: C1-T4 added `run-worktree.py:75-77`, the same `any(field(t, "Status")[1] not in (None, "todo") …)` over `plan.md`/`patch_plan.md` as the busy loop at `:85-89`. Same-run waste in the fix diff. Small remedy: one `started(run_dir)` helper with both as callers (net about −3 lines).
@@ -55,3 +55,5 @@ Threats: slug → paths and refs — unchanged since cycle 1 · worst case: none
 
 ## Cycle 2 verdict
 All five cycle 1 fix-now findings are fixed and stamped; 13 mutations of the new guards all fail the suite. New: 1 P1 (C2-1, a regression from C1-T2) and 1 small P2 (C2-3), both fix now; 1 P2 deferred to `TODO.md` (C2-2); 2 P3 deferred here (C2-4). Cycle bound reached: C2-1 and C2-3 go to the human as one decision, ➡️ a) one more cycle, since C2-1 breaks B1 · b) defer both to `TODO.md`. Wrap waits for the answer.
+
+Cycle 3 approved by human: 2026-10-27 — option 1b, one more cycle fixing C2-1, C2-2 and C2-3. Patch cycle 2 (`patch_plan.md`): C2-T1 fixes C2-1, C2-T2 fixes C2-2, C2-T3 fixes C2-3.
