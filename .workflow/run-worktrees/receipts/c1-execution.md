@@ -32,3 +32,8 @@ Commit: c65c961. Existing assertions remain unchanged; no visible screen changes
 ## Handoff
 Session 4 completed C1-T1, C1-T2 and C1-T3, reaching execute's three-ticket cap. Next: C1-T4, then C1-T5. Re-review remains pending; review findings are left for that phase to resolve.
 Final suite: 64 passing tests on the code at c65c961; subsequent changes are run metadata only. Check-run still reports the two pre-existing original-plan test ratio warnings, with no errors.
+
+## Publication block
+Gitleaks scanned all 7 outgoing commits through a0574e7 and found no leaks. The worktree was clean, and check-run reported 0 errors and the same 2 pre-existing warnings.
+Automatic approval review rejected `git push origin main`: workflow execution alone does not explicitly authorize publishing the new payload to the external GitHub destination. No workaround or push retry was attempted.
+Destination: https://github.com/johnviklund/j-skills, branch main. Pending approval covers C1-T1 through C1-T3, the regression-test commit, execution records, and this publication-block record. All work remains committed locally.
