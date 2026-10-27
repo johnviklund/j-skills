@@ -8,7 +8,7 @@ Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, t
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 ## Execution state
-Current: T5 done; review ready · writer: GPT-6.1 Sol · baseline failures: none
+Current: T5 done; push approval pending · writer: GPT-6.1 Sol · baseline failures: none
 T1 @ 81aa880
 T2 @ c601aa0
 T3 @ 7473b02

@@ -82,3 +82,8 @@ Details: receipts/t5-dry-run.md; raw synthetic evidence stays in /tmp.
 
 ## Session 3 handoff
 All five tickets are done. The next phase is cross-vendor review.
+
+Push: gitleaks scanned b7d369a and 8345ba5 with no leaks. GitHub metadata confirms the repository is public and this account has admin/push access.
+Automatic approval review rejected `git push origin main`: publishing the new receipt and execution metadata requires explicit user approval; workflow execution alone was insufficient.
+Destination: https://github.com/johnviklund/j-skills, branch main. No workaround or retry attempted.
+Pending approval covers the T5 fixture and receipt, completed plan and this block record. Local execution is complete; publication remains blocked.
