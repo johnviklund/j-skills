@@ -2,7 +2,7 @@ Command: workflow brainstorm run-worktrees
 Created: 2026-10-27 · claude-opus-5-5
 Base:    c3a29f1
 Inputs:  none
-Status:  drafting
+Status:  complete
 
 ## Problem
 Every run works in one folder on `main`. Two runs executing at once mix uncommitted edits, so tests,
