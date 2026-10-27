@@ -17,7 +17,7 @@ T3 @ 7473b02
 writer: GPT-6.1 Sol
 Baseline: 49 tests passed at c626d11; user approved suite plus ticket Verify commands.
 Session 1: T1, T2, T3
-Uncommitted: none · Pending decision: none
+Uncommitted: none · Pending decision: approve pushing this session to origin/main
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
