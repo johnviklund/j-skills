@@ -82,7 +82,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
 | A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
 | A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
-| A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams and source links |
+| A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams, screenshots and source links, and an optional video |
 | A repeatable way to check a runnable app | [verify](#verify) | `verify.create` | An app-checking skill and a map of features and how to test them |
 | To save a lesson for future sessions | [memory.remember](#memoryremember) | `Remember this: run the API tests with the local test database.` | A memory page linked from `MEMORY.md` |
 | To understand why a session was slow | [retro](#retro) | `retro export-csv` | Suggested fixes for the way you work, for you to approve |
@@ -125,26 +125,45 @@ Use it when you switch into a project and need something explained without the j
 Use it after a finished run, or when you want to learn one part of a codebase.
 
 - It writes one self-contained HTML page with diagrams, decisions and open questions.
-- When a run changed what users see, the page shows before and after screenshots. Changes nobody
-  asked for come first, marked in red.
-- Every claim links to a line of code or a commit, and a checker confirms each link.
-- To explain why code looks the way it does, it also reads the review comments on the pull
-  requests that shaped it.
+- Every claim links to a line of code or a commit, and a checker confirms each link. It also reads
+  pull request reviews, to explain why the code looks the way it does.
 - The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
   an area.
-- When the story moves, such as a UI change or a larger feature, it asks whether you also want a
-  short animated video: shapes that move one idea at a time, as in 3Blue1Brown, drawn in the
-  page's own colours and diagram style, each picture landing on the word that names it. It
-  tells one of two stories: what a run built, or why, what and how of a feature. The video
-  plays at the top of the page. Add `--video` or `--no-video` to the command to answer in
-  advance.
-- To share a page as one file, for example in Teams, ask for a standalone copy: the build
-  writes `explainer-standalone.html` with a 720p video inside it, about 4 MB for two minutes.
-- The video is narrated with ElevenLabs when `ELEVENLABS_API_KEY` is set. Without a key, the
-  narration shows as captions on screen. Set `ELEVENLABS_VOICE_ID` to pick another voice.
-- To set the key, keep it in its own file and load it near the top of `~/.bashrc`, above any
-  line that stops for non-interactive shells. Agents run commands in non-interactive shells,
-  so a key loaded below that line never reaches them:
+
+**Screenshots.** A page about a run shows each changed screen before and after, with changes
+nobody asked for first, marked in red. A page about an area shows the screens a user meets. If
+the app can't run on the machine, it asks you once how to get the pictures:
+
+- you take them, from a list of screens it gives you,
+- it shows the real screen with made-up data, and says so on the page, or
+- it leaves a box that says what is missing.
+
+**Video.** When the story has moving parts, such as a UI change or a larger feature, it offers a
+short narrated video. Add `--video` or `--no-video` to the command to answer in advance.
+
+- The video follows one example through the system, such as one question from the moment it is
+  asked to the answer on screen. Shapes move one idea at a time, in the page's own colours, and
+  each picture lands on the word that names it.
+- Where it helps, it shows short recordings of the real screen, zoomed in on what the voice is
+  describing.
+- The video plays just below *In short*. To share the page as one file, for example in Teams, ask
+  for a standalone copy: `explainer-standalone.html`, with the video inside.
+
+**Video setup, once per machine:**
+
+- Install `ffmpeg` and Node.js 22 or newer, then run
+  `python3 ~/.agents/skills/understand/scripts/build-video.py --setup`. It fetches
+  [HyperFrames](https://hyperframes.heygen.com), the open-source tool that turns the video's web
+  page into an MP4, and Chrome. It turns HyperFrames' telemetry off.
+- Install HyperFrames' own skills, which the video step reads for motion and ready-made pieces:
+
+  ```bash
+  npx skills add heygen-com/hyperframes -g -a claude-code codex github-copilot -s hyperframes hyperframes-cli hyperframes-registry -y
+  ```
+
+- For a voice, set an ElevenLabs key. Without one, the words show as captions instead. Keep the
+  key in its own file and load it near the top of `~/.bashrc`, above the line that stops for
+  non-interactive shells, because agents run commands in non-interactive shells:
 
   ```bash
   read -rs KEY && umask 077 && echo "export ELEVENLABS_API_KEY=$KEY" > ~/.config/elevenlabs.env
@@ -153,14 +172,7 @@ Use it after a finished run, or when you want to learn one part of a codebase.
   [[ -f ~/.config/elevenlabs.env ]] && . ~/.config/elevenlabs.env
   ```
 
-  Then restart your agent so it picks up the key.
-- Videos need `ffmpeg` and Node.js 22 or newer. They render with
-  [HyperFrames](https://hyperframes.heygen.com), an open-source HTML-to-video tool, pinned in
-  `build-video.py`. Run `build-video.py --setup` once per machine; it fetches the tool, finds or
-  downloads Chrome, and turns its telemetry off.
-  The video step also loads HyperFrames' own `hyperframes` and `hyperframes-registry` skills for
-  motion craft and ready-made blocks. Install them once per machine:
-  `npx skills add heygen-com/hyperframes -g -a claude-code codex github-copilot -s hyperframes hyperframes-cli hyperframes-registry -y`.
+  Then restart your agent. `ELEVENLABS_VOICE_ID` picks another voice.
 
 ### design
 
