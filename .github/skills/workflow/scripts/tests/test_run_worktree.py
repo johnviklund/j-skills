@@ -134,6 +134,7 @@ class WhereTests(RepoTests):
 class LandTests(RepoTests):
     def run_branch(self, path="src.py"):
         self.started()
+        self.git("push", "-q", "origin", "main")
         result = self.run_command("open")
         self.assertEqual(result.returncode, 0, result.stderr)
         tree = self.repo / ".worktrees/B"
@@ -153,6 +154,7 @@ class LandTests(RepoTests):
                 if shape == "merge":
                     self.write("other.py", "primary change\n")
                     self.commit("primary advance")
+                    self.git("push", "-q", "origin", "main")
                 result = self.run_command("land")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 head = self.git("rev-parse", "HEAD").stdout.strip()
@@ -202,6 +204,20 @@ class LandTests(RepoTests):
         self.assertIn("src.py", result.stderr)
         self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
         self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")
+
+    def test_Land_refuses_unpushed_primary_commits(self):
+        tree, _, _ = self.run_branch()
+        self.write("other.py", "unscanned primary change\n")
+        primary = self.commit("unscanned primary")
+        remote = self.git("rev-parse", "refs/heads/main", repo=self.remote).stdout
+        run = self.git("rev-parse", "HEAD", repo=tree).stdout
+        result = self.run_command("land")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn(primary[:7], result.stderr)
+        self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
+        self.assertEqual(self.git("rev-parse", "refs/heads/main", repo=self.remote).stdout, remote)
+        self.assertTrue(tree.exists())
+        self.assertEqual(self.git("rev-parse", "HEAD", repo=tree).stdout, run)
 
 
 class CheckoutTests(RepoTests):
