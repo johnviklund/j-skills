@@ -10,7 +10,12 @@ Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `o
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
 
 ## Execution state
-<filled by execute>
+Current: T1 done; T2 ready
+T1 @ 81aa880
+writer: GPT-6.1 Sol
+Baseline: 49 tests passed at c626d11; user approved suite plus ticket Verify commands.
+Session 1: T1
+Uncommitted: none · Pending decision: none
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -31,24 +36,22 @@ Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alo
 | F15 | gitleaks is installed; `SKILL.md`'s scan with no upstream already covers `origin/<primary>..HEAD`, so `run/B`'s first push is scanned | no scan change; land pushes `main` only after wrap's scan |
 | F16 | `.worktrees/` and `.git/info/exclude` are per clone; on another machine `where` would print `.` and read `main`'s stale copy of the plan, redoing done tickets | `where` rebuilds `.worktrees/<slug>` from `origin/run/<slug>` when that branch exists, and fast-forwards a worktree that is behind it |
 | F17 | A conflicting merge run in the repo folder would leave another run's uncommitted files mid-merge; `git merge-tree --write-tree` (git 2.38+) finds conflicts without touching any checkout | land checks with `merge-tree` first; only a clean merge runs in the repo folder |
-
 ## Tickets
-
 ### T1 — A second run gets its own worktree, and any clone finds it
 Delivers: B1, B2, B3 · Blocked by: none · Lane: logic
 Budget: code +130 · tests +170 · why: every case builds a temp repo with a bare `origin`
 Seam: `run-worktree.py open|where <slug> --repo <dir>` run as a subprocess on temp repos; `primary_branch(repo)` moves out of `check-run.py`'s `checkout_warnings`
 Accept:
-- [ ] run A on `main` with a `done @` ticket, no `.worktrees/A`, `open B` → prints `.worktrees/B`, on `run/B` at `main`'s sha; repo folder `git status --porcelain` empty (B1)
-- [ ] clean repo folder, the only started run has its own `.worktrees/A` → `open B` prints `.`, `git worktree list` gains no line (B2)
-- [ ] uncommitted `src.py` in the repo folder, no run started → `open B` creates `.worktrees/B`; after two opens `.git/info/exclude` holds `.worktrees/` exactly once (B1)
-- [ ] `AGENTS.md` on `main` with `## Worktree setup` running `touch ready` → output shows `touch ready` and `.worktrees/B/ready` exists; no block → output has `no ## Worktree setup in AGENTS.md` (B1)
-- [ ] `where B` → `.` before `open B`, `.worktrees/B` after (B3)
-- [ ] a second clone with `origin/run/B` and no worktree → `where B` creates `.worktrees/B` at `origin/run/B`'s sha; a worktree behind it is fast-forwarded to that sha (B3)
+- [x] run A on `main` with a `done @` ticket, no `.worktrees/A`, `open B` → prints `.worktrees/B`, on `run/B` at `main`'s sha; repo folder `git status --porcelain` empty (B1)
+- [x] clean repo folder, the only started run has its own `.worktrees/A` → `open B` prints `.`, `git worktree list` gains no line (B2)
+- [x] uncommitted `src.py` in the repo folder, no run started → `open B` creates `.worktrees/B`; after two opens `.git/info/exclude` holds `.worktrees/` exactly once (B1)
+- [x] `AGENTS.md` on `main` with `## Worktree setup` running `touch ready` → output shows `touch ready` and `.worktrees/B/ready` exists; no block → output has `no ## Worktree setup in AGENTS.md` (B1)
+- [x] `where B` → `.` before `open B`, `.worktrees/B` after (B3)
+- [x] a second clone with `origin/run/B` and no worktree → `where B` creates `.worktrees/B` at `origin/run/B`'s sha; a worktree behind it is fast-forwarded to that sha (B3)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Open -k Where` (pre: new file — NO TESTS RAN)
 Skills: none
-Status: todo
-
+Status: done @ 81aa880
+Writer: GPT-6.1 Sol
 ### T2 — Wrap lands a worktree run on `main` and cleans it up
 Delivers: B5, B6 · Blocked by: T1 · Lane: logic
 Budget: code +90 · tests +150 · why: one temp repo with a bare `origin` per merge shape
@@ -62,7 +65,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Land` (pre: new file — NO TESTS RAN)
 Skills: none
 Status: todo
-
 ### T3 — Checks know a run's own worktree
 Delivers: B4, B8 · Blocked by: T1 · Lane: logic
 Budget: code +40 · tests +80 · why: each case builds a repo with a linked worktree
@@ -76,7 +78,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Checkout -k Doctor` (pre: NO TESTS RAN)
 Skills: none
 Status: todo
-
 ### T4 — The phase rules send each step to the run's worktree
 Delivers: B1, B3, B5, B6, B7, B8 · Blocked by: T1, T2, T3 · Lane: mechanical
 Budget: code +0 · tests +0
@@ -91,7 +92,6 @@ Accept:
 Verify: `cd .github/skills/workflow && grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` (pre: new file — 0)
 Skills: .github/skills/agent-docs/SKILL.md
 Status: todo
-
 ### T5 — Two runs side by side on a scratch repo, end to end
 Delivers: B7 · Blocked by: T4 · Lane: logic
 Budget: code +40 · tests +0
