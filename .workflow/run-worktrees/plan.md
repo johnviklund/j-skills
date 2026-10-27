@@ -6,7 +6,7 @@ Status:  drafting
 
 Docs read: none in scope (j-skills has no PRODUCT.md, DESIGN.md or AGENTS.md)
 Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, test_check_run.py 503 · over 1,000: none (new: run-worktree.py, test_run_worktree.py, references/worktrees.md)
-Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27)
+Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 
 ## Execution state
 <filled by execute>
@@ -45,7 +45,7 @@ Accept:
 - [ ] `AGENTS.md` on `main` with `## Worktree setup` running `touch ready` → output shows `touch ready` and `.worktrees/B/ready` exists; no block → output has `no ## Worktree setup in AGENTS.md` (B1)
 - [ ] `where B` → `.` before `open B`, `.worktrees/B` after (B3)
 - [ ] a second clone with `origin/run/B` and no worktree → `where B` creates `.worktrees/B` at `origin/run/B`'s sha; a worktree behind it is fast-forwarded to that sha (B3)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Open -k Where` (pre: new file)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Open -k Where` (pre: new file — NO TESTS RAN)
 Skills: none
 Status: todo
 
@@ -59,7 +59,7 @@ Accept:
 - [ ] `main` changed `src.py` against `run/B` → exit 3, `main`'s sha unchanged, `.worktrees/B` mid-merge of `main` with `src.py` conflicted, output names `workflow review B` (B6)
 - [ ] the only conflict is in `WORKLOG.md` → exit 4, `main`'s sha unchanged, output says resolve keeping both sides, commit, land again (B6)
 - [ ] repo folder has an uncommitted edit to a file `run/B` changes → exit 1, `main`'s sha unchanged, output names that file (B5)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Land` (pre: new file)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_run_worktree.py' -k Land` (pre: new file — NO TESTS RAN)
 Skills: none
 Status: todo
 
@@ -73,7 +73,7 @@ Accept:
 - [ ] `check-run.py` inside a linked worktree outside `.worktrees/` → the `linked worktree` warning (B4)
 - [ ] `doctor` with `.worktrees/B` and no `## Worktree setup` in `main`'s `AGENTS.md` → one line naming `## Worktree setup` (B8)
 - [ ] `doctor` with `.worktrees/old` holding no live `.workflow/old/brainstorm.md` → one line naming `.worktrees/old` (B8)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Checkout -k Doctor` (pre: 0 tests ran)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Checkout -k Doctor` (pre: NO TESTS RAN)
 Skills: none
 Status: todo
 
@@ -83,12 +83,12 @@ Budget: code +0 · tests +0
 Seam: the text of `SKILL.md`, a new `references/worktrees.md`, `phase-3-execute.md`, `phase-4-review.md`, `wrap.md`, checkup's `SKILL.md`, the workflow `README.md`
 Accept:
 - [ ] `grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` → 4, and the workflow `README.md` links `references/worktrees.md` (B3)
-- [ ] `SKILL.md` names `references/worktrees.md` and is at most 215 lines (`wc -l`) (B3, B7)
+- [ ] `SKILL.md` names `references/worktrees.md`, its live-run grep reads `Status: *\(drafting`, and it is at most 215 lines (`wc -l`) (B3, B7)
 - [ ] `grep -c 'run-worktree.py open' references/phase-3-execute.md` → 1 (B1)
 - [ ] `grep -c 'run-worktree.py land' references/wrap.md` → 1; `--exclude-dir=.worktrees` in `wrap.md` and `phase-4-review.md` → 2 in total (B5)
 - [ ] `grep -c 'remerge-diff' references/phase-4-review.md` → 1 (B6)
 - [ ] `grep -c 'run-worktree.py doctor' ../checkup/SKILL.md` → 1 (B8)
-Verify: `cd .github/skills/workflow && grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` (pre: new file)
+Verify: `cd .github/skills/workflow && grep -o 'run-worktree.py \(open\|where\|land\|doctor\)' references/worktrees.md | sort -u | wc -l` (pre: new file — 0)
 Skills: .github/skills/agent-docs/SKILL.md
 Status: todo
 
@@ -101,7 +101,7 @@ Accept:
 - [ ] `workflow status` from the repo folder after B's ticket → B's line reads `review` and `workflow review B`
 - [ ] the closing card after B's ticket → command `workflow review B`; `origin/run/B` equals local `run/B` (B7)
 - [ ] wrap B after A wrapped → `main` contains B's ticket sha; `.worktrees/B` and `run/B` are gone
-Verify: `grep -c '^ok ' .workflow/run-worktrees/receipts/t5-dry-run.md` → 4 (pre: new file)
+Verify: `grep -c '^ok ' .workflow/run-worktrees/receipts/t5-dry-run.md` → 4 (pre: new file — exit 2)
 Skills: none
 Status: todo
 
@@ -114,7 +114,7 @@ Status: todo
 - T2 is riskiest: it moves `main` in a folder another run may be editing; `merge-tree` first and git's dirty-file refusal bound it. Outside its files: every card step reads `check-run.py`'s checkout warnings (T3). Not taken: a pull request as the landing step.
 
 ## TODO impacts
-- None named by the brief. Optional, same file as T4: `TODO.md` P2, `SKILL.md:54`'s live-run grep misses `Status:  complete` (two spaces); one character (`Status: *`).
+- `TODO.md` P2 "`SKILL.md:54` live-run grep misses `Status:  complete`" → completed by T4 (human asked, 2026-10-27).
 
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: none exist. Workflow `ROADMAP.md`: no statement on worktrees or parallel runs; no changes.
