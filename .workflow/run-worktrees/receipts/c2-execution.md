@@ -31,3 +31,8 @@ Commit: f7a6658 changes only run-worktree.py, with 8 added and 8 deleted lines. 
 All three approved patch tickets are done. Review findings remain unchanged for cross-vendor review to resolve independently.
 Final suite: 71 passing tests on the code at f7a6658; later edits are execution records only. All 87 pre-existing assertion calls remain unchanged; the two new methods add 10 assertion calls, for 97 total in test_run_worktree.py.
 Completed-run range: plan Base 743eb2e through f7a6658 has +236 code added, +227 code net and +394 tests net, ratio 1.67. The existing reasoned waiver now records these final numbers. Patch cycle alone has +16 code added, +6 code net and +27 tests net. The split refusal remains in force; the session ledger adds one line to the plan's existing length warning.
+
+## Publication block
+Gitleaks scanned all 8 outgoing commits through df1b390 and found no leaks. The tree was clean; check-run reported 0 errors and the same 3 existing warnings. The completed-run gate including patch commits reported 0 errors with the reasoned ratio waiver.
+Automatic approval review rejected git push origin main because the workflow request does not explicitly authorize this specific payload and external destination. The push did not run; no workaround or retry was attempted.
+Destination: https://github.com/johnviklund/j-skills, branch main. Approval would publish the three C2 fixes, their two regression-test commits, execution records, skill-impact rows and this block record. All work remains committed locally. After approval and a fresh secret scan, push and hand off to workflow review run-worktrees with Opus 5.5 at xhigh effort, large context; fallback Sonnet 5.5 at xhigh.

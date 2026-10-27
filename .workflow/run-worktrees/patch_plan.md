@@ -5,7 +5,7 @@ Inputs:  .workflow/run-worktrees/review.md @ bc15275
 Status:  complete
 
 ## Execution state
-Current: all cycle 2 patches done; next review · writer: GPT-6.1 Sol · baseline failures: none
+Current: all cycle 2 patches done; publication awaits approval, then review · writer: GPT-6.1 Sol · baseline failures: none
 C2-T1 @ b0b55af
 C2-T2 @ 791ff62
 C2-T3 @ f7a6658
