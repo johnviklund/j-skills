@@ -451,6 +451,7 @@ class LandTests(RepoTests):
         self.assertTrue(tree.exists())
         self.assertEqual(self.git("rev-parse", "run/B").stdout.strip(), tip)
         self.assertIn("origin/main", result.stderr)
+        self.assertIn("git merge --no-edit origin/main", result.stderr)
 
     def test_Land_refuses_unpushed_primary_commits(self):
         tree, _, _ = self.run_branch()
