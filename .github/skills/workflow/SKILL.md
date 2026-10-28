@@ -110,10 +110,9 @@ approval) · **strict reviewer** (the skeptic — plan, review, patch plans, `re
 
 Invariants:
 
-- **Cross-vendor review.** The strict reviewer is a different vendor from the code's writer; a
-  same-vendor review is degraded and says so in `review.md`. One step runs in one session only.
-- **Availability first.** Open the model picker at session start, walk `ROUTING.md`'s fallback chain
-  in order, and name any switch.
+- One step runs in one session only.
+- Name any model switch.
+- **Name the running model from a record, not memory** (`references/phase-3-execute.md`).
 - **Sub-agents are read-only breadth**, their findings verified; writing runs in the main session.
 
 Every phase starts fresh, re-grounded from the run folder and git; the handoff is where the model
@@ -173,8 +172,9 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
 - **Simplicity.** The smallest diff that passes is the target: every added line is one more for
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
-- **Before every push:** follow [references/secret-scan.md](references/secret-scan.md) for the
-  scan command, findings and missing-scanner branches.
+- **Secret scan before every push.** `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`
+  (no upstream: `origin/<primary>..HEAD`); `--redact` keeps the value out of the transcript.
+  Receipts are the usual source: a live query or log with a token in it. Exit 0 → push. Otherwise follow [references/secret-scan.md](references/secret-scan.md).
 - **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
   A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
   and shas that do not exist. Write an artifact only after the reads it reports on have returned.
