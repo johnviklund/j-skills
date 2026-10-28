@@ -65,6 +65,11 @@ Review answers two questions, kept apart so one can't hide the other:
     every key the guard matches on and mutate each. When a fix adds a catch-all, such as a
     fallback that clears state at the end of a run, also mutate the narrower path it overlaps:
     the catch-all can keep that path's tests green after the path breaks.
+    A run that adds a new file gets a whole-file sweep in its first review: one mutation per
+    condition and per tuple member, each listed by name, since sampling guards leaves survivors
+    for later cycles. A fix that reuses a helper, or one parser serving text with two grammars
+    (markdown and shell), is checked at the helper's boundaries against the code it replaces.
+    A script that pushes a shared branch scans or refuses its whole outgoing range.
 
   Each such finding proposes its remedy: collapse the duplicate branches, delete the wrapper,
   split orchestration from logic, or reuse the existing helper.

@@ -67,7 +67,8 @@ The failing run proves the test can catch the bug; a test that never went red pr
 
 **Prove it can fail.** At green, invert or revert one line of the change and rerun: it must go
 red. The report records it as `Mutation: <line> → red`. Add a test beyond the acceptance lines
-only when a mutation survives.
+only when a mutation survives. A new guard or parser gets one mutation per condition it adds,
+not a sample.
 
 **Verify keywords.** `unittest -k` matches case-sensitively against `module.Class.method`, so put
 the keyword in each test method name and check the `Ran N tests` count, not just OK. A keyword must
