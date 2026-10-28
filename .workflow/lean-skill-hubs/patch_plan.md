@@ -5,12 +5,13 @@ Inputs:  .workflow/lean-skill-hubs/review.md @ c4aa5a7
 Status:  complete
 
 ## Execution state
-Current: all patch tickets done; publication approval required before re-review · writer: GPT-6.1 Sol
+Current: all patch tickets done; pushed and installed; ready for re-review · writer: GPT-6.1 Sol
 C1-T1 @ 2f648a8
 C1-T2 @ be06046
 Proof: ledger 3 OK; M12 killed in a throwaway copy; sentence-ledger.py unchanged.
 Final: workflow 81 OK; checkup 8 OK; three ledgers unaccounted 0; five stale phrases 0 hits; hub 11,499 bytes.
-Uncommitted: this execution record · pending decision: approve push to origin/main, then refresh installed skills.
+Installation: receipts/c1-install.txt; all seven copies match.
+Uncommitted: none after this record commits · pending decision: none
 
 ## Tickets
 

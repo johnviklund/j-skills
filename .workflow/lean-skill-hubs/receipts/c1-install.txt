@@ -1,0 +1,35 @@
+Command: workflow execute lean-skill-hubs
+Created: 2026-10-28 · GPT-6.1 Sol
+Base: 101366b
+Inputs: .workflow/lean-skill-hubs/patch_plan.md @ c4aa5a7
+Status: complete
+
+Authorization: user selected 1a, approving push to origin/main and installed-skill refresh.
+The earlier automatic approval rejection is resolved by that explicit approval.
+
+$ gitleaks git --log-opts='@{u}..HEAD' --redact -v --no-banner
+exit 0; 4 commits scanned; no leaks found.
+$ git push origin main
+exit 0; origin/main advanced 7d1ad30..101366b.
+$ npx skills update -g
+exit 0; updated checkup, memory.remember, workflow.
+Log: /tmp/lean-skill-hubs-c1-install.log
+
+$ diff -rq -x __pycache__ .github/skills/SKILL ~/.agents/skills/SKILL
+workflow: exit 0; diff lines 0
+memory.remember: exit 0; diff lines 0
+memory.compact: exit 0; diff lines 0
+checkup: exit 0; diff lines 0
+understand: exit 0; diff lines 0
+verify: exit 0; diff lines 0
+agent-docs: exit 0; diff lines 0
+
+$ git diff --quiet ed2c63b -- .github/skills/agent-docs
+exit 0.
+$ python3 .github/skills/workflow/scripts/check-run.py --all
+exit 0; ERROR count 0; existing warnings unchanged.
+
+Reuse the final execution suites for be06046: workflow 81 OK, checkup 8 OK, ledger 3 OK.
+$ git diff --quiet be06046 -- .github/skills .workflow/lean-skill-hubs/scripts
+exit 0; only execution records changed since those passing suites.
+Both patch tickets remain complete; review.md awaits the independent re-review.
