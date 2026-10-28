@@ -108,6 +108,10 @@ def land(repo, slug):
     primary, branch = checks.primary_branch(repo), f"run/{slug}"
     if git(repo, "branch", "--show-current") != primary:
         raise RuntimeError(f"primary checkout must be on {primary}")
+    git(repo, "fetch", "--quiet", "origin", primary)
+    behind = git(repo, "log", "--oneline", f"{primary}..origin/{primary}")
+    if behind:
+        raise RuntimeError(f"origin/{primary} moved; pull it into the primary checkout before landing:\n{behind}")
     path = where(repo, slug)
     if path == repo:
         raise RuntimeError(f"no worktree for {slug}")

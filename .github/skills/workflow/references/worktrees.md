@@ -64,6 +64,7 @@ It checks conflicts before changing the primary checkout and never stashes anoth
   in the primary checkout, archiving and committing only `.workflow/<slug>/`.
 - Exit 1: report the named error or dirty paths. The command can fail after a successful local
   merge or push; inspect refs and worktrees before resuming. Preserve other runs' edits.
+  If the primary branch moved on origin, pull it into the primary checkout, then land again.
   For unpushed primary commits, run `gitleaks git --log-opts="origin/<primary>..<primary>" --redact -v --no-banner`.
   After a clean scan, push the primary branch, then land again.
 - Exit 3: the primary branch stays unmoved; its changes are merged into the run checkout with

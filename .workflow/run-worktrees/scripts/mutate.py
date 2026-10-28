@@ -83,6 +83,7 @@ MUTATIONS = [
     ("L12", R, '        git(repo, "push", "origin", "--delete", branch)', "        pass"),
     ("L13", R, '    git(repo, "branch", "-d", branch)\n', ""),
     ("L14", R, '    git(repo, "push", "origin", primary)\n', ""),
+    ("L15", R, '    if behind:\n        raise RuntimeError(f"origin/{primary} moved; pull it into the primary checkout before landing:\\n{behind}")\n', ""),
     # doctor
     ("D1", R, "if paths and worktree_setup(repo) is None:", "if worktree_setup(repo) is None:"),
     ("D2", R, "if not brief.is_file() or checks", "if checks"),
