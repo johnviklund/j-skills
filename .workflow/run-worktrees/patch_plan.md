@@ -5,7 +5,9 @@ Inputs:  .workflow/run-worktrees/review.md @ 7740521
 Status:  complete
 
 ## Execution state
-Current: C6-T1 todo · writer: — · baseline failures: none
+Current: C6-T1 done; next review · writer: GPT-6.1 Sol · baseline failures: none
+C6-T1 @ f61de07
+Red: be47a91
 
 ## Tickets
 
@@ -21,10 +23,11 @@ Change: first a red commit, the test file alone: add `self.assertIn("git merge -
 
 The merge needs no fetch: `land` fetched `origin <primary>` at `run-worktree.py:111` just before it refused.
 Accept:
-- [ ] The red commit fails at its parent on the new assertion alone; every other assertion of that test still passes (C6-1)
-- [ ] After the fix, `test_Land_refuses_a_primary_branch_advanced_on_origin` passes and the full suite passes, 81 tests (C6-1, B5)
-- [ ] `grep -c 'pull' .github/skills/workflow/references/worktrees.md` → 1, the rebase warning; `grep -c 'pull' .github/skills/workflow/scripts/run-worktree.py` → 0; `grep -c 'moved on origin' .github/skills/workflow/references/worktrees.md` → 1 (C6-1)
-- [ ] The fix commit leaves test files untouched; `SKILL-IMPACT.md` has `git merge --no-edit` on exactly 1 line (C6-1)
+- [x] The red commit fails at its parent on the new assertion alone; every other assertion of that test still passes (C6-1)
+- [x] After the fix, `test_Land_refuses_a_primary_branch_advanced_on_origin` passes and the full suite passes, 81 tests (C6-1, B5)
+- [x] `grep -c 'pull' .github/skills/workflow/references/worktrees.md` → 1, the rebase warning; `grep -c 'pull' .github/skills/workflow/scripts/run-worktree.py` → 0; `grep -c 'moved on origin' .github/skills/workflow/references/worktrees.md` → 1 (C6-1)
+- [x] The fix commit leaves test files untouched; `SKILL-IMPACT.md` has `git merge --no-edit` on exactly 1 line (C6-1)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k test_Land_refuses_a_primary_branch_advanced_on_origin` (pre: passes; after the red commit: fails on the new assertion)
 Skills: none
-Status: todo
+Status: done @ f61de07
+Writer: GPT-6.1 Sol
