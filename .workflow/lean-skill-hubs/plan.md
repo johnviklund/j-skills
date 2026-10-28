@@ -10,13 +10,13 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T3 todo · writer: GPT-6.1 Sol
+Current: T3 verified; commit pending · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 T2 @ f7a16ad
 Session 1: T1, T2
-Uncommitted: this plan · pending decision: none
+Uncommitted: T3 hub, duplicates ledger and this plan · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |

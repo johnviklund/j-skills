@@ -18,35 +18,8 @@ Reduce memory to its essential active pages without losing audit trail or search
 
 ## Memory Layers
 
-- **Active memory:** `memory/<slug>.md` pages, indexed by `MEMORY.md` (one line per page: slug,
-  claim, occurrences, last confirmed). Read at session startup via the index; a page is opened
-  when its line matches the situation. Layer of **last resort** — environment facts, durable user
-  preferences, repo-specific gotchas/workarounds, temporary in-flight state, and open gaps: things
-  a future session needs that fit nowhere else. Bounded and compact. **Not** a product/architecture
-  ledger, design ledger, operating-rules doc, or how-to principle store — those belong to the owners
-  below. Compaction should actively move misfiled doctrine out, not just tidy it in place.
-- **Page shape** (every page, no exceptions): `# <claim>` · `Applies when:` · `Root cause:` ·
-  `Fix:` · `Evidence:` (one entry per occurrence — run slug or sha) · `Occurrences: N · Last
-  confirmed: <date> · Status: active | superseded by <slug> | retired` · `Enforced by: judgement |
-  pending — <TODO line> | <check>` (absent on legacy pages = unclassified) · optional `Promoted to: <skill>`.
-- **Product doctrine:** `PRODUCT.md`, when the repo has one. Checked for pages that are really
-  product shape, vocabulary, or workflow doctrine misfiled in memory. **Do not edit `PRODUCT.md`
-  during a compaction** — flag the page as doctrine-misfiled and propose relocating it, since
-  canonical product/design docs are changed only on explicit human approval.
-- **Agent operating contract:** `AGENTS.md`, checked for rules already promoted out of memory.
-- **Operator reference:** `README.md`, checked for workflow/setup/output guidance already promoted
-  out of memory.
-- **Archive memory:** `MEMORY_ARCHIVE.md`, searched by memory workflows but not loaded by default.
-  Store superseded pages, long evidence, historical baselines, and superseded decisions here.
-- **Reusable principle:** a skill under `.github/skills/<name>/SKILL.md` (repo-local) or the
-  shared `j-skills` repo's `.github/skills/<name>/SKILL.md` (available from every repo).
-  Checked for pages already promoted (`Promoted to:`), and for pages that are candidates
-  (`Occurrences: 3` or more, reusable beyond one feature, stripped of schema-specific detail).
-- **Design doctrine:** `DESIGN.md`, when the repo has one. Checked for duplicated UI/design-system
-  prose that should live there instead of in a page.
-- **Run records:** `.workflow/<slug>/` folders, kept by the `workflow` skill after wrap (`Status:
-  done`). Read-only evidence: a done run's `review.md`/`learnings.md` can confirm or contradict a
-  page, and a page's `Evidence` entries should resolve to a run slug or a sha.
+Read `memory.remember`'s *Memory Layers* and *Memory schema — pages, not entries*
+for layer owners and page shape; use them throughout this proposal-only pass.
 
 ## When to Use
 
@@ -154,6 +127,11 @@ For each page (and each legacy inline entry), classify as:
   **relocate-and-delete**: propose the destination and the text to move; the proposed memory keeps
   at most a one-line pointer. **Never edit `PRODUCT.md`/`DESIGN.md` yourself** during a compaction.
 
+Checked for pages that are really product shape, vocabulary, or workflow doctrine misfiled in
+memory. **Do not edit `PRODUCT.md` during a compaction** — flag the page as doctrine-misfiled
+and propose relocating it, since canonical product/design docs are changed only on explicit
+human approval.
+
 ### 4. Rebuild the index
 
 The proposed `MEMORY.md` is index lines only, sorted by `Occurrences` descending then slug —
@@ -246,15 +224,9 @@ Print:
   by them, but never modifies, tags, or archives anything under `.workflow/` or `docs/`.
 - Tombstone or archive, don't silently delete. Superseded pages stay in the archive with enough
   context to search; a page with evidence is never deleted, only moved.
-- Never overwrite `MEMORY.md`, `memory/`, or `MEMORY_ARCHIVE.md`. Always write proposal files,
-  stamped with the source sha; acceptance is the guarded sequence above and stops if memory moved.
-- Never edit a `SKILL.md`, `PRODUCT.md`, or `DESIGN.md` directly from `/compact`. Skill, product,
-  and design relocations (including doctrine-misfiled pages) are proposals for the user to apply.
 - The compacted memory should end **under the ~40-page soft ceiling**; if it can't without losing
   genuinely current, admission-test-passing pages, say so and recommend redistribution rather than
   quietly leaving it oversized.
-- Don't propose a skill for anything below `Occurrences: 3`; a single striking page is still just
-  a good page.
 - No state tracking. No cadence. No automatic triggering. This is a manual tool the user runs when
   they want to.
 - Aggregates only. Never persist customer-level details.
