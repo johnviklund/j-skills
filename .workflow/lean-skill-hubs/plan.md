@@ -10,17 +10,18 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T6 todo; T5 verified · writer: GPT-6.1 Sol
+Current: T7 todo; session limit reached · writer: GPT-6.1 Sol
 Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
-Proof: T5 6,044 bytes; moved 115, duplicate 1, unaccounted 0; description 591 chars, 7/7 triggers.
+Proof: T6 11,984 bytes; moved 27, duplicate 2, unaccounted 0; frontmatter unchanged, stale pointers 0.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 T2 @ f7a16ad
 T3 @ efc114a
 T4 @ fb6a5d2
 T5 @ b640a54
+T6 @ 6973783
 Session 1: T1, T2, T3
-Session 2: T4, T5
+Session 2: T4, T5, T6
 Uncommitted: none after this record commits · pending decision: none
 
 ## Findings
@@ -105,12 +106,13 @@ Delivers: B1, B2, B3, B4 · Blocked by: T1 · Lane: logic
 Budget: code +60 · tests +0
 Seam: `wc -c`, the ledger and `grep` on `.github/skills/understand`; `git mv video.md references/video.md`
 Accept:
-- [ ] `wc -c` SKILL.md → at most 12,000; `references/pictures.md` and `references/video.md` linked from it; frontmatter byte-identical to Base (B1, B3)
-- [ ] `grep -rn '<skill>/video.md\|in video.md' .github/skills` → 0 hits; build-video.py:158 names `references/video.md` (B4)
-- [ ] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
+- [x] `wc -c` SKILL.md → at most 12,000; `references/pictures.md` and `references/video.md` linked from it; frontmatter byte-identical to Base (B1, B3)
+- [x] `grep -rn '<skill>/video.md\|in video.md' .github/skills` → 0 hits; build-video.py:158 names `references/video.md` (B4)
+- [x] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
 Verify: `wc -c .github/skills/understand/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/understand ed2c63b && grep -rn '<skill>/video.md\|in video.md' .github/skills` (pre: 15230 · new file · 3 hits)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 6973783
+Writer: GPT-6.1 Sol
 
 ### T7 — verify splits by command, and the change is logged
 Delivers: B1, B2, B3 · Blocked by: T2, T3, T4, T5, T6 · Lane: logic
