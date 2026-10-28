@@ -10,7 +10,7 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: patch cycle 1; C1-T1 done, C1-T2 todo · writer: GPT-6.1 Sol
+Current: patch cycle 1 complete; publication approval required before re-review · writer: GPT-6.1 Sol
 Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
 Proof: T7 2,914 bytes; moved 138, duplicate 0, unaccounted 0; command bodies and frontmatter unchanged; trial rows 5.
 T1 @ 526f6a4
@@ -26,8 +26,8 @@ T8 @ 778f70f
 Session 1: T1, T2, T3
 Session 2: T4, T5, T6
 Session 3: T7, T8
-Session 4: C1-T1
-Uncommitted: none after this record commits · pending decision: none; T8 receipt: receipts/t8-install.txt
+Session 4: C1-T1, C1-T2
+Uncommitted: none after this record commits · pending decision: approve patch push to origin/main; then refresh installed skills. T8 receipt: receipts/t8-install.txt
 
 ## Findings
 | # | What is true | What it changes |

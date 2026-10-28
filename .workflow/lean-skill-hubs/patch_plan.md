@@ -5,10 +5,12 @@ Inputs:  .workflow/lean-skill-hubs/review.md @ c4aa5a7
 Status:  complete
 
 ## Execution state
-Current: C1-T2 todo · writer: GPT-6.1 Sol
+Current: all patch tickets done; publication approval required before re-review · writer: GPT-6.1 Sol
 C1-T1 @ 2f648a8
+C1-T2 @ be06046
 Proof: ledger 3 OK; M12 killed in a throwaway copy; sentence-ledger.py unchanged.
-Uncommitted: this execution record · pending decision: none
+Final: workflow 81 OK; checkup 8 OK; three ledgers unaccounted 0; five stale phrases 0 hits; hub 11,499 bytes.
+Uncommitted: this execution record · pending decision: approve push to origin/main, then refresh installed skills.
 
 ## Tickets
 
@@ -33,8 +35,9 @@ Budget: code +6 · tests +0
 Seam: the five lines in review.md C1-2 (a)–(e); the ledger with `notes/dups-*.txt`
 Change: (a) "in step 2" → "below" · (b) "The repeat rule above" → "The repeat rule in `SKILL.md`" · (c) "commands like the following" → "commands like the ones each section lists" · (d) "need only this file and `ROUTING.md`" → "need only `worktrees.md` and `ROUTING.md`" (+3 bytes; the hub is read anyway) · (e) delete the bullet at `phase-3-execute.md:29` and its blank line. Each changed hub sentence of Base gets a `notes/dups-<skill>.txt` row (removed sentence · path · its new phrase), so the ledger still accounts for it.
 Accept:
-- [ ] `grep -rc` of `naming-collision rule in step 2`, `repeat rule above`, `commands like the following`, `need only this file and` and `Commit after each verified ticket` over `.github/skills` → 0 each (B4)
-- [ ] ledger vs ed2c63b for workflow, memory.remember, checkup → `unaccounted 0`, exit 0; `wc -c` workflow `SKILL.md` ≤ 11,500 (B1, B2)
+- [x] `grep -rc` of `naming-collision rule in step 2`, `repeat rule above`, `commands like the following`, `need only this file and` and `Commit after each verified ticket` over `.github/skills` → 0 each (B4)
+- [x] ledger vs ed2c63b for workflow, memory.remember, checkup → `unaccounted 0`, exit 0; `wc -c` workflow `SKILL.md` ≤ 11,500 (B1, B2)
 Verify: `for s in workflow memory.remember checkup; do python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/$s ed2c63b; done && wc -c .github/skills/workflow/SKILL.md` (pre: unaccounted 0 ×3 · 11494)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ be06046
+Writer: GPT-6.1 Sol
