@@ -10,7 +10,7 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T8 todo; T7 verified and committed · writer: GPT-6.1 Sol
+Current: all tickets done; ready for cross-vendor review · writer: GPT-6.1 Sol
 Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
 Proof: T7 2,914 bytes; moved 138, duplicate 0, unaccounted 0; command bodies and frontmatter unchanged; trial rows 5.
 T1 @ 526f6a4
@@ -22,10 +22,11 @@ T4 @ b9cb0f2 (common-rule correction)
 T5 @ b640a54
 T6 @ 6973783
 T7 @ 076d68d
+T8 @ 778f70f
 Session 1: T1, T2, T3
 Session 2: T4, T5, T6
-Session 3: T7
-Uncommitted: none after this record commits · pending decision: none; push approved by human (1a)
+Session 3: T7, T8
+Uncommitted: none after this record commits · pending decision: none; T8 receipt: receipts/t8-install.txt
 
 ## Findings
 | # | What is true | What it changes |
@@ -135,11 +136,12 @@ Budget: code +0 · tests +0
 Risk: cheap · Runner: agent after approval (standing: memory page j-skills-install-layout, "run `npx skills update -g` after every push")
 Seam: receipts/t8-install.txt. Handoff: with main pushed, run `npx skills update -g` in the background; then write to `receipts/t8-install.txt` the output of `diff -rq -x __pycache__ .github/skills/$s ~/.agents/skills/$s` for the six skills and agent-docs, both unittest suites, `check-run.py --all | grep -c ERROR`, and `git diff --quiet ed2c63b -- .github/skills/agent-docs; echo $?`
 Accept:
-- [ ] receipt → no `diff` output for any of the seven skills (B7)
-- [ ] receipt → workflow `Ran 81 tests` OK · checkup `Ran 8 tests` OK · ERROR count 0 · agent-docs exit 0 (B6, B1)
+- [x] receipt → no `diff` output for any of the seven skills (B7)
+- [x] receipt → workflow `Ran 81 tests` OK · checkup `Ran 8 tests` OK · ERROR count 0 · agent-docs exit 0 (B6, B1)
 Verify: receipt: receipts/t8-install.txt — diff lines 0 · 81 OK · 8 OK · ERROR 0 · agent-docs 0 (pre: no receipt)
 Skills: none
-Status: todo
+Status: done @ 778f70f
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T2–T7 (`wc -c` per SKILL.md) and T8 (installed copies)
