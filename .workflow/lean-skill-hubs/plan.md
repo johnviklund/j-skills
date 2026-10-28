@@ -10,13 +10,15 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T3 verified; commit pending · writer: GPT-6.1 Sol
-Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
+Current: T4 todo; session limit reached · writer: GPT-6.1 Sol
+Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
+Proof: T2 19,132 bytes, moved 44/duplicate 20; T3 14,422 bytes, duplicate 22; unaccounted 0 each.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 T2 @ f7a16ad
-Session 1: T1, T2
-Uncommitted: T3 hub, duplicates ledger and this plan · pending decision: none
+T3 @ efc114a
+Session 1: T1, T2, T3
+Uncommitted: none after this record commits · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -63,11 +65,12 @@ Delivers: B1, B2 · Blocked by: T2 · Lane: logic
 Budget: code +10 · tests +0
 Seam: `wc -c` and the ledger on `.github/skills/memory.compact`; its Rules lines that repeat steps 1–6 are cut as duplicates
 Accept:
-- [ ] `wc -c` SKILL.md → at most 14,500, and `## Memory Layers` names `memory.remember` and is under 6 lines (B1)
-- [ ] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
+- [x] `wc -c` SKILL.md → at most 14,500, and `## Memory Layers` names `memory.remember` and is under 6 lines (B1)
+- [x] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
 Verify: `wc -c .github/skills/memory.compact/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/memory.compact ed2c63b` (pre: 17119 · new file)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ efc114a
+Writer: GPT-6.1 Sol
 
 ### T4 — The workflow hub fits its own budget with every rule kept
 Delivers: B1, B2, B3, B6 · Blocked by: T1 · Lane: logic
