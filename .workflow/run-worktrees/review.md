@@ -2,7 +2,7 @@ Command: workflow review run-worktrees
 Created: 2026-10-28 · claude-opus-5-5
 Base:    0066b00
 Inputs:  .workflow/run-worktrees/plan.md @ 743eb2e · .workflow/run-worktrees/patch_plan.md @ 7740521
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] C6-T1 — 4/4: red `be47a91` adds one assertion to `test_run_worktree.py` alone and, run at its parent, fails on that assertion only (stderr still says "pull it into"). Fix `f61de07` touches no test file

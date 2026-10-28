@@ -2,27 +2,10 @@ Command: workflow plan run-worktrees
 Created: 2026-10-27 · Opus 5.5
 Base:    743eb2e
 Inputs:  .workflow/run-worktrees/brainstorm.md @ c3a29f1
-Status:  complete
+Status:  done
 Size: code 801 · tests 503 · ratio 0.63 · largest touched check-run.py 801, test_check_run.py 503 · over 1,000: none (new: run-worktree.py, test_run_worktree.py, references/worktrees.md)
 Decisions: 1a · 2a · 3a · machine switch: a run's worktree is rebuilt from `origin/run/<slug>` on any clone (asked 2026-10-27) · tickets 1a approved, plus the `SKILL.md` live-run grep fix in T4
 Split declined by human: 2026-10-27 (26 acceptance lines; neither half works alone)
-## Execution state
-Current: patch cycle 6 done (C6-T1); next review · writer: GPT-6.1 Sol · baseline failures: none
-T1 @ 81aa880
-T2 @ c601aa0
-T3 @ 7473b02
-T4 @ 27f1f39
-T5 @ b7d369a
-Session 1: T1, T2, T3
-Session 2: T4
-Session 3: T5
-Session 4: C1-T1, C1-T2, C1-T3
-Session 5: C1-T4, C1-T5
-Session 6: C2-T1, C2-T2, C2-T3
-Session 7: C3-T1
-Session 8: C4-T1
-Session 9: C5-T1, C5-T2, C5-T3
-Session 10: C6-T1
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|

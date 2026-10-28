@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-28 · run-worktrees · parallel runs work in their own git worktrees · GPT-6.1 Sol
+- Each run can execute in `.worktrees/<slug>` on `run/<slug>`; `run-worktree.py` opens, finds, lands and diagnoses them, every phase resolves its checkout from the slug, and wrap lands the branch without touching another run's files. A second clone rebuilds a worktree from `origin/run/<slug>`.
+- Proved on scratch repos through the test harness, not a live parallel run. Seven review cycles found 11 P1/P2 defects (unscanned pushes at landing, setup parsing, offline lookup, 25 surviving mutations); all fixed. P3s stayed in review.md.
+- Commits: 81aa880 c601aa0 7473b02 27f1f39 b7d369a b890db3 f61de07
+- Review: ship as-is (cycle 7, 0 open) @ 4b43be1
+- Run: 5 tickets · 10 sessions · 7 review cycles · 1 deviations · 0 findings overturned · net code +203 · tests +529
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@5921f6619095, memory.remember@4416cf26dc14
+- Why: two runs at once mixed uncommitted edits and broke tests, clean-tree and freshness checks.
+
 ## 2026-10-26 · memory-patterns-and-budget · compact finds repeated lessons without a page; remember checks what an AGENTS.md rule costs · GPT-6.1 Sol
 - `memory.compact` now reads the last ~10 done runs' `learnings.md` and proposes a page when two runs share a cause and a fix. `memory.remember` asks whether removing a new `AGENTS.md` rule would cause a mistake; a no routes it to a memory page or skill reference, and a rule near a stated line cap names one line to move.
 - Proved by desk checks on the real `learnings.md` files, not live runs. Review cycle 1 found the cost test left an operating rule with no destination (the admission test refused a page for it); fixed in one line. Four P3s deferred.
