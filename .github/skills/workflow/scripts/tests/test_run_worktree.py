@@ -177,6 +177,9 @@ class OpenTests(RepoTests):
             ("```zsh\ntouch zsh_ran\n```\n\n```sh\ntouch ready\n```\n", 0),
             ("```console\n$ make\n```\nThen run:\n```sh\ntouch ready\n```\n", 0),
             ('```bash title="setup"\ntouch ready\n```\n', 0),
+            ("```sh\ntouch ready\n```\nThen run the app.\n", 0),
+            ("```\ntouch ready\n```\n", 0),
+            ("1. Install:\n   ```sh\n   touch ready\n   ```\n", 0),
         )
         for body, expected in cases:
             with self.subTest(body=body):
