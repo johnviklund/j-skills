@@ -2,7 +2,7 @@ Command: workflow improve .github/skills - goal: simpler, same behaviour
 Created: 2026-10-28 · claude-opus-5-5
 Base:    ed2c63b
 Inputs:  none
-Status:  drafting
+Status:  complete
 
 ## Problem
 Seven skill files are over the ~10 KB budget, so every load pays for text most runs never use.
