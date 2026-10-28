@@ -48,6 +48,8 @@ depends on another open question in the round (density before layout) waits for 
 ```
 
 One row per option, the ➡️ row first, every option with its reason (the shape in `SKILL.md`).
+When an option makes code parse a section of a markdown file, its reason names that parser, and
+an option that reads a plain file sits beside it: a parser of prose is where review cycles go.
 
 - **Restate first.** Round 1 opens with **Problem, as I read it**: 2–3 plain lines, in your own
   words, on what is wrong or wanted and for whom: the symptom, who meets it, how to see it. It
