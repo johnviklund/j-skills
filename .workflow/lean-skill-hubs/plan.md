@@ -10,10 +10,11 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T1 verified; commit pending · writer: GPT-6.1 Sol
+Current: T2 todo · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
+T1 @ 526f6a4
 Session 1: T1
-Uncommitted: T1 scripts and this plan · pending decision: none
+Uncommitted: this plan · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -36,11 +37,12 @@ Delivers: B2, B3 · Blocked by: none · Lane: logic
 Budget: code +90 · tests +70
 Seam: `python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py <skill-dir> <base>`, reading duplicates from `notes/dups-<skill>.txt` (tab-separated: removed sentence · kept path · kept phrase); tests drive it on a temp git repo
 Accept:
-- [ ] fixture SKILL.md loses three sentences: one re-wrapped into references/a.md, one listed in dups with its phrase present, one dropped → prints `moved 1 · duplicate 1 · unaccounted 1`, exit 1, names the dropped one (B2)
-- [ ] fixture adds references/b.md unlinked from SKILL.md and a 101-line references/c.md with no contents list → exit 1, one line naming each file (B3)
+- [x] fixture SKILL.md loses three sentences: one re-wrapped into references/a.md, one listed in dups with its phrase present, one dropped → prints `moved 1 · duplicate 1 · unaccounted 1`, exit 1, names the dropped one (B2)
+- [x] fixture adds references/b.md unlinked from SKILL.md and a 101-line references/c.md with no contents list → exit 1, one line naming each file (B3)
 Verify: `cd .workflow/lean-skill-hubs/scripts && python3 -m unittest test_sentence_ledger` (pre: new file)
 Skills: none
-Status: todo
+Status: done @ 526f6a4
+Writer: GPT-6.1 Sol
 
 ### T2 — memory.remember keeps the shared rules and moves the branches
 Delivers: B1, B2, B3, B4 · Blocked by: T1 · Lane: logic
