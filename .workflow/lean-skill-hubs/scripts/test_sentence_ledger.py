@@ -70,6 +70,10 @@ class SentenceLedgerTests(unittest.TestCase):
         self.write("skills/example/references/c.md", "Detail\n" * 100)
         result = self.run_ledger()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.write("skills/example/references/c.md", "Detail\n" * 12 + "Contents: details\n" + "Detail\n" * 88)
+        result = self.run_ledger()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("references/c.md: missing contents", result.stdout)
 
     def test_sentence_accounting_across_list_items(self):
         self.baseline("- Retained rule.\n- Move this sentence.\n- Last rule.\n")
