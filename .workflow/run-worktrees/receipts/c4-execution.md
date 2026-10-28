@@ -29,3 +29,9 @@ Final suite: 72 passing tests on the code committed at 5db97cd. Later edits are 
 Completed-run range: original plan Base 743eb2e through 5db97cd has +246 code added, +237 code net and +423 tests net, ratio 1.72. The existing reasoned waiver records these updated numbers. This patch adds only 3 test lines.
 Checks: check-run reports 0 errors and the same 3 warning categories. The completed-run gate, using original plan and current patch tickets together, reports 0 errors and the existing ratio-waiver warning.
 The existing split refusal remains in force. The session ledger adds one line to the plan's existing length warning.
+
+## Publication block
+Gitleaks scanned both outgoing commits through 96e732d and found no leaks. The tree was clean before the push attempt.
+Automatic approval review rejected `git push origin main`: publishing repository content to an external GitHub destination requires explicit authorization for this payload and destination. The push did not run. No workaround or retry was attempted.
+Destination: https://github.com/johnviklund/j-skills, branch main. Approval would publish 5db97cd, the three-row test-only patch; 96e732d, its execution state and receipt; and this publication-block record.
+All work remains committed locally. After approval and a fresh secret scan, push and hand off to `workflow review run-worktrees` with Opus 5.5 at xhigh effort, large context; fallback Sonnet 5.5 at xhigh.
