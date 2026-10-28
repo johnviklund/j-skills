@@ -1,0 +1,4 @@
+## Phase 4 — review (2026-10-28)
+- [durable→memory] [routed → workflow/MEMORY.md "A new guard needs one test per key"] A guard that reads a window of a file (`lines[:12]` for a contents list) needs a case just past the window, and a mutation sweep of the window edges, before review: the writer's sweep killed 11 of 12 mutations and the survivor (C1-1, P1) was the window itself. Evidence: lean-skill-hubs C1-1.
+- [durable→memory] [routed → workflow/MEMORY.md "After moving text, grep every relative pointer"] After a move that renames a section or a file, grep every relative pointer in the moved and the kept files ("above", "below", "step N", "this file") in the same ticket that moves the text: five stale pointers (C1-2) survived to review because the ledger checks sentences, not pointers. Evidence: lean-skill-hubs C1-2.
+- [drop] T1 and T4 correction commits: ordinary corrections found by their own verify commands.
