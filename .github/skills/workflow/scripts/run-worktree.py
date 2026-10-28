@@ -111,7 +111,7 @@ def land(repo, slug):
     git(repo, "fetch", "--quiet", "origin", primary)
     behind = git(repo, "log", "--oneline", f"{primary}..origin/{primary}")
     if behind:
-        raise RuntimeError(f"origin/{primary} moved; pull it into the primary checkout before landing:\n{behind}")
+        raise RuntimeError(f"origin/{primary} moved; merge it into the primary checkout with git merge --no-edit origin/{primary}, then land again:\n{behind}")
     path = where(repo, slug)
     if path == repo:
         raise RuntimeError(f"no worktree for {slug}")

@@ -10,7 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
-| 2026-10-28 | workflow | Land fetches the primary branch and stops before merging when origin has advanced. Judge: a second clone's primary push leaves local primary unchanged and keeps the run branch and worktree | run-worktrees C5-2 | 3 lands | trialing |
+| 2026-10-28 | workflow | Land fetches the primary branch and stops before merging when origin has advanced and names `git merge --no-edit`, never a pull, so another run's unpushed commits keep their shas. Judge: a second clone's primary push leaves local primary unchanged and keeps the run branch and worktree | run-worktrees C5-2 | 3 lands | trialing |
 | 2026-10-28 | workflow | Setup reads fences line by line and requires a shell fence before creating a checkout. The opening tag's first word selects the shell. Judge: mixed fence tags run only shell commands, and unfenced setup stops before creating a branch | run-worktrees C3-1, C2-2 | 3 setups | trialing |
 | 2026-10-27 | workflow | Fenced setup requires a sh, bash, shell or untagged fence before creating a checkout; shell tags allow trailing spaces. Judge: unsupported-only setup stops before creating a worktree or branch | run-worktrees C2-2 | 3 setups | trialing |
 | 2026-10-27 | workflow | Setup ends at an unfenced top-level heading. Judge: later appendix shell fences never run as setup | run-worktrees C2-1 | 3 setups | trialing |
