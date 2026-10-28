@@ -2,11 +2,12 @@ Command: workflow plan lean-skill-hubs
 Created: 2026-10-28 · claude-opus-5-5
 Base:    2bc4427
 Inputs:  .workflow/lean-skill-hubs/brainstorm.md @ ed2c63b
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md in this repo)
 Size: code 2822 · tests 0 · ratio 0 · largest touched build-video.py 776, memory.remember/SKILL.md 306 lines · over 1,000: none
-Decisions: pending — tickets below assume 1a · 2a · 3a · 4a · 5a
+Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
+Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
 <filled by execute>
