@@ -5,7 +5,8 @@ Inputs:  .workflow/run-worktrees/review.md @ cf15502
 Status:  complete
 
 ## Execution state
-Current: C5-T1 todo · writer: — · baseline failures: none
+Current: C5-T2 todo · writer: GPT-6.1 Sol · baseline failures: none
+C5-T1 @ 00a4ae6
 
 ## Tickets
 
@@ -22,11 +23,12 @@ Budget: code +0 · tests +2 · why: two rows in the existing `cases` tuple
 Seam: `test_Open_setup_reads_shell_fences_line_by_line` (`test_run_worktree.py:174`)
 Change: add `("```shell\ntouch ready\n```\n", 0)` and `("```sh\ntouch ready\n```\n```text\nok\n```\n", 0)`. Test-only, so there is no red commit; the mutations are the proof.
 Accept:
-- [ ] `mutate.py X4 X5` → 2 killed, each on its own new row (C4-1, B1)
-- [ ] `mutate.py` on every parser id, M25–M28 and X1–X21 → 25 killed, 0 survived (C4-1)
+- [x] `mutate.py X4 X5` → 2 killed, each on its own new row (C4-1, B1)
+- [x] `mutate.py` on every parser id, M25–M28 and X1–X21 → 25 killed, 0 survived (C4-1)
 Verify: `python3 .workflow/run-worktrees/scripts/mutate.py X4 X5` (pre: 2 survived)
 Skills: none
-Status: todo
+Status: done @ 00a4ae6
+Writer: GPT-6.1 Sol
 
 ### C5-T2 — A test fails for each of the 18 C5-1 conditions
 Delivers: B1, B2, B3, B5, B8 · Blocked by: none · Lane: logic
