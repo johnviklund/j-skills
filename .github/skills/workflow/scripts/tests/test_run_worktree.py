@@ -1,9 +1,12 @@
 """Run-worktree commands exercised against real repositories and a bare origin."""
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 SCRIPT = Path(__file__).resolve().parents[1] / "run-worktree.py"
 
@@ -98,7 +101,7 @@ class OpenTests(RepoTests):
         self.assertIn("no ## Worktree setup in AGENTS.md", result.stderr)
 
     def test_Open_keeps_a_free_primary_checkout(self):
-        for state in ("clean", "isolated", "done"):
+        for state in ("clean", "isolated", "done", "parked", "missing status"):
             with self.subTest(state=state):
                 if state == "isolated":
                     self.started()
@@ -107,6 +110,11 @@ class OpenTests(RepoTests):
                 elif state == "done":
                     self.started(status="done")
                     self.git("worktree", "remove", ".worktrees/A")
+                elif state in ("parked", "missing status"):
+                    self.started(status="parked" if state == "parked" else "complete")
+                    if state == "missing status":
+                        self.write(".workflow/A/plan.md", "### T1 — ticket\n")
+                        self.commit("missing ticket status")
                 before = self.git("worktree", "list").stdout
                 result = self.run_command("open")
                 self.assertEqual(result.returncode, 0, result.stderr)
@@ -123,6 +131,24 @@ class OpenTests(RepoTests):
         self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")
         self.assertEqual(self.git("status", "--porcelain").stdout, before)
         self.assertEqual((self.repo / ".git/info/exclude").read_text().splitlines().count(".worktrees/"), 1)
+
+    def test_Open_keeps_dirty_checkout_busy_with_an_unstarted_run(self):
+        self.started()
+        self.write(".workflow/A/plan.md", "### T1 — ticket\nStatus: todo\n")
+        self.commit("unstarted run")
+        self.write("src.py", "uncommitted\n")
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), ".worktrees/B")
+
+    def test_Open_stops_when_setup_fails(self):
+        self.write("AGENTS.md", "## Worktree setup\n```sh\nfalse\ntouch ready\n```\n")
+        self.commit("failing setup")
+        self.write("src.py", "uncommitted\n")
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertTrue((self.repo / ".worktrees/B").exists())
+        self.assertFalse((self.repo / ".worktrees/B/ready").exists())
 
     def test_Open_runs_only_committed_primary_setup(self):
         self.write("AGENTS.md", "## Worktree setup\n```sh\ntouch ready\n```\n## Other\nfalse\n")
@@ -217,6 +243,39 @@ class WhereTests(RepoTests):
                 self.assertIn("could not fetch origin:", result.stderr)
                 self.assertIn("using local refs", result.stderr)
 
+    def test_Where_recovers_an_unpushed_local_branch(self):
+        self.started()
+        self.assertEqual(self.run_command("open").returncode, 0)
+        tip = self.git("rev-parse", "run/B").stdout
+        self.git("worktree", "remove", ".worktrees/B")
+        result = self.run_command("where")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), ".worktrees/B")
+        self.assertEqual(self.git("rev-parse", "HEAD", repo=self.repo / ".worktrees/B").stdout, tip)
+
+    def test_Where_without_origin_uses_the_primary_checkout(self):
+        self.git("remote", "remove", "origin")
+        result = self.run_command("where")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), ".")
+        self.assertNotIn("could not fetch", result.stderr)
+
+    def test_Where_checks_slugs_and_primary_fallback(self):
+        for command, slug, code, error in (("open", "a/b", 2, "slug must contain only"),
+                                            ("open", None, 2, "a run slug is required"),
+                                            ("where", "a..b", 1, "not a valid branch name")):
+            with self.subTest(command=command, slug=slug):
+                result = self.run_command(command, slug)
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertIn(error, result.stderr)
+        self.git("remote", "set-head", "origin", "-d")
+        result = self.run_command("where")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.git("branch", "-m", "trunk")
+        result = self.run_command("where")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("no primary branch found", result.stderr)
+
     def test_Where_finds_an_existing_worktree(self):
         self.assertEqual(self.run_command("where").stdout.strip(), ".")
         self.started()
@@ -281,7 +340,7 @@ class LandTests(RepoTests):
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertEqual(self.git("rev-parse", "main").stdout, primary)
 
-    def run_branch(self, path="src.py"):
+    def run_branch(self, path="src.py", push=True):
         self.started()
         self.git("push", "-q", "origin", "main")
         result = self.run_command("open")
@@ -291,15 +350,16 @@ class LandTests(RepoTests):
         ticket = self.commit("run ticket", repo=tree)
         self.write(Path(".workflow") / "B/plan.md", f"### T1 — ticket\nStatus: done @ {ticket}\n", repo=tree)
         tip = self.commit("run state", repo=tree)
-        self.git("push", "-qu", "origin", "run/B", repo=tree)
+        if push:
+            self.git("push", "-qu", "origin", "run/B", repo=tree)
         return tree, ticket, tip
 
     def test_Land_preserves_history_and_cleans_up(self):
-        for shape in ("fast-forward", "merge"):
+        for shape in ("fast-forward", "merge", "never pushed"):
             with self.subTest(shape=shape):
-                if shape == "merge":
+                if shape != "fast-forward":
                     self.setUp()
-                tree, ticket, tip = self.run_branch()
+                tree, ticket, tip = self.run_branch(push=shape != "never pushed")
                 if shape == "merge":
                     self.write("other.py", "primary change\n")
                     self.commit("primary advance")
@@ -307,7 +367,7 @@ class LandTests(RepoTests):
                 result = self.run_command("land")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 head = self.git("rev-parse", "HEAD").stdout.strip()
-                if shape == "fast-forward":
+                if shape != "merge":
                     self.assertEqual(head, tip)
                 else:
                     self.assertEqual(len(self.git("rev-list", "--parents", "-n1", "HEAD").stdout.split()), 3)
@@ -354,6 +414,27 @@ class LandTests(RepoTests):
         self.assertEqual(self.git("rev-parse", "HEAD").stdout.strip(), primary)
         self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")
 
+    def test_Land_requires_a_worktree(self):
+        result = self.run_command("land")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("no worktree for B", result.stderr)
+
+    def test_Land_stops_on_merge_preflight_errors(self):
+        real_git = shutil.which("git")
+        for code in (1, 128):
+            with self.subTest(code=code):
+                self.setUp()
+                self.run_branch()
+                primary = self.git("rev-parse", "main").stdout
+                wrapper = self.root / "bin/git"
+                wrapper.parent.mkdir()
+                wrapper.write_text(f'#!{sys.executable}\nimport os, sys\nif "merge-tree" in sys.argv: sys.exit({code})\nos.execv({real_git!r}, [{real_git!r}, *sys.argv[1:]])\n')
+                wrapper.chmod(0o755)
+                with mock.patch.dict(os.environ, PATH=str(wrapper.parent) + os.pathsep + os.environ["PATH"]):
+                    result = self.run_command("land")
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(self.git("rev-parse", "main").stdout, primary)
+
     def test_Land_refuses_unpushed_primary_commits(self):
         tree, _, _ = self.run_branch()
         self.write("other.py", "unscanned primary change\n")
@@ -394,6 +475,11 @@ class CheckoutTests(RepoTests):
 
 
 class DoctorTests(RepoTests):
+    def test_Doctor_is_quiet_without_worktrees_or_setup(self):
+        result = self.run_command("doctor", slug=None)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+
     def test_Doctor_reports_missing_setup_from_committed_primary(self):
         for setup, expected in ((False, 1), (True, 0)):
             with self.subTest(setup=setup):
