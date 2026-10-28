@@ -10,11 +10,11 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T2 todo · writer: GPT-6.1 Sol
+Current: T2 blocked on its 15,500-byte acceptance limit · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
 T1 @ 526f6a4
 Session 1: T1
-Uncommitted: this plan · pending decision: none
+Uncommitted: T2 hub, references and duplicates ledger · pending decision: cap or scope
 
 ## Findings
 | # | What is true | What it changes |
@@ -143,3 +143,5 @@ No PRODUCT.md, DESIGN.md or root ROADMAP.md; `workflow/ROADMAP.md` → no change
 ## Deviations
 - Baseline: no AGENTS.md or MEMORY.md exists in this checkout; used the explicit baseline commands and counts approved in F10 and B6.
 - Budget waived: T1 — tests +76 against +70; two surviving mutations required retained-phrase and exact-100-line cases. No existing assertions changed.
+- T1 follow-up: adjacent Markdown list items were treated as one sentence. Split at list seams; a real-list regression test passes and reverting that boundary goes red. Ledger suite now 3 OK.
+- T2 sizing: approved moves plus duplicate cuts yield 19,131 bytes, above 15,500. Kept the unique no-rename guard in Rules. Ledger: moved 44, duplicate 20, unaccounted 0. T2 remains todo; no acceptance limit changed.

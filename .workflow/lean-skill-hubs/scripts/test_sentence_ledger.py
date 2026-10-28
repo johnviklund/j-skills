@@ -71,6 +71,14 @@ class SentenceLedgerTests(unittest.TestCase):
         result = self.run_ledger()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_sentence_accounting_across_list_items(self):
+        self.baseline("- Retained rule.\n- Move this sentence.\n- Last rule.\n")
+        self.write("skills/example/SKILL.md", "- Retained rule.\n- Last rule.\n\n[Reference](references/a.md)\n")
+        self.write("skills/example/references/a.md", "- Move this\nsentence.\n")
+        result = self.run_ledger()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("moved 1 · duplicate 0 · unaccounted 0", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

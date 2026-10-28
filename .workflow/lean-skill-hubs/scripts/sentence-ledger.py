@@ -17,7 +17,7 @@ def normalize(text):
 
 def sentences(text):
     # Reuse check-explainer.py's sentence boundary; paragraphs retain list seams.
-    for block in re.split(r"\n\s*\n", text):
+    for block in re.split(r"\n\s*\n|\n(?=\s*(?:[-*]|\d+\.)\s)", text):
         for sentence in re.split(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(])", normalize(block)):
             if sentence:
                 yield sentence
