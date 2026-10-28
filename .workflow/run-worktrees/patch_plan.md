@@ -5,9 +5,11 @@ Inputs:  .workflow/run-worktrees/review.md @ cf15502
 Status:  complete
 
 ## Execution state
-Current: C5-T3 todo · writer: GPT-6.1 Sol · baseline failures: none
+Current: C5-T1, C5-T2 and C5-T3 done; next review · writer: GPT-6.1 Sol · baseline failures: none
 C5-T1 @ 00a4ae6
 C5-T2 @ bbaa7a1
+C5-T3 @ 59e842b
+C5-T3 red test @ f77b468
 
 ## Tickets
 
@@ -65,10 +67,11 @@ Budget: code +5 · tests +15 · why: one temp repo plus a second clone that push
 Seam: `run-worktree.py land B` as a subprocess; a clone of the fixture's bare `origin` commits and pushes `main`
 Change: first a red commit, the new test alone, run and seen failing: today `main` moves. Then the fix, after `land`'s branch check and before any merge: fetch `origin <primary>`. If `<primary>..origin/<primary>` is not empty, raise and name `origin/<primary>` and the pull. Reuse `git()` and the unpushed check's pattern (`run-worktree.py:134`). Add one line to `worktrees.md`'s exit 1 entry: when the primary branch moved on origin, pull it into the primary checkout, then land again.
 Accept:
-- [ ] The red commit fails at its parent because `main`'s sha changes (C5-2)
-- [ ] After the fix: exit 1, `main` unchanged, `.worktrees/B` and `run/B` kept, and stderr names `origin/main` (C5-2, B5)
-- [ ] `mutate.py` gains `L15`, deleting the new check; the full `mutate.py` run → 75 killed, 0 survived (C5-2)
-- [ ] `grep -c 'moved on origin' .github/skills/workflow/references/worktrees.md` → 1, and the fix commit leaves test files untouched (C5-2)
+- [x] The red commit fails at its parent because `main`'s sha changes (C5-2)
+- [x] After the fix: exit 1, `main` unchanged, `.worktrees/B` and `run/B` kept, and stderr names `origin/main` (C5-2, B5)
+- [x] `mutate.py` gains `L15`, deleting the new check; the full `mutate.py` run → 75 killed, 0 survived (C5-2)
+- [x] `grep -c 'moved on origin' .github/skills/workflow/references/worktrees.md` → 1, and the fix commit leaves test files untouched (C5-2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -k Land` (pre: the red test fails)
 Skills: none
-Status: todo
+Status: done @ 59e842b
+Writer: GPT-6.1 Sol
