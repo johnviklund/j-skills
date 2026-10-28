@@ -10,7 +10,10 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-<filled by execute>
+Current: T1 verified; commit pending · writer: GPT-6.1 Sol
+Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
+Session 1: T1
+Uncommitted: T1 scripts and this plan · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -134,3 +137,7 @@ Status: todo
 
 ## Product doc impacts
 No PRODUCT.md, DESIGN.md or root ROADMAP.md; `workflow/ROADMAP.md` → no changes.
+
+## Deviations
+- Baseline: no AGENTS.md or MEMORY.md exists in this checkout; used the explicit baseline commands and counts approved in F10 and B6.
+- Budget waived: T1 — tests +76 against +70; two surviving mutations required retained-phrase and exact-100-line cases. No existing assertions changed.
