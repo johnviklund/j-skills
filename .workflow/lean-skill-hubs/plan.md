@@ -10,19 +10,19 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T2 blocked on its 15,500-byte acceptance limit · writer: GPT-6.1 Sol
+Current: T2 verification in progress · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 Session 1: T1
-Uncommitted: T2 hub, references and duplicates ledger · pending decision: cap or scope
+Uncommitted: T2 hub, references and duplicates ledger · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
 | F1 | The brief's KB is 1,000 bytes: 13,238 bytes is its "13.2 KB" | Byte targets in tickets are `wc -c` values: 11,500, 8,000, 12,000, 3,500 |
 | F2 | agent-docs/SKILL.md:149 keeps text other skills rely on in `SKILL.md`, never a sibling file; checkup:128, retro:100 and learning-worklog.md:64 point at memory.remember's *Repeats escalate to enforcement* | D4's `references/enforcement.md` breaks that rule; the section stays (decision 1) |
-| F3 | memory.remember by section: promote bullets 3,144 · steps 3+7 1,486 · Rules repeats 2,018 · Layers 2,718 · enforcement 2,107 bytes | D4 alone ends near 16.9 KB, 19 KB with F2; 12 KB is out of reach without moving every-run text (decision 2) |
+| F3 | memory.remember by section: promote bullets 3,144 · steps 3+7 1,486 · Rules repeats 2,018 · Layers 2,718 · enforcement 2,107 bytes | Implemented moves retain 19,132 bytes with F2; T2 cap raised to 19,200 by human choice 1a on 2026-10-28 |
 | F4 | D4's merged routing table rewrites words, while Out of scope says a move keeps the words | Layers stays word for word; step 2's lines that repeat it are cut as duplicates (decision 3) |
 | F5 | memory.compact steps 6–7 (3,982 bytes) run on every pass: the output is always a proposal | Moving them saves no bytes per run; without the move compact ends near 14 KB (decision 4) |
 | F6 | Reuse: check-explainer.py:177 already splits prose into sentences; no ledger helper exists. `growth()` in check-run.py counts `.md` as zero | The ledger copies that regex with a pointer comment; doc-ticket Budgets are added lines, for review only |
@@ -50,7 +50,7 @@ Delivers: B1, B2, B3, B4 · Blocked by: T1 · Lane: logic
 Budget: code +140 · tests +0
 Seam: `wc -c` and the ledger on `.github/skills/memory.remember`. New: `references/promote-to-skill.md` (step 2 skill bullets, step 1 plugin-name listing), `references/workflow-runs.md` (steps 3, 7), `references/limits.md` (*The AGENTS.md cost test*, *Keeping memory bounded*, headings kept). Rules lines that repeat earlier sections are cut as duplicates
 Accept:
-- [ ] `wc -c` SKILL.md → at most 15,500, and `grep -c '^## Repeats escalate to enforcement$'` → 1 (B1, B4)
+- [ ] `wc -c` SKILL.md → at most 19,200, and `grep -c '^## Repeats escalate to enforcement$'` → 1 (B1, B4)
 - [ ] ledger vs ed2c63b → `unaccounted 0`, exit 0, three new reference files each linked from SKILL.md (B2, B3)
 Verify: `wc -c .github/skills/memory.remember/SKILL.md && grep -c '^## Repeats escalate to enforcement$' .github/skills/memory.remember/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/memory.remember ed2c63b` (pre: 27506 · 1 · new file)
 Skills: .github/skills/agent-docs/SKILL.md
@@ -145,4 +145,4 @@ No PRODUCT.md, DESIGN.md or root ROADMAP.md; `workflow/ROADMAP.md` → no change
 - Baseline: no AGENTS.md or MEMORY.md exists in this checkout; used the explicit baseline commands and counts approved in F10 and B6.
 - Budget waived: T1 — tests +76 against +70; two surviving mutations required retained-phrase and exact-100-line cases. No existing assertions changed.
 - T1 follow-up: adjacent Markdown list items were treated as one sentence. Split at list seams; a real-list regression test passes and reverting that boundary goes red. Ledger suite now 3 OK.
-- T2 sizing: approved moves plus duplicate cuts yield 19,131 bytes, above 15,500. Kept the unique no-rename guard in Rules. Ledger: moved 44, duplicate 20, unaccounted 0. T2 remains todo; no acceptance limit changed.
+- T2 sizing: approved moves plus duplicate cuts yield 19,131 bytes, above 15,500. Kept the unique no-rename guard in Rules. Ledger: moved 44, duplicate 20, unaccounted 0. User choice 1a on 2026-10-28 raises the cap to 19,200; scope unchanged. Final newline makes 19,132 bytes.
