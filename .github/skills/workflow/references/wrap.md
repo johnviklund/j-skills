@@ -20,13 +20,11 @@ say the evidence is missing/stale and print the closing card routing to `workflo
 **Precondition — the run checks out.** `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR and no open `fix now` finding
 (its note on `review.md` says which). An ERROR names the artifact to fix and the phase that owns it.
 
-**Precondition — clean code tree.** Then run `git status --porcelain`. Every modified or untracked
-path must be a receipt (per `SKILL.md`'s receipt rule) or `.gitignore`; a script, config, or data file
-anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never saw. Stop
-and ask one Decision question naming the paths: ➡️ a) leave them uncommitted and wrap without them,
-recommended when no run commit touched them (`git diff --name-only <plan Base>..HEAD`), since that
-is the human's own work; b) route to `workflow review`. Record the answer in `wrap.md`; on
-re-entry it stands, so the question is asked once. Wrap never commits unreviewed code. Receipt dirt is wrap's normal input and gets
+**Precondition — clean code tree.** Then run `git status --porcelain`. The human's edits (per
+`SKILL.md`) are left without a question: name them once in `wrap.md` and go on. Every other modified
+or untracked path must be a receipt (per `SKILL.md`'s receipt rule) or `.gitignore`; a script, config,
+or data file anywhere — `.workflow/`, `docs/`, `evals/` included — is code the review verdict never
+saw: stop, name the paths, and route to `workflow review`. Wrap never commits unreviewed code. Receipt dirt is wrap's normal input and gets
 committed in step 3.
 
 **Checkpoint — `wrap.md`.** Wrap makes several commits and can be interrupted between them, so it

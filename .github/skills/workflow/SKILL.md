@@ -179,6 +179,9 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
   ':(exclude)*.md' ':(exclude)*.txt' ':(exclude,glob).workflow/*/screens/**'
   ':(exclude,glob).workflow/*/prototypes/**' ':(exclude,glob).workflow/*/understand/**'` is non-empty — the **receipt-rule diff**. Code
   outside `.workflow/` never reads anything inside it.
+- **The human's edits.** A dirty path that no run commit touched (`git diff --name-only <plan Base>..HEAD`
+  omits it) is the human's own work, such as a config file the app rewrites on save. Leave it
+  uncommitted and name it once in the phase report; it never stops a gate or makes the tree unclean.
 - **Simplicity.** The smallest diff that passes is the target: every added line is one more for
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
