@@ -180,6 +180,8 @@ class OpenTests(RepoTests):
             ("```sh\ntouch ready\n```\nThen run the app.\n", 0),
             ("```\ntouch ready\n```\n", 0),
             ("1. Install:\n   ```sh\n   touch ready\n   ```\n", 0),
+            ("```shell\ntouch ready\n```\n", 0),
+            ("```sh\ntouch ready\n```\n```text\nok\n```\n", 0),
         )
         for body, expected in cases:
             with self.subTest(body=body):
