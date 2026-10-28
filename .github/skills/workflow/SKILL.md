@@ -35,11 +35,8 @@ One run = one folder, tracked in git, kept forever; its files are the state mach
 | `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's checkpoint, then the run's ≤ ~40-line summary |
 
 **Layout.** The top level holds only the artifacts above; everything else goes in a subfolder by
-kind, created when first needed: `receipts/` (verification output, diffs, handoffs:
-`t3-verification.md`) · `screens/` (UI before/after: `t3-topic-page-before.jpg`) · `notes/`
-(investigations, audits, runbooks, drafts) · `scripts/` (one-off code, reviewed like any other) ·
-`data/` (small frozen `*.json`/`*.csv`; bulk data stays outside the repo) · `prototypes/`
-(throwaway sketches) · `understand/` (written only by the `understand` skill).
+kind, created when first needed: `receipts/` · `screens/` · `notes/` · `scripts/` · `data/` ·
+`prototypes/` · `understand/`. What each holds: `references/phase-3-execute.md`, *Run folder layout*.
 
 Every artifact header carries `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
 `done`. A run whose `brainstorm.md` is `parked` or `done` is not live.
@@ -94,10 +91,9 @@ commands, paths and fixed line formats stay as they are. Above the closing card,
 — ambiguous scope, a command/state mismatch, schema/contract/deletion work, a silent assumption —
 ask one round of ≤3 questions and wait.
 
-**Budgets** — thinking is unbounded, files are not: `brainstorm.md` ≤ ~80 lines, 8 behaviours;
-`plan.md` ≤ ~120 lines, 8 tickets, 20 acceptance lines; `review.md` ≤ ~100; done `wrap.md` ≤ ~40.
-Over budget: propose two runs and ask; record a refusal as `Split declined by human: <when>`.
-Cut prose, never acceptance lines or checks.
+**Budgets** — thinking is unbounded, files are not. The limits sit in each phase's reference and in
+`check-run.py`, which flags an overrun. Over budget: propose two runs and ask; record a refusal as
+`Split declined by human: <when>`. Cut prose, never acceptance lines or checks.
 
 ## Seats
 

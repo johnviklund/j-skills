@@ -129,7 +129,7 @@ review will hold the code to, so the human sees them here; this is the one round
 budget yields. Ask one decision in the `SKILL.md` row shape: ➡️ a) approve · b) split T# · c) merge T# + T# ·
 d) change an acceptance line · e) other, one row each with its reason. Iterate until approved. The approval completes the phase.
 
-## 5. Finish `plan.md` (≤ ~120 lines, ≤ 8 tickets)
+## 5. Finish `plan.md` (≤ ~120 lines, ≤ 8 tickets, ≤ 20 acceptance lines)
 
 Before setting `complete`, run every `Verify:` command as it stands and record its current result as
 `pre:` — the command must execute. A test file the ticket will create doesn't exist yet: point the

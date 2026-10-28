@@ -48,7 +48,7 @@ SUBFOLDERS = ["receipts", "screens", "notes", "scripts", "data", "prototypes", "
 HEADER = ["Command", "Created", "Base", "Inputs", "Status"]
 STATUSES = {"drafting", "complete", "parked", "done"}
 LANES = {"mechanical", "logic", "contract", "operator"}
-# Line budgets from SKILL.md *Budgets*; wrap's ~40 applies only once the run is done.
+# Line budgets from the phase references (brainstorm §5, plan §5, review, wrap); wrap's ~40 applies only once the run is done.
 BUDGET = {"brainstorm.md": 80, "plan.md": 120, "review.md": 100}
 WRAP_DONE_BUDGET = 40
 LEAN_BEHAVIOURS_MAX, PLAN_ACCEPT_MAX = 8, 20  # lean runs: split above either total

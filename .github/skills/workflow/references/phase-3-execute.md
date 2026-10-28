@@ -112,6 +112,15 @@ the Finding and every later target derived from it, so they are re-derived befor
 `## Deviations` line and continue.
 A one-item probe proves the path works, never the full run's runtime or cost.
 
+## Run folder layout
+
+**Layout.** The top level holds only the artifacts above; everything else goes in a subfolder by
+kind, created when first needed: `receipts/` (verification output, diffs, handoffs:
+`t3-verification.md`) · `screens/` (UI before/after: `t3-topic-page-before.jpg`) · `notes/`
+(investigations, audits, runbooks, drafts) · `scripts/` (one-off code, reviewed like any other) ·
+`data/` (small frozen `*.json`/`*.csv`; bulk data stays outside the repo) · `prototypes/`
+(throwaway sketches) · `understand/` (written only by the `understand` skill).
+
 ## `## Execution state` (top of the live file, ≤ ~15 lines)
 
 Current ticket and status · one `T# @ <sha>` line per committed ticket (the freshness check reads
