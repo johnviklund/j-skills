@@ -60,15 +60,15 @@ C4-1 is reopened above: its class sweep found two more surviving mutations. C5-1
 ### P1 — C5-1 · Eighteen more conditions in this run's code survive mutation
 - Evidence: each change on its own leaves the suite 72/72 green. Setup in `run-worktree.py`: A2 reuse a local `run/B` (`:52`); A4 `check=True` and A5 `bash -e` (`:60`), so "a failed setup stops execution" (`worktrees.md:43`) is unpinned. `where`: WH1 fetch only with an `origin` (`:66`); WH5 rebuild from a local `run/B` (`:73`). `open`: S1 a ticket with no `Status` (`:86`); O6 a parked run counted busy (`:101`); O8 `busy |=` → `busy =` (`:103`), which would keep B in a dirty folder when another live run has not started (B1). `land`: L2 no worktree (`:112`); L5 preflight changed (`:124`); L8 merge-tree error (`:132`); L11 delete only a pushed run branch (`:139`). `doctor`: D1 setup finding only with a worktree (`:150`). `main`: MN2 slug required (`:165`); MN1 slug pattern (`:167`), the path guard in Threats; MN3 ref format (`:172`); MN4 primary required (`:173`). Also C6b, the `main`/`master` fallback this run moved into `primary_branch` (`check-run.py:680`). Probes show the code is right; no test fails when it breaks. Same class as C1-4 and C4-1.
 - Remedy: one test-only ticket, one case per survivor. L5 and L8 need a `git` wrapper first on `PATH` that forces `merge-tree`'s exit code.
-- Disposition: fix now — proposed after decision 1b; the human decides
+- Disposition: fix now — the human chose 1a, 2026-10-28
 - Resolved: —
 ### P2 — C5-2 · `land` moves local `main` before it knows the push will succeed
-- Evidence: `land` fetches only `run/*` (`run-worktree.py:68`), so a stale `origin/main` passes the unpushed check (`:134`). Probe: another clone pushes `main`, then `land B` merges into local `main` (`:137`), the push is rejected (`fetch first`), exit 1, local `main` 1 ahead, worktree kept. Loud and recoverable, but `worktrees.md` names no recovery, and the two-machine setup makes it likely.
+- Evidence: `land` fetches only `run/*` (`run-worktree.py:68`), so a stale `origin/main` passes the unpushed check (`:134`). Probe: another clone pushes `main`, then `land B` merges into local `main` (`:137`), the push is rejected (`fetch first`), exit 1, local `main` 1 ahead, worktree kept. Loud and recoverable, but `worktrees.md:65-66` only says to inspect refs after a failed land, and two machines in use make it likely.
 - Remedy: before merging, fetch `origin <primary>` and stop with exit 1, `main` unmoved, when `<primary>..origin/<primary>` is not empty, naming the pull; one red test, one `worktrees.md` line.
-- Disposition: fix now — proposed after decision 1b; the human decides
+- Disposition: fix now — the human chose 2a, 2026-10-28
 - Resolved: —
 
 ## Cycle 5 verdict
 The three test rows work. M25, M27 and M28 each fail one subtest, and `5db97cd` touches only the test tuple. The class sweep mutated all 17 conditions and tags of the setup parser, and 15 fail the suite. Two survive: dropping the `shell` tag, and recording only the last fence's tag in `found`. The code handles both shapes correctly today, so B1 and the Outcome hold. C4-1 stays open at P1. Cycle bound passed: C4-1 goes to the human as one decision. ➡️ a) accept it as is, recorded here with no `TODO.md` line, since it breaks no behaviour · b) cycle 6 adds the two rows. Wrap waits for the answer.
 
-Cycle 6 approved by human: 2026-10-28 — 1b, one more cycle adding the two C4-1 test rows ("important we get this right"). C5-1 and C5-2 wait on the human's next answer.
+Cycle 6 approved by human: 2026-10-28 — 1b, one more cycle adding the two C4-1 test rows ("important we get this right"). Then 1a and 2a: C5-1 and C5-2 join cycle 6. Patch cycle 5 (`patch_plan.md`): C5-T1 fixes C4-1, C5-T2 fixes C5-1, C5-T3 fixes C5-2; `scripts/mutate.py` holds the 74 named mutations.
