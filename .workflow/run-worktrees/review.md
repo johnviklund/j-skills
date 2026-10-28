@@ -60,3 +60,5 @@ Cycle 3 approved by human: 2026-10-27 — option 1b, one more cycle fixing C2-1,
 
 ## Cycle 3 verdict
 C2-1 and C2-3 are fixed and stamped; 7 new mutations (M14–M20) all fail the suite. Open: C3-1 (P1, a regression from the C2-1 fix) and C2-2 (P2, reopened at a second fence shape). Both silently skip setup commands, so both break B1. One fix ticket closes both: read the setup block line by line, take commands only from `sh`/`bash`/`shell`/untagged fences by their opening line, and stop `open` when the block has text but no shell fence. Cycle bound passed: both go to the human as one decision, ➡️ a) one more cycle · b) defer both to `TODO.md` (C3-1 needs `Approved by human:`). Wrap waits for the answer.
+
+Cycle 4 approved by human: 2026-10-28 — 1a, one more cycle fixing C3-1 and C2-2; 2a, setup commands must sit in a shell fence. Patch cycle 3 (`patch_plan.md`): C3-T1 fixes both.
