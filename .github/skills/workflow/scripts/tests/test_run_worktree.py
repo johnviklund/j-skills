@@ -171,6 +171,32 @@ class OpenTests(RepoTests):
                     self.assertTrue((self.repo / ".worktrees/B/ready").exists())
 
 
+    def test_Open_setup_reads_shell_fences_line_by_line(self):
+        cases = (
+            ("# install deps\ntouch ready\n", 1),
+            ("```zsh\ntouch zsh_ran\n```\n\n```sh\ntouch ready\n```\n", 0),
+            ("```console\n$ make\n```\nThen run:\n```sh\ntouch ready\n```\n", 0),
+            ('```bash title="setup"\ntouch ready\n```\n', 0),
+        )
+        for body, expected in cases:
+            with self.subTest(body=body):
+                self.setUp()
+                self.write("AGENTS.md", "## Worktree setup\n" + body)
+                self.commit("setup fence shapes")
+                self.write("src.py", "uncommitted\n")
+                result = self.run_command("open")
+                self.assertEqual(result.returncode, expected, result.stderr)
+                if expected:
+                    self.assertIn("## Worktree setup", result.stderr)
+                    self.assertIn("fence", result.stderr)
+                    self.assertFalse((self.repo / ".worktrees/B").exists())
+                    self.assertNotEqual(self.git("rev-parse", "--verify", "refs/heads/run/B", check=False).returncode, 0)
+                else:
+                    self.assertTrue((self.repo / ".worktrees/B/ready").exists())
+                    self.assertFalse((self.repo / ".worktrees/B/zsh_ran").exists())
+                    self.assertNotIn("Then run:", result.stderr)
+
+
 class WhereTests(RepoTests):
     def test_Where_uses_local_refs_when_origin_is_unreachable(self):
         for isolated in (False, True):
