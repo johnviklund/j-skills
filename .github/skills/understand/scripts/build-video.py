@@ -75,7 +75,7 @@ TAIL = 1.5             # s: the last picture holds after the voice ends; the fil
 READ_WPS = 2.5         # silent beats: ~150 words a minute, a relaxed reading pace beside motion
 MIN_BEAT = 3.0         # a beat shorter than this flashes past before the eye settles
 SENTENCE_WORDS = 25    # the plain skill's sentence limit, so narration reads as the page does
-KINDS = ("built", "feature")  # the two stories in video.md: what a run built, how a feature works
+KINDS = ("built", "feature")  # the two stories in references/video.md: what a run built, how a feature works
 LENGTH_OK = (45, 180)  # seconds: under 45 says too little to beat the page, over 180 loses people
 VIDEO_WARN = 25_000_000  # bytes: a 26 s 1080p test build was 0.6 MB (2026-10-04); 25 MB leaves
                          # room for 3 minutes with many screenshots
@@ -155,7 +155,7 @@ def lint(script):
         errors.append('script.json: missing "title"')
     if script.get("kind") not in KINDS:
         warnings.append(f'script.json: "kind" should be one of {", ".join(KINDS)}; it picks the '
-                        'story arc in video.md')
+                        'story arc in references/video.md')
     if not isinstance(beats, list) or not beats:
         errors.append('script.json: "beats" must be a non-empty list')
         return errors, warnings, []

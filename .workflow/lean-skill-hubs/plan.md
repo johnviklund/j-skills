@@ -156,3 +156,4 @@ No PRODUCT.md, DESIGN.md or root ROADMAP.md; `workflow/ROADMAP.md` → no change
 - Budget waived: T1 — tests +76 against +70; two surviving mutations required retained-phrase and exact-100-line cases. No existing assertions changed.
 - T1 follow-up: adjacent Markdown list items were treated as one sentence. Split at list seams; a real-list regression test passes and reverting that boundary goes red. Ledger suite now 3 OK.
 - T2 sizing: approved moves plus duplicate cuts yield 19,131 bytes, above 15,500. Kept the unique no-rename guard in Rules. Ledger: moved 44, duplicate 20, unaccounted 0. User choice 1a on 2026-10-28 raises the cap to 19,200; scope unchanged. Final newline makes 19,132 bytes.
+- Budget waived: T6 — +63 skill/script lines against +60; the video contents list and step-2/step-7 routing keep the moved guide readable. No tests added or existing assertions changed.

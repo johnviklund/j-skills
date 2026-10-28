@@ -1,5 +1,7 @@
 # understand: the video
 
+Contents: Video question · Steps · HyperFrames, and where understand differs · Voice · Setup · Receipt line
+
 Read in step 7 of `SKILL.md`, when the human chose a video in step 2. The video retells the
 verified page as a 3Blue1Brown-style animation in the page's own palette: one idea at a time,
 shapes that move to show cause and change, each picture landing on the word that names it, and
@@ -8,6 +10,24 @@ does not make, so the page's cites and fidelity pass cover it too.
 
 Everything goes in the output folder's `video/`. `<skill>` is this skill's folder; `<video>` is
 that `video/` folder.
+
+## Video question
+
+Step 2 reads this question; the build steps below apply in step 7.
+
+   - **Video question:** settle it now, so the rest runs without stopping. A video retells the
+     page in motion and earns its cost when the story moves: screens changed, or the work spans
+     several parts or steps, such as three or more behaviours or tickets, or a flow or states
+     to draw. A small fix, a rename or config change, or a page whose point is one fact does not
+     fit. When it fits, ask once, lettered, recommending a when `ELEVENLABS_API_KEY` is set and
+     b otherwise: a) video with voice, b) video with on-screen captions, c) no video. Each option
+     names its cost: roughly how many characters go to ElevenLabs, whether the key is set, and a
+     one-time `build-video.py --setup` on a machine that has not built a video. In the same question, numbered,
+     ask which story the video tells: 1) built, what the run built, the default for a slug; 2)
+     feature, why the feature exists, what it is and how it works, the default for an area. The
+     human answers both at once, such as `a1`. `--video` means a, or b without a key, with the
+     default story; `--no-video` or no fit means c. With no human to ask, c, and the receipt
+     names `understand <target> --video`.
 
 ## Steps
 
