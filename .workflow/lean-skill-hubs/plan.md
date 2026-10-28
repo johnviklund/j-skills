@@ -10,16 +10,17 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T5 todo; T4 verified · writer: GPT-6.1 Sol
+Current: T6 todo; T5 verified · writer: GPT-6.1 Sol
 Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
-Proof: T4 11,461 bytes; moved 9, duplicate 4, unaccounted 0; workflow 81 OK.
+Proof: T5 6,044 bytes; moved 115, duplicate 1, unaccounted 0; description 591 chars, 7/7 triggers.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 T2 @ f7a16ad
 T3 @ efc114a
 T4 @ fb6a5d2
+T5 @ b640a54
 Session 1: T1, T2, T3
-Session 2: T4
+Session 2: T4, T5
 Uncommitted: none after this record commits · pending decision: none
 
 ## Findings
@@ -91,12 +92,13 @@ Delivers: B1, B2, B3, B5 · Blocked by: T1 · Lane: logic
 Budget: code +260 · tests +0
 Seam: `wc -c`, the ledger and `yaml.safe_load` of the frontmatter on `.github/skills/checkup`; one `references/<scope>.md` per section, named for its scope word
 Accept:
-- [ ] `wc -c` SKILL.md → at most 8,000; six files `references/{skills,memory,docs,workspace,config,seats}.md`, each linked from SKILL.md (B1, B3)
-- [ ] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
-- [ ] parsed `description` → at most 778 characters, containing all seven quoted trigger phrases of Base (B5)
+- [x] `wc -c` SKILL.md → at most 8,000; six files `references/{skills,memory,docs,workspace,config,seats}.md`, each linked from SKILL.md (B1, B3)
+- [x] ledger vs ed2c63b → `unaccounted 0`, exit 0 (B2)
+- [x] parsed `description` → at most 778 characters, containing all seven quoted trigger phrases of Base (B5)
 Verify: `wc -c .github/skills/checkup/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/checkup ed2c63b && (cd .github/skills/checkup && python3 -m unittest discover -s scripts/tests)` (pre: 23975 · new file)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ b640a54
+Writer: GPT-6.1 Sol
 
 ### T6 — understand moves pictures and video detail to references
 Delivers: B1, B2, B3, B4 · Blocked by: T1 · Lane: logic
