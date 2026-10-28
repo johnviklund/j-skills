@@ -23,7 +23,7 @@ T5 @ b640a54
 T6 @ 6973783
 Session 1: T1, T2, T3
 Session 2: T4, T5, T6
-Uncommitted: none after this record commits · pending decision: approve push to origin/main (auto-review blocked)
+Uncommitted: none after this record commits · pending decision: none; push approved by human (1a)
 
 ## Findings
 | # | What is true | What it changes |
