@@ -56,7 +56,7 @@ Cycle 6 approved by human: 2026-10-28 — 1b, one more cycle adding the two C4-1
 ### P2 — C6-1 · The new "pull" advice rebases another run's unpushed commits
 - Evidence: `worktrees.md:67` and the error at `run-worktree.py:114` both say to pull. This machine sets `pull.rebase=true` globally. Probe on a scratch repo: run A commits a ticket on `main` and has not pushed it; another clone pushes `main`; `land B` exits 1 as designed. Then `git pull origin main` rebases A's commit, and its old sha is no longer an ancestor of `main`. A's `done @` line now cites a commit no other clone will ever have, against D5's "every cited sha stays valid". This run's own C5 session left 7 commits unpushed on `main`, so the state is real. No B# breaks, since B5 names only B's shas, and the Outcome holds.
 - Remedy: both sites name a merge instead of a pull, for example `git merge --no-edit origin/<primary>`, since `land` has just fetched it. That fast-forwards when the primary has no local commits and merges when it has, whatever the pull config says. About 2 changed lines; the test asserts only `origin/main`, so it stays as it is.
-- Disposition: fix now
+- Disposition: fix now — the human chose 1a, 2026-10-28
 - Resolved: —
 ### P3 — C6-2 · One minor note
 - `plan.md`'s `Ratio waived: run` line quotes +423 tests against +246 code. Cycle 6 added 105 test lines, which the waiver does not mention.
@@ -67,3 +67,5 @@ Cycle 6 approved by human: 2026-10-28 — 1b, one more cycle adding the two C4-1
 
 ## Cycle 6 verdict
 The three fix tickets work. X4, X5 and the 18 C5-1 conditions now each fail the suite, and the full named sweep reads 75 killed, 0 survived. The new land check stops before `main` moves. Its red test failed first, the fix touched no test file, and three more mutations of the new lines fail too. C4-1, C5-1 and C5-2 are resolved. One new P2, C6-1, sits in the fix's own advice text: under this machine's `pull.rebase=true`, "pull" rewrites another run's unpushed commits. Cycle bound passed, so C6-1 goes to the human as one decision. ➡️ a) cycle 7, one ticket changing the two lines · b) defer to `TODO.md`, since it breaks no behaviour. Wrap waits for the answer.
+
+Cycle 7 approved by human: 2026-10-28 — 1a, one more cycle fixing C6-1. Patch cycle 6 (`patch_plan.md`): C6-T1 names `git merge --no-edit origin/<primary>` in the refusal and in `worktrees.md`, red test first.
