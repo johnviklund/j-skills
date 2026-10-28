@@ -435,6 +435,23 @@ class LandTests(RepoTests):
                 self.assertEqual(result.returncode, 1, result.stderr)
                 self.assertEqual(self.git("rev-parse", "main").stdout, primary)
 
+    def test_Land_refuses_a_primary_branch_advanced_on_origin(self):
+        tree, _, tip = self.run_branch()
+        primary = self.git("rev-parse", "main").stdout
+        clone = self.root / "other-clone"
+        self.git("clone", "-q", str(self.remote), str(clone))
+        self.git("config", "user.name", "Test", repo=clone)
+        self.git("config", "user.email", "test@example.invalid", repo=clone)
+        self.write("other.py", "remote primary change\n", repo=clone)
+        self.commit("advance origin main", repo=clone)
+        self.git("push", "-q", "origin", "main", repo=clone)
+        result = self.run_command("land")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(self.git("rev-parse", "main").stdout, primary)
+        self.assertTrue(tree.exists())
+        self.assertEqual(self.git("rev-parse", "run/B").stdout.strip(), tip)
+        self.assertIn("origin/main", result.stderr)
+
     def test_Land_refuses_unpushed_primary_commits(self):
         tree, _, _ = self.run_branch()
         self.write("other.py", "unscanned primary change\n")
