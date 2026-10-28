@@ -18,7 +18,7 @@ bounded-memory designs like Hermes, where an over-limit write is refused until t
 - Treat roughly **~40 pages / a ~40 KB index** as a soft ceiling. Near or over it, **consolidate
   before adding**: merge overlapping pages into one (sum the evidence, keep the higher count), or
   route/drop stale ones, in the same pass — do not just add a page.
-- The repeat rule above is the main lever: most "new" lessons are a fourth occurrence of an existing
+- The repeat rule in `SKILL.md` is the main lever: most "new" lessons are a fourth occurrence of an existing
   page, not a page.
 - If consolidation can't get a genuinely new, test-passing page to fit under the ceiling, that is the
   signal to run `memory.compact` (or redistribute pages to their canonical owners) rather than let

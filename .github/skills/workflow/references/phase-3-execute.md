@@ -26,8 +26,6 @@ per `references/worktrees.md`; run the following checks in the returned checkout
    and note which failures already exist, unless the last ticket's final suite passed on this HEAD
    with a tree clean apart from the human's edits (`SKILL.md`): cite that result instead, since a rerun tests the same code. No such block → ask for the commands.
 
-- **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
-
 ## The ticket loop
 
 Take the first ticket whose status is `todo` and whose blockers are all `done`. An `awaiting-human`

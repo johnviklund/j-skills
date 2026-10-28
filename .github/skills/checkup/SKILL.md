@@ -53,7 +53,7 @@ Optional scope words narrow the pass: `checkup skills`, `checkup memory`, `check
 ## The check battery
 
 Run the sections in order. For each finding pick a severity: **✅ OK**, **⚠️ warn** (worth a look,
-not blocking), **🔴 action** (should be fixed). Collect evidence with commands like the following;
+not blocking), **🔴 action** (should be fixed). Collect evidence with commands like the ones each section lists;
 adapt paths to what actually exists.
 
 Read each selected section before running its checks:

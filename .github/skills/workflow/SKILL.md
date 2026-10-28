@@ -181,7 +181,7 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
 
 ## Command index
 
-Read the one reference for the command; `status` and `next` need only this file and `ROUTING.md`.
+Read the one reference for the command; `status` and `next` need only `worktrees.md` and `ROUTING.md`.
 
 | Command | Reference in `references/` |
 |---|---|

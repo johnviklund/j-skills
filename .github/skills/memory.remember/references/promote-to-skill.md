@@ -2,7 +2,7 @@
 
 Before proposing or editing a skill, gather plugin names during step 1:
 
-   - **Also list every installed plugin's skill names** — e.g. `ls ~/.copilot/installed-plugins/*/*/skills/` and `~/.copilot/installed-plugins/_direct/*/skills/` (Copilot), and `ls ~/.codex/skills/` (Codex, which mirrors plugin-provided skills alongside repo-local symlinks). You need these names for one reason only: never propose a new repo-local skill whose name collides with one of them (see the naming-collision rule in step 2).
+   - **Also list every installed plugin's skill names** — e.g. `ls ~/.copilot/installed-plugins/*/*/skills/` and `~/.copilot/installed-plugins/_direct/*/skills/` (Copilot), and `ls ~/.codex/skills/` (Codex, which mirrors plugin-provided skills alongside repo-local symlinks). You need these names for one reason only: never propose a new repo-local skill whose name collides with one of them (see the naming-collision rule below).
 
 Apply the step 2 promotion bar:
 

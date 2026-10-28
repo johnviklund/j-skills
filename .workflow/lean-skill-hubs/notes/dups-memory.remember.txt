@@ -18,3 +18,5 @@ A new skill needs 3+ recurrences, reusability beyond one feature, and a genuine 
 - Every page uses the page shape; `MEMORY.md` holds index lines only.	.github/skills/memory.remember/SKILL.md	`MEMORY.md` is the **index**: one line per page, nothing else
 No flat bullets, no inline entries.	.github/skills/memory.remember/SKILL.md	Every durable lesson is a **page** at `memory/<slug>.md`
 - Every `Evidence` entry names a run slug or commit, is unique per page, and `Occurrences` equals the number of entries; a routed learnings line carries its `[routed → …]` mark and is never routed again.	.github/skills/memory.remember/SKILL.md	**unique per page**
+- The repeat rule above is the main lever: most "new" lessons are a fourth occurrence of an existing page, not a page.	.github/skills/memory.remember/references/limits.md	The repeat rule in `SKILL.md` is the main lever
+You need these names for one reason only: never propose a new repo-local skill whose name collides with one of them (see the naming-collision rule in step 2).	.github/skills/memory.remember/references/promote-to-skill.md	see the naming-collision rule below
