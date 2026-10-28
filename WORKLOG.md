@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-28 · lean-skill-hubs · six large skill hubs now load only the branch a run needs · GPT-6.1 Sol
+- `memory.remember`, `memory.compact`, `workflow`, `checkup`, `understand` and `verify` keep in `SKILL.md` only what every run needs; branch text sits in linked `references/` files (checkup one file per scope word, verify one per command). Hub sizes: workflow 13,238 to 11,499 bytes, checkup 23,975 to 6,058, verify 14,934 to 2,914.
+- A sentence ledger (`.workflow/lean-skill-hubs/scripts/`) accounts for every removed sentence as moved, duplicate or unaccounted; all six end at 0 unaccounted. Installed copies match the repo. Cycle 1 found an untested ledger window (P1) and five stale pointers (P3); both fixed.
+- Commits: 526f6a4 f7a16ad efc114a fb6a5d2 b640a54 6973783 076d68d 778f70f 2f648a8 be06046
+- Review: ship as-is (cycle 2, 0 open) @ 3386bbf
+- Run: 8 tickets · 4 sessions · 2 review cycles · 6 deviations · 0 findings overturned · net code +83 · tests +88
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@a7eb94288836, memory.remember@d8c8240e4b0d, memory.compact@2aeb788ce0b3, checkup@233d43b063f1, understand@dee283ef87c6, verify@af376476763a
+- Why: seven skill files were over the ~10 KB budget, so every load paid for text most runs never used.
+
 ## 2026-10-28 · run-worktrees · parallel runs work in their own git worktrees · GPT-6.1 Sol
 - Each run can execute in `.worktrees/<slug>` on `run/<slug>`; `run-worktree.py` opens, finds, lands and diagnoses them, every phase resolves its checkout from the slug, and wrap lands the branch without touching another run's files. A second clone rebuilds a worktree from `origin/run/<slug>`.
 - Proved on scratch repos through the test harness, not a live parallel run. Seven review cycles found 11 P1/P2 defects (unscanned pushes at landing, setup parsing, offline lookup, 25 surviving mutations); all fixed. P3s stayed in review.md.
@@ -144,15 +154,3 @@ oldest when appending would exceed that.
 - Why: v2.02 runs showed severity bars that couldn't escalate outcome failures and no lane for live
   steps (an archived v2.1 review, since removed).
 
-## 2026-08-26 · `workflow realign` command specified, planned, executed, reviewed · Sonnet 5
-- Added `references/realign.md` (new `workflow realign` command: canonical-doc drift check against
-  code, per-candidate human-approved rewrite) and wired it into `SKILL.md` (seat table, command
-  index) and `ROUTING.md` (model/effort/approval mapping).
-- Patch cycle 1 closed 4 findings: unblocked `realign`'s own resume path (P1, clean-worktree gate
-  scoped outside `.workflow/`), separated the retained-stale artifact from the fresh-run path (P2,
-  `realign-stale-<date>.md`), fixed a seat-table row that both asserted read-only and granted write
-  authority (P2), and plained the `TODO.md` read-only wording (P3).
-- Commits: 0008a14
-- Review: ship as-is (cycle 2, clean — 0 P0/P1/P2, 3 P3s deferred) @ 0008a14
-- Why: give the workflow a repeatable, reviewed way to catch canonical-doc drift instead of relying
-  on ad hoc memory.remember passes to notice it.

@@ -2,32 +2,12 @@ Command: workflow plan lean-skill-hubs
 Created: 2026-10-28 · claude-opus-5-5
 Base:    2bc4427
 Inputs:  .workflow/lean-skill-hubs/brainstorm.md @ ed2c63b
-Status:  complete
+Status:  done
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md in this repo)
 Size: code 2822 · tests 0 · ratio 0 · largest touched build-video.py 776, memory.remember/SKILL.md 306 lines · over 1,000: none
 Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
-
-## Execution state
-Current: patch cycle 1 complete; pushed and installed; ready for cross-vendor re-review · writer: GPT-6.1 Sol
-Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
-Proof: T7 2,914 bytes; moved 138, duplicate 0, unaccounted 0; command bodies and frontmatter unchanged; trial rows 5.
-T1 @ 526f6a4
-T1 @ 46d79f0 (list-seam correction)
-T2 @ f7a16ad
-T3 @ efc114a
-T4 @ fb6a5d2
-T4 @ b9cb0f2 (common-rule correction)
-T5 @ b640a54
-T6 @ 6973783
-T7 @ 076d68d
-T8 @ 778f70f
-Session 1: T1, T2, T3
-Session 2: T4, T5, T6
-Session 3: T7, T8
-Session 4: C1-T1, C1-T2
-Uncommitted: none after this record commits · pending decision: none. Install receipts: receipts/t8-install.txt; receipts/c1-install.txt
 
 ## Findings
 | # | What is true | What it changes |

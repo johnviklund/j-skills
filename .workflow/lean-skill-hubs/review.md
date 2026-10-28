@@ -2,7 +2,7 @@ Command: workflow review lean-skill-hubs
 Created: 2026-10-28
 Base:    f80148f
 Inputs:  .workflow/lean-skill-hubs/plan.md @ 2bc4427 · .workflow/lean-skill-hubs/patch_plan.md @ c4aa5a7
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1 — 2/2: `test_sentence_ledger` 3 OK; whole-file mutation sweep 12 mutations, all killed after C1-T1 (M12 was C1-1)
