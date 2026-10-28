@@ -10,12 +10,13 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T2 verification in progress · writer: GPT-6.1 Sol
+Current: T3 todo · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
-Session 1: T1
-Uncommitted: T2 hub, references and duplicates ledger · pending decision: none
+T2 @ f7a16ad
+Session 1: T1, T2
+Uncommitted: this plan · pending decision: none
 
 ## Findings
 | # | What is true | What it changes |
@@ -50,11 +51,12 @@ Delivers: B1, B2, B3, B4 · Blocked by: T1 · Lane: logic
 Budget: code +140 · tests +0
 Seam: `wc -c` and the ledger on `.github/skills/memory.remember`. New: `references/promote-to-skill.md` (step 2 skill bullets, step 1 plugin-name listing), `references/workflow-runs.md` (steps 3, 7), `references/limits.md` (*The AGENTS.md cost test*, *Keeping memory bounded*, headings kept). Rules lines that repeat earlier sections are cut as duplicates
 Accept:
-- [ ] `wc -c` SKILL.md → at most 19,200, and `grep -c '^## Repeats escalate to enforcement$'` → 1 (B1, B4)
-- [ ] ledger vs ed2c63b → `unaccounted 0`, exit 0, three new reference files each linked from SKILL.md (B2, B3)
+- [x] `wc -c` SKILL.md → at most 19,200, and `grep -c '^## Repeats escalate to enforcement$'` → 1 (B1, B4)
+- [x] ledger vs ed2c63b → `unaccounted 0`, exit 0, three new reference files each linked from SKILL.md (B2, B3)
 Verify: `wc -c .github/skills/memory.remember/SKILL.md && grep -c '^## Repeats escalate to enforcement$' .github/skills/memory.remember/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/memory.remember ed2c63b` (pre: 27506 · 1 · new file)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ f7a16ad
+Writer: GPT-6.1 Sol
 
 ### T3 — memory.compact points at memory.remember for layers and page shape
 Delivers: B1, B2 · Blocked by: T2 · Lane: logic
