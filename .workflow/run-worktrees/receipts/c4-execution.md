@@ -35,3 +35,7 @@ Gitleaks scanned both outgoing commits through 96e732d and found no leaks. The t
 Automatic approval review rejected `git push origin main`: publishing repository content to an external GitHub destination requires explicit authorization for this payload and destination. The push did not run. No workaround or retry was attempted.
 Destination: https://github.com/johnviklund/j-skills, branch main. Approval would publish 5db97cd, the three-row test-only patch; 96e732d, its execution state and receipt; and this publication-block record.
 All work remains committed locally. After approval and a fresh secret scan, push and hand off to `workflow review run-worktrees` with Opus 5.5 at xhigh effort, large context; fallback Sonnet 5.5 at xhigh.
+
+## Approved publication
+The human approved option 1a, push, on 2026-10-28. Gitleaks rescanned all 3 outgoing commits through 4cc0fbd and found no leaks.
+`git push origin main` exited 0, advancing https://github.com/johnviklund/j-skills main from 02db323 to 4cc0fbd. The publication block is resolved. The next phase is `workflow review run-worktrees`.
