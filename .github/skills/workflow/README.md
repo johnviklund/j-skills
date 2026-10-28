@@ -112,8 +112,8 @@ Keep starting the CLI in the repo folder. A second executing run gets an ignored
 `.worktrees/<slug>` checkout on `run/<slug>` when another run occupies that folder.
 Every later command finds that checkout from the slug, including on another clone after a push.
 A lone run still works on the primary branch. Cards push the run branch; wrap merges it without
-rebasing and removes its checkout and branch. Add shell commands under `## Worktree setup` in
-the primary branch's committed `AGENTS.md` when a new checkout needs dependencies installed.
+rebasing and removes its checkout and branch. Put setup commands in an `sh` fence under
+`## Worktree setup` in the primary branch's committed `AGENTS.md` when a new checkout needs dependencies installed.
 See [the worktree rules](references/worktrees.md) for lookup, setup, landing and conflict recovery.
 
 ```text

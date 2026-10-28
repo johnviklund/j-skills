@@ -37,8 +37,8 @@ primary checkout. A free primary checkout keeps the lone run there.
 
 The script adds `.worktrees/` once to the clone's `.git/info/exclude`, preserving tracked files.
 Setup comes only from the committed primary branch's `AGENTS.md` `## Worktree setup` block.
-In fenced setup blocks, only `sh`, `bash`, `shell` and untagged fences supply commands.
-A fenced block without one of these stops `open` before a checkout exists.
+Only `sh`, `bash`, `shell` and untagged fences supply commands; text outside a shell fence never runs.
+A block without one of these fences stops `open` before a checkout exists.
 Commands are printed and run in the new checkout. A missing block produces a note;
 a failed setup stops execution. Resume only after checking and completing setup there.
 

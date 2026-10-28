@@ -28,10 +28,20 @@ def worktree_setup(repo):
 def add_worktree(repo, slug, start):
     body = worktree_setup(repo)
     if body is not None:
-        fences = re.findall(r"```(?:sh|bash|shell)?[ \t]*\n(.*?)```", body, re.S)
-        if "```" in body and not fences:
-            raise RuntimeError("## Worktree setup requires sh, bash, shell or untagged fences")
-        commands = "\n".join(fences) if "```" in body else body
+        commands = []
+        fenced = shell = found = False
+        for line in body.splitlines():
+            if line.lstrip().startswith("```"):
+                if not fenced:
+                    tag = line.lstrip()[3:].split()
+                    shell = not tag or tag[0] in ("sh", "bash", "shell")
+                    found |= shell
+                fenced = not fenced
+            elif fenced and shell:
+                commands.append(line)
+        if not found:
+            raise RuntimeError("## Worktree setup requires a sh, bash, shell or untagged fence")
+        commands = "\n".join(commands)
     common = Path(git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
     exclude = common / "info/exclude"
     exclude.parent.mkdir(parents=True, exist_ok=True)
