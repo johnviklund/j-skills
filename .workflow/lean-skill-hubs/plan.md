@@ -10,9 +10,9 @@ Decisions: 1a · 2a · 3a · 4a · 5a · 6a (approved 2026-10-28)
 Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 
 ## Execution state
-Current: T7 todo; session limit reached · writer: GPT-6.1 Sol
+Current: T8 todo; T7 verified and committed · writer: GPT-6.1 Sol
 Baseline/final: workflow 81 OK; checkup 8 OK; ledger 3 OK; check-run --all ERROR 0.
-Proof: T6 11,984 bytes; moved 27, duplicate 2, unaccounted 0; frontmatter unchanged, stale pointers 0.
+Proof: T7 2,914 bytes; moved 138, duplicate 0, unaccounted 0; command bodies and frontmatter unchanged; trial rows 5.
 T1 @ 526f6a4
 T1 @ 46d79f0 (list-seam correction)
 T2 @ f7a16ad
@@ -21,8 +21,10 @@ T4 @ fb6a5d2
 T4 @ b9cb0f2 (common-rule correction)
 T5 @ b640a54
 T6 @ 6973783
+T7 @ 076d68d
 Session 1: T1, T2, T3
 Session 2: T4, T5, T6
+Session 3: T7
 Uncommitted: none after this record commits · pending decision: none; push approved by human (1a)
 
 ## Findings
@@ -120,11 +122,12 @@ Delivers: B1, B2, B3 · Blocked by: T2, T3, T4, T5, T6 · Lane: logic
 Budget: code +215 · tests +0
 Seam: `wc -c` and the ledger on `.github/skills/verify`; `workflow/SKILL-IMPACT.md`
 Accept:
-- [ ] `wc -c` SKILL.md → at most 3,500; `references/create.md` and `references/maintain.md` linked from it; ledger `unaccounted 0`, exit 0 (B1, B2, B3)
-- [ ] `SKILL-IMPACT.md` → 5 rows dated 2026-10-28 (4 at Base); the new one names all six skills, outcome `trialing` (F9)
+- [x] `wc -c` SKILL.md → at most 3,500; `references/create.md` and `references/maintain.md` linked from it; ledger `unaccounted 0`, exit 0 (B1, B2, B3)
+- [x] `SKILL-IMPACT.md` → 5 rows dated 2026-10-28 (4 at Base); the new one names all six skills, outcome `trialing` (F9)
 Verify: `wc -c .github/skills/verify/SKILL.md && python3 .workflow/lean-skill-hubs/scripts/sentence-ledger.py .github/skills/verify ed2c63b && grep -c '^| 2026-10-28 ' .github/skills/workflow/SKILL-IMPACT.md` (pre: 14934 · new file · 4)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 076d68d
+Writer: GPT-6.1 Sol
 
 ### T8 — The installed copies match the repo
 Delivers: B1, B6, B7 · Blocked by: T7 · Lane: operator
