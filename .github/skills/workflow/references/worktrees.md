@@ -25,6 +25,14 @@ Deduplicate by slug; use the resolved copy instead of the primary checkout's old
 Apply the hub's state table there, so a completed worktree plan reports `review`.
 An omitted slug still asks when several runs are live; `status` also lists parked runs.
 
+## Slug and status
+
+**Slug:** the command names one, or exactly one run is live — otherwise list the live runs,
+lettered, and ask. Live runs in each resolved checkout: `grep -l 'Status: *\(drafting\|complete\)' .workflow/*/brainstorm.md`.
+`workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`
+(an `awaiting-human` ticket is the blocker, with its action). A command that doesn't fit the run's
+state gets named and asked about.
+
 ## Start execution
 
 Before the first ticket, run `python3 <skill>/scripts/run-worktree.py open <slug> --repo <repo>`.

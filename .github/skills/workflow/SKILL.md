@@ -53,12 +53,6 @@ Every artifact header carries `Status:` — `drafting` (resume that phase) · `c
 | `patch_plan.md` with a ticket not `done` | execute (runs the patch plan) |
 | `review.md` with no open finding and no code change since its `Base` | wrap |
 
-**Slug:** the command names one, or exactly one run is live — otherwise list the live runs,
-lettered, and ask. Live runs in each resolved checkout: `grep -l 'Status: *\(drafting\|complete\)' .workflow/*/brainstorm.md`.
-`workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`
-(an `awaiting-human` ticket is the blocker, with its action). A command that doesn't fit the run's
-state gets named and asked about.
-
 ## Grounding — tiered reads
 
 - **Always:** the run's live artifacts (`brainstorm.md`, `plan.md`, `patch_plan.md`, the *current*
@@ -120,10 +114,6 @@ Invariants:
   same-vendor review is degraded and says so in `review.md`. One step runs in one session only.
 - **Availability first.** Open the model picker at session start, walk `ROUTING.md`'s fallback chain
   in order, and name any switch.
-- **Name the running model from a record, not memory** (`references/phase-3-execute.md`).
-- **The human acts only where a human adds something** (map in `ROUTING.md`): code is checked by
-  tests and the cross-vendor review, not diff reading; a user-visible change is tried by the human
-  before its commit. The lane — not the severity — sets the seat, fix tickets included.
 - **Sub-agents are read-only breadth**, their findings verified; writing runs in the main session.
 
 Every phase starts fresh, re-grounded from the run folder and git; the handoff is where the model
@@ -134,8 +124,6 @@ swap happens, and a **reset** (not compaction) is how. The CLI's literal command
 
 Every phase ends with this card as the turn's last output. **A turn that waits for a chat answer** (a
 UI check, a clarify question, the plan's ticket-list round) **ends on the Decisions list, no card**.
-Fill the model line from `ROUTING.md`'s rows (a *Trial* entry replaces the primary, marked
-`(trial)`) so the human never opens a file to pick a model.
 
 ---
 **▶ Next: <phase>** · <run slug>
@@ -185,16 +173,8 @@ the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
 - **Simplicity.** The smallest diff that passes is the target: every added line is one more for
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
-- **Commit after each verified ticket.** Wrap archives a run (`Status: done`); folders stay.
-- **Secret scan before every push.** `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`
-  (no upstream: `origin/<primary>..HEAD`); `--redact` keeps the value out of the transcript.
-  Receipts are the usual source: a live query or log with a token in it. Exit 0 → push. A finding
-  → no push; name file, line and rule, and ask: ➡️ **a** remove it from the unpushed commits and
-  rotate it (a real value has already been in the session) · **b** false positive: add its
-  fingerprint to `.gitleaksignore`; a pattern that will recur (an ID field, a public token) gets an
-  allowlist in `.gitleaks.toml` instead, extending the default rules, proven by a rescan where
-  the pattern is gone and a planted key is still caught. Scanner missing → no push; ask: ➡️ **a** install it · **b** push
-  unscanned, noted on the card.
+- **Before every push:** follow [references/secret-scan.md](references/secret-scan.md) for the
+  scan command, findings and missing-scanner branches.
 - **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
   A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
   and shas that do not exist. Write an artifact only after the reads it reports on have returned.
