@@ -21,3 +21,9 @@ Noticed: none. No screen, invocation or trigger changes. No mutation patterns ch
 
 ## Session 10 handoff
 C6-T1 is done. Next is cross-vendor review of the separate red and fix commits, plus these records.
+
+## Publication block
+Gitleaks scanned all three outgoing commits through 5cea708 and found no leaks.
+Automatic approval review rejected `git push origin main`: publishing this potentially private payload to the external GitHub destination requires explicit user authorization. No retry or workaround was attempted.
+Destination: https://github.com/johnviklund/j-skills, branch main. The payload is be47a91's one regression assertion, f61de07's merge-advice fix and documentation, 5cea708's execution records, and this publication-block record.
+All work is committed locally. Explicit approval to publish this payload, followed by a fresh secret scan, is the only remaining action before the review handoff.
