@@ -1,0 +1,44 @@
+Command: workflow execute lean-skill-hubs
+Created: 2026-10-28 · GPT-6.1 Sol
+Base: 204838d
+Inputs: .workflow/lean-skill-hubs/plan.md @ 2bc4427
+Status: complete
+
+Authorization: standing update approval in T8; push approval recorded in plan.md.
+$ git push origin main
+exit 0; origin/main advanced 48b83cb..204838d after a clean gitleaks scan.
+$ npx skills update -g
+exit 0; updated 6 skills: checkup, memory.compact, memory.remember, understand, verify, workflow.
+Log: /tmp/lean-skill-hubs-install.log
+
+$ diff -rq -x __pycache__ .github/skills/workflow ~/.agents/skills/workflow
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/memory.remember ~/.agents/skills/memory.remember
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/memory.compact ~/.agents/skills/memory.compact
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/checkup ~/.agents/skills/checkup
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/understand ~/.agents/skills/understand
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/verify ~/.agents/skills/verify
+exit 0; diff lines 0
+
+$ diff -rq -x __pycache__ .github/skills/agent-docs ~/.agents/skills/agent-docs
+exit 0; diff lines 0
+
+$ (cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests)
+exit 0; Ran 81 tests; OK
+$ (cd .github/skills/checkup && python3 -m unittest discover -s scripts/tests)
+exit 0; Ran 8 tests; OK
+$ python3 .github/skills/workflow/scripts/check-run.py --all
+exit 0; ERROR count 0; existing warnings unchanged.
+$ git diff --quiet ed2c63b -- .github/skills/agent-docs
+exit 0
+
+All seven installed copies match; diff lines 0.
