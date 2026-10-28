@@ -17,3 +17,13 @@ Full parser sweep: all 25 named parser mutations killed, 0 survived, 0 missing; 
 Commit: 00a4ae6 changes only test_run_worktree.py, adding two rows.
 Logs: /tmp/run-worktrees-c5-t1-pre.log, /tmp/run-worktrees-c5-t1-green.log, /tmp/run-worktrees-c5-t1-parser-retry.log.
 Noticed: no existing assertion changed. No screen or trigger change.
+
+## C5-T2
+Reuse: extended the existing free-primary and landing-cleanup cases. The existing run_branch fixture accepts push=False for the never-pushed branch. Eight new methods cover behaviours without an existing matching method. Only test_run_worktree.py changes.
+Change: +93/-7 lines, net +86 against the +90 test budget. No production helper or dependency added. Two merge-tree exit codes are injected by a PATH wrapper; all other git commands execute the real binary. mock.patch.dict applies only around run_command.
+Assertion check: all 23 original methods retain their assertion calls unchanged. Their 105 assertion calls remain, plus the fixture's unchanged assertion. New methods add 23 calls.
+Scratch fixture check: 31 worktree test methods passed before applying the prepared patch to the tracked file.
+Full suite: 80 tests passed in 60.585 seconds. All 18 named mutations killed, 0 survived, 0 missing; exit 0 in 153 seconds. Setup and where: 5; open: 3; land: 4; doctor and command-line: 6.
+Commit: bbaa7a1 changes only test_run_worktree.py.
+Logs: /tmp/run-worktrees-c5-t2-green.log and /tmp/run-worktrees-c5-t2-mutations.log. The temporary wrapper /tmp/run-worktrees-mutation-progress.py invokes mutate.py's main and run functions unchanged, adding one progress line per returned mutation. The CLI's final summary remains authoritative.
+Noticed: none. Existing assertion conditions still cover their original fast-forward and merge cases; the cleanup test also covers a never-pushed branch.

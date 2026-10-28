@@ -5,8 +5,9 @@ Inputs:  .workflow/run-worktrees/review.md @ cf15502
 Status:  complete
 
 ## Execution state
-Current: C5-T2 todo · writer: GPT-6.1 Sol · baseline failures: none
+Current: C5-T3 todo · writer: GPT-6.1 Sol · baseline failures: none
 C5-T1 @ 00a4ae6
+C5-T2 @ bbaa7a1
 
 ## Tickets
 
@@ -47,14 +48,15 @@ Change: one case per group below. `.worktrees/B` means `open B` with uncommitted
 - MN1: `open a/b` → exit 2 naming the slug rule. MN2: `open` with no slug → exit 2 naming `a run slug is required`. MN3: `where a..b` → exit 1
 - C6b, MN4: `git remote set-head origin -d` → `where B` exits 0; then rename `main` to `trunk` → exit 1 naming `no primary branch found`
 Accept:
-- [ ] `mutate.py A2 A4 A5 WH1 WH5` → 5 killed by the setup and `where` cases (C5-1, B1, B3)
-- [ ] `mutate.py S1 O6 O8` → 3 killed by the `open` cases (C5-1, B1, B2)
-- [ ] `mutate.py L2 L5 L8 L11` → 4 killed by the `land` cases (C5-1, B5)
-- [ ] `mutate.py D1 MN1 MN2 MN3 MN4 C6b` → 6 killed by the `doctor` and command-line cases (C5-1, B8)
-- [ ] The commit changes only `test_run_worktree.py`, existing assertions are unchanged, and the full suite passes (C5-1)
+- [x] `mutate.py A2 A4 A5 WH1 WH5` → 5 killed by the setup and `where` cases (C5-1, B1, B3)
+- [x] `mutate.py S1 O6 O8` → 3 killed by the `open` cases (C5-1, B1, B2)
+- [x] `mutate.py L2 L5 L8 L11` → 4 killed by the `land` cases (C5-1, B5)
+- [x] `mutate.py D1 MN1 MN2 MN3 MN4 C6b` → 6 killed by the `doctor` and command-line cases (C5-1, B8)
+- [x] The commit changes only `test_run_worktree.py`, existing assertions are unchanged, and the full suite passes (C5-1)
 Verify: `python3 .workflow/run-worktrees/scripts/mutate.py A2 A4 A5 WH1 WH5 S1 O6 O8 L2 L5 L8 L11 D1 MN1 MN2 MN3 MN4 C6b` (pre: 18 survived)
 Skills: none
-Status: todo
+Status: done @ bbaa7a1
+Writer: GPT-6.1 Sol
 
 ### C5-T3 — `land` stops before merging when the primary branch moved on origin
 Delivers: B5 · Blocked by: C5-T1, C5-T2 · Lane: logic
