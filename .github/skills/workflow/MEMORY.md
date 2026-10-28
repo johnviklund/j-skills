@@ -16,8 +16,8 @@ else.
   and no `Base` shas — every phase that assumes Git must fall back to file-based verification and
   say so explicitly. Before committing/pushing any workflow-skill change, confirm which copy is
   actually being edited (`git -C <dir> rev-parse --is-inside-work-tree`); if it's the snapshot,
-  sync the diff into a clone's `.github/skills/workflow/`, commit and push there, then run
-  `npx skills update -g`; never edit the snapshot.
+  follow the clone rule in `memory.remember` *Scope*: edit a push-able clone, or hand the edit
+  off as a skill-edit prompt when the machine has none.
 - **Supersedes:** —
 - **Superseded by:** —
 - **Last confirmed:** 2026-08-26

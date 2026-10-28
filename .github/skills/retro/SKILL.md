@@ -127,7 +127,7 @@ of removing waste. The human should be able to approve the whole list without we
 | Guardrail (new or rewired check) | `workflow` | `workflow todo Guardrail: <rung> — <the check> · must fail on <sha>` — a check is code and ships through a run. A matching memory page gets `Enforced by: pending — <that line>` via `memory.remember`. |
 | Overbuild still in the code | `workflow` | `workflow todo Simplify: <what to delete or inline> · <evidence>` — behaviour unchanged, tests unchanged. |
 | Reviewer missed a P0/P1 | `workflow` | `[durable→eval] code-review` line in a live run's `learnings.md` (the reviewed run's while it is open); wrap deposits it. |
-| Skill change | `memory.remember` | `[durable→skill]` line: applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. |
+| Skill change | `memory.remember` | `[durable→skill]` line: applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. On a machine with no push-able `j-skills` clone it comes back as a skill-edit prompt for the human (`memory.remember` *Scope*); the receipt carries the prompt. |
 | Trial evidence | `memory.remember` | Append the run and its for/against line to the trialing `SKILL-IMPACT.md` row. |
 | Global steering file edit | the human | Show the exact diff; global files sit outside every repo. |
 | Workspace hygiene noticed in passing | `checkup` | Name it and recommend `checkup <scope>`. |

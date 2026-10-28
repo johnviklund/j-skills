@@ -76,7 +76,8 @@ destination, so it won't create a skill that collides with one you don't own. Fo
 ### `[durable→skill]` — logged, then trialed, never just applied
 
 A change to a skill is gated the same way a model is: on the runs after it. `memory.remember`
-applies the edit in its own commit (never mixed with code) and adds a line to the skills repo's
+applies the edit in its own commit (never mixed with code; with no push-able `j-skills` clone, as a
+skill-edit prompt for the human, per its *Scope*) and adds a line to the skills repo's
 `SKILL-IMPACT.md` (`<date> · <skill> · <what changed> · from: <memory page> · trial until: <N runs>`).
 The next N worklog entries carry `Skills: <skill>@<sha>` so `checkup` can compare `Run:` numbers
 before and after. The sha is the first 12 characters of the skill folder's git tree hash: for an

@@ -63,7 +63,8 @@ Commit, push, curate, and clean up — in one go:
 4. Invoke `memory.remember` to route every tagged line in `.workflow/<slug>/learnings.md` not yet
    marked `[routed → …]` to its destination (a `memory/` page, `AGENTS.md`, `README.md`, an
    existing or new skill, `DESIGN.md`); it marks each routed line and never counts a run twice.
-   Commit those changes, and push.
+   Commit those changes, and push. A skill edit on a machine with no push-able `j-skills` clone
+   comes back as a skill-edit prompt (`memory.remember` *Scope*): show it to the human.
 5. **Product-doc truth** — answer this explicitly; silence is not an answer. Start from the plan's
    `## Product doc impacts`, then re-derive it from what actually shipped: deviations and patch
    cycles change scope after planning, so the plan's list is the starting point, not the verdict.
