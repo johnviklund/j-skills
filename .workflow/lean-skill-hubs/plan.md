@@ -13,6 +13,7 @@ Split declined by human: 2026-10-28 (135 lines; D8 keeps one ticket per skill)
 Current: T2 blocked on its 15,500-byte acceptance limit · writer: GPT-6.1 Sol
 Baseline: workflow 81 OK; checkup 8 OK; check-run --all ERROR 0.
 T1 @ 526f6a4
+T1 @ 46d79f0 (list-seam correction)
 Session 1: T1
 Uncommitted: T2 hub, references and duplicates ledger · pending decision: cap or scope
 
