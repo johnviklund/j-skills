@@ -57,3 +57,5 @@ Cycle 4 approved by human: 2026-10-28 — 1a, one more cycle fixing C3-1 and C2-
 
 ## Cycle 4 verdict
 C3-1 and C2-2 are fixed and stamped @ `b1cd333`: every setup shape from cycles 2–3 now runs only shell fences or stops before a checkout exists, and 5 of 8 mutations of the new parser fail the suite. Open: C4-1 (P1): three of the parser's conditions have no test that fails when they break. The code is correct today, so B1 and the Outcome hold. The fix adds three test rows and no code. Cycle bound passed: C4-1 goes to the human. Wrap waits for the answer.
+
+Cycle 5 approved by human: 2026-10-28 — 1a, one more cycle adding the three test rows for C4-1. Patch cycle 4 (`patch_plan.md`): C4-T1.
