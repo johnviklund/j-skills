@@ -7,11 +7,12 @@ Status:  complete
 Each behavioural fix (C1-T1, C1-T2, C1-T4, C1-T5) is two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C1-T3 is test-only.
 
 ## Execution state
-Current: C1-T1–C1-T4 done. Session 5 in progress; next C1-T5.
+Current: C1-T1–C1-T5 done. Session 5 complete; next review.
 C1-T1 @ e6a8e5d · writer: GPT-6.1 Sol · workflow 100, checkup 8 passed · receipts/c1-t1-verification.md
 C1-T2 @ f2bba2b · writer: GPT-6.1 Sol · workflow 101, checkup 8 passed · receipts/c1-t2-verification.md
 C1-T3 @ 0762b64 · writer: GPT-6.1 Sol · workflow 105, checkup 8 passed · receipts/c1-t3-verification.md
 C1-T4 @ 6e87503 · writer: GPT-6.1 Sol · workflow 106, checkup 8 passed · receipts/c1-t4-verification.md
+C1-T5 @ 08048cb · writer: GPT-6.1 Sol · workflow 107, checkup 8 passed · receipts/c1-t5-verification.md
 Baseline: workflow 99, checkup 8 passed. No pre-existing failure or pending decision.
 
 ## Tickets
@@ -83,11 +84,13 @@ Budget: code +6 · tests +8
 Seam: `next-step.py <slug> --json` on a parked fixture; next-step.py:141-149, :194
 Change: a parked brief's step is worked out from the run's files as if the brief were complete; then `phase` becomes `parked` and `command` keeps that step's `workflow <phase> <slug>`.
 Accept:
-- [ ] parked brief, plan with T1 done and T2 `todo` → phase `parked`, command `workflow execute x` (B7)
-- [ ] parked brief, nothing else → phase `parked`, command `workflow plan x`; the existing case is unchanged (B7)
+- [x] parked brief, plan with T1 done and T2 `todo` → phase `parked`, command `workflow execute x` (B7)
+- [x] parked brief, nothing else → phase `parked`, command `workflow plan x`; the existing case is unchanged (B7)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: 16 OK)
 Skills: none
-Status: todo
+Status: done @ 08048cb
+Writer: GPT-6.1 Sol
+Red: 97427b2
 
 ## Deviations
 - C1-T1: the red commit removes the erroneous earlier-cycle wrap case identified by C1-1 and adds unresolved/resolved cases. The fix commit changes no tests. Assertion lines: 49 before, 51 after; existing assertions stay unchanged. The expected-zero grep returns 1 for no matches; the content gate checks that status explicitly.
