@@ -23,38 +23,42 @@ is the *split*, not the direction.
 
 ## Seat mapping
 
-| Seat | Primary (vendor · model · effort) | Trial (vendor · model · effort, or —) | Fallback chain |
-|---|---|---|---|
-| Brainstorm partner | Anthropic · Sonnet 5.5 · high | — | OpenAI · GPT-6 Sol · high |
-| Default executor | OpenAI · GPT-6.1 Sol · per phase table | — | GPT-6 Sol · same effort; then Anthropic · Sonnet 5.5 (breaks the vendor split — reviewer must then be OpenAI, degraded) |
-| Heavy executor | OpenAI · GPT-6.1 Sol · xhigh (P0 fixes: high) | — | GPT-6 Sol · xhigh; then Anthropic · Sonnet 5.5 · xhigh (same caveat) |
-| Mechanical lane | OpenAI · GPT-6.1 Sol · medium | — | GPT-6 Sol · medium; then Anthropic · Sonnet 5.5 · medium |
-| Strict reviewer | Anthropic · Opus 5.5 · high (review: xhigh) | — | Sonnet 5.5 · xhigh; then OpenAI · GPT-6 Sol · xhigh (degraded: same-vendor review — note it in `review.md`) |
+| Seat | Vendor | Model | Trial | Fallback chain | Notes |
+|---|---|---|---|---|---|
+| Brainstorm partner | Anthropic | Sonnet 5.5 | — | OpenAI · GPT-6 Sol · high | |
+| Default executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol; Anthropic · Sonnet 5.5 | Cross-vendor fallback requires an OpenAI reviewer; note degradation |
+| Heavy executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol · xhigh; Anthropic · Sonnet 5.5 · xhigh | Same reviewer caveat |
+| Mechanical lane | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol; Anthropic · Sonnet 5.5 | |
+| Strict reviewer | Anthropic | Opus 5.5 | — | Anthropic · Sonnet 5.5 · xhigh; OpenAI · GPT-6 Sol · xhigh | Same-vendor fallback is degraded; record it in review.md |
 
-**Trial column:** a trial entry prints on the card's model line marked `(trial)`, with the primary as
-fallback. One trial per seat, at most two seats at once.
+**Format:** Trial is `Vendor · Model` with an optional `· effort`, or `—`. Fallback chain uses
+the same entries separated by `;`. An omitted effort uses the phase row's effort. A trial prints
+`(trial)` on the Model line and puts the primary first in the fallback chain. One trial per seat,
+at most two seats at once. Only Notes cells may be empty.
 
 ## Phase → seat · effort · approval
 
-| Phase / work | Seat | Effort | Context | Approval |
-|---|---|---|---|---|
-| Brainstorm (grill → brief) | Brainstorm partner | high | standard | — (dialogue; human confirms behaviours) |
-| Plan (audit → tickets) | Strict reviewer | high; xhigh hardest cases | large | human approves the ticket list |
-| Execute — mechanical ticket | Mechanical lane | medium | standard | auto |
-| Execute — logic ticket | Default executor | high | standard | auto |
-| Execute — UI ticket (any lane) | the lane's seat | the lane's | standard | the human tries it, then approves the commit |
-| Execute — contract ticket (schema/SQL/API) | Heavy executor | xhigh | standard; large if the ticket spans many files | auto |
-| Execute — operator ticket (live/irreversible) | Default executor prepares the handoff (Heavy executor if it carries SQL or a contract) | high | standard | the human runs it, or approves the exact scope and the agent runs it; review the handoff before running |
-| Review | Strict reviewer | xhigh | large | — (read-only) |
-| Patch plan (fix tickets) | Strict reviewer | high | standard | — |
-| Fix ticket — P0 | Heavy executor | high | standard | auto |
-| Fix ticket — P1 (or a P2/P3 the human chose to fix), logic lane | Default executor | medium | standard | auto |
-| Fix ticket — any severity, contract lane | Heavy executor | high | standard | auto |
-| Final check & wrap-up | Brainstorm partner | medium | standard | auto |
-| TODO intake (`workflow todo`) | Brainstorm partner | medium | standard | auto (writes only `TODO.md`) |
-| Bootstrap (`workflow bootstrap`) | Brainstorm partner (docs) + Strict reviewer (audit) | high | large | propose each doc, confirm before writing |
-| Realign (`workflow realign`) | Strict reviewer | high | large | human approval per candidate before canonical-doc write |
+| Key | Phase / work | Seat | Effort | Context | Approval | Notes |
+|---|---|---|---|---|---|---|
+| brainstorm | Brainstorm | Brainstorm partner | high | standard | human | Confirm behaviours |
+| plan | Plan | Strict reviewer | high | large | human | Approve tickets; xhigh for hardest cases |
+| execute:mechanical | Execute mechanical | Mechanical lane | medium | standard | auto | |
+| execute:logic | Execute logic | Default executor | high | standard | auto | |
+| execute:contract | Execute contract | Heavy executor | xhigh | standard | auto | Large context for wide changes |
+| execute:operator | Execute operator | Default executor | high | standard | human | Prepare handoff; Heavy executor for SQL or contracts; review before running |
+| review | Review | Strict reviewer | xhigh | large | auto | Read-only |
+| patch-plan | Patch plan | Strict reviewer | high | standard | auto | |
+| fix:P0 | Fix P0 | Heavy executor | high | standard | auto | |
+| fix:logic | Fix P1, or chosen P2/P3, logic | Default executor | medium | standard | auto | |
+| fix:contract | Fix contract | Heavy executor | high | standard | auto | |
+| fix:mechanical | Fix mechanical | Mechanical lane | medium | standard | auto | |
+| fix:operator | Fix operator | Default executor | high | standard | human | Same handoff rules as execute:operator |
+| wrap | Final check and wrap | Brainstorm partner | medium | standard | auto | |
+| todo | TODO intake | Brainstorm partner | medium | standard | auto | Writes only TODO.md |
+| bootstrap | Bootstrap | Brainstorm partner | high | large | human | Strict reviewer audits; confirm each doc before writing |
+| realign | Realign | Strict reviewer | high | large | human | Approve each canonical-doc change |
 
+UI tickets use their lane's row; the human tries the result and approves before the commit.
 `auto` = no human step. Execute runs up to 3 tickets per session at the same model and effort,
 then stops so the human can reset; it also stops before a UI ticket's commit
 (`references/phase-3-execute.md`).
