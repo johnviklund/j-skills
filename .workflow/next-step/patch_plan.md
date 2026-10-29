@@ -6,6 +6,11 @@ Status:  complete
 
 Each behavioural fix (C1-T1, C1-T2, C1-T4, C1-T5) is two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C1-T3 is test-only.
 
+## Execution state
+Current: C1-T1 done; next C1-T2. Session 4 in progress.
+C1-T1 @ e6a8e5d · writer: GPT-6.1 Sol · workflow 100, checkup 8 passed · receipts/c1-t1-verification.md
+Baseline: workflow 99, checkup 8 passed. No pre-existing failure or pending decision.
+
 ## Tickets
 
 ### C1-T1 — An open fix-now finding blocks wrap, whatever its cycle
@@ -15,12 +20,14 @@ Budget: code +10 · tests +12
 Seam: `next-step.py <slug> --json` on a fixture `review.md`; `check-run.py`'s note on the same file
 Change: one predicate in check-run.py for an open finding (disposition starts `fix now`, no `Resolved: @ <sha>`). `check_review` (:579-582) and next-step use it over every cycle; next-step.py:170-172's copy goes. Sites: `grep -n 'fix now\|Disposition' .github/skills/workflow/scripts/*.py`.
 Accept:
-- [ ] cycle 1 `### P1`, `fix now`, `Resolved: —`; empty cycle 2 findings and verdict; no patch plan → blocker naming `C1-1`, command `workflow review x` (B4)
-- [ ] same run, that finding stamped `Resolved: @ <base>` → phase `wrap` (B6)
-- [ ] `grep -c Disposition scripts/next-step.py` → 0; test_check_run.py passes unchanged (B4)
+- [x] cycle 1 `### P1`, `fix now`, `Resolved: —`; empty cycle 2 findings and verdict; no patch plan → blocker naming `C1-1`, command `workflow review x` (B4)
+- [x] same run, that finding stamped `Resolved: @ <base>` → phase `wrap` (B6)
+- [x] `grep -c Disposition scripts/next-step.py` → 0; test_check_run.py passes unchanged (B4)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests && grep -c Disposition scripts/next-step.py` (pre: 99 OK · 1)
 Skills: none
-Status: todo
+Status: done @ e6a8e5d
+Writer: GPT-6.1 Sol
+Red: 29100c5
 
 ### C1-T2 — A receipt path in backticks resumes its operator ticket
 Delivers: B3 · Blocked by: none · Lane: logic
@@ -73,3 +80,6 @@ Accept:
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: 16 OK)
 Skills: none
 Status: todo
+
+## Deviations
+- C1-T1: the red commit removes the erroneous earlier-cycle wrap case identified by C1-1 and adds unresolved/resolved cases. The fix commit changes no tests. Assertion lines: 49 before, 51 after; existing assertions stay unchanged. The expected-zero grep returns 1 for no matches; the content gate checks that status explicitly.
