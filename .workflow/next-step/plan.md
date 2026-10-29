@@ -9,9 +9,11 @@ Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 ·
 Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
 
 ## Execution state
-Current: T1 done; T2 ready, T3–T5 blocked. Next writer: GPT-6.1 Sol · high.
+Current: T1–T2 done; T3 ready, T4–T5 blocked. Next writer: GPT-6.1 Sol · high.
 T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · receipts/t1-verification.md
+T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · receipts/t2-verification.md
 Session 1: T1
+Session 2: T2
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 
 ## Findings
@@ -58,12 +60,13 @@ Delivers: B2, B3 · Blocked by: T1 · Lane: logic
 Budget: code +60 · tests +60
 Seam: the T1 CLI on fixture `plan.md` tickets and `receipts/` files; first ready ticket by execute's rule picks `execute:<lane>`; receipts per F8, handoffs per F7 in `reads`
 Accept:
-- [ ] T1 done, T2 `todo` with `Lane: contract` blocked by T1 → phase `execute`, ticket `T2`, seat `Heavy executor`, model OpenAI · GPT-6.1 Sol · xhigh, approval `auto` (B2)
-- [ ] only T3 unfinished, `awaiting-human`, `receipts/t3-operator-handoff.md` committed → blocker ticket `T3` naming that path, model null, command `workflow execute x`, card `- **Model:** human · …` (B3)
-- [ ] same run with T3's Verify receipt `receipts/t3.txt` present → phase `execute`, ticket `T3`, blocker null (B3)
+- [x] T1 done, T2 `todo` with `Lane: contract` blocked by T1 → phase `execute`, ticket `T2`, seat `Heavy executor`, model OpenAI · GPT-6.1 Sol · xhigh, approval `auto` (B2)
+- [x] only T3 unfinished, `awaiting-human`, `receipts/t3-operator-handoff.md` committed → blocker ticket `T3` naming that path, model null, command `workflow execute x`, card `- **Model:** human · …` (B3)
+- [x] same run with T3's Verify receipt `receipts/t3.txt` present → phase `execute`, ticket `T3`, blocker null (B3)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: new file, NO TESTS RAN exit 5)
 Skills: none
-Status: todo
+Status: done @ 70fefa2
+Writer: GPT-6.1 Sol
 ### T3 — Fix tickets route by severity and lane
 Delivers: B5, B8 · Blocked by: T2 · Lane: logic
 Budget: code +40 · tests +40
