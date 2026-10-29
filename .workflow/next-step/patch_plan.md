@@ -7,8 +7,9 @@ Status:  complete
 Each behavioural fix (C1-T1, C1-T2, C1-T4, C1-T5) is two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C1-T3 is test-only.
 
 ## Execution state
-Current: C1-T1 done; next C1-T2. Session 4 in progress.
+Current: C1-T1, C1-T2 done; next C1-T3. Session 4 in progress.
 C1-T1 @ e6a8e5d · writer: GPT-6.1 Sol · workflow 100, checkup 8 passed · receipts/c1-t1-verification.md
+C1-T2 @ f2bba2b · writer: GPT-6.1 Sol · workflow 101, checkup 8 passed · receipts/c1-t2-verification.md
 Baseline: workflow 99, checkup 8 passed. No pre-existing failure or pending decision.
 
 ## Tickets
@@ -36,11 +37,13 @@ Budget: code +1 · tests +8
 Seam: `next-step.py <slug> --json` on a fixture `awaiting-human` ticket; next-step.py:107
 Change: the receipt pattern takes an optional backtick before `receipts/`. Sites: `grep -n 'receipt:' .github/skills/workflow/scripts/*.py` (next-step.py:107 parses the path; check-run.py:337 only checks `receipt:` is there).
 Accept:
-- [ ] Verify ``receipt: `receipts/t3.txt` — ok``, file present → phase `execute`, ticket `T3`, blocker null; file absent → blocker `T3` (B3)
-- [ ] the plain form `receipt: receipts/t3.txt — ok` still resumes; the existing test is unchanged (B3)
+- [x] Verify ``receipt: `receipts/t3.txt` — ok``, file present → phase `execute`, ticket `T3`, blocker null; file absent → blocker `T3` (B3)
+- [x] the plain form `receipt: receipts/t3.txt — ok` still resumes; the existing test is unchanged (B3)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: 16 OK)
 Skills: none
-Status: todo
+Status: done @ f2bba2b
+Writer: GPT-6.1 Sol
+Red: 93339f6
 
 ### C1-T3 — Each surviving guard in next-step.py gets a failing test
 Delivers: B3, B5, B6, B8 · Blocked by: none · Lane: logic

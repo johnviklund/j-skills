@@ -7,7 +7,7 @@ Docs read: none in scope (the repo has no PRODUCT.md or DESIGN.md)
 Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 · over 1,000: none (new: next-step.py, test_next_step.py; skill `*.md` count as neither)
 Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
 ## Execution state
-Current: T1–T5 done; patch cycle 1 in progress. C1-T1 done; next C1-T2.
+Current: T1–T5 done; patch cycle 1 in progress. C1-T1, C1-T2 done; next C1-T3.
 T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · receipts/t1-verification.md
 T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · receipts/t2-verification.md
 T3 @ 17c8020 · writer: GPT-6.1 Sol · final workflow 92, checkup 8 passed · receipts/t3-verification.md
@@ -16,7 +16,7 @@ T5 @ a354025 · writer: GPT-6.1 Sol · final workflow 99, checkup 8 passed · re
 Revalidated @ 588bf2d · none: it swaps an example at checkup report.md:15; T5 edits report.md:70-80, pre counts hold
 Sessions: 1 → T1 · 2 → T2, T3, T4
 Session 3: T5
-Session 4: C1-T1
+Session 4: C1-T1, C1-T2
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 ## Findings
 | # | What is true | What it changes |
