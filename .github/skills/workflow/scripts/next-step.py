@@ -129,7 +129,8 @@ def ticket_step(repo, slug, doc, patch=False):
         key = "fix:P0" if fixes[2] == "P0" else f"fix:{lane.split()[0]}"
         cycle = re.match(r"C(\d+)-", ticket_id)
         why = f"Patch cycle {cycle[1] if cycle else fixes[1].split('-')[0][1:]} · fix {fixes[1]}"
-    return {"phase": phase, "key": key, "ticket": ticket_id, "why": why, "reads": reads, "blocker": blocker}
+    return {"phase": phase, "key": key, "ticket": ticket_id, "why": why, "reads": reads, "blocker": blocker,
+            "approval_key": f"fix:{lane.split()[0]}" if patch else key}
 
 
 def next_step(repo, slug, routes, prefix=""):
@@ -183,10 +184,13 @@ def next_step(repo, slug, routes, prefix=""):
             elif not changed:
                 step.update(phase="wrap", key="wrap", reset=False, why="The review has no open finding or later code change.")
     key = step["key"]
-    if key is not None and key not in routes:
-        raise ValueError(f"ROUTING.md: missing key {key}")
+    approval_key = step.pop("approval_key", key)
+    for needed in (key, approval_key):
+        if needed is not None and needed not in routes:
+            raise ValueError(f"ROUTING.md: missing key {needed}")
     if key is not None:
         step.update(routes[key])
+        step["approval"] = routes[approval_key]["approval"]
     else:
         step.update(seat=None, model=None, trial=False, context=None, fallback=[], approval="auto")
     step["command"] = None if step["phase"] == "done" else f"workflow {'plan' if step['phase'] == 'parked' else step['phase']} {slug}"
