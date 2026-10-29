@@ -101,6 +101,20 @@ def write(repo, files):
 
 
 class SeatTests(unittest.TestCase):
+    def test_patch_ticket_needs_fixes_metadata(self):
+        ticket = TICKET.format(id="C1-T1", delivers="B1", accept="fixed")
+        for status, fixes, expected in [("complete", "", "ERROR"), ("drafting", "", "warn "),
+                                         ("complete", "Fixes: C1-1 (P1)\n", None)]:
+            with self.subTest(status=status, fixes=fixes):
+                patch = HEADER.format(cmd="review", created="now", base="{base}").replace("complete", status)
+                out = check({"brainstorm.md": BRIEF, "patch_plan.md": patch + ticket + fixes})
+                diagnostic = "C1-T1: needs `Fixes: C<n>-<m> (P#)`"
+                if expected:
+                    self.assertTrue(any(line.startswith(expected) and diagnostic in line for line in out.splitlines()), out)
+                else:
+                    self.assertNotIn(diagnostic, out)
+                    self.assertIn("0 errors · 0 warnings", out)
+
     def test_brief_trust_boundaries_are_optional(self):
         for section in ("", "## Trust boundaries\n- External request → protected file write\n"):
             with self.subTest(section=section):

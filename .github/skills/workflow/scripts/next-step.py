@@ -93,8 +93,13 @@ def next_step(repo, slug, routes, prefix=""):
     run = repo / ".workflow" / slug
     phase, key, ticket_id, blocker = "plan", "plan", None, None
     why, reads = "The brief is complete; the run needs a plan.", [f".workflow/{slug}/brainstorm.md"]
-    if (run / "plan.md").exists():
-        doc = checks.Doc(str(run / "plan.md"))
+    active = run / "plan.md"
+    patch = run / "patch_plan.md"
+    if patch.exists() and any(not (checks.field(t, "Status")[1] or "").startswith("done @ ")
+                              for t in checks.parse_tickets(checks.Doc(str(patch)))):
+        active = patch
+    if active.exists():
+        doc = checks.Doc(str(active))
         tickets = checks.parse_tickets(doc)
         statuses = {t["id"]: checks.field(t, "Status")[1] or "" for t in tickets}
         unfinished = [t for t in tickets if not statuses[t["id"]].startswith("done @ ")]
@@ -111,7 +116,7 @@ def next_step(repo, slug, routes, prefix=""):
         if selected is None:
             selected = next((t for t in unfinished if statuses[t["id"]] == "awaiting-human"), None)
             if selected is None:
-                raise ValueError(f"{slug}: no ready ticket in plan.md")
+                raise ValueError(f"{slug}: no ready ticket in {active.name}")
             handoffs = sorted((run / "receipts").glob(f"{selected['id'].lower()}-*handoff*.md"))
             title = re.split(checks.DASH, doc.lines[selected["line"] - 1], maxsplit=1)[1]
             action = "; ".join([title] + [str(path.relative_to(run)) for path in handoffs])
@@ -121,7 +126,14 @@ def next_step(repo, slug, routes, prefix=""):
         lane = checks.field(selected, "Lane")[1] or ""
         key = f"execute:{lane.split()[0]}" if lane else "execute:"
         why = f"{ticket_id} is awaiting human action." if blocker else f"{ticket_id} is ready."
-        reads = [f".workflow/{slug}/plan.md"] + (reads if blocker else [])
+        reads = [str(active.relative_to(repo))] + (reads if blocker else [])
+        if active == patch:
+            fixes = checks.ticket_fixes(selected)
+            if not fixes:
+                raise ValueError(f"{ticket_id}: needs Fixes: C<n>-<m> (P#)")
+            key = "fix:P0" if fixes[2] == "P0" else f"fix:{lane.split()[0]}"
+            cycle = re.match(r"C(\d+)-", ticket_id)
+            why = f"Patch cycle {cycle[1] if cycle else fixes[1].split('-')[0][1:]} · fix {fixes[1]}"
     if key not in routes:
         raise ValueError(f"ROUTING.md: missing key {key}")
     step = {"schema_version": 1, "slug": slug, "phase": phase, "command": f"workflow {phase} {slug}",

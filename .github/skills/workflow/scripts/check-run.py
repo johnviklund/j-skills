@@ -278,6 +278,10 @@ def field(ticket, name):
     return None, None
 
 
+def ticket_fixes(ticket):
+    return re.fullmatch(r"(C\d+-\d+(?:,\s*C\d+-\d+)*)\s+\((P[0-3])\)", field(ticket, "Fixes")[1] or "")
+
+
 def check_tickets(run, doc, rep, behaviours, strict):
     tickets = parse_tickets(doc)
     if not tickets:
@@ -291,6 +295,8 @@ def check_tickets(run, doc, rep, behaviours, strict):
     edges = {}
     for t in tickets:
         where = lambda n: n or t["line"]
+        if doc.path.endswith("/patch_plan.md") and not ticket_fixes(t):
+            (rep.error if strict else rep.warn)(doc.path, t["line"], f"{t['id']}: needs `Fixes: C<n>-<m> (P#)`")
         _, lane = field(t, "Lane")
         n_del, delivers = field(t, "Delivers")
         n_blk, blocked = field(t, "Blocked by")

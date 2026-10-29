@@ -14,6 +14,7 @@ ROUTING = """## Seat mapping
 | Strict reviewer | Anthropic | Opus 5.5 | — | Anthropic · Sonnet 5.5 · xhigh; OpenAI · GPT-6 Sol · xhigh | |
 | Heavy executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
 | Default executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
+| Mechanical lane | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
 ## Phase → seat · effort · approval
 | Key | Phase / work | Seat | Effort | Context | Approval | Notes |
 |---|---|---|---|---|---|---|
@@ -21,6 +22,9 @@ ROUTING = """## Seat mapping
 | execute:contract | Execute contract | Heavy executor | xhigh | standard | auto | |
 | execute:logic | Execute logic | Default executor | high | standard | auto | |
 | execute:operator | Execute operator | Default executor | high | standard | human | |
+| fix:P0 | Fix P0 | Heavy executor | high | standard | auto | |
+| fix:logic | Fix logic | Default executor | medium | standard | auto | |
+| fix:mechanical | Fix mechanical | Mechanical lane | medium | standard | auto | |
 """
 
 
@@ -102,6 +106,31 @@ Delivers: B1 · Blocked by: none · Lane: logic
 Status: todo
 """)
         self.assertEqual(self.result()["ticket"], "T1")
+
+    def test_patch_ticket_routes_by_severity_and_lane(self):
+        self.plan("### T1 — Plan work\nLane: contract\nStatus: todo\n")
+        for severity, lane, seat, effort in [("P0", "logic", "Heavy executor", "high"),
+                                           ("P1", "logic", "Default executor", "medium"),
+                                           ("P3", "mechanical", "Mechanical lane", "medium")]:
+            with self.subTest(severity=severity, lane=lane):
+                self.plan(f"### C1-T1 — Fix\nFixes: C1-1 ({severity})\nLane: {lane}\nStatus: todo\n", "patch_plan.md")
+                result = self.result()
+                for key, value in {"phase": "execute", "ticket": "C1-T1", "seat": seat,
+                                   "why": "Patch cycle 1 · fix C1-1",
+                                   "model": {"vendor": "OpenAI", "name": "GPT-6.1 Sol", "effort": effort}}.items():
+                    self.assertEqual(result[key], value, key)
+        patch = self.run / "patch_plan.md"
+        patch.write_text(patch.read_text().replace("Status: todo", f"Status: done @ {self.base}"))
+        self.assertEqual(self.result()["ticket"], "T1")
+
+    def test_patch_ticket_without_fixes_fails_without_json(self):
+        for fixes in ("", "C1-1 (P9)", "T1 (P1)", "C1-1 (P1) junk"):
+            with self.subTest(fixes=fixes):
+                self.plan(f"### C1-T1 — Fix\nFixes: {fixes}\nLane: logic\nStatus: todo\n", "patch_plan.md")
+                result = self.cli("--json")
+                self.assertEqual((result.returncode, result.stdout), (1, ""))
+                self.assertIn("C1-T1", result.stderr)
+                self.assertIn("Fixes: C<n>-<m> (P#)", result.stderr)
 
     def test_brief_plan_card_and_json(self):
         result = self.result()
