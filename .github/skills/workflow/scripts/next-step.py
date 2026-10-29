@@ -140,17 +140,15 @@ def next_step(repo, slug, routes, prefix=""):
             "why": "The brief is complete; the run needs a plan.", "reads": [f".workflow/{slug}/brainstorm.md"],
             "reset": True, "blocker": None}
     docs = {name: checks.Doc(str(run / name)) for name in ("plan.md", "patch_plan.md", "review.md")
-            if (run / name).exists()} if brief.status() == "complete" else {}
+            if (run / name).exists()} if brief.status() in ("complete", "parked") else {}
     plan, patch, review = (docs.get(name) for name in ("plan.md", "patch_plan.md", "review.md"))
     unfinished = lambda doc: any(not (checks.field(t, "Status")[1] or "").startswith("done @ ")
                                  for t in checks.parse_tickets(doc))
     if brief.status() == "drafting":
         step.update(phase="brainstorm", key="brainstorm", why="The brief is unfinished.")
-    elif brief.status() == "parked":
-        step.update(phase="parked", why="The run is parked.")
     elif brief.status() == "done":
         step.update(phase="done", key=None, why="The run is done.")
-    elif brief.status() != "complete":
+    elif brief.status() not in ("complete", "parked"):
         raise ValueError(f"{slug}: unknown brief status {brief.status()}")
     elif plan and plan.status() == "drafting":
         step.update(why="The plan is unfinished.", reads=[f".workflow/{slug}/plan.md"])
@@ -193,7 +191,9 @@ def next_step(repo, slug, routes, prefix=""):
         step["approval"] = routes[approval_key]["approval"]
     else:
         step.update(seat=None, model=None, trial=False, context=None, fallback=[], approval="auto")
-    step["command"] = None if step["phase"] == "done" else f"workflow {'plan' if step['phase'] == 'parked' else step['phase']} {slug}"
+    step["command"] = None if step["phase"] == "done" else f"workflow {step['phase']} {slug}"
+    if brief.status() == "parked":
+        step.update(phase="parked", why="The run is parked.")
     if step["blocker"]:
         step.update(model=None, fallback=[], trial=False)
     step["card"] = card(step, prefix)
