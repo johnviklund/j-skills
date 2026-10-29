@@ -117,6 +117,14 @@ Status: awaiting-human
         result = self.result()
         self.assertEqual((result["phase"], result["ticket"], result["blocker"]), ("execute", "T3", None))
 
+    def test_backticked_receipt_resumes_operator(self):
+        self.plan("### T3 — Run\nLane: operator\nVerify: receipt: `receipts/t3.txt` — ok\nStatus: awaiting-human\n")
+        self.assertEqual(self.result()["blocker"]["ticket"], "T3")
+        (self.run / "receipts").mkdir()
+        (self.run / "receipts/t3.txt").write_text("ok\n")
+        result = self.result()
+        self.assertEqual((result["phase"], result["ticket"], result["blocker"]), ("execute", "T3", None))
+
     def test_plan_skips_ticket_with_unfinished_dependency(self):
         self.plan("""### T2 — Blocked
 Delivers: B2 · Blocked by: T1 · Lane: contract
