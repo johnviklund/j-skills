@@ -262,6 +262,20 @@ Status: todo
                 self.assertEqual(result["blocker"]["findings"] if result["blocker"] else [],
                                  ["C1-1"] if phase == "review" else [])
 
+    def test_folded_resolved_findings_keep_open_ids(self):
+        for resolved, cycles, expected, why in [
+                (("C1-1", "C2-1"), ((2, 1), (3, 1)), ["C2-2", "C3-1"], "Patch cycle 3 · fix C2-2, C3-1"),
+                (("C2-2",), ((2, 2),), ["C2-1", "C2-3"], "Patch cycle 2 · fix C2-1, C2-3")]:
+            with self.subTest(resolved=resolved):
+                self.review("## Resolved\n| Finding | Title | Resolved |\n"
+                            + "".join(f"| {id} | C2-2 | @ {self.base} |\n" for id in resolved)
+                            + "".join(f"## Cycle {cycle} findings\n"
+                                      + "### P1 — Open\n- Disposition: fix now\n- Resolved: —\n" * count
+                                      for cycle, count in cycles))
+                result = self.result()
+                self.assertEqual(result["blocker"]["findings"], expected)
+                self.assertEqual(result["why"], why)
+
     def test_other_artifacts_drafting(self):
         for name, phase, key in [("plan.md", "plan", "plan"), ("review.md", "review", "review"),
                                   ("patch_plan.md", "review", "patch-plan")]:
