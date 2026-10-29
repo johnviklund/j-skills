@@ -159,7 +159,9 @@ deferred P3s stay in `review.md`. No patch cycle is needed when everything is de
 
 **Any "fix now"** → write `patch_plan.md`: one fix ticket per finding, same ticket shape and
 rules as `plan.md` (lane, seam, acceptance, verify with `pre:`, skills), numbered `C<cycle>-T#`
-so their `@ <sha>` lines never collide with the plan's. The lane decides seat and approval: a fix
+so their `@ <sha>` lines never collide with the plan's. Every fix ticket carries
+`Fixes: C<n>-<m> (P#)`, for example `Fixes: C1-1 (P1)`, naming its finding and severity so routing
+can choose the P0 override. The lane decides seat and approval: a fix
 that touches a contract is a contract ticket whatever its severity.
 A behavioural bug is one fix ticket with two commits: first a test that reproduces it, run and
 seen to fail, committed alone; then the fix, which leaves every test file untouched. The ticket

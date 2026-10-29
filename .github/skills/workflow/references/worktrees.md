@@ -24,16 +24,18 @@ For `status` or an omitted slug, collect slugs from the primary checkout's `.wor
 `git fetch --quiet --prune origin '+refs/heads/run/*:refs/remotes/origin/run/*'` when origin exists.
 Resolve each candidate with step 2, then read only its own `.workflow/<slug>/` artifacts.
 Deduplicate by slug; use the resolved copy instead of the primary checkout's older copy.
-Apply the hub's state table there, so a completed worktree plan reports `review`.
+Run `python3 <skill>/scripts/next-step.py <slug> --repo <checkout> --json` in each resolved copy
+for its state, so a completed worktree plan reports `review`.
 An omitted slug still asks when several runs are live; `status` also lists parked runs.
 
 ## Slug and status
 
 **Slug:** the command names one, or exactly one run is live — otherwise list the live runs,
 lettered, and ask. Live runs in each resolved checkout: `grep -l 'Status: *\(drafting\|complete\)' .workflow/*/brainstorm.md`.
-`workflow status` prints one line per non-done run — `slug · phase · blocker or none · next command`
-(an `awaiting-human` ticket is the blocker, with its action). A command that doesn't fit the run's
-state gets named and asked about.
+`workflow status` prints one line per non-done run from that JSON:
+`slug · phase · blocker.action or none · command`. Copy the fields unchanged; `blocker: null`
+prints `none`. `workflow next` prints the script's `card` unchanged, per the hub's closing-card
+rule. A command that doesn't fit the run's state gets named and asked about.
 
 ## Start execution
 

@@ -60,6 +60,21 @@ class NextStepTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
+    def test_key_prints_model_lines_without_a_run(self):
+        for key, expected_code in (("review", 0), ("nope", 1)):
+            with self.subTest(key=key):
+                result = subprocess.run([sys.executable, str(SCRIPT), "--key", key,
+                                         "--routing", str(self.routing)], cwd=self.temp.name,
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, expected_code, result.stderr)
+                if key == "review":
+                    self.assertEqual(result.stdout, "- **Model:** Opus 5.5 · xhigh · large\n"
+                                     "- **Fallback:** Sonnet 5.5 · xhigh\n")
+                else:
+                    self.assertEqual(result.stdout, "")
+                    self.assertIn("nope", result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+
     def plan(self, tickets, name="plan.md"):
         (self.run / name).write_text(
             f"Command: workflow plan x\nCreated: now\nBase: {self.base}\nInputs: none\nStatus: complete\n"

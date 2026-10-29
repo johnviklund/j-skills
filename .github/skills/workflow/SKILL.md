@@ -16,8 +16,8 @@ Four phases and a wrap: **brainstorm → plan → execute → review → wrap**.
 sit with different vendors on purpose — independence is the point. `ROUTING.md` maps seats to
 vendors, models and efforts.
 
-**Invocation:** `workflow <command> [slug]`; the card's command line carries the CLI's own skill
-prefix if it has one.
+**Invocation:** `workflow <command> [slug]`; pass the CLI's skill prefix to the card script with
+`--prefix` if it has one.
 
 **Checkout:** Before reading a run, follow [references/worktrees.md](references/worktrees.md).
 It resolves every phase and status to the run's checkout; execute opens isolation, wrap lands it.
@@ -120,33 +120,17 @@ swap happens, and a **reset** (not compaction) is how. The CLI's literal command
 Every phase ends with this card as the turn's last output. **A turn that waits for a chat answer** (a
 UI check, a clarify question, the plan's ticket-list round) **ends on the Decisions list, no card**.
 
----
-**▶ Next: <phase>** · <run slug>
-
-- **Why:** <one line, or the cycle and finding ids for a patch cycle>
-- **Reset:** yes | no
-- **Model:** <model> · <effort> · <context>
-- **Fallback:** <model> · <effort>
-- **Reads:** <files the next phase opens first>
-
-**Run:**
-
-```text
-workflow <phase> <slug>
-```
----
-
-One field per row, as a bullet list, never a run-on line: markdown joins plain lines, so a row
-without its bullet disappears into the paragraph. A blank line sits before the **Run:** label and
-before the fence, and the command is always its own fenced `text` block, even when the card is
-short, so it has a copy button.
-
-**Reads:** names run files and receipts only; the CLI already loads `AGENTS.md` and its kin. Before
-the card, commit and push from the resolved checkout per `references/worktrees.md`.
+Before the card, commit and push from the resolved checkout per `references/worktrees.md`.
 Resolve unexpected `check-run.py` worktree or branch warnings first, or ask about them.
-Reset is `yes` at every handoff, `no` only for same-seat work continuing. A human-only step (an
-operator ticket, an escalation) reads `- **Model:** human · <the one action>` with **Reads:** naming
-the handoff. A finished run gets wrap's ✅ card (`references/wrap.md`).
+Then run `python3 <skill>/scripts/next-step.py <slug> --repo <checkout>` and print stdout unchanged
+as the turn's last output. `<skill>` is this skill's absolute folder; `<checkout>` is the resolved
+checkout. `workflow next` runs the same command. Add `--prefix /` when the CLI needs that prefix.
+An error stops the card: report stderr and resolve it before retrying.
+
+`--json` returns schema version 1 with `phase`, `command`, `ticket`, `model`, `fallback`, `reads`,
+`blocker` and the rendered `card`. Consumers copy these fields; the script reads `ROUTING.md`
+for the configured assignment. Availability and model switching remain the consumer's job.
+A finished wrap keeps its ✅ summary card (`references/wrap.md`).
 
 ## Ground rules
 

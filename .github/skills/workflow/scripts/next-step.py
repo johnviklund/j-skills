@@ -71,9 +71,7 @@ def routing(path):
     return routes
 
 
-def card(step, prefix):
-    if step["phase"] == "done":
-        return f"---\n**✅ Done** · {step['slug']}\n---\n"
+def model_lines(step):
     current = step["model"]
     fallback = step["fallback"][0] if step["fallback"] else None
     model_line = (f"{current['name']} · {current['effort']} · {step['context']}" if current else
@@ -81,9 +79,15 @@ def card(step, prefix):
     fallback_line = f"{fallback['name']} · {fallback['effort']}" if fallback else "none"
     if step["trial"]:
         model_line += " (trial)"
+    return f"- **Model:** {model_line}\n- **Fallback:** {fallback_line}\n"
+
+
+def card(step, prefix):
+    if step["phase"] == "done":
+        return f"---\n**✅ Done** · {step['slug']}\n---\n"
     return (f"---\n**▶ Next: {step['phase']}** · {step['slug']}\n\n"
             f"- **Why:** {step['why']}\n- **Reset:** {'yes' if step['reset'] else 'no'}\n"
-            f"- **Model:** {model_line}\n- **Fallback:** {fallback_line}\n"
+            f"{model_lines(step)}"
             f"- **Reads:** {', '.join(step['reads'])}\n\n**Run:**\n\n"
             f"```text\n{prefix}{step['command']}\n```\n---\n")
 
@@ -196,19 +200,26 @@ def next_step(repo, slug, routes, prefix=""):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("slug")
+    parser.add_argument("slug", nargs="?")
+    parser.add_argument("--key", help="print Model and Fallback lines for a routing key, without a run")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--repo", default=".")
     parser.add_argument("--routing", type=Path, default=Path(__file__).resolve().parents[1] / "ROUTING.md")
     parser.add_argument("--prefix", default="")
     args = parser.parse_args()
     try:
-        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", args.slug):
+        routes = routing(args.routing)
+        if args.key is not None:
+            if args.key not in routes:
+                raise ValueError(f"ROUTING.md: missing key {args.key}")
+            print(model_lines(routes[args.key]), end="")
+            return 0
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", args.slug or ""):
             raise ValueError("slug must contain only letters, digits, dots, underscores and hyphens")
         root = checks.git_out(str(args.repo), "rev-parse", "--show-toplevel")
         if not root:
             raise ValueError(f"{args.repo}: not inside a git repo")
-        result = next_step(Path(root), args.slug, routing(args.routing), args.prefix)
+        result = next_step(Path(root), args.slug, routes, args.prefix)
     except (ValueError, OSError) as error:
         print(error, file=sys.stderr)
         return 1

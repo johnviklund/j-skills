@@ -67,24 +67,23 @@ to "the findings above". For finished-run cleanup, name the runs and route unsav
 
 ## Skill to seat
 
-Read `../workflow/ROUTING.md` relative to this checkup folder; read the seat and phase tables whole.
-This table selects a seat. Copy the model into Model and Fallback, never a seat name; drop the vendor.
-Use the phase row's effort for both Model and Fallback, including when the fallback chain names another effort.
-Read context from the phase row. A trial replaces
-the primary, is marked `(trial)`, and uses the primary as fallback. Follow the fallback chain
-when a model is unavailable and name the switch.
+Run `python3 <workflow>/scripts/next-step.py --key <key>` and copy its Model and Fallback lines
+unchanged. `<workflow>` is the sibling workflow skill's absolute folder. The script reads its
+`ROUTING.md`, including trial models and explicit fallback efforts; an error stops the action
+card until resolved. This table selects the key:
 
-| Skill or command | Seat |
+| Skill or command | Key |
 |---|---|
-| `memory.*` | Brainstorm partner |
-| `evals.run reviewer` | Strict reviewer |
-| `verify.maintain`, `verify.create` | Default executor |
-| `workflow brainstorm`, `workflow improve`, `workflow todo`, `workflow park`, `workflow wrap` | Brainstorm partner |
-| `workflow plan`, `workflow review`, `workflow realign` | Strict reviewer |
-| `workflow execute` | The next ticket's lane seat |
+| `memory.*`, `workflow improve`, `workflow park` | `brainstorm` |
+| `evals.run reviewer` | `review` |
+| `verify.maintain`, `verify.create` | `execute:logic` |
+| Other workflow commands except execute | The command, such as `todo`, `wrap`, `plan`, `review` or `realign` |
+| `workflow execute` | Use the run's JSON `key`, including the patch severity override |
 
-For `memory.*`, use the brainstorm phase row; for verify commands, use the execute logic row;
-the reviewer exam uses the review row. Human-only decisions use the human card rule above.
+For execute, resolve the run per workflow `references/worktrees.md`, then run
+`next-step.py <slug> --repo <checkout> --json` to read its key and blocker.
+Human-only decisions use the human card rule above. A blocked run uses its `blocker.action`.
+Follow the configured fallback chain when a model is unavailable and name the switch.
 
 ## Safe-fix line
 
