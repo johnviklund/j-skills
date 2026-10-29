@@ -167,9 +167,7 @@ def next_step(repo, slug, routes, prefix=""):
             step["reads"].append(f".workflow/{slug}/review.md")
             findings = checks.review_findings(review)
             cycle = max(findings, default=0)
-            open_ids = [f["id"] for f in findings.get(cycle, [])
-                        if any(re.match(r"\s*- Disposition:\s*fix now", text) for _, text in f["lines"])
-                        and not any(re.search(r"- Resolved:\s*@\s*(" + checks.SHA + ")", text) for _, text in f["lines"])]
+            open_ids = [f["id"] for group in findings.values() for f in group if checks.open_finding(f)]
             base = review.header().get("Base", "")
             if not checks.git_has(str(repo), base):
                 raise ValueError(f"review.md: unknown Base {base}")

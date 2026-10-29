@@ -548,6 +548,13 @@ def review_findings(doc):
     return cycles
 
 
+def open_finding(finding):
+    disposition = next((text.split("Disposition:", 1)[1].strip() for _, text in finding["lines"]
+                        if text.strip().startswith("- Disposition:")), "")
+    resolved = next((text for _, text in finding["lines"] if text.strip().startswith("- Resolved:")), "")
+    return disposition.startswith("fix now") and not re.search(r"@\s*(" + SHA + ")", resolved)
+
+
 def check_review(run, rep):
     doc = run["docs"]["review.md"]
     status = doc.status()
@@ -579,7 +586,7 @@ def check_review(run, rep):
             if value.startswith("fix now"):
                 res = next((x for _, x in f["lines"] if x.strip().startswith("- Resolved:")), "")
                 sha = re.search(r"@\s*(" + SHA + ")", res)
-                if not sha:
+                if open_finding(f):
                     open_fix.append(label)
                 elif not git_has(rep.repo, sha.group(1)):
                     rep.missing_sha(doc.path, n, f"{label}: Resolved @ {sha.group(1)} is not a commit in this repo")
