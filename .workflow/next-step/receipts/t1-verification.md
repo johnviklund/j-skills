@@ -14,7 +14,7 @@ Status: complete
 - Red: before implementation, 4 tests failed or errored because next-step.py did not exist. Before the table conversion, only the real-routing test failed on the old columns.
 - Mutations: 18 of 18 caught. Removed guards for header columns, row width, required cells, duplicate rows, missing header, model width, empty model components, model effort, phase effort, context, approval, unknown seat and missing phase; changed trial selection/marker, fallback splitting, inherited effort and primary trial fallback. Each made the targeted suite fail. All changes restored.
 - A surviving required-cell mutation prompted an empty phase-description case. The restored guard rejects it; removing that guard now fails the test.
-- Reuse search found the importlib loader in run-worktree.py and check-run.py's Doc/header parser. The new script reuses both. No routing or card helper existed. routing() and card() each have two callers, including the CLI tests.
+- Reuse search found the importlib loader in run-worktree.py and check-run.py's Doc/header parser. The new script reuses both. No routing or card helper existed.
 - `git diff --check` and Python compilation passed. No build, lint or typecheck command was specified.
 - T1 adds 126 code lines and 111 test lines, within its combined 240-line budget. No visible screen changes or unrelated edits.
 - Scope: T1 handles brief-only runs. T2 adds plan routing. T1 uses xhigh; T2 uses high, so the execution rule requires the next session.

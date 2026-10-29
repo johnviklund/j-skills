@@ -9,7 +9,10 @@ Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 ·
 Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
 
 ## Execution state
-<filled by execute>
+Current: T1 done; T2 ready, T3–T5 blocked. Next writer: GPT-6.1 Sol · high.
+T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · receipts/t1-verification.md
+Session 1: T1
+Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 
 ## Findings
 | # | What is true | What it changes |
@@ -41,15 +44,15 @@ Budget: code +150 · tests +90
 Seam: `next-step.py <slug> [--json] [--repo DIR] [--routing FILE] [--prefix STR]`: stdout, stderr, exit code, on fixture runs in a temp git repo
 Change: ROUTING seat table `Seat · Vendor · Model · Trial · Fallback chain · Notes`; phase table `Key · Phase / work · Seat · Effort · Context · Approval · Notes` (F9, F11, F12, 1a). Load check-run per F2. JSON: `schema_version slug phase command ticket why key seat model{vendor,name,effort} trial context fallback[] approval reset reads[] blocker card`. Plain stdout is the card in SKILL.md's template.
 Accept:
-- [ ] brief-only run, `--json` → phase `plan`, command `workflow plan x`, seat `Strict reviewer`, model Anthropic · Opus 5.5 · high, context `large`, reset true, blocker null, fallback Sonnet 5.5 · xhigh then GPT-6 Sol · xhigh (B1)
-- [ ] same run, no `--json` → stdout equals `card`; it holds `- **Model:** Opus 5.5 · high · large`, `- **Fallback:** Sonnet 5.5 · xhigh`, fenced `workflow plan x`; `--prefix /` fences `/workflow plan x` (B7)
-- [ ] fixture Trial `OpenAI · GPT-6.1 Sol` on Strict reviewer → model GPT-6.1 Sol, `trial` true, Model line ends `(trial)`, fallback[0] Anthropic · Opus 5.5, `schema_version` 1 (B7)
-- [ ] three bad routings (a row missing a cell; effort `max`; no `plan` row) → each exits 1, stderr names the row's key (`plan` for the missing row), stdout empty (B8)
-- [ ] the real ROUTING.md → both tables parse, all 13 routable keys resolve, `wc -c` ≤ 5,500 (B8)
+- [x] brief-only run, `--json` → phase `plan`, command `workflow plan x`, seat `Strict reviewer`, model Anthropic · Opus 5.5 · high, context `large`, reset true, blocker null, fallback Sonnet 5.5 · xhigh then GPT-6 Sol · xhigh (B1)
+- [x] same run, no `--json` → stdout equals `card`; it holds `- **Model:** Opus 5.5 · high · large`, `- **Fallback:** Sonnet 5.5 · xhigh`, fenced `workflow plan x`; `--prefix /` fences `/workflow plan x` (B7)
+- [x] fixture Trial `OpenAI · GPT-6.1 Sol` on Strict reviewer → model GPT-6.1 Sol, `trial` true, Model line ends `(trial)`, fallback[0] Anthropic · Opus 5.5, `schema_version` 1 (B7)
+- [x] three bad routings (a row missing a cell; effort `max`; no `plan` row) → each exits 1, stderr names the row's key (`plan` for the missing row), stdout empty (B8)
+- [x] the real ROUTING.md → both tables parse, all 13 routable keys resolve, `wc -c` ≤ 5,500 (B8)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py && wc -c ROUTING.md` (pre: new file, NO TESTS RAN exit 5 · 5407)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
-
+Status: done @ 904f083
+Writer: GPT-6.1 Sol
 ### T2 — Plan tickets route by lane, and an awaiting-human ticket names its handoff
 Delivers: B2, B3 · Blocked by: T1 · Lane: logic
 Budget: code +60 · tests +60
@@ -61,7 +64,6 @@ Accept:
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: new file, NO TESTS RAN exit 5)
 Skills: none
 Status: todo
-
 ### T3 — Fix tickets route by severity and lane
 Delivers: B5, B8 · Blocked by: T2 · Lane: logic
 Budget: code +40 · tests +40
@@ -74,7 +76,6 @@ Accept:
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests` (pre: 82 OK)
 Skills: none
 Status: todo
-
 ### T4 — Review, wrap, parked and done follow the run's files
 Delivers: B4, B6, B7 · Blocked by: T3 · Lane: logic
 Budget: code +70 · tests +70
@@ -89,7 +90,6 @@ Accept:
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests` (pre: 82 OK)
 Skills: none
 Status: todo
-
 ### T5 — Phases print the script's card, and checkup prints its model lines from it
 Delivers: B7, B8 · Blocked by: T4 · Lane: logic
 Budget: code +20 · tests +15
