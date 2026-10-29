@@ -7,14 +7,14 @@ Status:  complete
 Docs read: none in scope (the repo has no PRODUCT.md or DESIGN.md)
 Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 · over 1,000: none (new: next-step.py, test_next_step.py; skill `*.md` count as neither)
 Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
-
 ## Execution state
-Current: T1–T3 done; T4 ready, T5 blocked. Next writer: GPT-6.1 Sol · high.
+Current: T1–T4 done; T5 ready. Session 2 complete after three tickets. Next writer: GPT-6.1 Sol · high.
 T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · receipts/t1-verification.md
 T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · receipts/t2-verification.md
 T3 @ 17c8020 · writer: GPT-6.1 Sol · final workflow 92, checkup 8 passed · receipts/t3-verification.md
+T4 @ 53d959c · writer: GPT-6.1 Sol · final workflow 98, checkup 8 passed · receipts/t4-verification.md
 Session 1: T1
-Session 2: T2, T3
+Session 2: T2, T3, T4
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 ## Findings
 | # | What is true | What it changes |
@@ -85,14 +85,15 @@ Budget: code +70 · tests +70
 Seam: the T1 CLI; `review_findings(doc)` extracted from `check_review` (F3)
 Change: receipt-rule diff since review Base (F4); open `fix now` findings; a current-cycle patch plan all done → re-review, none → blocker (F19); drafting resumes its phase, parked and done per F16; wrap `reset: false` (F15).
 Accept:
-- [ ] every plan ticket done, no `review.md` → phase `review`, seat `Strict reviewer`, model Anthropic · Opus 5.5 · xhigh, context `large` (B4)
-- [ ] complete `review.md`, no open finding, no later commit → phase `wrap`, seat `Brainstorm partner`, model Anthropic · Sonnet 5.5 · medium, reset false (B6)
-- [ ] that run plus a later commit to `tool.py` → phase `review`; plus a commit to `notes.md` only → phase `wrap` (B4, B6)
-- [ ] cycle 1 open `fix now` P1, every C1 patch ticket done → phase `review`; with no `patch_plan.md` → blocker naming `C1-1`, command `workflow review x` (B4)
-- [ ] brief `drafting` → phase `brainstorm`; brief `parked`, nothing else → phase `parked`, command `workflow plan x`; brief `done` → phase `done`, command null (B7)
+- [x] every plan ticket done, no `review.md` → phase `review`, seat `Strict reviewer`, model Anthropic · Opus 5.5 · xhigh, context `large` (B4)
+- [x] complete `review.md`, no open finding, no later commit → phase `wrap`, seat `Brainstorm partner`, model Anthropic · Sonnet 5.5 · medium, reset false (B6)
+- [x] that run plus a later commit to `tool.py` → phase `review`; plus a commit to `notes.md` only → phase `wrap` (B4, B6)
+- [x] cycle 1 open `fix now` P1, every C1 patch ticket done → phase `review`; with no `patch_plan.md` → blocker naming `C1-1`, command `workflow review x` (B4)
+- [x] brief `drafting` → phase `brainstorm`; brief `parked`, nothing else → phase `parked`, command `workflow plan x`; brief `done` → phase `done`, command null (B7)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests` (pre: 82 OK)
 Skills: none
-Status: todo
+Status: done @ 53d959c
+Writer: GPT-6.1 Sol
 ### T5 — Phases print the script's card, and checkup prints its model lines from it
 Delivers: B7, B8 · Blocked by: T4 · Lane: logic
 Budget: code +20 · tests +15
