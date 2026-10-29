@@ -9,11 +9,12 @@ Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 ·
 Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
 
 ## Execution state
-Current: T1–T2 done; T3 ready, T4–T5 blocked. Next writer: GPT-6.1 Sol · high.
+Current: T1–T3 done; T4 ready, T5 blocked. Next writer: GPT-6.1 Sol · high.
 T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · receipts/t1-verification.md
 T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · receipts/t2-verification.md
+T3 @ 17c8020 · writer: GPT-6.1 Sol · final workflow 92, checkup 8 passed · receipts/t3-verification.md
 Session 1: T1
-Session 2: T2
+Session 2: T2, T3
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 ## Findings
 | # | What is true | What it changes |
@@ -71,12 +72,13 @@ Budget: code +40 · tests +40
 Seam: the T1 CLI on a fixture `patch_plan.md`; `check-run.py` on the same run
 Change: `patch_plan.md` with a ticket not done is the live file; key `fix:P0` for P0, else `fix:<lane>`; Why `Patch cycle <n> · fix <ids>`. check-run: a patch ticket without `Fixes:` errors when the file is complete, warns while drafting.
 Accept:
-- [ ] C1-T1 `todo`, `Fixes: C1-1 (P0)`, `Lane: logic` → ticket `C1-T1`, seat `Heavy executor`, model GPT-6.1 Sol · high, why `Patch cycle 1 · fix C1-1` (B5)
-- [ ] `Fixes: C1-1 (P1)` → `Default executor` · medium; `(P3)` with `Lane: mechanical` → `Mechanical lane` · medium (B5)
-- [ ] complete patch ticket with no `Fixes:` → check-run ERROR naming `C1-T1` and `Fixes: C<n>-<m> (P#)`; next-step exits 1 naming `C1-T1` (B5, B8)
+- [x] C1-T1 `todo`, `Fixes: C1-1 (P0)`, `Lane: logic` → ticket `C1-T1`, seat `Heavy executor`, model GPT-6.1 Sol · high, why `Patch cycle 1 · fix C1-1` (B5)
+- [x] `Fixes: C1-1 (P1)` → `Default executor` · medium; `(P3)` with `Lane: mechanical` → `Mechanical lane` · medium (B5)
+- [x] complete patch ticket with no `Fixes:` → check-run ERROR naming `C1-T1` and `Fixes: C<n>-<m> (P#)`; next-step exits 1 naming `C1-T1` (B5, B8)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests` (pre: 82 OK)
 Skills: none
-Status: todo
+Status: done @ 17c8020
+Writer: GPT-6.1 Sol
 ### T4 — Review, wrap, parked and done follow the run's files
 Delivers: B4, B6, B7 · Blocked by: T3 · Lane: logic
 Budget: code +70 · tests +70
