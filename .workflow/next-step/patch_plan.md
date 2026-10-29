@@ -7,7 +7,8 @@ Status:  complete
 Cycle 3 approved by human (1a). C2-T2 runs first: it pins check-run's open-finding note before C2-T1 changes `review_findings`, which that note reads. C2-T1 is a behavioural fix in two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C2-T2 is test-only.
 
 ## Execution state
-Current: C2-T2 next · writer: — · baseline: workflow 107, checkup 8 passed
+Current: C2-T1 next · writer: GPT-6.1 Sol · baseline: workflow 107, checkup 8 passed
+C2-T2 @ 5c5e306 · final workflow 108, checkup 8 passed · receipts/c2-t2-verification.md
 
 ## Tickets
 
@@ -32,8 +33,9 @@ Budget: code +0 · tests +12
 Seam: test_check_run.py `ReviewTests` through `check()` and `review()`; check-run.py unchanged
 Change: one case. A live run whose `review.md` holds a cycle 1 `### P1 — Open` with `- Disposition: fix now` gives the open note while `- Resolved: —`, and the closed note once `- Resolved: @ {base}`.
 Accept:
-- [ ] `Resolved: —` → check-run prints ``1 open `fix now` finding(s)``; `Resolved: @ {base}` → it prints ``no open `fix now` finding`` and no ``open `fix now` finding(s)`` (B4)
-- [ ] the `if open_finding(f):` line in `check_review`, changed to `if not open_finding(f):` and to `if False:`, each alone in a throwaway copy, turns test_check_run.py red, 2 of 2; the commit changes no line of check-run.py (B4)
+- [x] `Resolved: —` → check-run prints ``1 open `fix now` finding(s)``; `Resolved: @ {base}` → it prints ``no open `fix now` finding`` and no ``open `fix now` finding(s)`` (B4)
+- [x] the `if open_finding(f):` line in `check_review`, changed to `if not open_finding(f):` and to `if False:`, each alone in a throwaway copy, turns test_check_run.py red, 2 of 2; the commit changes no line of check-run.py (B4)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_check_run.py` (pre: 50 OK; both mutations survive)
 Skills: none
-Status: todo
+Status: done @ 5c5e306
+Writer: GPT-6.1 Sol
