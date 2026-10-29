@@ -56,3 +56,5 @@ Escape hatches: 1 hit, the same `any(` false positive at next-step.py:145. Tests
 
 ## Cycle 2 verdict
 The five cycle 1 fixes work. Each red test fails at its own commit and passes after a fix that leaves the tests untouched, and all eight C1-3 mutations now fail the suite. Two new P1s sit in the C1-1 fix. The blocker numbers finding ids by position, so it names a resolved finding once earlier ones fold into `## Resolved` (C2-1). The check-run side of the shared predicate, which wrap reads, has no test (C2-2). This is the cycle bound, so both go to the human as one decision: a third cycle, or defer to `TODO.md`. C2-3 stays here.
+
+Cycle 3 approved by human: 2026-10-29 — option 1a, one more cycle fixing C2-1 and C2-2. Patch cycle 2 (`patch_plan.md`): C2-T1 fixes C2-1, C2-T2 fixes C2-2.
