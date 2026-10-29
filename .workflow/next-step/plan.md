@@ -13,8 +13,8 @@ T1 @ 904f083 · writer: GPT-6.1 Sol · baseline 82 passed, final 86 passed · re
 T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · receipts/t2-verification.md
 T3 @ 17c8020 · writer: GPT-6.1 Sol · final workflow 92, checkup 8 passed · receipts/t3-verification.md
 T4 @ 53d959c · writer: GPT-6.1 Sol · final workflow 98, checkup 8 passed · receipts/t4-verification.md
-Session 1: T1
-Session 2: T2, T3, T4
+Revalidated @ 588bf2d · none: it swaps an example at checkup report.md:15; T5 edits report.md:70-80, pre counts hold
+Sessions: 1 → T1 · 2 → T2, T3, T4
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
 ## Findings
 | # | What is true | What it changes |
