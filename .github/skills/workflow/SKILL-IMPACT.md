@@ -10,6 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-10-29 | workflow | next-step C1-T2: an operator ticket resumes when its receipt exists, with plain or backticked paths. Judge: the card stops requesting an existing receipt in either form | next-step C1-2 | 3 operator handoffs | trialing |
 | 2026-10-29 | workflow | next-step C1-T1: the card and checker share the open-finding rule across every review cycle. Judge: an unresolved earlier finding blocks wrap until it has a resolution commit | next-step C1-1 | 3 review handoffs | trialing |
 | 2026-10-29 | workflow · checkup | next-step T5: workflow cards, next and status use generated output; checkup copies model lines from `--key`, preserving trial and fallback efforts; review tickets name `Fixes:` metadata. Judge: the next three handoffs and checkups copy the generated assignment unchanged | next-step B7–B8, T5 | 3 handoffs and checkups | trialing |
 | 2026-10-29 | workflow | next-step T1–T4: keyed routing tables and card/JSON generation cover brief, ticket, operator, patch, review, wrap and terminal states; shared parsers validate patch metadata and read review findings. Judge: the following runs use the same configured assignment in JSON and cards | next-step B1–B8 | 3 runs | trialing |

@@ -104,7 +104,7 @@ def ticket_step(repo, slug, doc, patch=False):
         if not all(statuses.get(dep, "").startswith("done @ ") for dep in dependencies):
             continue
         status = statuses[t["id"]]
-        receipt = re.search(r"receipt:\s*(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
+        receipt = re.search(r"receipt:\s*`?(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
         if status == "todo" or (status == "awaiting-human" and receipt and (run / receipt[1]).is_file()):
             selected = t
             break
