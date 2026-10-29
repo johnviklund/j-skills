@@ -155,7 +155,8 @@ Commit, push, curate, and clean up — in one go:
    since landing pushes the primary branch. If unpushed primary commits block landing, run
    `gitleaks git --log-opts="origin/<primary>..<primary>" --redact -v --no-banner`; after a clean scan, push and land again.
    Keep the run live on conflicts; after a resolved
-   code merge, run the full suite and return to review. After success, work in the primary
+   code merge, run the full suite and return to review. After a clean merge (exit 5), run the full
+   suite in the run checkout and land again. After success, work in the primary
    checkout. Skip this step for a run already there; if landing already removed the worktree,
    confirm the run's ticket shas are ancestors of the primary branch before marking it done.
 10. **Archive the run — nothing leaves `.workflow/<slug>/`; beyond 10a's transient files, nothing is deleted from the run folder.** Once

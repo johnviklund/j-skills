@@ -16,6 +16,8 @@ Use an absolute `<skill>` path for the workflow skill before changing directorie
    fast-forwards a checkout behind that branch. A failed fetch warns and uses local refs;
    a second clone may then read a stale copy. Dirty or diverged checkouts that prevent updates
    need resolving before the phase continues. Local commits ahead of the remote stay local.
+   A run whose brief is `done` on `origin/<primary>` landed from another clone: the lookup
+   prints `.`, never rebuilds it, and names the stale `.worktrees/<slug>` and `run/<slug>`.
 
 For `status` or an omitted slug, collect slugs from the primary checkout's `.workflow/`, local
 `.worktrees/` directories and local or remote `run/*` refs. Refresh remote refs first with
@@ -66,7 +68,7 @@ primary checkout, after committing the run checkout and scanning its outgoing co
 The script expects the primary checkout on its primary branch and the run checkout clean.
 It checks conflicts before changing the primary checkout and never stashes another run's files.
 
-- Exit 0: fast-forward when possible, otherwise merge without rebasing. Ticket shas remain
+- Exit 0: the primary branch fast-forwards to the run branch. Ticket shas remain
   ancestors of the primary branch. The primary branch is pushed, the remote and local
   `run/<slug>` branches are deleted, and the run worktree is removed. Continue wrap step 10
   in the primary checkout, archiving and committing only `.workflow/<slug>/`.
@@ -79,8 +81,14 @@ It checks conflicts before changing the primary checkout and never stashes anoth
   conflicts left there. Resolve the code conflicts, commit the merge, run the full suite and
   route to `workflow review <slug>` for the merge-resolution diff. Keep the run live until that
   review passes, then resume wrap and land again.
-- Exit 4: only Markdown or text files conflict. Resolve in the run checkout keeping both sides,
-  commit and scan, then land again. This needs no extra code review.
+- Exit 4: only run records and logs conflict: Markdown or text under `.workflow/`, `WORKLOG.md`,
+  `TODO.md` or an `*_ARCHIVE.md`. Resolve in the run checkout keeping both sides, commit and scan,
+  then land again. This needs no extra code review. Any other conflict, a skill's Markdown
+  included, is exit 3.
+- Exit 5: the primary branch had moved and merged cleanly into the run checkout; the primary
+  branch is unmoved. A clean merge can still break, so run the full suite in the run checkout.
+  Green: land again, which now fast-forwards. Red: fix it there, commit, and route to
+  `workflow review <slug>` for the merge as in exit 3.
 
 A primary-checkout run skips landing and proceeds to the same archive step.
 
@@ -88,4 +96,4 @@ A primary-checkout run skips landing and proceeds to the same archive step.
 
 `python3 <skill>/scripts/run-worktree.py doctor --repo <repo>` prints a line for a missing
 committed `## Worktree setup` block when worktree directories exist, and one per directory
-without a live matching run. Checkup reports those lines; cleanup remains a human decision.
+without a live matching run, including a run that landed from another clone. Checkup reports those lines; cleanup remains a human decision.

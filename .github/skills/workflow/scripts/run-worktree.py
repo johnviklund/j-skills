@@ -61,14 +61,27 @@ def add_worktree(repo, slug, start):
     return path
 
 
+def landed(repo, slug):
+    """Origin's primary branch holds the run as done, so any local copy is stale."""
+    brief = checks.git_out(repo, "show", f"refs/remotes/origin/{checks.primary_branch(repo)}:.workflow/{slug}/brainstorm.md")
+    return bool(brief) and checks.Doc("brainstorm.md", text=brief).status() == "done"
+
+
 def where(repo, slug):
     remote = f"refs/remotes/origin/run/{slug}"
     if "origin" in git(repo, "remote").splitlines():
+        primary = checks.primary_branch(repo)
         try:
-            git(repo, "fetch", "--quiet", "--prune", "origin", "+refs/heads/run/*:refs/remotes/origin/run/*")
+            git(repo, "fetch", "--quiet", "--prune", "origin", "+refs/heads/run/*:refs/remotes/origin/run/*",
+                f"+refs/heads/{primary}:refs/remotes/origin/{primary}")
         except RuntimeError as error:
             print(f"could not fetch origin: {error}; using local refs", file=sys.stderr)
     path = repo / ".worktrees" / slug
+    if landed(repo, slug):
+        if path.exists() or checks.git_out(repo, "rev-parse", "--verify", f"refs/heads/run/{slug}"):
+            print(f"{slug} landed from another clone; pull the primary branch, then remove "
+                  f".worktrees/{slug} and run/{slug} once nothing in them is needed", file=sys.stderr)
+        return repo
     remote_sha = checks.git_out(repo, "rev-parse", "--verify", remote)
     if not path.exists() and (remote_sha or checks.git_out(repo, "rev-parse", "--verify", f"refs/heads/run/{slug}")):
         add_worktree(repo, slug, remote)
@@ -104,6 +117,12 @@ def open_run(repo, slug):
     return add_worktree(repo, slug, checks.primary_branch(repo)) if busy else repo
 
 
+def record(path):
+    """A run record or log, where keeping both sides of a conflict is always right."""
+    return Path(path).suffix in (".md", ".txt") and (
+        path.startswith(".workflow/") or path in ("WORKLOG.md", "TODO.md") or path.endswith("_ARCHIVE.md"))
+
+
 def land(repo, slug):
     primary, branch = checks.primary_branch(repo), f"run/{slug}"
     if git(repo, "branch", "--show-current") != primary:
@@ -128,7 +147,7 @@ def land(repo, slug):
         if not conflicts or conflicts == [""]:
             raise RuntimeError(merge.stderr or merge.stdout or "merge preflight changed; retry land")
         print(merge.stdout + merge.stderr, file=sys.stderr)
-        if all(Path(p).suffix in (".md", ".txt") for p in conflicts):
+        if all(record(p) for p in conflicts):
             print("Resolve keeping both sides, commit, land again.", file=sys.stderr)
             return 4
         print(f"Resolve in {path}, commit, run tests, then workflow review {slug}.", file=sys.stderr)
@@ -138,7 +157,12 @@ def land(repo, slug):
     unpushed = git(repo, "log", "--oneline", f"origin/{primary}..{primary}")
     if unpushed:
         raise RuntimeError(f"scan and push unpushed primary commits before landing:\n{unpushed}")
-    git(repo, "merge", "--ff", "--no-edit", branch)
+    if checks.git_out(repo, "merge-base", primary, branch) != git(repo, "rev-parse", primary):
+        # The merged tree is new code: it is tested in the run checkout before the primary branch moves.
+        git(path, "merge", "--no-edit", primary)
+        print(f"Merged {primary} into {branch}. Run the full suite in {path}, then land again.", file=sys.stderr)
+        return 5
+    git(repo, "merge", "--ff-only", branch)
     git(repo, "push", "origin", primary)
     if git(repo, "ls-remote", "--heads", "origin", branch):
         git(repo, "push", "origin", "--delete", branch)
@@ -155,7 +179,8 @@ def doctor(repo):
         print("missing ## Worktree setup in committed primary AGENTS.md")
     for path in paths:
         brief = path / ".workflow" / path.name / "brainstorm.md"
-        if not brief.is_file() or checks.Doc(str(brief)).status() not in ("drafting", "complete"):
+        if (not brief.is_file() or checks.Doc(str(brief)).status() not in ("drafting", "complete")
+                or landed(repo, path.name)):
             print(f"{path.relative_to(repo)} has no live run")
     return 0
 

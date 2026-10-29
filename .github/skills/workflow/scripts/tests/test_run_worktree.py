@@ -305,10 +305,39 @@ class WhereTests(RepoTests):
             self.assertEqual(self.git("rev-parse", "HEAD", repo=clone / ".worktrees/B").stdout.strip(), expected)
         self.assertEqual(self.git("status", "--porcelain", repo=clone).stdout, "")
 
+    def test_Where_skips_a_run_landed_from_another_clone(self):
+        self.started()
+        self.assertEqual(self.run_command("open").returncode, 0)
+        tree = self.repo / ".worktrees/B"
+        self.write(".workflow/B/brainstorm.md", "Command: brainstorm\nCreated: now\nBase: x\nInputs: none\nStatus: complete\n", repo=tree)
+        self.commit("brief", repo=tree)
+        self.git("push", "-qu", "origin", "run/B", repo=tree)
+        clone = self.root / "clone"
+        self.git("clone", "-q", str(self.remote), str(clone))
+        self.assertEqual(self.run_command("where", repo=clone).stdout.strip(), ".worktrees/B")
+        self.git("push", "-q", "origin", "main")
+        self.assertEqual(self.run_command("land").returncode, 0)
+        self.write(".workflow/B/brainstorm.md", "Command: brainstorm\nCreated: now\nBase: x\nInputs: none\nStatus: done\n")
+        self.commit("archive B")
+        self.git("push", "-q", "origin", "main")
+        for state in ("stale folder", "branch only"):
+            with self.subTest(state=state):
+                if state == "branch only":
+                    self.git("worktree", "remove", str(clone / ".worktrees/B"), repo=clone)
+                result = self.run_command("where", repo=clone)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), ".")
+                self.assertIn("landed", result.stderr)
+                self.assertEqual((clone / ".worktrees/B").exists(), state == "stale folder")
+                if state == "stale folder":
+                    self.assertIn(".worktrees/B has no live run", self.run_command("doctor", slug=None, repo=clone).stdout)
+
 
 class LandTests(RepoTests):
     def test_Land_routes_mixed_and_text_only_conflicts(self):
-        for paths, expected in ((("src.py", "WORKLOG.md"), 3), (("notes.txt",), 4)):
+        for paths, expected in ((("src.py", "WORKLOG.md"), 3), (("skills/x/SKILL.md",), 3), (("notes.txt",), 3),
+                                ((".workflow/B/scripts/x.py",), 3),
+                                (("WORKLOG.md", "TODO.md", "TODO_ARCHIVE.md", ".workflow/B/receipts/r.md"), 4)):
             with self.subTest(paths=paths):
                 self.setUp()
                 tree, _, _ = self.run_branch(paths[0])
@@ -365,6 +394,14 @@ class LandTests(RepoTests):
                     self.commit("primary advance")
                     self.git("push", "-q", "origin", "main")
                 result = self.run_command("land")
+                if shape == "merge":
+                    moved = self.git("rev-parse", "main").stdout.strip()
+                    self.assertEqual(result.returncode, 5, result.stdout + result.stderr)
+                    self.assertIn("full suite", result.stderr)
+                    self.assertEqual(self.git("rev-parse", "main").stdout.strip(), moved)
+                    self.assertEqual(self.git("rev-parse", "HEAD^2", repo=tree).stdout.strip(), moved)
+                    self.assertNotEqual(self.git("rev-parse", "--verify", "MERGE_HEAD", repo=tree, check=False).returncode, 0)
+                    result = self.run_command("land")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 head = self.git("rev-parse", "HEAD").stdout.strip()
                 if shape != "merge":
