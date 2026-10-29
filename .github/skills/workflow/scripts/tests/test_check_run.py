@@ -377,6 +377,16 @@ def review(size="", created="2026-10-09"):
 
 
 class ReviewTests(unittest.TestCase):
+    def test_review_open_finding_note_tracks_resolution(self):
+        for resolved, note in (("—", "1 open `fix now` finding(s)"),
+                               ("@ {base}", "no open `fix now` finding")):
+            with self.subTest(resolved=resolved):
+                finding = f"### P1 — Open\n- Disposition: fix now\n- Resolved: {resolved}\n"
+                text = review().replace("## Cycle 1 verdict", finding + "## Cycle 1 verdict")
+                out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": text})
+                self.assertIn(note, out)
+                self.assertEqual(out.count("open `fix now` finding(s)"), int(resolved == "—"))
+
     def test_review_coverage_without_size_is_an_error(self):
         out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": review()})
         self.assertRegex(out, r"(?m)^ERROR .*Coverage has no Size: line")
