@@ -15,7 +15,6 @@ T2 @ 70fefa2 · writer: GPT-6.1 Sol · final workflow 89, checkup 8 passed · re
 Session 1: T1
 Session 2: T2
 Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No pending decision or uncommitted files after this record commits.
-
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -38,7 +37,6 @@ Contract: schema_version 1; model {vendor,name,effort}; keyed routing tables. No
 | F17 | SKILL.md is 11,191 B (budget ~10 KB, already over); ROUTING.md is 5,407 B (budget 5.5 KB) | T5 drops the card template from SKILL.md; T1 keeps ROUTING.md ≤ 5,500 B |
 | F18 | `test_check_run.py`'s harness (:66-101) is check-run specific, and tests.md forbids a test importing a test | test_next_step.py has its own small temp-repo harness and an inline fixture routing table, so a ROUTING edit never breaks B1-B6 tests; one test parses the real file |
 | F19 | Escalations (review cycle bound, wrap contradictions) wait for a chat answer, so they already end on the Decisions list with no card (SKILL.md:120-121) | Only the cycle-bound state shows in files: open fix-now findings and no current-cycle patch plan → a blocker (T4) |
-
 ## Tickets
 ### T1 — ROUTING.md parses, and a brief-only run gets its plan card
 Delivers: B1, B7, B8 · Blocked by: none · Lane: contract
@@ -105,19 +103,15 @@ Accept:
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py; grep -c 'next-step.py' SKILL.md references/worktrees.md ../checkup/references/report.md; grep -c "Use the phase row's effort" ../checkup/references/report.md; grep -c 'Fixes: C' references/phase-4-review.md; wc -c SKILL.md` (pre: NO TESTS RAN · 0 · 0 · 0 · 1 · 0 · 11191)
 Skills: .github/skills/agent-docs/SKILL.md
 Status: todo
-
 ## Coverage
 - Outcome → T1 (`--json` prints the object), T5 (card, `workflow next` and `workflow status` print it)
 - B1 → T1 · B2 → T2 · B3 → T2 · B4 → T4 · B5 → T3 · B6 → T4 · B7 → T1, T4, T5 · B8 → T1, T3, T5
 - Out of scope: unattended mode, `decisions.md` → untouched · conductor skill → untouched · decision model → untouched · harness model IDs → untouched · PRs → none · version bump (`.claude-plugin` 2.3.0) → untouched
-
 ## Risks
 - T1 is riskiest: every phase reads ROUTING.md, and a misparse routes the wrong model. The real-file test resolves all 13 keys.
 - Outside its files: checkup, design (rows named *Design*), evals and agent-docs read ROUTING.md by eye; the name column stays. Installed copies lag until `npx skills update -g` after the push.
 - Not taken: a UI ticket marker (F10); severity looked up in `review.md` (2b).
-
 ## TODO impacts
 - checkup-next-actions C1-1 → completed by T5 (3a) · Worktree setup as a script → untouched
-
 ## Product doc impacts
 - No PRODUCT.md or DESIGN.md. The workflow skill's ROADMAP.md: no changes (no line names the card or routing).
