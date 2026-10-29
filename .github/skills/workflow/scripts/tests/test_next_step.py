@@ -89,6 +89,7 @@ Delivers: B2 · Blocked by: T1 · Lane: contract
 Status: todo
 """)
         result = self.result()
+        self.assertEqual(result["why"], "T2 is ready.")
         for key, value in {"phase": "execute", "ticket": "T2", "seat": "Heavy executor", "approval": "auto",
                            "model": {"vendor": "OpenAI", "name": "GPT-6.1 Sol", "effort": "xhigh"}}.items():
             self.assertEqual(result[key], value, key)
@@ -103,10 +104,13 @@ Status: awaiting-human
         receipts.mkdir()
         handoff = receipts / "t3-operator-handoff.md"
         handoff.write_text("Run the probe and save receipts/t3.txt.\n")
+        (receipts / "t4-operator-handoff.md").write_text("A different ticket's handoff.\n")
         self.git("add", ".")
         self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "handoff")
         result = self.result()
         self.assertEqual(result["blocker"]["ticket"], "T3")
+        self.assertEqual(result["why"], "T3 is awaiting human action.")
+        self.assertNotIn("t4-operator-handoff.md", str(result["reads"]) + result["blocker"]["action"])
         self.assertIn("receipts/t3-operator-handoff.md", result["blocker"]["action"])
         self.assertIn("Run the probe", result["blocker"]["action"])
         self.assertIn(".workflow/x/receipts/t3-operator-handoff.md", result["reads"])
@@ -151,6 +155,32 @@ Status: todo
         patch.write_text(patch.read_text().replace("Status: todo", f"Status: done @ {self.base}"))
         self.assertEqual(self.result()["ticket"], "T1")
 
+    def test_blocker_selects_awaiting_ticket_after_blocked_todo(self):
+        self.plan("### T1 — Blocked\nBlocked by: T2 · Lane: logic\nStatus: todo\n"
+                  "### T2 — Awaiting\nLane: operator\nStatus: awaiting-human\n")
+        self.assertEqual(self.result()["blocker"]["ticket"], "T2")
+
+    def test_fully_blocked_plan_has_diagnostic(self):
+        self.plan("### T1 — Blocked\nBlocked by: T9 · Lane: logic\nStatus: todo\n")
+        result = self.cli("--json")
+        self.assertEqual((result.returncode, result.stdout), (1, ""))
+        self.assertIn("no ready ticket", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_patch_cycle_comes_from_ticket_id(self):
+        self.plan("### C2-T1 — Fix\nFixes: C1-1 (P1)\nLane: logic\nStatus: todo\n", "patch_plan.md")
+        self.assertEqual(self.result()["why"], "Patch cycle 2 · fix C1-1")
+
+    def test_invalid_slug_and_repository_have_diagnostics(self):
+        with tempfile.TemporaryDirectory() as outside:
+            for slug, args, diagnostic in [("../x", (), "slug must contain"),
+                                           ("x", ("--repo", outside), "not inside a git repo")]:
+                with self.subTest(slug=slug, args=args):
+                    result = self.cli("--json", *args, slug=slug)
+                    self.assertEqual((result.returncode, result.stdout), (1, ""))
+                    self.assertIn(diagnostic, result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+
     def test_patch_ticket_without_fixes_fails_without_json(self):
         for fixes in ("", "C1-1 (P9)", "T1 (P1)", "C1-1 (P1) junk"):
             with self.subTest(fixes=fixes):
@@ -174,6 +204,7 @@ Status: todo
             self.assertEqual(result[key], value, key)
         self.review()
         result = self.result()
+        self.assertIn("- **Reset:** no", result["card"])
         for key, value in {"phase": "wrap", "seat": "Brainstorm partner", "reset": False,
                            "model": {"vendor": "Anthropic", "name": "Sonnet 5.5", "effort": "medium"}}.items():
             self.assertEqual(result[key], value, key)
