@@ -39,7 +39,7 @@ On the next run, `check-run.py` flags a ticket whose tests grow past 1.5× its c
 - Ratio gate on the mechanical lane — floor and Budget already cover it
 - A simplify pass before review, real retiring at wrap — the lean-runs remainder, a later run
 - Moving the skill folder's `MEMORY.md` and `SKILL-IMPACT.md` — not named by the TODO
-- Edits inside cx-intelligence — read-only here
+- Edits inside work-repo — read-only here
 - Human-approved waivers — D3
 
 Docs read: none in scope (j-skills has no PRODUCT.md or DESIGN.md)

@@ -23,6 +23,6 @@ Status:  done
 
 **Feature map.** No verify skill. **Evals.** No cases deposited.
 
-**Receipts.** `receipts/` (t1 and c1-t1 verification and replay, t2 checkup on cx-intelligence), `scripts/replay.py`, `notes/P1-run-gate.md`, `prototypes/P1-run-gate/`.
+**Receipts.** `receipts/` (t1 and c1-t1 verification and replay, t2 checkup on work-repo), `scripts/replay.py`, `notes/P1-run-gate.md`, `prototypes/P1-run-gate/`.
 
 Retired: none — the run changed one gate in place and merged its own tests; no other product file became obsolete.

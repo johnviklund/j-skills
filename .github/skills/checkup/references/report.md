@@ -12,7 +12,7 @@ Omit questions or cards when there are none.
 Ask at most five questions, covering human-only decisions and facts no file establishes.
 When severity or a fix depends on intent, tool use or whether a parked run is still wanted,
 cite the evidence and ask; settle that finding after the answer. For example,
-`.agents/skills/verify-cx-intelligence` exists and `.claude/` is absent: ask whether Claude Code
+`.agents/skills/verify-APP` exists and `.claude/` is absent: ask whether Claude Code
 is used here before calling its missing verify link 🔴.
 Each question cites every path its finding rests on. Until answered, the section line says
 "see Question N" with those paths; state the consequence only after the answer.

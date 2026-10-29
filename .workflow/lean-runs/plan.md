@@ -71,11 +71,11 @@ Writer: GPT-6.1 Sol
 ## Coverage
 - Outcome → T1, T2 (check-run ERRORs on the next run's brief, plan and ticket commits) · T3 (plan reference asks one test per behaviour)
 - B1 → T1 · B2 → T1 · B3 → T2 · B4 → T2 · B5 → T1, T2 · B6 → T3 · B7 → T3 · B8 → T3
-- Out of scope: `check_worklog` bug, ratchets/simplify/retiring, patch-plan sizing, cx-intelligence edits, tickets per session → untouched
+- Out of scope: `check_worklog` bug, ratchets/simplify/retiring, patch-plan sizing, work-repo edits, tickets per session → untouched
 
 ## Risks
 - T2: two ratio rules by date in one function; a wrong gate turns old runs red (B5's line guards it).
-- check-run's ERRORs gate every phase's commit, so a false ERROR blocks the next cx-intelligence run.
+- check-run's ERRORs gate every phase's commit, so a false ERROR blocks the next work-repo run.
 - Not taken: one combined ticket (8 acceptance lines, over the cap of 6).
 
 ## TODO impacts

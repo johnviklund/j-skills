@@ -4,6 +4,13 @@ This repo is the `j-skills` skill collection. Each skill lives in `.github/skill
 `skills/<name>` is a symlink to it. The CLIs load installed copies, not this clone, so a pushed
 skill change reaches them only after `npx skills update -g` (`README.md`, Setup).
 
+## This repo is public
+
+Everything committed here is public, including run folders, receipts and commit messages. Use a
+private repo as evidence, but call it "the work repo" and commit none of its file names, code,
+data or reports. Commit no home paths, hostnames or account names. gitleaks catches secrets, not
+private names, so read a receipt before committing it.
+
 ## Verifying your work
 
 The skills are Markdown plus standard-library Python 3: there is no build or lint step. Two

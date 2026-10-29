@@ -5,7 +5,7 @@ Inputs:  none
 Status:  done
 
 ## Problem
-The workflow checks that code is correct but never how much code a run adds. Its own rules (literal acceptance values, tests at the reached surface, full operator ceremony) make runs grow with nothing pushing back. In cx-intelligence a 12-line fix got a 178-line test, and a $0.005 probe got about 600 lines of script, test and receipts. Seed and evidence: `notes/seed-review-and-plan.md`.
+The workflow checks that code is correct but never how much code a run adds. Its own rules (literal acceptance values, tests at the reached surface, full operator ceremony) make runs grow with nothing pushing back. In work-repo a 12-line fix got a 178-line test, and a $0.005 probe got about 600 lines of script, test and receipts. Seed and evidence: `notes/seed-review-and-plan.md`.
 
 ## Outcome
 A run's plan carries a size baseline and a line budget per ticket. `check-run.py` warns or errors on overruns, test bloat, missing review size lines and missing wrap retire lines. The skill's docs tell planners, executors and reviewers to prefer the smallest diff, reuse before writing, test proportionally, and delete what a run made obsolete. No new phases.
@@ -41,7 +41,7 @@ A run's plan carries a size baseline and a line budget per ticket. `check-run.py
 
 ## Out of scope
 - T7, exam slop cases — live in the private `j-skills-evals` repo and cannot get this run's review; separate run
-- R8, cx-intelligence cleanup runs (`delete-dead-trees`, `governed-run-module`) — product runs in another repo
+- R8, work-repo cleanup runs (`delete-dead-trees`, `governed-run-module`) — product runs in another repo
 - Personas, `/ship`, CI/CD, observability, the sdd-cache and simplify-ignore hooks from agent-skills — not the slop problem
 - Per-repo threshold overrides in `AGENTS.md` — add later if a repo needs them
 

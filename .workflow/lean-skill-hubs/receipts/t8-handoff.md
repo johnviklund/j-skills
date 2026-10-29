@@ -4,7 +4,7 @@ Base: 076e032
 Inputs: .workflow/lean-skill-hubs/plan.md @ 2bc4427
 Status: complete
 
-T8 runs in `/home/john/j-skills` after the verified commits reach `origin/main`.
+T8 runs in `~/j-skills` after the verified commits reach `origin/main`.
 Authorization: plan T8 records standing approval to run `npx skills update -g` after every push.
 The execution ledger also records the human's push approval, choice 1a.
 Run `npx skills update -g` in the background, saving its exit and log under `/tmp`.

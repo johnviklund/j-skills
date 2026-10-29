@@ -24,6 +24,6 @@ Status:  done
 
 **Receipts.** `receipts/t1-verification.md`, `t2-verification.md`, `c1-verification.md`.
 
-**Note for the human.** cx-intelligence parked runs `decision-model-evaluation` (4 errors) and `gpt6-classifier-cutover` (2 errors) now fail the limits; unparking either means a split or a `Split declined by human:` line.
+**Note for the human.** work-repo parked runs `decision-model-evaluation` (4 errors) and `gpt6-classifier-cutover` (2 errors) now fail the limits; unparking either means a split or a `Split declined by human:` line.
 
 Retired: none — the run removed only its own gate code; no other product file became obsolete.

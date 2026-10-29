@@ -9,7 +9,7 @@ Status:  done
 - [x] T2: acceptance 4/4 pass, and the lane gate is now pinned by the C1-T1 case
 - [x] T3: acceptance 5/5 by content. The stale-number count is 0 and doc lines net −2 (`receipts/t3-net-lines.txt`)
 - [x] C1-T1: acceptance 2/2. The new case passes, and the lane mutation turns it red (`receipts/c1-t1-verification.md`, re-run here)
-- [x] B1–B8 delivered · Outcome observed in cycle 1 on check-run output over real cx-intelligence runs, manual (CLI, no user screen); cycle 2 changes no code · out of scope untouched
+- [x] B1–B8 delivered · Outcome observed in cycle 1 on check-run output over real work-repo runs, manual (CLI, no user screen); cycle 2 changes no code · out of scope untouched
 - [x] .workflow/ dependency check: 0 hits · escape-hatch scan: 0 hits · full suite 38/38 pass · check-run 0 errors
 Size: +31 code · +63 tests · ratio 2.03 · net +89 · over 1,000: none (check-run.py 746)
 Reachability: no new file, export or function · guards shown failing: M2, M6–M10 below

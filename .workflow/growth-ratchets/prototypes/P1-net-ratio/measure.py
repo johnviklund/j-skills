@@ -1,4 +1,4 @@
-"""P1 - which done tickets in cx-intelligence would each ratio rule flag? Read-only; usage: measure.py REPO"""
+"""P1 - which done tickets in work-repo would each ratio rule flag? Read-only; usage: measure.py REPO"""
 import re, subprocess, sys, glob, os
 repo = sys.argv[1]
 RECEIPTS = r"\.(md|txt)$|^[.]workflow/"

@@ -58,7 +58,7 @@ Writer: GPT-6.1 Sol
 ## Coverage
 - Outcome: the ratio flags bloat but not rewrites or moves → T1 (B1, B2); waivers only by keyed line, printed with numbers → T1 (B3–B5); `--all` reports no worklog error → T2 (B7)
 - B1 → T1 · B2 → T1 · B3 → T1 · B4 → T1 · B5 → T1 · B6 → T1 · B7 → T2 · B8 → T1 (messages), T2
-- Out of scope: run-level ratio gate → untouched · mechanical-lane ratio gate → untouched · simplify pass and wrap retiring → untouched · skill folder MEMORY.md and SKILL-IMPACT.md stay put · cx-intelligence → untouched · human-approved waivers → untouched
+- Out of scope: run-level ratio gate → untouched · mechanical-lane ratio gate → untouched · simplify pass and wrap retiring → untouched · skill folder MEMORY.md and SKILL-IMPACT.md stay put · work-repo → untouched · human-approved waivers → untouched
 
 ## Risks
 - T1 is the risk: the old any-mention skip must still hold for plans created before 2026-10-19, or every done run's check changes. B6 and the existing `deviation=True` tests guard it.

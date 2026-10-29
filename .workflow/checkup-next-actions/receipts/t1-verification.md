@@ -11,7 +11,7 @@ T1 content verification, writer GPT-6.1 Sol.
 - After: SKILL.md 22555 bytes; old-format matches 0; plain invocation line 52; report pointer lines 53–54.
 - report.md: required card/seat/question matches 10; forbidden field/model matches 0.
 - Read every acceptance clause against report.md: card fields and fence, memory seat, human card,
-  five-question limit, unknown-fact evidence and cx example, three-card limit, grouping and final safe-fix line all present.
+  five-question limit, unknown-fact evidence and work-repo example, three-card limit, grouping and final safe-fix line all present.
 - The cost-of-leaving-it rule is copied unchanged. No checks, severities or safe-fix entries changed.
 - Reuse search found workflow card/question formats and retro's plain invocation; no new script or abstraction.
 - check-run.py: 0 errors, 0 warnings. git diff --check: pass.

@@ -1,15 +1,15 @@
-cx-intelligence/agents-md-trim: pass
-cx-intelligence/cli-split: pass
-cx-intelligence/governed-execution-completion: pass
-cx-intelligence/governed-execution-discovery: pass
-cx-intelligence/live-run-guardrails: ERROR .workflow/live-run-guardrails/plan.md  run: tests net +679 over 1.5× code added +442 (allowed 663): cut tests or record `Ratio waived: run — <reason>` under `## Deviations`
-cx-intelligence/test-suite-cleanup: pass
-cx-intelligence/topic-agent-context: pass
-cx-intelligence/topic-agent-refresh: pass
-cx-intelligence/topic-assistant: pass
-cx-intelligence/topic-assistant-live: pass
-cx-intelligence/workflow-repository-split: pass
-cx-intelligence/workspace-topic-ownership: pass
+work-repo/agents-md-trim: pass
+work-repo/cli-split: pass
+work-repo/governed-execution-completion: pass
+work-repo/governed-execution-discovery: pass
+work-repo/live-run-guardrails: ERROR .workflow/live-run-guardrails/plan.md  run: tests net +679 over 1.5× code added +442 (allowed 663): cut tests or record `Ratio waived: run — <reason>` under `## Deviations`
+work-repo/test-suite-cleanup: pass
+work-repo/topic-agent-context: pass
+work-repo/topic-agent-refresh: pass
+work-repo/topic-assistant: pass
+work-repo/topic-assistant-live: pass
+work-repo/workflow-repository-split: pass
+work-repo/workspace-topic-ownership: pass
 agent-cv/brush-up: pass
 agent-cv/forkable-cutover: pass
 agent-cv/forkable-example-owner: pass

@@ -64,7 +64,7 @@ Writer: Opus 5.5
 ## Coverage
 - Outcome → T1 (check-run warns on tiny tickets), T2 (errors on an unapproved third cycle), T3 (plan writes 2–5 tickets; execute runs up to 3 per session)
 - B1, B2, B3, B4 → T1 · B5, B6, B7, B10 → T2 · B8, B9, B11, B12 → T3
-- Out of scope: the cx-intelligence A3 advice → untouched · cross-vendor review, red before green, Risk classes, receipts, slop-guards checks → untouched · a context-meter stop → untouched · check-run enforcing `Red:` and auto-merging → untouched · `MAX_TICKETS` → stays 8
+- Out of scope: the work-repo A3 advice → untouched · cross-vendor review, red before green, Risk classes, receipts, slop-guards checks → untouched · a context-meter stop → untouched · check-run enforcing `Red:` and auto-merging → untouched · `MAX_TICKETS` → stays 8
 
 ## Risks
 - T3 carries the run's real product: rule prose in five files. Its greps prove the phrases exist, not that the rules read well. Review reads them in full.

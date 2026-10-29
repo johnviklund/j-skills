@@ -32,7 +32,7 @@ Status: done
 ## Out of scope
 - run-level ratio gate, simplify pass — ROADMAP step 3, decided after this run
 - changing any threshold (8 behaviours, 20 acceptance lines, 1.5× ratio) — this run moves no limit
-- editing finished runs or the cx-intelligence parked runs — history stays as written
+- editing finished runs or the work-repo parked runs — history stays as written
 - TODO.md items — none match
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md in this repo)

@@ -5,12 +5,12 @@ Inputs:  none
 Status:  done
 
 ## Problem
-Workflow runs in cx-intelligence grow the test suite and take many sessions. Plans fill the caps
+Workflow runs in work-repo grow the test suite and take many sessions. Plans fill the caps
 (12–15 behaviours, 7–8 tickets, 29–44 acceptance lines per run), each acceptance line becomes its own
 test, and half the tickets add more test lines than code lines. Evidence: `notes/evidence.md`.
 
 ## Outcome
-On the next cx-intelligence run, `check-run.py` errors on a brief over 8 behaviours or a plan over 20
+On the next work-repo run, `check-run.py` errors on a brief over 8 behaviours or a plan over 20
 acceptance lines unless the human declined the split, and on a ticket commit whose tests pass 1.5× its
 code. The plan reference asks for one test per behaviour. Seen in check-run output and the references.
 
@@ -45,7 +45,7 @@ code. The plan reference asks for one test per behaviour. Seen in check-run outp
 - `TODO.md` `check_worklog` path bug — unrelated to run size (D1)
 - Ratchets, a simplify pass before review, real retiring at wrap — the second run
 - Fix-ticket sizing in `patch_plan.md` — cycles are already bounded at two
-- Edits inside cx-intelligence (`cx-implementation-practices`) — read-only here; the human edits it
+- Edits inside work-repo (`work-repo-implementation-practices`) — read-only here; the human edits it
 - Execute's tickets per session — set by run-sizing, still trialing
 
 Docs read: none in scope (j-skills has no PRODUCT.md or DESIGN.md)

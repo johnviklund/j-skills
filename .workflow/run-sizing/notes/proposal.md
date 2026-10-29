@@ -8,7 +8,7 @@ Runs are slow because the cost of each ticket is fixed and the tickets are tiny.
 of sessions to ship a few hundred lines. The code quality is fine; the problem is throughput and
 how much human attention the process needs.
 
-Evidence (cx-intelligence):
+Evidence (work-repo):
 | Run | Tickets | Code budget | Sessions (approx.) | Notes |
 |---|---|---|---|---|
 | governed-execution-migration (A3) | 6 logic + 1 operator | +197 code, +290 tests in total, about 33 code lines per ticket (+10 … +55) | 7 + review + wrap | a re-plan after T2 because a 10-digit dollar literal moved when the retry count went from 3 to 6 |

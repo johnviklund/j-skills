@@ -13,7 +13,7 @@ Scope: the whole run, `080ecdf..659d054`. The plan's Base moved with each replan
 - [x] T5: acceptance 2/2, per receipts/t5-verification.md and the dry run in t2-fixture-verification-2.md
 - [x] T6: acceptance 4/4 passing
 - [ ] T2: clauses 1, 2 and 4 pass; clause 3 fails (C1-1); clause 5 never ran (C1-2); clause 6 holds for the one session run
-- [ ] B1, B2, B5, B6, B7, B8 delivered (B5 in text only, no live candidate, F6) · B3 and B4 not delivered · Outcome observed on the fixture report (receipts/t2-fixture-checkup-2.md) by hand, no verify skill · out of scope untouched: ROUTING.md, the checks, the allow-list and cx-intelligence have no diff
+- [ ] B1, B2, B5, B6, B7, B8 delivered (B5 in text only, no live candidate, F6) · B3 and B4 not delivered · Outcome observed on the fixture report (receipts/t2-fixture-checkup-2.md) by hand, no verify skill · out of scope untouched: ROUTING.md, the checks, the allow-list and work-repo have no diff
 - [x] .workflow/ dependency check: no hit outside `.workflow/`
 Size: +0 code · +0 tests · ratio n/a · net +0 (docs +101 / −30; make-fixture.sh +40 lives in the run folder) · over 1,000: none
 Reachability: report.md ← checkup SKILL.md:53 · make-fixture.sh ← T2 handoff · guards shown failing: T6 and T4 greps both drop to 0 when "drop the vendor" and "never a seat name" are inverted in a throwaway worktree
@@ -24,7 +24,7 @@ Escape hatches: none in the diff. Tests: workflow scripts 49/49 pass (`python3 -
 ## Cycle 1 findings
 ### P1 — C1-1 The card's model lines are wrong in the final report (B3)
 - Evidence: T2 clause 3 · receipts/t2-fixture-checkup-2.md: `Model: claude-opus-5.5 · medium · standard`, `Fallback: claude-opus-5.5 · medium`. The required lines are `Sonnet 5.5 · medium` and `GPT-6 Sol · medium`. The session made 5 tool calls and never read ROUTING.md's tables, and it named the wrong row ("brainstorm", not TODO intake).
-- Design flaw: report.md:70-75 asks the agent to look values up in two tables of another file while it writes the report. Four attempts failed this line four different ways: the cx run gave no card, the retry gave seat names, fixture 1 gave a vendor and the wrong fallback effort, fixture 2 gave the running model's id. Each text fix (T4, T6) passed its grep and the next run failed a new way. The greps prove that the words exist, not that the agent follows them.
+- Design flaw: report.md:70-75 asks the agent to look values up in two tables of another file while it writes the report. Four attempts failed this line four different ways: the work-repo run gave no card, the retry gave seat names, fixture 1 gave a vendor and the wrong fallback effort, fixture 2 gave the running model's id. Each text fix (T4, T6) passed its grep and the next run failed a new way. The greps prove that the words exist, not that the agent follows them.
 - Remedy: a small script prints the `Model:` and `Fallback:` lines for a command from ROUTING.md, and the card copies its output. This is the pattern the uncommitted `config-scan.py` uses. It needs its own tests, so it is run-sized.
 - Disposition: defer, TODO.md at wrap. Approved by human: 2026-10-25 (replan 3, 3a: "a failure goes to wrap")
 - Resolved: —
@@ -50,7 +50,7 @@ Escape hatches: none in the diff. Tests: workflow scripts 49/49 pass (`python3 -
 - Resolved: —
 
 ### P3 — C1-6 Four trialing SKILL-IMPACT rows for one run
-- Evidence: SKILL-IMPACT.md:13-16. Their judges name the cx retry and the fixture proof, and both have ended. Wrap settles them as one row.
+- Evidence: SKILL-IMPACT.md:13-16. Their judges name the work-repo retry and the fixture proof, and both have ended. Wrap settles them as one row.
 - Disposition: defer (P3)
 - Resolved: —
 

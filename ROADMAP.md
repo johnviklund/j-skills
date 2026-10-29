@@ -27,5 +27,5 @@ behaviour and per guard key. Their trials closed 2026-10-21 as kept (`SKILL-IMPA
 
 | # | Step | Run name | Status |
 | --- | --- | --- | --- |
-| 1 | Judge the three trials on the next 3 cx-intelligence runs (`topic-assistant` is the first under all rules, then `cli-split`): smaller runs, fewer test lines, no false errors, no squeezing to fit the limits | `checkup` | Done 2026-10-21: briefs and plans shrank to the caps (behaviours 11.2 → 6.6, acceptance 31 → 20.5) but net code per run did not (+331 → +361); 7 of 16 per-ticket ratio hits were false, absorbed by 14 waivers |
+| 1 | Judge the three trials on the next 3 work-repo runs (`topic-assistant` is the first under all rules, then `cli-split`): smaller runs, fewer test lines, no false errors, no squeezing to fit the limits | `checkup` | Done 2026-10-21: briefs and plans shrank to the caps (behaviours 11.2 → 6.6, acceptance 31 → 20.5) but net code per run did not (+331 → +361); 7 of 16 per-ticket ratio hits were false, absorbed by 14 waivers |
 | 4 | After 3 runs under the run-level ratio gate, read `checkup` test growth and decide: a simplify pass before review, real retiring at wrap, or nothing if growth has flattened | `checkup` | Open: no brainstorm until the numbers show growth is still a problem |

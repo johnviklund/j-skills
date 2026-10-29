@@ -12,7 +12,7 @@ Size: code 2,113 · tests 24 · ratio 0.01 · largest touched check-run.py 563, 
 | F1 | `## Deviations` lives in plan.md (phase-3-execute.md:81); the execute report is chat only | B3/B4 "stated reason" = a `## Deviations` line naming the ticket id |
 | F2 | Execute commits a logic ticket once (phase-3-execute.md:46); an operator ticket's handoff commit comes before its `done @`, which waits on the human | B3/B4 read the `done @` commit alone (`<sha>^..<sha>`), whatever the order. B5 reads tracked `test_*.py` under the run's `scripts/`, so it fires while the ticket awaits the human |
 | F3 | `*.md`/`*.txt` are receipts (SKILL.md receipt rule) | Numstat counts non-receipt files only. Test file = a `tests/`, `test/`, `__tests__/` folder, or `test_*`, `*_test.*`, `*.test.*`, `*.spec.*` |
-| F4 | check-run has no date gate; cx-intelligence `self-service-gaps` (done) has review.md and wrap.md `Created: 2026-10-08`; its plan's `Created:` has text after the date | New checks fire only when the artifact's first `Created:` date ≥ `SLOP_SINCE = 2026-10-09` (human, decision 1a). This run's plan is not gated; its review and wrap are |
+| F4 | check-run has no date gate; work-repo `self-service-gaps` (done) has review.md and wrap.md `Created: 2026-10-08`; its plan's `Created:` has text after the date | New checks fire only when the artifact's first `Created:` date ≥ `SLOP_SINCE = 2026-10-09` (human, decision 1a). This run's plan is not gated; its review and wrap are |
 | F5 | D3 thresholds need one home | Constants at the top of check-run.py; docs quote each once. 1,000-line file has no check: plan and review `Size:` lines only |
 | F6 | Execute prescribes a dry-run for every operator ticket (phase-3-execute.md:65); "Extra tests are welcome" wraps lines 80-81 | T3 scales that paragraph to `Risk:`; T7 greps `tests are welcome` |
 | F7 | Wrap's suite (step 1) runs before any Retire; re-entry re-checks "no code since reviewed Base" (wrap.md:24); 9a deletes `patch_plan.md`; check-run quotes 9a/9b | Retire is step 5b: one delete-only commit, then the full suite again (red: revert, escalate); the precondition exempts that sha ticked in `## Steps`. Wording: "beyond 9a's transient files, nothing is deleted from the run folder". An edit-needing deletion becomes a TODO line |
@@ -116,7 +116,7 @@ Writer: Opus 5.5
 ## Coverage
 - Outcome → T1, T2 (plan budgets checked), T4 (review `Size:`), T5 (wrap `Retired:`), T6, T7 (docs)
 - B1 → T1, T6 · B2 → T1 · B3 → T2 · B4 → T2 · B5 → T3 · B6 → T3 · B7 → T1 · B8 → T4 · B9 → T5 · B10 → T5 · B11 → T6 · B12 → T7 · B13 → T3, T6 · B14 → T4 · B15 → T5, T8
-- Out of scope: exam slop cases (seed T7), cx-intelligence cleanup runs, personas/ship/CI/hooks, per-repo threshold overrides → untouched
+- Out of scope: exam slop cases (seed T7), work-repo cleanup runs, personas/ship/CI/hooks, per-repo threshold overrides → untouched
 
 ## Risks
 T5 is riskiest: Retire deletes product code after review (F7). A false ERROR blocks execute and wrap in every repo, so F4's gate matters. Not taken: a `check-run.py --size` mode printing the baseline; planners use the shell command in phase-2-plan.

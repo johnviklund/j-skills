@@ -6,9 +6,9 @@ Status:  done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing (`test_run_ratio_at_completion`, `test_run_ratio_floor_and_waiver`, `test_committed_test_ratio`; replay receipt re-checked: 26 runs, 1 flagged)
-- [x] T2 — acceptance 4/4: the plan's Verify greps re-run (1 · 1 · 1 · 1 · no output · 1); checkup block re-run on cx-intelligence `50ef5321^..a5f0f341` → `tests net +3535 · code net +2885 · tracked tests/code 0.09 · ⚠️ …`, same as the receipt
+- [x] T2 — acceptance 4/4: the plan's Verify greps re-run (1 · 1 · 1 · 1 · no output · 1); checkup block re-run on work-repo `50ef5321^..a5f0f341` → `tests net +3535 · code net +2885 · tracked tests/code 0.09 · ⚠️ …`, same as the receipt
 - [x] C1-T1 — acceptance 3/3: both note forms give `1 errors` with the B1 message; replay re-run → `27 runs; 1 flagged` (`live-run-guardrails` +679 / +442)
-- [x] B1–B8 delivered · Outcome observed via `check-run.py` output (this run: 0 errors; `--all` on cx-intelligence: no `run: tests net` on any live run) and the checkup line on cx-intelligence · manual, no verify skill (skill repo; check-run is the surface) · out of scope untouched
+- [x] B1–B8 delivered · Outcome observed via `check-run.py` output (this run: 0 errors; `--all` on work-repo: no `run: tests net` on any live run) and the checkup line on work-repo · manual, no verify skill (skill repo; check-run is the surface) · out of scope untouched
 - [x] .workflow/ dependency check — no hit outside `.workflow/`
 - [x] full suite: 49 passed (baseline 51; −2 planned merges, F7) · `-k ratio`: 5 passed
 - [x] assertions in `test_check_run.py`: 74 after C1-T1, unchanged (two table rows added)

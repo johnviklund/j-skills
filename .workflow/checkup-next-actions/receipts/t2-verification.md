@@ -14,7 +14,7 @@ T2 verification failed. No paid retry and no second session were started.
 - The report says Seats was not examined. Its transcript only counts WORKLOG.md bytes and greps ROUTING.md’s last-verified date; it never reads run entries or seat rows, so routing is unproven.
 - Installer updated checkup and workflow. Installed report SHA256: 04de4efdd394d9187962ffe5f58955286d1a39c738d306f869b981adcf4c17cc.
 - Copilot registration retry passed: checkup is enabled at the project skill path.
-- cx before/after: clean; HEAD 24d07d681fdcbdc11c80b683b9fb3d0b29f9ec1a; pull reported already up to date. Personal GitHub account restored.
+- work-repo before/after: clean; HEAD 24d07d681fdcbdc11c80b683b9fb3d0b29f9ec1a; pull reported already up to date. Personal GitHub account restored.
 - Transcript SHA256: fdb9f8c79df074ef6fec25d528de9fc03363530f466e6e4584f99b379cc4f793. Raw transcript stays outside git; receipt includes the full final report.
 - The user explicitly approved this run's pushes to https://github.com/johnviklund/j-skills main after automatic approval review rejected the initial push.
 
@@ -22,6 +22,6 @@ T2 verification failed. No paid retry and no second session were started.
 
 Return to `workflow plan checkup-next-actions`. T1 remains done. T2's live-data seam yielded no action,
 so the second-session acceptance cannot run as written. Prefer revising T2 to use a bounded,
-read-only fixture that guarantees an agent action, while retaining this cx receipt as live evidence.
+read-only fixture that guarantees an agent action, while retaining this work-repo receipt as live evidence.
 Alternatively, approve one more paid read-only session with the full battery explicitly requested;
 a retry may still yield no agent card. Neither option has been executed.

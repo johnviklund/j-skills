@@ -49,7 +49,7 @@ to 3 same-effort tickets per session. Surfaces: `check-run.py` output and the sk
 - Doc content by `grep -c <phrase> <file>` — observes B8–B12 (existing, mechanical)
 
 ## Out of scope
-- The proposal's "right now" advice for A3 in cx-intelligence — another repo; the human can tell its executor today
+- The proposal's "right now" advice for A3 in work-repo — another repo; the human can tell its executor today
 - Cross-vendor review, red before green, operator Risk classes, receipts, the slop-guards checks — unchanged by the proposal
 - A context-meter stop — the agent can't read the meter (D1)
 - check-run enforcing `Red:` lines (D9) and auto-merging tickets (warn only)

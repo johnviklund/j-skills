@@ -47,7 +47,7 @@ oldest when appending would exceed that.
 
 ## 2026-10-23 · run-ratio-and-retire · check-run judges test growth once per run · GPT-6.1 Sol
 - `check-run.py` errors when tests net exceed 1.5× code added across the whole run, checked once every ticket is done; `Ratio waived: run — <reason>` turns it into a warning. The per-ticket ratio is now a warning. `checkup` reports test growth next to code growth and points at `workflow improve` when tests outgrow code.
-- Replaying the new gate over P1's 26 runs flags one (`live-run-guardrails`). Review cycle 1 found the gate skipped plans whose done status carries a note after the sha (6 such plans in cx-intelligence); fixed with a red test first. Three P3s deferred.
+- Replaying the new gate over P1's 26 runs flags one (`live-run-guardrails`). Review cycle 1 found the gate skipped plans whose done status carries a note after the sha (6 such plans in work-repo); fixed with a red test first. Three P3s deferred.
 - Commits: 577a33a b8c24ce 40f9e4f
 - Review: ship as-is (cycle 2, 0 open) @ 52e7b3b
 - Run: 3 tickets · 2 sessions · 2 review cycles · 2 deviations · 0 findings overturned · net code +16 · tests +1

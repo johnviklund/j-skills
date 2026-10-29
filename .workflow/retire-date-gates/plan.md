@@ -55,7 +55,7 @@ Writer: GPT-6.1 Sol
 ## Coverage
 - Outcome → T1 (rules on every run not done, on the checker's output) · T2 (docs)
 - B1 → T1 · B2 → T1 · B3 → T1 · B4 → T1 · B5 → T1 · B6 → T1 · B7 → T2
-- Out of scope: run-level ratio gate, simplify pass → untouched · thresholds (8, 20, 1.5×) → untouched · finished and cx-intelligence runs → untouched · TODO.md → untouched
+- Out of scope: run-level ratio gate, simplify pass → untouched · thresholds (8, 20, 1.5×) → untouched · finished and work-repo runs → untouched · TODO.md → untouched
 
 ## Risks
 - T1: the "done once committed" gate calls `git status` per run; a dirty done brief on an old run (a typo fix) would show its rule errors until committed.

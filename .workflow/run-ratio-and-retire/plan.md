@@ -11,9 +11,9 @@ Decisions: 1a (git numstat over the Code growth range) · 2a (ratio shown, trend
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
-| F1 | cx-intelligence WORKLOG: 0 of 13 `Run:` lines carry net code or tests (j-skills: 2 of 7) | D6's "sum the Run: lines" has no data in the repo B7 names; T2 takes the numbers from git numstat over the range the existing *Code growth* bullet uses (Decision 1) |
-| F2 | cx-intelligence tests ÷ code depends on what counts as code: 0.10 over all tracked text (102k / 1.05M, SQL, HTML, JSON data), about 0.29 over source languages; the brief's 64.2k / 83.6k is not reproducible | a `> 1.0` trigger never fires there; T2 reports the ratio and triggers on the trend only (Decision 2) |
-| F3 | cx-intelligence `50ef5321^..a5f0f341` (since 2026-10-17, the 10th-newest WORKLOG entry): net tests +3535, net code +2885 | B7's trend arm fires on real data; T2's literal |
+| F1 | work-repo WORKLOG: 0 of 13 `Run:` lines carry net code or tests (j-skills: 2 of 7) | D6's "sum the Run: lines" has no data in the repo B7 names; T2 takes the numbers from git numstat over the range the existing *Code growth* bullet uses (Decision 1) |
+| F2 | work-repo tests ÷ code depends on what counts as code: 0.10 over all tracked text (102k / 1.05M, SQL, HTML, JSON data), about 0.29 over source languages; the brief's 64.2k / 83.6k is not reproducible | a `> 1.0` trigger never fires there; T2 reports the ratio and triggers on the trend only (Decision 2) |
+| F3 | work-repo `50ef5321^..a5f0f341` (since 2026-10-17, the 10th-newest WORKLOG entry): net tests +3535, net code +2885 | B7's trend arm fires on real data; T2's literal |
 | F4 | Replaying P1 with check-run's `RECEIPTS` (run `scripts/` count as code) instead of excluding all of `.workflow/`: variant A still flags only `live-run-guardrails`, tests +679, code added +442 | T1 reuses `RECEIPTS`; B8 holds |
 | F5 | Reuse: `check_overrun` (check-run.py:389) and `note_net_growth` (check-run.py:577) hold the same numstat loop | T1 extracts one `growth(repo, a, b)` helper; the run gate is its third caller |
 | F6 | Reuse: `waiver(doc, kind, tid)` (check-run.py:370) already matches `Ratio waived: run — <reason>` with `tid="run"` | T1 reuses it; no new parser |
@@ -43,21 +43,21 @@ Writer: GPT-6.1 Sol
 ### T2 — docs state the run rule; checkup reports test growth
 Delivers: B6, B7 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
-Seam: `grep` over the workflow `references/`, `MAINTAINING.md`, `check-run.py` and `checkup/SKILL.md`; checkup §6 commands run on cx-intelligence
+Seam: `grep` over the workflow `references/`, `MAINTAINING.md`, `check-run.py` and `checkup/SKILL.md`; checkup §6 commands run on work-repo
 Accept:
 - [x] `grep -c 'Ratio waived: run'` over tests.md, phase-2-plan.md, phase-3-execute.md, phase-4-review.md → ≥ 1 in each file (B6)
 - [x] `grep -rnE 'Ratio waived: T#|error above 1\.5'` over workflow `references/`, `MAINTAINING.md`, `scripts/check-run.py` → no output (B6)
 - [x] `grep -c 'Test growth' .github/skills/checkup/SKILL.md` → 1; that bullet contains `workflow improve tests - goal: fewer tests, same coverage` (B7)
-- [x] `receipts/t2-checkup-cx.md`, §6 test-growth commands on cx-intelligence `50ef5321^..a5f0f341` → net tests +3535 · net code +2885 · ⚠️ with that recommendation (B7)
+- [x] `receipts/t2-checkup-work-repo.md`, §6 test-growth commands on work-repo `50ef5321^..a5f0f341` → net tests +3535 · net code +2885 · ⚠️ with that recommendation (B7)
 Verify: `grep -c 'Ratio waived: run' .github/skills/workflow/references/{tests,phase-2-plan,phase-3-execute,phase-4-review}.md; grep -rnE 'Ratio waived: T#|error above 1\.5' .github/skills/workflow/references .github/skills/workflow/MAINTAINING.md .github/skills/workflow/scripts/check-run.py; grep -c 'Test growth' .github/skills/checkup/SKILL.md` (pre: 0 · 0 · 0 · 0 · 3 hits · 0)
 Skills: .github/skills/agent-docs/SKILL.md
 Status: done @ b8c24ce
 Writer: GPT-6.1 Sol
 
 ## Coverage
-- Outcome → T1 (the gate fires once per run, on check-run's output) and T2 (checkup's test-growth line on cx-intelligence)
+- Outcome → T1 (the gate fires once per run, on check-run's output) and T2 (checkup's test-growth line on work-repo)
 - B1, B2, B3, B4, B5, B8 → T1 · B6, B7 → T2
-- Out of scope: wrap step 5b → untouched · suite runtime in checkup → untouched · mechanical-lane ratio → untouched · per-ticket Budget overrun rule → untouched · cx-intelligence and agent-cv → read only
+- Out of scope: wrap step 5b → untouched · suite runtime in checkup → untouched · mechanical-lane ratio → untouched · per-ticket Budget overrun rule → untouched · work-repo and agent-cv → read only
 
 ## Risks
 T1 is the risk: it rewrites six existing ratio tests, and a lost assertion would hide a regression; review counts assertions before and after.

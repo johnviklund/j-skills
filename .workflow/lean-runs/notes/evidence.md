@@ -4,7 +4,7 @@ Base:    5ff0790
 Inputs:  none
 Status:  complete
 
-# Evidence from cx-intelligence (read-only clone, HEAD 4c2567bc)
+# Evidence from work-repo (read-only clone, HEAD 4c2567bc)
 
 Runs since slop-guards and run-sizing (created 2026-10-09 or later, 11 runs):
 - Tickets per run: 7, 4, 8, 5, 8, 8, 4, 8, 7, 6, 5. Median 7. Four of 11 meet run-sizing's "≤ 5" judge.

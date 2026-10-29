@@ -1,12 +1,12 @@
 # Workflow slop review and implementation plan
 
 Date: 2026-10-07
-Scope: the `workflow` skill in j-skills, checked against what it produced in cx-intelligence and
+Scope: the `workflow` skill in j-skills, checked against what it produced in work-repo and
 against `addyosmani/agent-skills` at commit `1401c8b8`, which is MIT licensed.
 
 Inputs:
-- `/Users/JVIKLUN1/Documents/projects/docs/architecture-review-20261007-073901.html`
-- `cx-intelligence/.workflow/` runs from 2026-09-28 to 2026-10-07, plus their commits
+- an architecture review exported on a work laptop (not in this repo)
+- `work-repo/.workflow/` runs from 2026-09-28 to 2026-10-07, plus their commits
 - `j-skills/.github/skills/workflow/` covering `SKILL.md`, `references/*`, `scripts/check-run.py`
 - `addyosmani/agent-skills`, all 25 skills, `references/`, `hooks/`, `evals/` and `docs/skill-anatomy.md`
 
@@ -41,7 +41,7 @@ The plan below adds these to the workflow, mostly as small edits plus new checks
 
 ## 2. Evidence
 
-### 2.1 Architecture review of cx-intelligence
+### 2.1 Architecture review of work-repo
 
 | Finding | Size | Workflow cause |
 |---|---|---|
@@ -131,7 +131,7 @@ Only the parts that bear on slop are listed. Paths are in `addyosmani/agent-skil
 | **Doubt-driven review.** Give the reviewer the artifact and its contract, never your conclusion. "Doubt theater" means many findings and none actionable | `skills/doubt-driven-development/SKILL.md` | Small tweak to our cross-vendor review input |
 | **Pressure-case evals.** Prompts built to argue the skill out of its own rules | `evals/plugin/`, `evals/fixtures/*-pressure/` | Extends our `evals` exam to slop cases |
 | **Write the procedure, not the workaround.** Model-specific workarounds can make stronger models worse | `docs/skill-anatomy.md:150-163` | Supports our existing rule that only `ROUTING*.md` names models |
-| **Three outcomes.** Every call ends in success, failure or unknown, and the idempotency key comes from intent | `skills/api-and-interface-design/SKILL.md` | Shape of the shared governed-run module in cx-intelligence |
+| **Three outcomes.** Every call ends in success, failure or unknown, and the idempotency key comes from intent | `skills/api-and-interface-design/SKILL.md` | Shape of the shared governed-run module in work-repo |
 
 **Not bringing over:**
 - the lifecycle and slash commands, since we have them
@@ -172,7 +172,7 @@ the other rules, and it loses.
 - The limit only tightens. The run may not raise the repo's test-to-code ratio or any touched
   file above 1,000 lines without a `Deviations` line that review accepts.
 
-**Done when.** The next three cx-intelligence runs show a budget per ticket and a size line in
+**Done when.** The next three work-repo runs show a budget per ticket and a size line in
 review, and `check-run.py` catches a planted 4× overrun in a fixture run.
 
 ### R2. Simplicity and reuse rules in plan and execute
@@ -247,11 +247,11 @@ script, and 3 to 6 receipts. The harness pattern then spreads into `foundry/oper
 
 Also:
 - A run script in `scripts/` gets a test only when two or more tickets run it, or its class is not `cheap`.
-- When the repo has a governed-run module, which after R8 cx-intelligence should, an operator
+- When the repo has a governed-run module, which after R8 work-repo should, an operator
   ticket calls it with a spec and writes no harness.
 - `check-run.py` WARNs when a `cheap` operator ticket's commit adds a `test_*.py` under the run's `scripts/`.
 
-**Done when.** The next cheap probe ticket in cx-intelligence adds fewer than 100 lines in total.
+**Done when.** The next cheap probe ticket in work-repo adds fewer than 100 lines in total.
 
 ### R5. Review treats bloat the run itself added as P1, and checks that new code is reachable
 
@@ -317,7 +317,7 @@ check", to test that the rule holds up.
 
 **Done when.** `evals.list` shows the slop cases and the current reviewer seat passes them.
 
-### R8. One-off cleanup in cx-intelligence, done with the workflow and not in the skill
+### R8. One-off cleanup in work-repo, done with the workflow and not in the skill
 
 This is the architecture review's own order: 01 and 02 first, which need no design and remove
 about 22k lines, then 03. They are product runs, not skill edits, but R1, R4 and R6 make them
@@ -400,7 +400,7 @@ Files:
   from `code-review-and-quality`, `test-driven-development`, `constraint-driven-development`,
   `deprecation-and-migration` and `code-simplification`
 - `SKILL-IMPACT.md` gets a row with the hypothesis "test-to-code ratio and lines per ticket drop
-  on the next 3 cx-intelligence runs" and the baseline numbers from §2.2
+  on the next 3 work-repo runs" and the baseline numbers from §2.2
 Accept: the notice is present, and the `SKILL-IMPACT.md` row has the baseline values.
 
 That is 8 tickets, within the plan limit. T2 and T3 are prose-only and can land first if you want
@@ -433,7 +433,7 @@ Re-measure after three runs. Target:
    causes churn, move it back to "P2, fix now by default".
 4. **Thresholds.** The 1,000-line file, 3× test ratio and 25-word acceptance line are starting
    guesses taken from agent-skills' sizing. Tune them after three runs.
-5. **DESIGN.md and AGENTS.md in cx-intelligence** protect some of what R8 deletes, such as the
+5. **DESIGN.md and AGENTS.md in work-repo** protect some of what R8 deletes, such as the
    A2UI line and `.workflow/archive/` pinning. Those need your explicit approval in their runs.
 6. **Decision needed:** apply R5's reading-order change, where the reviewer sees the executor's
    reports after its own pass, or keep the current order. ➡️ Apply it. It is cheap and removes
