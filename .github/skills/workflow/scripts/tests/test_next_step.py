@@ -294,6 +294,16 @@ Status: todo
         brief.write_text(original.replace("Status: complete", "Status: bogus"))
         self.assertEqual(self.cli("--json").returncode, 1)
 
+    def test_parked_run_resumes_after_planning(self):
+        brief = self.run / "brainstorm.md"
+        brief.write_text(brief.read_text().replace("Status: complete", "Status: parked"))
+        for status, phase in [("todo", "execute"), (f"done @ {self.base}", "review")]:
+            with self.subTest(status=status):
+                self.plan(f"### T1 — First\nLane: logic\nStatus: done @ {self.base}\n"
+                          f"### T2 — Second\nLane: logic\nStatus: {status}\n")
+                result = self.result()
+                self.assertEqual((result["phase"], result["command"]), ("parked", f"workflow {phase} x"))
+
     def test_brief_plan_card_and_json(self):
         result = self.result()
         expected = {"schema_version": 1, "slug": "x", "phase": "plan", "command": "workflow plan x",
