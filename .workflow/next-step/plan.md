@@ -2,11 +2,11 @@ Command: workflow plan next-step
 Created: 2026-10-29 · Opus 5.5
 Base:    19533a5
 Inputs:  .workflow/next-step/brainstorm.md @ 62e8c26
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (the repo has no PRODUCT.md or DESIGN.md)
 Size: code 812 · tests 503 · ratio 0.62 · largest touched check-run.py 812 · over 1,000: none (new: next-step.py, test_next_step.py; skill `*.md` count as neither)
-Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup
+Decisions: round 1 "all defaults": 1a fix:mechanical and fix:operator rows · 2a `Fixes: C<n>-<m> (P#)` on every patch ticket · 3a `--key` for checkup · round 2: 1a approve
 
 ## Execution state
 <filled by execute>
