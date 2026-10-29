@@ -73,13 +73,15 @@ def routing(path):
 
 def card(step, prefix):
     current = step["model"]
-    fallback = step["fallback"][0]
-    model_line = f"{current['name']} · {current['effort']} · {step['context']}"
+    fallback = step["fallback"][0] if step["fallback"] else None
+    model_line = (f"{current['name']} · {current['effort']} · {step['context']}" if current else
+                  f"human · {step['blocker']['action']}")
+    fallback_line = f"{fallback['name']} · {fallback['effort']}" if fallback else "none"
     if step["trial"]:
         model_line += " (trial)"
     return (f"---\n**▶ Next: {step['phase']}** · {step['slug']}\n\n"
             f"- **Why:** {step['why']}\n- **Reset:** {'yes' if step['reset'] else 'no'}\n"
-            f"- **Model:** {model_line}\n- **Fallback:** {fallback['name']} · {fallback['effort']}\n"
+            f"- **Model:** {model_line}\n- **Fallback:** {fallback_line}\n"
             f"- **Reads:** {', '.join(step['reads'])}\n\n**Run:**\n\n"
             f"```text\n{prefix}{step['command']}\n```\n---\n")
 
@@ -88,14 +90,44 @@ def next_step(repo, slug, routes, prefix=""):
     brief = checks.Doc(str(repo / ".workflow" / slug / "brainstorm.md"))
     if brief.status() != "complete":
         raise ValueError(f"{slug}: brief must be complete")
-    if (repo / ".workflow" / slug / "plan.md").exists():
-        raise ValueError(f"{slug}: plan routing is not implemented yet")
-    key = "plan"
+    run = repo / ".workflow" / slug
+    phase, key, ticket_id, blocker = "plan", "plan", None, None
+    why, reads = "The brief is complete; the run needs a plan.", [f".workflow/{slug}/brainstorm.md"]
+    if (run / "plan.md").exists():
+        doc = checks.Doc(str(run / "plan.md"))
+        tickets = checks.parse_tickets(doc)
+        statuses = {t["id"]: checks.field(t, "Status")[1] or "" for t in tickets}
+        unfinished = [t for t in tickets if not statuses[t["id"]].startswith("done @ ")]
+        selected = None
+        for t in unfinished:
+            dependencies = re.findall(r"(?:C\d+-)?T\d+", checks.field(t, "Blocked by")[1] or "")
+            if not all(statuses.get(dep, "").startswith("done @ ") for dep in dependencies):
+                continue
+            status = statuses[t["id"]]
+            receipt = re.search(r"receipt:\s*(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
+            if status == "todo" or (status == "awaiting-human" and receipt and (run / receipt[1]).is_file()):
+                selected = t
+                break
+        if selected is None:
+            selected = next((t for t in unfinished if statuses[t["id"]] == "awaiting-human"), None)
+            if selected is None:
+                raise ValueError(f"{slug}: no ready ticket in plan.md")
+            handoffs = sorted((run / "receipts").glob(f"{selected['id'].lower()}-*handoff*.md"))
+            title = re.split(checks.DASH, doc.lines[selected["line"] - 1], maxsplit=1)[1]
+            action = "; ".join([title] + [str(path.relative_to(run)) for path in handoffs])
+            blocker = {"ticket": selected["id"], "action": action}
+            reads = [str(path.relative_to(repo)) for path in handoffs]
+        phase, ticket_id = "execute", selected["id"]
+        lane = checks.field(selected, "Lane")[1] or ""
+        key = f"execute:{lane.split()[0]}" if lane else "execute:"
+        why = f"{ticket_id} is awaiting human action." if blocker else f"{ticket_id} is ready."
+        reads = [f".workflow/{slug}/plan.md"] + (reads if blocker else [])
     if key not in routes:
         raise ValueError(f"ROUTING.md: missing key {key}")
-    step = {"schema_version": 1, "slug": slug, "phase": "plan", "command": f"workflow plan {slug}",
-            "ticket": None, "why": "The brief is complete; the run needs a plan.", **routes[key],
-            "reset": True, "reads": [f".workflow/{slug}/brainstorm.md"], "blocker": None}
+    step = {"schema_version": 1, "slug": slug, "phase": phase, "command": f"workflow {phase} {slug}",
+            "ticket": ticket_id, "why": why, **routes[key], "reset": True, "reads": reads, "blocker": blocker}
+    if blocker:
+        step.update(model=None, fallback=[], trial=False)
     step["card"] = card(step, prefix)
     return step
 

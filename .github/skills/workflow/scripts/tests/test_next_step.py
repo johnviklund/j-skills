@@ -12,10 +12,15 @@ ROUTING = """## Seat mapping
 | Seat | Vendor | Model | Trial | Fallback chain | Notes |
 |---|---|---|---|---|---|
 | Strict reviewer | Anthropic | Opus 5.5 | — | Anthropic · Sonnet 5.5 · xhigh; OpenAI · GPT-6 Sol · xhigh | |
+| Heavy executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
+| Default executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
 ## Phase → seat · effort · approval
 | Key | Phase / work | Seat | Effort | Context | Approval | Notes |
 |---|---|---|---|---|---|---|
 | plan | Plan | Strict reviewer | high | large | human | |
+| execute:contract | Execute contract | Heavy executor | xhigh | standard | auto | |
+| execute:logic | Execute logic | Default executor | high | standard | auto | |
+| execute:operator | Execute operator | Default executor | high | standard | human | |
 """
 
 
@@ -45,6 +50,58 @@ class NextStepTests(unittest.TestCase):
         result = self.cli("--json", *args)
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
+
+    def plan(self, tickets, name="plan.md"):
+        (self.run / name).write_text(
+            f"Command: workflow plan x\nCreated: now\nBase: {self.base}\nInputs: none\nStatus: complete\n"
+            + "## Tickets\n" + tickets)
+
+    def test_plan_ready_contract_ticket(self):
+        self.plan(f"""### T1 — First
+Delivers: B1 · Blocked by: none · Lane: logic
+Status: done @ {self.base}
+### T2 — Second
+Delivers: B2 · Blocked by: T1 · Lane: contract
+Status: todo
+""")
+        result = self.result()
+        for key, value in {"phase": "execute", "ticket": "T2", "seat": "Heavy executor", "approval": "auto",
+                           "model": {"vendor": "OpenAI", "name": "GPT-6.1 Sol", "effort": "xhigh"}}.items():
+            self.assertEqual(result[key], value, key)
+
+    def test_operator_handoff_waits_until_receipt_exists(self):
+        self.plan("""### T3 — Run the probe
+Delivers: B3 · Blocked by: none · Lane: operator
+Verify: receipt: receipts/t3.txt — ok
+Status: awaiting-human
+""")
+        receipts = self.run / "receipts"
+        receipts.mkdir()
+        handoff = receipts / "t3-operator-handoff.md"
+        handoff.write_text("Run the probe and save receipts/t3.txt.\n")
+        self.git("add", ".")
+        self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "handoff")
+        result = self.result()
+        self.assertEqual(result["blocker"]["ticket"], "T3")
+        self.assertIn("receipts/t3-operator-handoff.md", result["blocker"]["action"])
+        self.assertIn("Run the probe", result["blocker"]["action"])
+        self.assertIn(".workflow/x/receipts/t3-operator-handoff.md", result["reads"])
+        self.assertIsNone(result["model"])
+        self.assertEqual(result["command"], "workflow execute x")
+        self.assertIn("- **Model:** human · ", result["card"])
+        (receipts / "t3.txt").write_text("ok\n")
+        result = self.result()
+        self.assertEqual((result["phase"], result["ticket"], result["blocker"]), ("execute", "T3", None))
+
+    def test_plan_skips_ticket_with_unfinished_dependency(self):
+        self.plan("""### T2 — Blocked
+Delivers: B2 · Blocked by: T1 · Lane: contract
+Status: todo
+### T1 — Ready
+Delivers: B1 · Blocked by: none · Lane: logic
+Status: todo
+""")
+        self.assertEqual(self.result()["ticket"], "T1")
 
     def test_brief_plan_card_and_json(self):
         result = self.result()
