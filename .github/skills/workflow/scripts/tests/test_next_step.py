@@ -193,11 +193,20 @@ Status: todo
         self.assertIn("C1-1", str(self.result()["blocker"]))
         patch.unlink()
         for finding in ["### P2 — Later\n- Disposition: defer\n",
-                        f"### P1 — Fixed\n- Disposition: fix now\n- Resolved: @ {self.base}\n",
-                        "### P1 — Old\n- Disposition: fix now\n## Cycle 2 findings\n## Cycle 2 verdict\nship\n"]:
+                        f"### P1 — Fixed\n- Disposition: fix now\n- Resolved: @ {self.base}\n"]:
             with self.subTest(finding=finding):
                 self.review(finding)
                 self.assertEqual(self.result()["phase"], "wrap")
+
+    def test_prior_cycle_finding_blocks_wrap_until_resolved(self):
+        for resolved, phase in [("—", "review"), (f"@ {self.base}", "wrap")]:
+            with self.subTest(resolved=resolved):
+                self.review("### P1 — Old\n- Disposition: fix now\n"
+                            f"- Resolved: {resolved}\n## Cycle 2 findings\n## Cycle 2 verdict\nship\n")
+                result = self.result()
+                self.assertEqual((result["phase"], result["command"]), (phase, f"workflow {phase} x"))
+                self.assertEqual(result["blocker"]["findings"] if result["blocker"] else [],
+                                 ["C1-1"] if phase == "review" else [])
 
     def test_other_artifacts_drafting(self):
         for name, phase, key in [("plan.md", "plan", "plan"), ("review.md", "review", "review"),
