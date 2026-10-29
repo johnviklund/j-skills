@@ -7,9 +7,10 @@ Status:  complete
 Each behavioural fix (C1-T1, C1-T2, C1-T4, C1-T5) is two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C1-T3 is test-only.
 
 ## Execution state
-Current: C1-T1, C1-T2 done; next C1-T3. Session 4 in progress.
+Current: C1-T1–C1-T3 done. Session 4 complete; next C1-T4.
 C1-T1 @ e6a8e5d · writer: GPT-6.1 Sol · workflow 100, checkup 8 passed · receipts/c1-t1-verification.md
 C1-T2 @ f2bba2b · writer: GPT-6.1 Sol · workflow 101, checkup 8 passed · receipts/c1-t2-verification.md
+C1-T3 @ 0762b64 · writer: GPT-6.1 Sol · workflow 105, checkup 8 passed · receipts/c1-t3-verification.md
 Baseline: workflow 99, checkup 8 passed. No pre-existing failure or pending decision.
 
 ## Tickets
@@ -52,11 +53,12 @@ Budget: code +0 · tests +45
 Seam: test_next_step.py through the CLI; next-step.py unchanged
 Change: one case per mutation in review.md C1-3: wrap card holds `- **Reset:** no` · T1 `todo` blocked by T2 listed before T2 `awaiting-human` → blocker `T2` · every ticket blocked by a missing `T9` → exit 1, `no ready ticket`, no Traceback · t3 and t4 handoffs present → only t3's in T3's action and reads · Why `T3 is awaiting human action.` and `T2 is ready.` · `C2-T1` with `Fixes: C1-1 (P1)` → `Patch cycle 2 · fix C1-1` · slug `../x` → exit 1, empty stdout · `--repo` a non-git dir → exit 1, `not inside a git repo`.
 Accept:
-- [ ] the eight cases pass, and each C1-3 mutation applied alone in a throwaway copy turns test_next_step.py red, 8 of 8 (B3, B5, B6, B8)
-- [ ] the commit changes no line of next-step.py (B8)
+- [x] the eight cases pass, and each C1-3 mutation applied alone in a throwaway copy turns test_next_step.py red, 8 of 8 (B3, B5, B6, B8)
+- [x] the commit changes no line of next-step.py (B8)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: 16 OK, 8 mutations survive)
 Skills: none
-Status: todo
+Status: done @ 0762b64
+Writer: GPT-6.1 Sol
 
 ### C1-T4 — A P0 operator fix keeps its lane's human approval
 Delivers: B5 · Blocked by: none · Lane: logic
