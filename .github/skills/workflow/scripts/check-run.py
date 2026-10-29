@@ -529,6 +529,25 @@ def check_plan(run, rep, behaviours):
 
 # --- review.md -----------------------------------------------------------------------------
 
+def review_findings(doc):
+    cycles = {}
+    for title in doc.sections:
+        match = re.match(r"Cycle (\d+) findings", title)
+        if not match:
+            continue
+        cycle = int(match[1])
+        findings, current = [], None
+        for n, text in doc.section(title):
+            match = re.match(r"^### (P[0-3])" + DASH + r"(.+)$", text)
+            if match:
+                current = {"id": f"C{cycle}-{len(findings) + 1}", "sev": match[1], "title": match[2], "line": n, "lines": []}
+                findings.append(current)
+            elif current is not None:
+                current["lines"].append((n, text))
+        cycles[cycle] = findings
+    return cycles
+
+
 def check_review(run, rep):
     doc = run["docs"]["review.md"]
     status = doc.status()
@@ -540,7 +559,8 @@ def check_review(run, rep):
     if status in ("complete", "done") and cover is not None and not any(
             x.startswith("Size:") for _, x in cover):
         rep.error(doc.path, 0, "Coverage has no Size: line (`Size: +<code> code · +<tests> tests · ratio · net · over 1,000`)")
-    cycles = sorted(int(m.group(1)) for t in doc.sections if (m := re.match(r"Cycle (\d+) findings", t)))
+    findings = review_findings(doc)
+    cycles = sorted(findings)
     if status in ("complete", "done") and cycles and not doc.section(f"Cycle {cycles[-1]} verdict"):
         rep.error(doc.path, 0, f"Status {status} but no `## Cycle {cycles[-1]} verdict`")
     open_fix = []
@@ -549,15 +569,7 @@ def check_review(run, rep):
                 re.match(rf"Cycle {c} approved by human:\s*\S", x) for x in doc.lines):
             rep.error(doc.path, doc.heading(f"Cycle {c} findings"),
                       f"cycle {c} needs a `Cycle {c} approved by human: <when>` line: review stops after two")
-        findings, current = [], None
-        for n, text in doc.section(f"Cycle {c} findings"):
-            m = re.match(r"^### (P[0-3])" + DASH + r"(.+)$", text)
-            if m:
-                current = {"sev": m.group(1), "title": m.group(2), "line": n, "lines": []}
-                findings.append(current)
-            elif current is not None:
-                current["lines"].append((n, text))
-        for f in findings:
+        for f in findings[c]:
             label = f"cycle {c} {f['sev']} `{f['title']}`"
             disp = next(((n, x) for n, x in f["lines"] if x.strip().startswith("- Disposition:")), None)
             if disp is None:

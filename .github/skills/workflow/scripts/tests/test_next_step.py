@@ -15,6 +15,7 @@ ROUTING = """## Seat mapping
 | Heavy executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
 | Default executor | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
 | Mechanical lane | OpenAI | GPT-6.1 Sol | — | OpenAI · GPT-6 Sol | |
+| Brainstorm partner | Anthropic | Sonnet 5.5 | — | OpenAI · GPT-6 Sol | |
 ## Phase → seat · effort · approval
 | Key | Phase / work | Seat | Effort | Context | Approval | Notes |
 |---|---|---|---|---|---|---|
@@ -25,6 +26,10 @@ ROUTING = """## Seat mapping
 | fix:P0 | Fix P0 | Heavy executor | high | standard | auto | |
 | fix:logic | Fix logic | Default executor | medium | standard | auto | |
 | fix:mechanical | Fix mechanical | Mechanical lane | medium | standard | auto | |
+| review | Review | Strict reviewer | xhigh | large | auto | |
+| wrap | Wrap | Brainstorm partner | medium | standard | auto | |
+| brainstorm | Brainstorm | Brainstorm partner | high | standard | human | |
+| patch-plan | Patch plan | Strict reviewer | high | standard | auto | |
 """
 
 
@@ -131,6 +136,85 @@ Status: todo
                 self.assertEqual((result.returncode, result.stdout), (1, ""))
                 self.assertIn("C1-T1", result.stderr)
                 self.assertIn("Fixes: C<n>-<m> (P#)", result.stderr)
+
+    def review(self, findings=""):
+        self.plan(f"### T1 — Finished\nLane: logic\nStatus: done @ {self.base}\n")
+        (self.run / "review.md").write_text(
+            f"Command: workflow review x\nCreated: now\nBase: {self.base}\nInputs: none\nStatus: complete\n"
+            + f"## Cycle 1 findings\n{findings}\n## Cycle 1 verdict\nship\n")
+
+    def test_finished_plan_needs_review_then_wrap(self):
+        self.plan(f"### T1 — Finished\nLane: logic\nStatus: done @ {self.base}\n")
+        result = self.result()
+        for key, value in {"phase": "review", "seat": "Strict reviewer", "context": "large",
+                           "model": {"vendor": "Anthropic", "name": "Opus 5.5", "effort": "xhigh"}}.items():
+            self.assertEqual(result[key], value, key)
+        self.review()
+        result = self.result()
+        for key, value in {"phase": "wrap", "seat": "Brainstorm partner", "reset": False,
+                           "model": {"vendor": "Anthropic", "name": "Sonnet 5.5", "effort": "medium"}}.items():
+            self.assertEqual(result[key], value, key)
+
+    def test_review_receipt_rule_diff(self):
+        self.review()
+        for path, expected in [("tool.py", "review"), ("notes.md", "wrap")]:
+            with self.subTest(path=path):
+                (self.repo / path).write_text("changed\n")
+                self.git("add", path)
+                self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "change")
+                self.assertEqual(self.result()["phase"], expected)
+                self.git("reset", "--hard", self.base)
+
+    def test_open_finding_needs_patch_or_recheck(self):
+        self.review("### P1 — Defect\n- Disposition: fix now\n")
+        result = self.result()
+        self.assertIn("C1-1", str(result["blocker"]))
+        self.assertEqual(result["command"], "workflow review x")
+        self.plan(f"### C1-T1 — Fix\nFixes: C1-1 (P1)\nLane: logic\nStatus: done @ {self.base}\n", "patch_plan.md")
+        result = self.result()
+        self.assertEqual((result["phase"], result["blocker"]), ("review", None))
+        patch = self.run / "patch_plan.md"
+        patch.write_text(patch.read_text().replace("C1-", "C2-"))
+        self.assertIn("C1-1", str(self.result()["blocker"]))
+        patch.unlink()
+        for finding in ["### P2 — Later\n- Disposition: defer\n",
+                        f"### P1 — Fixed\n- Disposition: fix now\n- Resolved: @ {self.base}\n",
+                        "### P1 — Old\n- Disposition: fix now\n## Cycle 2 findings\n## Cycle 2 verdict\nship\n"]:
+            with self.subTest(finding=finding):
+                self.review(finding)
+                self.assertEqual(self.result()["phase"], "wrap")
+
+    def test_other_artifacts_drafting(self):
+        for name, phase, key in [("plan.md", "plan", "plan"), ("review.md", "review", "review"),
+                                  ("patch_plan.md", "review", "patch-plan")]:
+            with self.subTest(name=name):
+                self.review()
+                if name == "patch_plan.md":
+                    self.plan("### C1-T1 — Fix\nLane: logic\nStatus: todo\n", name)
+                doc = self.run / name
+                doc.write_text(doc.read_text().replace("Status: complete", "Status: drafting"))
+                result = self.result()
+                self.assertEqual((result["phase"], result["key"], result["ticket"]), (phase, key, None))
+
+    def test_review_rejects_unknown_base(self):
+        self.review()
+        doc = self.run / "review.md"
+        doc.write_text(doc.read_text().replace(self.base, "deadbeef"))
+        result = self.cli("--json")
+        self.assertEqual((result.returncode, result.stdout), (1, ""))
+        self.assertIn("review.md: unknown Base deadbeef", result.stderr)
+
+    def test_brief_drafting_parked_and_done(self):
+        brief = self.run / "brainstorm.md"
+        original = brief.read_text()
+        for status, phase, command in [("drafting", "brainstorm", "workflow brainstorm x"),
+                                        ("parked", "parked", "workflow plan x"), ("done", "done", None)]:
+            with self.subTest(status=status):
+                brief.write_text(original.replace("Status: complete", f"Status: {status}"))
+                result = self.result()
+                self.assertEqual((result["phase"], result["command"]), (phase, command))
+        brief.write_text(original.replace("Status: complete", "Status: bogus"))
+        self.assertEqual(self.cli("--json").returncode, 1)
 
     def test_brief_plan_card_and_json(self):
         result = self.result()

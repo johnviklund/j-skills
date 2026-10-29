@@ -72,6 +72,8 @@ def routing(path):
 
 
 def card(step, prefix):
+    if step["phase"] == "done":
+        return f"---\n**✅ Done** · {step['slug']}\n---\n"
     current = step["model"]
     fallback = step["fallback"][0] if step["fallback"] else None
     model_line = (f"{current['name']} · {current['effort']} · {step['context']}" if current else
@@ -86,59 +88,107 @@ def card(step, prefix):
             f"```text\n{prefix}{step['command']}\n```\n---\n")
 
 
-def next_step(repo, slug, routes, prefix=""):
-    brief = checks.Doc(str(repo / ".workflow" / slug / "brainstorm.md"))
-    if brief.status() != "complete":
-        raise ValueError(f"{slug}: brief must be complete")
+def ticket_step(repo, slug, doc, patch=False):
     run = repo / ".workflow" / slug
-    phase, key, ticket_id, blocker = "plan", "plan", None, None
-    why, reads = "The brief is complete; the run needs a plan.", [f".workflow/{slug}/brainstorm.md"]
-    active = run / "plan.md"
-    patch = run / "patch_plan.md"
-    if patch.exists() and any(not (checks.field(t, "Status")[1] or "").startswith("done @ ")
-                              for t in checks.parse_tickets(checks.Doc(str(patch)))):
-        active = patch
-    if active.exists():
-        doc = checks.Doc(str(active))
-        tickets = checks.parse_tickets(doc)
-        statuses = {t["id"]: checks.field(t, "Status")[1] or "" for t in tickets}
-        unfinished = [t for t in tickets if not statuses[t["id"]].startswith("done @ ")]
-        selected = None
-        for t in unfinished:
-            dependencies = re.findall(r"(?:C\d+-)?T\d+", checks.field(t, "Blocked by")[1] or "")
-            if not all(statuses.get(dep, "").startswith("done @ ") for dep in dependencies):
-                continue
-            status = statuses[t["id"]]
-            receipt = re.search(r"receipt:\s*(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
-            if status == "todo" or (status == "awaiting-human" and receipt and (run / receipt[1]).is_file()):
-                selected = t
-                break
+    blocker, reads = None, []
+    tickets = checks.parse_tickets(doc)
+    statuses = {t["id"]: checks.field(t, "Status")[1] or "" for t in tickets}
+    unfinished = [t for t in tickets if not statuses[t["id"]].startswith("done @ ")]
+    selected = None
+    for t in unfinished:
+        dependencies = re.findall(r"(?:C\d+-)?T\d+", checks.field(t, "Blocked by")[1] or "")
+        if not all(statuses.get(dep, "").startswith("done @ ") for dep in dependencies):
+            continue
+        status = statuses[t["id"]]
+        receipt = re.search(r"receipt:\s*(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
+        if status == "todo" or (status == "awaiting-human" and receipt and (run / receipt[1]).is_file()):
+            selected = t
+            break
+    if selected is None:
+        selected = next((t for t in unfinished if statuses[t["id"]] == "awaiting-human"), None)
         if selected is None:
-            selected = next((t for t in unfinished if statuses[t["id"]] == "awaiting-human"), None)
-            if selected is None:
-                raise ValueError(f"{slug}: no ready ticket in {active.name}")
-            handoffs = sorted((run / "receipts").glob(f"{selected['id'].lower()}-*handoff*.md"))
-            title = re.split(checks.DASH, doc.lines[selected["line"] - 1], maxsplit=1)[1]
-            action = "; ".join([title] + [str(path.relative_to(run)) for path in handoffs])
-            blocker = {"ticket": selected["id"], "action": action}
-            reads = [str(path.relative_to(repo)) for path in handoffs]
-        phase, ticket_id = "execute", selected["id"]
-        lane = checks.field(selected, "Lane")[1] or ""
-        key = f"execute:{lane.split()[0]}" if lane else "execute:"
-        why = f"{ticket_id} is awaiting human action." if blocker else f"{ticket_id} is ready."
-        reads = [str(active.relative_to(repo))] + (reads if blocker else [])
-        if active == patch:
-            fixes = checks.ticket_fixes(selected)
-            if not fixes:
-                raise ValueError(f"{ticket_id}: needs Fixes: C<n>-<m> (P#)")
-            key = "fix:P0" if fixes[2] == "P0" else f"fix:{lane.split()[0]}"
-            cycle = re.match(r"C(\d+)-", ticket_id)
-            why = f"Patch cycle {cycle[1] if cycle else fixes[1].split('-')[0][1:]} · fix {fixes[1]}"
-    if key not in routes:
+            raise ValueError(f"{slug}: no ready ticket in {Path(doc.path).name}")
+        handoffs = sorted((run / "receipts").glob(f"{selected['id'].lower()}-*handoff*.md"))
+        title = re.split(checks.DASH, doc.lines[selected["line"] - 1], maxsplit=1)[1]
+        action = "; ".join([title] + [str(path.relative_to(run)) for path in handoffs])
+        blocker = {"ticket": selected["id"], "action": action}
+        reads = [str(path.relative_to(repo)) for path in handoffs]
+    phase, ticket_id = "execute", selected["id"]
+    lane = checks.field(selected, "Lane")[1] or ""
+    key = f"execute:{lane.split()[0]}" if lane else "execute:"
+    why = f"{ticket_id} is awaiting human action." if blocker else f"{ticket_id} is ready."
+    reads = [str(Path(doc.path).relative_to(repo))] + (reads if blocker else [])
+    if patch:
+        fixes = checks.ticket_fixes(selected)
+        if not fixes:
+            raise ValueError(f"{ticket_id}: needs Fixes: C<n>-<m> (P#)")
+        key = "fix:P0" if fixes[2] == "P0" else f"fix:{lane.split()[0]}"
+        cycle = re.match(r"C(\d+)-", ticket_id)
+        why = f"Patch cycle {cycle[1] if cycle else fixes[1].split('-')[0][1:]} · fix {fixes[1]}"
+    return {"phase": phase, "key": key, "ticket": ticket_id, "why": why, "reads": reads, "blocker": blocker}
+
+
+def next_step(repo, slug, routes, prefix=""):
+    run = repo / ".workflow" / slug
+    brief = checks.Doc(str(run / "brainstorm.md"))
+    step = {"schema_version": 1, "slug": slug, "phase": "plan", "key": "plan", "ticket": None,
+            "why": "The brief is complete; the run needs a plan.", "reads": [f".workflow/{slug}/brainstorm.md"],
+            "reset": True, "blocker": None}
+    docs = {name: checks.Doc(str(run / name)) for name in ("plan.md", "patch_plan.md", "review.md")
+            if (run / name).exists()} if brief.status() == "complete" else {}
+    plan, patch, review = (docs.get(name) for name in ("plan.md", "patch_plan.md", "review.md"))
+    unfinished = lambda doc: any(not (checks.field(t, "Status")[1] or "").startswith("done @ ")
+                                 for t in checks.parse_tickets(doc))
+    if brief.status() == "drafting":
+        step.update(phase="brainstorm", key="brainstorm", why="The brief is unfinished.")
+    elif brief.status() == "parked":
+        step.update(phase="parked", why="The run is parked.")
+    elif brief.status() == "done":
+        step.update(phase="done", key=None, why="The run is done.")
+    elif brief.status() != "complete":
+        raise ValueError(f"{slug}: unknown brief status {brief.status()}")
+    elif plan and plan.status() == "drafting":
+        step.update(why="The plan is unfinished.", reads=[f".workflow/{slug}/plan.md"])
+    elif patch and patch.status() == "drafting":
+        step.update(phase="review", key="patch-plan", why="The patch plan is unfinished.",
+                    reads=[f".workflow/{slug}/patch_plan.md"])
+    elif patch and unfinished(patch):
+        step.update(ticket_step(repo, slug, patch, patch=True))
+    elif plan and unfinished(plan):
+        step.update(ticket_step(repo, slug, plan))
+    elif plan:
+        step.update(phase="review", key="review", why="All tickets are done; review the changes.",
+                    reads=[f".workflow/{slug}/plan.md"])
+        if review:
+            step["reads"].append(f".workflow/{slug}/review.md")
+            findings = checks.review_findings(review)
+            cycle = max(findings, default=0)
+            open_ids = [f["id"] for f in findings.get(cycle, [])
+                        if any(re.match(r"\s*- Disposition:\s*fix now", text) for _, text in f["lines"])
+                        and not any(re.search(r"- Resolved:\s*@\s*(" + checks.SHA + ")", text) for _, text in f["lines"])]
+            base = review.header().get("Base", "")
+            if not checks.git_has(str(repo), base):
+                raise ValueError(f"review.md: unknown Base {base}")
+            changed = any(not re.search(checks.RECEIPTS, path) for path in
+                          checks.git_out(str(repo), "diff", "--name-only", f"{base}..HEAD").splitlines())
+            current_patch = patch and any(t["id"].startswith(f"C{cycle}-") for t in checks.parse_tickets(patch))
+            if review.status() == "drafting":
+                step["why"] = "The review is unfinished."
+            elif open_ids:
+                step["why"] = f"Patch cycle {cycle} · fix {', '.join(open_ids)}"
+                if not current_patch:
+                    step["blocker"] = {"findings": open_ids, "action": f"Resolve {', '.join(open_ids)} before continuing."}
+            elif not changed:
+                step.update(phase="wrap", key="wrap", reset=False, why="The review has no open finding or later code change.")
+    key = step["key"]
+    if key is not None and key not in routes:
         raise ValueError(f"ROUTING.md: missing key {key}")
-    step = {"schema_version": 1, "slug": slug, "phase": phase, "command": f"workflow {phase} {slug}",
-            "ticket": ticket_id, "why": why, **routes[key], "reset": True, "reads": reads, "blocker": blocker}
-    if blocker:
+    if key is not None:
+        step.update(routes[key])
+    else:
+        step.update(seat=None, model=None, trial=False, context=None, fallback=[], approval="auto")
+    step["command"] = None if step["phase"] == "done" else f"workflow {'plan' if step['phase'] == 'parked' else step['phase']} {slug}"
+    if step["blocker"]:
         step.update(model=None, fallback=[], trial=False)
     step["card"] = card(step, prefix)
     return step
