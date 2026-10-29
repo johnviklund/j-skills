@@ -25,6 +25,7 @@ ROUTING = """## Seat mapping
 | execute:operator | Execute operator | Default executor | high | standard | human | |
 | fix:P0 | Fix P0 | Heavy executor | high | standard | auto | |
 | fix:logic | Fix logic | Default executor | medium | standard | auto | |
+| fix:operator | Fix operator | Default executor | high | standard | human | |
 | fix:mechanical | Fix mechanical | Mechanical lane | medium | standard | auto | |
 | review | Review | Strict reviewer | xhigh | large | auto | |
 | wrap | Wrap | Brainstorm partner | medium | standard | auto | |
@@ -154,6 +155,20 @@ Status: todo
         patch = self.run / "patch_plan.md"
         patch.write_text(patch.read_text().replace("Status: todo", f"Status: done @ {self.base}"))
         self.assertEqual(self.result()["ticket"], "T1")
+
+    def test_p0_fix_keeps_lane_approval(self):
+        for lane, approval in [("operator", "human"), ("logic", "auto")]:
+            with self.subTest(lane=lane):
+                self.plan(f"### C1-T1 — Fix\nFixes: C1-1 (P0)\nLane: {lane}\nStatus: todo\n", "patch_plan.md")
+                result = self.result()
+                self.assertEqual([result[k] for k in ("key", "seat", "model", "fallback", "approval")],
+                                 ["fix:P0", "Heavy executor", {"vendor": "OpenAI", "name": "GPT-6.1 Sol", "effort": "high"},
+                                  [{"vendor": "OpenAI", "name": "GPT-6 Sol", "effort": "high"}], approval])
+        self.routing.write_text(ROUTING.replace("| fix:operator | Fix operator | Default executor | high | standard | human | |\n", ""))
+        self.plan("### C1-T1 — Fix\nFixes: C1-1 (P0)\nLane: operator\nStatus: todo\n", "patch_plan.md")
+        result = self.cli("--json")
+        self.assertEqual((result.returncode, result.stdout), (1, ""))
+        self.assertIn("missing key fix:operator", result.stderr)
 
     def test_blocker_selects_awaiting_ticket_after_blocked_todo(self):
         self.plan("### T1 — Blocked\nBlocked by: T2 · Lane: logic\nStatus: todo\n"
