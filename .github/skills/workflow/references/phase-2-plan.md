@@ -9,6 +9,11 @@ Input: `.workflow/<slug>/brainstorm.md` — the brief — plus the code. Output:
 list of **tracer-bullet tickets**. Each ticket makes one or more behaviours work end to end and
 proves it with tests, so the run is working software after every ticket instead of only at the end.
 
+**Sent back by execute's freshness check:** the plan is `complete`, but a commit outside the run
+touched a file its tickets name. Read that commit's diff against each open ticket and fix any ticket
+it changes, then add `Revalidated @ <sha> · <ticket changes or none>` under `## Execution state`.
+Execute accepts a listed commit, so the run does not loop back here.
+
 ## 1. Audit the brief against the code
 
 Open `plan.md` with `Status: drafting` now and append each part as it settles (shape in step 5).

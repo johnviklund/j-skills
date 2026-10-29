@@ -20,7 +20,7 @@ per `references/worktrees.md`; run the following checks in the returned checkout
    and `python3 <skill>/scripts/check-run.py <slug>` (`<skill>` is the workflow skill's folder) reports no ERROR. An ERROR is a plan defect: stop and route to `workflow plan <slug>`
    (`workflow review <slug>` for a patch plan).
 2. **Fresh:** `git diff --stat <its Base>..HEAD -- <every file its tickets name>` shows only commits
-   listed as `T# @ <sha>` in `## Execution state`. Anything else → stop and route to
+   listed as `T# @ <sha>` or `Revalidated @ <sha>` in `## Execution state`. Anything else → stop and route to
    `workflow plan <slug>` (or `workflow review <slug>` for a patch plan).
 3. **Baseline:** run the build/test/lint commands from `AGENTS.md`'s *Verifying your work* block
    and note which failures already exist, unless the last ticket's final suite passed on this HEAD
