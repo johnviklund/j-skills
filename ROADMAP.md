@@ -1,9 +1,23 @@
 # Roadmap
 
-Updated: 2026-10-23. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
+Updated: 2026-10-29. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
 `memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
 `design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
+
+## Goal: v3, runs an outside conductor can drive unattended
+
+Decided 2026-10-26. A script, not model judgement, decides a run's next step, and j-skills stays
+neutral about which app or agent reads it. Driving runs unattended (handing phases to other
+vendors' models, live questions, wake-ups) belongs to a separate conductor skill in its own repo.
+Dependencies point one way: the conductor uses j-skills, and j-skills never names the conductor
+or its app. The conductor is optional; without it, j-skills works by hand as before.
+
+| # | Step | Run name | Status |
+| --- | --- | --- | --- |
+| 1 | `next-step.py SLUG --json` prints a run's next step as JSON; the closing card, `workflow next` and `workflow status` print its output | `next-step` | In progress: T1 of 5 done 2026-10-29 |
+| 2 | Rules a phase follows when nobody is watching, plus `decisions.md`; ships as 3.0.0 | `unattended-mode` | Open: after `next-step` |
+| 3 | The conductor skill: reads the JSON and drives the runs | separate repo | Open: after `unattended-mode` |
 
 ## Goal: keep the code base and test suites from growing unchecked
 
