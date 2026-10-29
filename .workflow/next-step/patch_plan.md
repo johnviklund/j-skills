@@ -7,10 +7,11 @@ Status:  complete
 Each behavioural fix (C1-T1, C1-T2, C1-T4, C1-T5) is two commits: the reproducing test, seen failing and committed alone (`Red: <sha>`), then the fix, which leaves every test file untouched. C1-T3 is test-only.
 
 ## Execution state
-Current: C1-T1–C1-T3 done. Session 4 complete; next C1-T4.
+Current: C1-T1–C1-T4 done. Session 5 in progress; next C1-T5.
 C1-T1 @ e6a8e5d · writer: GPT-6.1 Sol · workflow 100, checkup 8 passed · receipts/c1-t1-verification.md
 C1-T2 @ f2bba2b · writer: GPT-6.1 Sol · workflow 101, checkup 8 passed · receipts/c1-t2-verification.md
 C1-T3 @ 0762b64 · writer: GPT-6.1 Sol · workflow 105, checkup 8 passed · receipts/c1-t3-verification.md
+C1-T4 @ 6e87503 · writer: GPT-6.1 Sol · workflow 106, checkup 8 passed · receipts/c1-t4-verification.md
 Baseline: workflow 99, checkup 8 passed. No pre-existing failure or pending decision.
 
 ## Tickets
@@ -67,11 +68,13 @@ Budget: code +3 · tests +8
 Seam: `next-step.py <slug> --json` on a fixture patch ticket; next-step.py:129
 Change: a P0 ticket keeps `fix:P0`'s key, seat, model and fallback and takes `approval` from `fix:<lane>`; a missing lane row exits 1 by the existing missing-key path. The test fixture gains a `fix:operator` row.
 Accept:
-- [ ] `Fixes: C1-1 (P0)`, `Lane: operator` → key `fix:P0`, seat `Heavy executor`, model GPT-6.1 Sol · high, approval `human` (B5)
-- [ ] `Fixes: C1-1 (P0)`, `Lane: logic` → approval `auto`; the existing severity cases pass unchanged (B5)
+- [x] `Fixes: C1-1 (P0)`, `Lane: operator` → key `fix:P0`, seat `Heavy executor`, model GPT-6.1 Sol · high, approval `human` (B5)
+- [x] `Fixes: C1-1 (P0)`, `Lane: logic` → approval `auto`; the existing severity cases pass unchanged (B5)
 Verify: `cd .github/skills/workflow && python3 -m unittest discover -s scripts/tests -p test_next_step.py` (pre: 16 OK)
 Skills: none
-Status: todo
+Status: done @ 6e87503
+Writer: GPT-6.1 Sol
+Red: 98b36d0
 
 ### C1-T5 — A parked run resumes at the phase it stopped in
 Delivers: B7 · Blocked by: none · Lane: logic
