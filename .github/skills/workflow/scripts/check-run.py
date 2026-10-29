@@ -37,6 +37,7 @@ No SLUG checks every run that is not parked or done (a broken Status is checked,
 Exit 0 with no errors (warnings allowed), 1 with any error, 2 on bad input.
 """
 import argparse
+import itertools
 import os
 import re
 import statistics
@@ -530,17 +531,19 @@ def check_plan(run, rep, behaviours):
 # --- review.md -----------------------------------------------------------------------------
 
 def review_findings(doc):
+    resolved = {text.split("|")[1].strip() for _, text in doc.section("Resolved") or [] if text.startswith("|")}
     cycles = {}
     for title in doc.sections:
         match = re.match(r"Cycle (\d+) findings", title)
         if not match:
             continue
         cycle = int(match[1])
+        numbers = (n for n in itertools.count(1) if f"C{cycle}-{n}" not in resolved)
         findings, current = [], None
         for n, text in doc.section(title):
             match = re.match(r"^### (P[0-3])" + DASH + r"(.+)$", text)
             if match:
-                current = {"id": f"C{cycle}-{len(findings) + 1}", "sev": match[1], "title": match[2], "line": n, "lines": []}
+                current = {"id": f"C{cycle}-{next(numbers)}", "sev": match[1], "title": match[2], "line": n, "lines": []}
                 findings.append(current)
             elif current is not None:
                 current["lines"].append((n, text))
