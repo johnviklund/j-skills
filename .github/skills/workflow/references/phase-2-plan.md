@@ -183,6 +183,7 @@ Status: todo                              (todo · awaiting-human · done @ <sha
 
 ## Risks
 <≤3 lines: the riskiest ticket and why · what could break outside its files · the option not taken>
+Check any claim an accepted risk rests on in the code before accepting it ("wrap archives runs" was false: done runs stay in `.workflow/`).
 
 ## TODO impacts
 <the TODO.md items the brief names or seeded from → completed / partial / obsolete / conflicts; or

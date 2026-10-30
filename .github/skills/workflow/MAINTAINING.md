@@ -31,6 +31,8 @@ skill, see [`README.md`](README.md).
   *red to green*, over a sentence that explains it.
 - **Approval.** The principle lives in `SKILL.md`. The mapping from step to approval lives in
   `ROUTING.md`.
+- **Moving a source.** A new file that changes which model a phase uses must reach every reader of the old
+  source (`grep -rn 'ROUTING.md'`): the card, review's vendor lookup and execute's `Writer:` name.
 - **Retiring a command.** Grep the whole folder, `ROUTING.md` and the README included, or you
   leave dangling references.
 
