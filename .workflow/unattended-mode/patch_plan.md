@@ -7,6 +7,13 @@ Status:  complete
 Both tickets are small and run in one session at the same model and effort. C1-T2 is test-only:
 one commit, no red commit, and next-step.py stays unchanged.
 
+## Execution state
+Current: C1-T2 todo · writer: GPT-6.1 Sol · high
+C1-T1 @ 23f4ec6
+Baseline: 111 workflow tests OK · 8 checkup tests OK; no pre-existing failures.
+Final suite: 111 workflow tests OK · 8 checkup tests OK; receipts/c1-t1-verification.md @ 23f4ec6.
+Uncommitted: execution records only. Pending decision: none.
+
 ## Tickets
 
 ### C1-T1 — An unattended UI stop leaves the ticket's code uncommitted
@@ -21,12 +28,13 @@ Change: replace the UI bullet at `unattended.md:36` with exactly these lines, so
   that ticket's pending work, not the human's edits.
 ```
 Accept:
-- [ ] `grep -c "the ticket's code stays uncommitted" unattended.md` returns 1 (B2)
-- [ ] `grep -c "not the human's edits" unattended.md` returns 1 (B2)
-- [ ] the `## Always stop` section still has exactly 5 lines starting `- ` (B2)
+- [x] `grep -c "the ticket's code stays uncommitted" unattended.md` returns 1 (B2)
+- [x] `grep -c "not the human's edits" unattended.md` returns 1 (B2)
+- [x] the `## Always stop` section still has exactly 5 lines starting `- ` (B2)
 Verify: `U=.github/skills/workflow/references/unattended.md; grep -c "the ticket's code stays uncommitted" $U; grep -c "not the human's edits" $U; awk '/^## Always stop/{f=1;next} /^## /{f=0} f&&/^- /' $U | wc -l` (pre: 0 · 0 · 5)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 23f4ec6
+Writer: GPT-6.1 Sol
 
 ### C1-T2 — The card's Reads names decisions.md under test
 Delivers: B4 · Blocked by: none · Lane: logic

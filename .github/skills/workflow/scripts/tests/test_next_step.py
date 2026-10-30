@@ -100,6 +100,7 @@ class NextStepTests(unittest.TestCase):
                         self.assertEqual(result["blocker"], {"decision": "D2", "action": "Which port?"})
                         self.assertIsNone(result["model"])
                         self.assertIn("**Model:** human · Which port?", result["card"])
+                        self.assertIn(".workflow/x/decisions.md", result["reads"])
                     else:
                         self.assertEqual(result, baseline)
                 path.unlink()
