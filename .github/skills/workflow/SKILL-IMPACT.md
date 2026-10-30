@@ -10,6 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-10-30 | workflow | tests.md: a fixture copies every real form of the section it parses (blank line, prose note, backticks). Judge: the next 3 review cycles raise no test that is narrower than the real files | next-step C1-1, C1-2, C2-1, C3-1, C4-1 (5 occurrences) | 3 runs | trialing |
 | 2026-10-30 | workflow | next-step C3-T1: the folded-findings fixture ends its Resolved table with a blank line, as real reviews do. Judge: removing the table-row filter fails both fixture cases, with production code unchanged | next-step C3-1 | 3 review handoffs | trialing |
 | 2026-10-29 | workflow | next-step C2: finding IDs skip each cycle's IDs in the Resolved table; a checker test verifies the open-finding note before and after resolution. Judge: folded findings keep their open IDs, and inverted and never-true checker guards both fail the test | next-step C2-1, C2-2 | 3 review handoffs | trialing |
 | 2026-10-29 | workflow | next-step C1-T3: CLI tests catch eight previously surviving mutations in cards, ticket selection, handoff scope, patch cycles and input checks. Judge: all eight fail independently, with next-step.py unchanged | next-step C1-3 | 3 review handoffs | trialing |

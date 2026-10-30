@@ -4,3 +4,4 @@
 - growth-ratchets C1-2 (P2, 2026-10-18) — the execute doc dropped two rules to stay at net zero lines; restore them and measure doc growth in words. — archived 2026-10-18 · e478a17 (guard-keys T1)
 - `check-run.py`: retire the date gates (`SLOP_SINCE`, `SIZING_SINCE`, `LEAN_SINCE`, `GROWTH_SINCE`) and their legacy branches; check only runs not yet done (2026-10-18). — archived 2026-10-18 · moved to workflow ROADMAP.md step 2 (`retire-date-gates`)
 - workflow `SKILL.md:54` live-run grep misses briefs written `Status:  complete` (two spaces); six briefs affected, so `workflow status` skips them (P2). — archived 2026-10-28 · 27f1f39 (run-worktrees T4)
+- checkup-next-actions C1-1 (P1, 2026-10-25) — Guardrail: a small script prints the card's `Model:` and `Fallback:` lines for a command from ROUTING.md and checkup copies its output; needs its own tests (run-sized). — archived 2026-10-30 · a354025 (next-step T5: `next-step.py --key` prints the Model and Fallback lines)

@@ -70,6 +70,11 @@ red. The report records it as `Mutation: <line> → red`. Add a test beyond the 
 only when a mutation survives. A new guard or parser gets one mutation per condition it adds,
 not a sample.
 
+**Fixtures copy the real form.** Before a test builds a parsed section (a table, a heading, a path),
+list every form that section takes in the repo's files and git history, and give each one a case:
+the blank line after a table, a prose note, backticks. A receipt run on a real file does not guard
+the suite.
+
 **Verify keywords.** `unittest -k` matches case-sensitively against `module.Class.method`, so put
 the keyword in each test method name and check the `Ran N tests` count, not just OK. A keyword must
 not be a substring of another ticket's test names, or this ticket's Verify goes red during that

@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated: 2026-10-29. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
+Updated: 2026-10-30. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
 `memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
 `design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
@@ -15,7 +15,6 @@ or its app. The conductor is optional; without it, j-skills works by hand as bef
 
 | # | Step | Run name | Status |
 | --- | --- | --- | --- |
-| 1 | `next-step.py SLUG --json` prints a run's next step as JSON; the closing card, `workflow next` and `workflow status` print its output | `next-step` | In progress: T1 of 5 done 2026-10-29 |
 | 2 | Rules a phase follows when nobody is watching, plus `decisions.md`; ships as 3.0.0 | `unattended-mode` | Open: after `next-step` |
 | 3 | The conductor skill: reads the JSON and drives the runs | separate repo | Open: after `unattended-mode` |
 
