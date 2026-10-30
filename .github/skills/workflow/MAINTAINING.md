@@ -48,8 +48,8 @@ the only shared state. Nothing depends on that yet, but nothing blocks it.
 
 ## Run folder rules
 
-Every file in a run opens with a five-line header. The state machine reads it rather than
-guessing from which files exist:
+Run artifacts other than `learnings.md` and `decisions.md` open with a five-line header.
+The state machine reads it rather than guessing from which files exist:
 
 ```
 Command: workflow plan

@@ -21,6 +21,7 @@ vendors, models and efforts.
 
 **Checkout:** Before reading a run, follow [references/worktrees.md](references/worktrees.md).
 It resolves every phase and status to the run's checkout; execute opens isolation, wrap lands it.
+For plan, execute, review and wrap, read [Unattended runs](references/unattended.md) when the brief's line 6 is `Mode: unattended`. Its question rules override chat waits.
 
 ## The run — `.workflow/<slug>/`
 
@@ -32,13 +33,14 @@ One run = one folder, tracked in git, kept forever; its files are the state mach
 | `plan.md` | plan, then execute | findings + **tickets** (T#), each with acceptance lines and a verify command; execution state |
 | `patch_plan.md` | review | fix tickets for the current patch cycle |
 | `review.md` | review | coverage, the current cycle's findings and verdict, a `## Resolved` table of earlier cycles |
+| `decisions.md` | any phase after brainstorm | headerless table of questions, defaults, statuses and answers |
 | `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's checkpoint, then the run's ≤ ~40-line summary |
 
 **Layout.** The top level holds only the artifacts above; everything else goes in a subfolder by
 kind, created when first needed: `receipts/` · `screens/` · `notes/` · `scripts/` · `data/` ·
 `prototypes/` · `understand/`. What each holds: `references/phase-3-execute.md`, *Run folder layout*.
 
-Every artifact header carries `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
+Provenance headers carry `Status:` — `drafting` (resume that phase) · `complete` · `parked` ·
 `done`. A run whose `brainstorm.md` is `parked` or `done` is not live.
 
 | State of a live run | Next |
@@ -52,7 +54,7 @@ Every artifact header carries `Status:` — `drafting` (resume that phase) · `c
 
 ## Grounding — tiered reads
 
-- **Always:** the run's live artifacts (`brainstorm.md`, `plan.md`, `patch_plan.md`, the *current*
+- **Always:** the run's live artifacts (`brainstorm.md`, `plan.md`, `patch_plan.md`, `decisions.md` when present, the *current*
   cycle of `review.md` plus its `## Resolved` table); `ROUTING.md` (the card's rows); `AGENTS.md`;
   the `MEMORY.md` index — open a `memory/<slug>.md` page only when its "Applies when" matches;
   `git log --oneline -15`; `git status`.
@@ -137,7 +139,7 @@ A finished wrap keeps its ✅ summary card (`references/wrap.md`).
 - **Verify against the code — and the data.** Every interface, signature and column a phase relies on
   is checked in the real code; the brief's claims are hypotheses until then. An Outcome that depends
   on real data gets a read-only query before its behaviours are confirmed.
-- **Provenance header** — every run artifact opens with five lines: `Command:`, `Created:` (a brief or plan adds `· <model>`), `Base:`
+- **Provenance header** — artifacts other than `learnings.md` and `decisions.md` open with five lines: `Command:`, `Created:` (a brief or plan adds `· <model>`), `Base:`
   (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
   `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
   run's own ticket commits. Stale → name it and route to the phase that must rerun.

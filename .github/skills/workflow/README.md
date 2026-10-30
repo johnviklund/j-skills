@@ -2,7 +2,7 @@
 
 A coding workflow for one developer working with CLI coding agents. It takes a task through five
 steps, and a model from another vendor reviews the code. It works in Claude Code, Codex CLI and
-GitHub Copilot CLI. Version 2.1.
+GitHub Copilot CLI. Version 3.0.0.
 
 ## The steps at a glance
 
@@ -49,6 +49,15 @@ skill. Saying "plan" or "review" in passing does not.
 | `workflow log`, `workflow learn` | Adds a worklog entry, or saves one lesson |
 | `workflow bootstrap` | Sets up `AGENTS.md`, `MEMORY.md`, `TODO.md` and repo conventions in a new project |
 | `workflow realign` | Checks `PRODUCT.md` and `DESIGN.md` against what shipped, and proposes changes for you to approve |
+
+## Unattended runs
+
+During brainstorm, choose `Mode: unattended` for line 6 of `brainstorm.md`.
+Plan, execute, review and wrap then record questions and defaults in `decisions.md`.
+Reversible choices use the recommended default. Required human decisions produce a blocker
+in `next-step.py --json` and a card addressed to the human. See the
+[unattended rules](references/unattended.md) for the cases that always stop and the table format.
+An absent mode line or `Mode: attended` keeps the usual behavior. Brainstorm stays with you.
 
 ## Where it stops for you
 

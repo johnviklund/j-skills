@@ -160,12 +160,15 @@ naturally at its human gates: build and prove locally in one run, operate and ve
 
 ## 5. The brief — `brainstorm.md` (≤ ~80 lines)
 
+Use the human's requested `Mode`; default to `attended`.
+
 ```markdown
 Command: workflow brainstorm <slug>
 Created: <date> · <model>
 Base:    <git sha>
 Inputs:  none
 Status:  complete
+Mode: attended
 
 ## Problem
 <the human's problem, from the user's or caller's side, 1–3 lines>

@@ -9,7 +9,13 @@ Size: code 1073 · tests 911 · ratio 0.85 · largest touched check-run.py 840, 
 Decisions: 1a (decisions.md has no header) · 2a (a waiting decision replaces a ticket or finding blocker) · 3a (tickets approved as listed)
 
 ## Execution state
-<filled by execute>
+Current: T2 ready · writer: GPT-6.1 Sol · high
+T1 @ 39fe912
+Session 1: T1
+Baseline: 109 workflow tests OK · 8 checkup tests OK; no pre-existing failures.
+T1 final suite: 111 workflow tests OK · 8 checkup tests OK @ 39fe912.
+Contract: decisions.md is headerless; columns ID, Phase, Question, Default, Status, Answer.
+Uncommitted: plan.md execution state only. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -32,15 +38,16 @@ Delivers: B1, B3, B4, B5, B6, B7 · Blocked by: none · Lane: logic
 Budget: code +30 · tests +45 · why: six states across two existing seams, one parametrized case each
 Seam: `check-run.py <slug>` exit code and output; `next-step.py <slug> --json` and its card
 Accept:
-- [ ] Brief line 6 `Mode: unattended`, and separately `Mode: attended`, with a well-formed `decisions.md` → check-run exits 0 and prints no line naming `Mode`, and none naming `decisions.md` (B1, B6)
-- [ ] Brief line 6 `Mode: sometimes` → check-run exits 1 with an ERROR naming `Mode` (B1)
-- [ ] A `decisions.md` row with Status `maybe`, and separately a row with 5 cells → check-run exits 1 with an ERROR naming that row's ID (B6)
-- [ ] Row `D1` `assumed`, and separately `answered` → `next-step.py --json` equals the same run's output without `decisions.md`; `blocker` is null (B3, B5)
-- [ ] Row `D2` `waiting`, Question `Which port?` → `blocker == {"decision": "D2", "action": "Which port?"}`, `model` null, card contains `**Model:** human · Which port?` (B4)
-- [ ] Existing `test_next_step.py` and `test_check_run.py` cases → pass with no assertion edited (B7)
+- [x] Brief line 6 `Mode: unattended`, and separately `Mode: attended`, with a well-formed `decisions.md` → check-run exits 0 and prints no line naming `Mode`, and none naming `decisions.md` (B1, B6)
+- [x] Brief line 6 `Mode: sometimes` → check-run exits 1 with an ERROR naming `Mode` (B1)
+- [x] A `decisions.md` row with Status `maybe`, and separately a row with 5 cells → check-run exits 1 with an ERROR naming that row's ID (B6)
+- [x] Row `D1` `assumed`, and separately `answered` → `next-step.py --json` equals the same run's output without `decisions.md`; `blocker` is null (B3, B5)
+- [x] Row `D2` `waiting`, Question `Which port?` → `blocker == {"decision": "D2", "action": "Which port?"}`, `model` null, card contains `**Model:** human · Which port?` (B4)
+- [x] Existing `test_next_step.py` and `test_check_run.py` cases → pass with no assertion edited (B7)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests` (pre: 109 OK · 8 OK)
 Skills: none
-Status: todo
+Status: done @ 39fe912
+Writer: GPT-6.1 Sol
 
 ### T2 — unattended.md holds the rules; the hub points to it; version 3.0.0
 Delivers: B2, B8 · Blocked by: T1 · Lane: logic
