@@ -9,15 +9,15 @@ Size: code 1097 · tests 955 · ratio 0.87 · largest touched check-run.py 882, 
 Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · Model
 
 ## Execution state
-Current: patch cycle 1, C1-T1 done; C1-T2 ready.
+Current: all patch cycle 1 tickets done; ready for review.
 T1 @ d9a0f8f
 T2 @ 4db8014
 writer: GPT-6.1 Sol
 Session 1: T1
 Session 2: T2
-Session 3: C1-T1
+Session 3: C1-T1, C1-T2
 Baseline: workflow 112 tests OK; checkup 8 tests OK; no pre-existing failures.
-Final: workflow 117 tests OK; checkup 8 tests OK; receipts: receipts/t1-verification.md, receipts/t2-verification.md.
+Final: workflow 119 tests OK; checkup 8 tests OK; patch receipt: receipts/c1-verification.md.
 Uncommitted: none after state commit. Pending decision: none.
 
 ## Findings

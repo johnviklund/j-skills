@@ -8,12 +8,14 @@ Both tickets run in one session: `fix:logic` and `fix:mechanical` share GPT-6.1 
 C1-T1 is a behavioural bug: a Red commit with only the two new tests, then the fix.
 
 ## Execution state
-Current: C1-T2 ready.
+Current: all patch tickets done; ready for review.
 C1-T1 @ 5d2d876
+C1-T2 @ a4135aa
 writer: GPT-6.1 Sol
 Red: 4b37b24, two new cases failed; only test files changed.
 Final: workflow 119 tests OK; checkup 8 tests OK.
-Uncommitted: state records only. Pending decision: none.
+Receipt: receipts/c1-verification.md.
+Uncommitted: none after state commit. Pending decision: none.
 
 ## Tickets
 
@@ -40,8 +42,9 @@ Budget: code +0 · tests +0
 Seam: `grep` of `phase-4-review.md` and `phase-3-execute.md` in `.github/skills/workflow/references/`
 Change: `phase-4-review.md:7` becomes ``the run's `routing.md`, else `ROUTING.md`; if one matches yours, this is a``. In `phase-3-execute.md:138`, ``as `ROUTING.md`'s seat mapping names it`` becomes ``as the run's `routing.md`, else `ROUTING.md`'s seat mapping, names it``. No other line changes.
 Accept:
-- [ ] `grep -cF 'routing.md`, else `ROUTING.md'` returns 1 in each file (C1-2)
-- [ ] `git diff --stat` for the ticket commit shows 1 insertion and 1 deletion in each file (C1-2)
+- [x] `grep -cF 'routing.md`, else `ROUTING.md'` returns 1 in each file (C1-2)
+- [x] `git diff --stat` for the ticket commit shows 1 insertion and 1 deletion in each file (C1-2)
 Verify: `cd .github/skills/workflow/references && grep -cF 'routing.md`, else `ROUTING.md' phase-4-review.md phase-3-execute.md` (pre: 0 · 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ a4135aa
+Writer: GPT-6.1 Sol
