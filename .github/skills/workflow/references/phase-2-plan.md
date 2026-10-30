@@ -145,6 +145,8 @@ is a plan defect. Operator tickets record `pre: no receipt`. Then set `Status: c
 every behaviour has a ticket and that blocked-by has no cycle, so the audit spends its attention
 on judgement.
 
+A `Verify:` of the form `! cmd` proves only a nonzero exit, and a crash passes it too. When an acceptance line names an output literal (a stderr prefix, a message), the Verify checks that literal, for example `cmd 2>&1 | grep -q '^unknown:'`.
+
 ```markdown
 Command: workflow plan <slug>
 Created: <date> · <model>
