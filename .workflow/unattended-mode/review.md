@@ -36,13 +36,13 @@ Cycle 1 also counted 1 more P3 without an ID; text in git at `880e471`. Cycle 2 
 ### P1 — The new test's one-row fixture lets `any`→`all` survive
 - Evidence: mutating `any(row["Phase"] == "execute"` to `all(` at `run-worktree.py:100` leaves `test_run_worktree` green. The fixture (`test_run_worktree.py:149-152`) holds one row, where `any` and `all` agree. A real unattended run writes plan rows before execute rows (`unattended.md:13-14`, example row `D1 | plan`), and under `all` such a file brings C1-1 back. Same class as `tests.md`'s rule that a fixture copies every real form.
 - Remedy: put a `| D1 | plan | … | assumed | … |` row before the execute row in the fixture, renumbering it D2. One test line; no code change.
-- Disposition: fix now — past the cycle bound, so the human decides between a fourth cycle and deferral
+- Disposition: defer → `TODO.md` at wrap — Approved by human: 2026-10-30, option 1b
 - Resolved: —
 
 ### P2 — A bad `decisions.md` in any live run makes `open` crash with a traceback
 - Evidence: a temp repo where run A's `decisions.md` has status `approved` and run B is unstarted → `run-worktree.py open B` prints a Python traceback ending `ValueError: …/A/decisions.md: D1: unknown decision status approved`, exit 1. Before f268f88, `open B` ignored A's file. `next-step.py:207` catches `ValueError`; `run-worktree.py:213` does not.
 - Remedy: add `ValueError` to the except tuple at `run-worktree.py:213`, plus one `OpenTests` case asserting exit 1 and the file name on stderr with no `Traceback`. About 1 code and 8 test lines. Failing closed is right: `open` cannot tell whether A occupies the primary checkout.
-- Disposition: fix now (small) — past the cycle bound, so the human decides between a fourth cycle and deferral
+- Disposition: defer → `TODO.md` at wrap — human chose option 1b, 2026-10-30
 - Resolved: —
 
 ### P3 — `worktrees.md:46` still says another run occupies the primary checkout only with a started ticket
@@ -54,4 +54,6 @@ Cycle 1 also counted 1 more P3 without an ID; text in git at `880e471`. Cycle 2 
 none
 
 ## Cycle 3 verdict
-Human decision · C1-1 is fixed at both call sites and stamped. P0 0 · P1 1 (C3-1) · P2 1 (C3-2) · P3 1 (C3-3). The code is right; C3-1 is a test gap and C3-2 an unhandled error in a path the fix added. Neither breaks a B# or the Outcome. Past the two-cycle bound, so the human chooses between a fourth cycle and deferring both to `TODO.md` (C3-1 needs `Approved by human:` to defer).
+Human decision · C1-1 is fixed at both call sites and stamped. P0 0 · P1 1 (C3-1) · P2 1 (C3-2) · P3 1 (C3-3). The code is right; C3-1 is a test gap and C3-2 an unhandled error in a path the fix added. Neither breaks a B# or the Outcome. Past the two-cycle bound, so the human chose between a fourth cycle and deferral.
+
+Deferral approved by human (1b), 2026-10-30: C3-1 and C3-2 become `TODO.md` lines at wrap; C3-3 stays here. Next: wrap.
