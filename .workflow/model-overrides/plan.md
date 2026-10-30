@@ -9,12 +9,14 @@ Size: code 1097 · tests 955 · ratio 0.87 · largest touched check-run.py 882, 
 Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · Model
 
 ## Execution state
-Current: T2 todo; requires GPT-6.1 Sol · medium.
+Current: all tickets done; ready for review.
 T1 @ d9a0f8f
+T2 @ 4db8014
 writer: GPT-6.1 Sol
 Session 1: T1
+Session 2: T2
 Baseline: workflow 112 tests OK; checkup 8 tests OK; no pre-existing failures.
-Final: workflow 117 tests OK; checkup 8 tests OK; receipt: receipts/t1-verification.md.
+Final: workflow 117 tests OK; checkup 8 tests OK; receipts: receipts/t1-verification.md, receipts/t2-verification.md.
 Uncommitted: none after state commit. Pending decision: none.
 
 ## Findings
@@ -57,12 +59,13 @@ Delivers: D5 (docs half) · Blocked by: T1 · Lane: mechanical
 Budget: code +0 · tests +0
 Seam: `SKILL.md`, `MAINTAINING.md`, `README.md` in `.github/skills/workflow/`
 Accept:
-- [ ] SKILL.md's run table gains a `routing.md` row (written by the human) and its provenance rule names it headerless → `grep -o 'routing\.md' SKILL.md | wc -l` = 2
-- [ ] MAINTAINING.md's header rule and README's *Trying a new model* list each name it → `grep -c 'routing\.md'` = 1 in each file
-- [ ] SKILL.md stays in its line budget → `wc -l < SKILL.md` ≤ 180 (now 180)
+- [x] SKILL.md's run table gains a `routing.md` row (written by the human) and its provenance rule names it headerless → `grep -o 'routing\.md' SKILL.md | wc -l` = 2
+- [x] MAINTAINING.md's header rule and README's *Trying a new model* list each name it → `grep -c 'routing\.md'` = 1 in each file
+- [x] SKILL.md stays in its line budget → `wc -l < SKILL.md` ≤ 180 (now 180)
 Verify: `cd .github/skills/workflow && grep -c 'routing\.md' SKILL.md MAINTAINING.md README.md; wc -l < SKILL.md` (pre: 0 · 0 · 0 · 180)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 4db8014
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (lines 1–4 observe next-step's card and JSON for the overridden run; line 3 the unchanged one)
