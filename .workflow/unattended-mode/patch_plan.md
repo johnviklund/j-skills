@@ -1,52 +1,29 @@
-Command: workflow review unattended-mode · patch cycle 1
+Command: workflow review unattended-mode · patch cycle 2
 Created: 2026-10-30 · Claude Opus 5.5
-Base:    f719a10
-Inputs:  .workflow/unattended-mode/review.md @ f719a10
+Base:    a4d6991
+Inputs:  .workflow/unattended-mode/review.md @ a4d6991
 Status:  complete
 
-Both tickets are small and run in one session at the same model and effort. C1-T2 is test-only:
-one commit, no red commit, and next-step.py stays unchanged.
+Cycle 3 approved by human (1a). C2-T1 fixes a behaviour: a red test committed alone, then the
+fix with every test file untouched.
 
 ## Execution state
-Current: all patch tickets done; ready for review · writer: GPT-6.1 Sol · high
-C1-T1 @ 23f4ec6
-C1-T2 @ 2e8ad60
-Baseline: 111 workflow tests OK · 8 checkup tests OK; no pre-existing failures.
-Final suite: 111 workflow tests OK · 8 checkup tests OK; receipts/c1-t2-verification.md @ 2e8ad60.
-Uncommitted: none after execution-state commit. Pending decision: none.
+Current: C2-T1 next · writer: — · baseline: workflow 111, checkup 8 passed
 
 ## Tickets
 
-### C1-T1 — An unattended UI stop leaves the ticket's code uncommitted
-Delivers: B2 · Blocked by: none · Lane: mechanical
+### C2-T1 — A run stopped at its first ticket resumes where its pending code is
+Delivers: B2 · Blocked by: none · Lane: logic
 Fixes: C1-1 (P2)
-Budget: code +0 · tests +0
-Seam: `grep` of `.github/skills/workflow/references/unattended.md`
-Change: replace the UI bullet at `unattended.md:36` with exactly these lines, so the section keeps five bullets:
-```markdown
-- UI approval before the ticket commit stays with the human; see `phase-3-execute.md`. Commit and
-  push only run artifacts and `screens/`; the ticket's code stays uncommitted, and on resume it is
-  that ticket's pending work, not the human's edits.
-```
+Budget: code +3 · tests +14
+Seam: `run-worktree.py open <slug>` stdout and `git worktree list`, through `test_run_worktree.py` OpenTests
+Change: `started()` (`run-worktree.py:98-101`) also returns true when `run_dir / "decisions.md"` exists and holds a row whose Phase is `execute`; parse it with `checks.decisions(checks.Doc(...))`, as `next-step.py:174` does. Every unattended stop writes its row before it ends (`unattended.md:13-14`), so an execute row means execution began in this checkout. Sites, from `grep -n 'porcelain\|started(' .github/skills/*/scripts/*.py`: `run-worktree.py:108`, the own run (the bug); `:116`, another live run, already busy from its dirty code at `:110` and covered by the same change; `:137`, land, after every ticket is done (outside the class); `check-run.py:779`, the brief's own changes (outside the class). Then `worktrees.md:44` reads exactly: `It reuses an existing run checkout. A run with a started ticket or an execute decision stays in its original checkout.`
 Accept:
-- [x] `grep -c "the ticket's code stays uncommitted" unattended.md` returns 1 (B2)
-- [x] `grep -c "not the human's edits" unattended.md` returns 1 (B2)
-- [x] the `## Always stop` section still has exactly 5 lines starting `- ` (B2)
-Verify: `U=.github/skills/workflow/references/unattended.md; grep -c "the ticket's code stays uncommitted" $U; grep -c "not the human's edits" $U; awk '/^## Always stop/{f=1;next} /^## /{f=0} f&&/^- /' $U | wc -l` (pre: 0 · 0 · 5)
+- [ ] run B, every plan.md ticket `todo`, `src.py` uncommitted, `decisions.md` holding `| D1 | execute | Approve T1? | commit | answered | commit |` → `open` prints `.`, `git worktree list` is unchanged and `src.py` keeps its text (B2)
+- [ ] the same run with that row's Phase `plan` → `open` prints `.worktrees/B` (B2)
+- [ ] the red commit holds only the new test, run and seen failing on the first case; the fix commit changes no test file (B2)
+- [ ] `grep -c 'started ticket or an execute decision' .github/skills/workflow/references/worktrees.md` returns 1 (B2)
+- [ ] existing `test_run_worktree.py` cases pass with no assertion edited (B2)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests` (pre: 111 OK · 8 OK; the new test fails its first case before the fix; the grep returns 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: done @ 23f4ec6
-Writer: GPT-6.1 Sol
-
-### C1-T2 — The card's Reads names decisions.md under test
-Delivers: B4 · Blocked by: none · Lane: logic
-Fixes: C1-2 (P2)
-Budget: code +0 · tests +1
-Seam: `test_next_step.py` `test_unattended_decision_states` (`:84-105`) through `next-step.py --json`
-Change: in the waiting branch, after `test_next_step.py:102`, add `self.assertIn(".workflow/x/decisions.md", result["reads"])`. The assumed and answered branches already compare the whole result to the no-file baseline, so they prove the entry is absent there.
-Accept:
-- [x] `test_next_step.py` passes with the new assertion (B4)
-- [x] `step["reads"].append(...)` deleted from `next-step.py:177` in a throwaway copy → `test_unattended_decision_states` fails; the commit changes no line of next-step.py (B4)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests` (pre: 111 OK · 8 OK; deleting `:177` also stays green)
-Skills: none
-Status: done @ 2e8ad60
-Writer: GPT-6.1 Sol
+Status: todo

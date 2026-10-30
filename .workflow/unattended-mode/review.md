@@ -5,6 +5,7 @@ Inputs:  .workflow/unattended-mode/plan.md @ b02cf59 · .workflow/unattended-mod
 Status: complete
 
 Scope, cycle 2: the fix diff f719a10..1db6f47, which is C1-T1 23f4ec6 and C1-T2 2e8ad60, plus each finding's class.
+Cycle 3 approved by human: 2026-10-30 — option 1a, one more cycle fixing C1-1.
 
 ## Coverage
 - [x] C1-T1 — acceptance 3/3 re-run: 1 · 1 · 5; `## Always stop` is still only in `unattended.md`. Doc-only; no test or script touched
@@ -46,3 +47,5 @@ none
 
 ## Cycle 2 verdict
 Human decision · C1-1 is still open after two cycles. P0 0 · P1 0 · P2 1 (C1-1, reopened) · P3 0 new. C1-2 is fixed and its mutation is killed. The UI-stop rule now says the right thing, but `run-worktree.py open` still sends a resume after a first-ticket UI stop to a new, empty worktree. That breaks no B# and not the Outcome. Recommended: a third cycle with one fix ticket (decision 1a).
+
+Cycle 3 approved by human (1a). Patch cycle 2 (`patch_plan.md`): C2-T1 fixes C1-1.
