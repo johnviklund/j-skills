@@ -8,7 +8,13 @@ Cycle 3 approved by human (1a). C2-T1 fixes a behaviour: a red test committed al
 fix with every test file untouched.
 
 ## Execution state
-Current: C2-T1 next · writer: — · baseline: workflow 111, checkup 8 passed
+Current: C2-T1 done; ready for review · writer: GPT-6.1 Sol · high
+C2-T1 @ f268f88
+Red test @ 056a042; only the new test is in that commit.
+Baseline: workflow 111 OK · checkup 8 OK; no pre-existing failures.
+Final suite: workflow 112 OK · checkup 8 OK; receipts/c2-t1-verification.md @ f268f88.
+Contract: an execute decision keeps pending first-ticket code in its original checkout.
+Uncommitted: none after execution-state commit. Pending decision: none.
 
 ## Tickets
 
@@ -19,11 +25,15 @@ Budget: code +3 · tests +14
 Seam: `run-worktree.py open <slug>` stdout and `git worktree list`, through `test_run_worktree.py` OpenTests
 Change: `started()` (`run-worktree.py:98-101`) also returns true when `run_dir / "decisions.md"` exists and holds a row whose Phase is `execute`; parse it with `checks.decisions(checks.Doc(...))`, as `next-step.py:174` does. Every unattended stop writes its row before it ends (`unattended.md:13-14`), so an execute row means execution began in this checkout. Sites, from `grep -n 'porcelain\|started(' .github/skills/*/scripts/*.py`: `run-worktree.py:108`, the own run (the bug); `:116`, another live run, already busy from its dirty code at `:110` and covered by the same change; `:137`, land, after every ticket is done (outside the class); `check-run.py:779`, the brief's own changes (outside the class). Then `worktrees.md:44` reads exactly: `It reuses an existing run checkout. A run with a started ticket or an execute decision stays in its original checkout.`
 Accept:
-- [ ] run B, every plan.md ticket `todo`, `src.py` uncommitted, `decisions.md` holding `| D1 | execute | Approve T1? | commit | answered | commit |` → `open` prints `.`, `git worktree list` is unchanged and `src.py` keeps its text (B2)
-- [ ] the same run with that row's Phase `plan` → `open` prints `.worktrees/B` (B2)
-- [ ] the red commit holds only the new test, run and seen failing on the first case; the fix commit changes no test file (B2)
-- [ ] `grep -c 'started ticket or an execute decision' .github/skills/workflow/references/worktrees.md` returns 1 (B2)
-- [ ] existing `test_run_worktree.py` cases pass with no assertion edited (B2)
+- [x] run B, every plan.md ticket `todo`, `src.py` uncommitted, `decisions.md` holding `| D1 | execute | Approve T1? | commit | answered | commit |` → `open` prints `.`, `git worktree list` is unchanged and `src.py` keeps its text (B2)
+- [x] the same run with that row's Phase `plan` → `open` prints `.worktrees/B` (B2)
+- [x] the red commit holds only the new test, run and seen failing on the first case; the fix commit changes no test file (B2)
+- [x] `grep -c 'started ticket or an execute decision' .github/skills/workflow/references/worktrees.md` returns 1 (B2)
+- [x] existing `test_run_worktree.py` cases pass with no assertion edited (B2)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests` (pre: 111 OK · 8 OK; the new test fails its first case before the fix; the grep returns 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ f268f88
+Writer: GPT-6.1 Sol
+
+## Deviations
+- The new test uses 19 lines against tests +14 to show both cases and the preservation checks clearly. Combined code and test growth is +22 against budget +17. The existing skill-impact row also records this fix. No existing assertion changed.

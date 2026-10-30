@@ -9,13 +9,14 @@ Size: code 1073 · tests 911 · ratio 0.85 · largest touched check-run.py 840, 
 Decisions: 1a (decisions.md has no header) · 2a (a waiting decision replaces a ticket or finding blocker) · 3a (tickets approved as listed)
 
 ## Execution state
-Current: patch cycle 1 done; ready for review · writer: GPT-6.1 Sol · high
+Current: patch cycle 2 done; ready for review · writer: GPT-6.1 Sol · high
 T1 @ 39fe912
 T2 @ b5b8642
 Session 1: T1, T2
 Session 2: C1-T1, C1-T2
+Session 3: C2-T1
 Baseline: 109 workflow tests OK · 8 checkup tests OK; no pre-existing failures.
-Final suite: 111 workflow tests OK · 8 checkup tests OK; receipts/c1-t2-verification.md @ 2e8ad60.
+Final suite: 112 workflow tests OK · 8 checkup tests OK; receipts/c2-t1-verification.md @ f268f88.
 Contract: decisions.md is headerless; columns ID, Phase, Question, Default, Status, Answer.
 Uncommitted: none after execution-state commit. Pending decision: none.
 
