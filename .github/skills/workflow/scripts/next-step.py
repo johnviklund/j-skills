@@ -104,9 +104,10 @@ def ticket_step(repo, slug, doc, patch=False):
 
 def next_step(repo, slug, routes, prefix=""):
     run = repo / ".workflow" / slug
+    brief = checks.Doc(str(run / "brainstorm.md"))
     override_path = run / "routing.md"
     warning = None
-    if override_path.exists():
+    if override_path.exists() and brief.status() != "done":
         routes = {key: dict(row) for key, row in routes.items()}
         for key, current in checks.overrides(checks.Doc(str(override_path)), routes).items():
             routes[key].update(model=current, trial=False, override=True)
@@ -114,7 +115,6 @@ def next_step(repo, slug, routes, prefix=""):
         overlap = sorted({routes[key]["model"]["vendor"] for key in ("plan", "review") if key in routes} & writers)
         if overlap:
             warning = "same vendor writes and reviews: " + ", ".join(overlap)
-    brief = checks.Doc(str(run / "brainstorm.md"))
     step = {"schema_version": 1, "slug": slug, "phase": "plan", "key": "plan", "ticket": None,
             "why": "The brief is complete; the run needs a plan.", "reads": [f".workflow/{slug}/brainstorm.md"],
             "reset": True, "blocker": None}

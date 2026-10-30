@@ -812,7 +812,7 @@ def check_run(run_dir, rep):
             decisions(run["docs"]["decisions.md"])
         except ValueError as error:
             rep.error(run["docs"]["decisions.md"].path, 0, str(error))
-    if "routing.md" in run["docs"]:
+    if "routing.md" in run["docs"] and not rep.done:
         try:
             keys = table(Doc(str(Path(__file__).resolve().parents[1] / "ROUTING.md")), "Phase", PHASE_COLUMNS)
             overrides(run["docs"]["routing.md"], keys)
