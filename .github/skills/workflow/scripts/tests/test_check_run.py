@@ -101,6 +101,18 @@ def write(repo, files):
 
 
 class SeatTests(unittest.TestCase):
+    def test_override_validation(self):
+        for row, key in (("execute:logic | OpenAI · GPT-6 Sol | xhigh", None),
+                         ("execute:nope | OpenAI · Sol | high", "execute:nope"),
+                         ("review | OpenAI | high", "review"), ("review | OpenAI · Sol | max", "review")):
+            with self.subTest(row=row):
+                r = check({"brainstorm.md": BRIEF, "routing.md":
+                           "| Key | Vendor · Model | Effort |\n|---|---|---|\n| " + row + " |\n"}, result=True)
+                self.assertEqual(r.returncode, 1 if key else 0, r.stdout)
+                self.assertIn("ERROR" if key else "0 errors · 0 warnings", r.stdout)
+                if key:
+                    self.assertIn(key, r.stdout)
+
     def test_unattended_mode_and_decisions_validation(self):
         table = "| ID | Phase | Question | Default | Status | Answer |\n|---|---|---|---|---|---|\n"
         for mode, row, error in [

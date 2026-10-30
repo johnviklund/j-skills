@@ -61,6 +61,59 @@ class NextStepTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
+    def override(self, rows):
+        (self.run / "routing.md").write_text("| Key | Vendor · Model | Effort |\n|---|---|---|\n" + rows)
+
+    def test_override_model_keeps_route_policy(self):
+        self.plan("### T1 — First\nLane: logic\nStatus: todo\n")
+        for trial in (False, True):
+            with self.subTest(trial=trial):
+                self.routing.write_text(ROUTING.replace("| — |", "| OpenAI · Trial |") if trial else ROUTING)
+                (self.run / "routing.md").unlink(missing_ok=True)
+                baseline = self.result()
+                self.override("| execute:logic | OpenAI · GPT-6 Sol | xhigh |\n")
+                result = self.result()
+                self.assertEqual(result["model"], {"vendor": "OpenAI", "name": "GPT-6 Sol", "effort": "xhigh"})
+                for key in ("fallback", "context", "approval"):
+                    self.assertEqual(result[key], baseline[key])
+                self.assertTrue(result["override"])
+                self.assertFalse(result["trial"])
+                self.assertIn("- **Model:** GPT-6 Sol · xhigh · standard (override)", result["card"])
+                if not trial:
+                    self.assertNotIn("Warning", result["card"])
+        (self.run / "decisions.md").write_text(
+            "| ID | Phase | Question | Default | Status | Answer |\n| D1 | execute | Wait? | yes | waiting | |\n")
+        self.assertNotIn("override", self.result())
+
+    def test_override_unrelated_row_preserves_plan_output(self):
+        baseline = self.result()
+        expected = ("---\n**▶ Next: plan** · x\n\n- **Why:** The brief is complete; the run needs a plan.\n"
+                    "- **Reset:** yes\n- **Model:** Opus 5.5 · high · large\n- **Fallback:** Sonnet 5.5 · xhigh\n"
+                    "- **Reads:** .workflow/x/brainstorm.md\n\n**Run:**\n\n```text\nworkflow plan x\n```\n---\n")
+        self.assertEqual(self.cli().stdout, expected)
+        self.override("| review | Anthropic · Other | high |\n")
+        self.assertEqual(self.result(), baseline)
+        self.assertEqual(self.cli().stdout, expected)
+
+    def test_override_same_vendor_warning(self):
+        for key, cell in (("review", "OpenAI · GPT-6 Sol"), ("plan", "OpenAI · Other"),
+                          ("fix:logic", "Anthropic · Other"), ("execute:logic", "Anthropic · Other")):
+            with self.subTest(key=key):
+                self.override(f"| {key} | {cell} | xhigh |\n")
+                result = self.result()
+                self.assertIn("- **Warning:** same vendor writes and reviews: " + cell.split(" · ")[0], result["card"])
+
+    def test_override_bad_rows_name_key_without_json(self):
+        for row, key in (("execute:nope | OpenAI · Sol | high", "execute:nope"),
+                         ("review | OpenAI | high", "review"), ("review | OpenAI · Sol | max", "review"),
+                         ("review | OpenAI · Sol | ", "review"), ("review | OpenAI · Sol · high | high", "review")):
+            with self.subTest(row=row):
+                self.override(f"| {row} |\n")
+                result = self.cli("--json")
+                self.assertEqual((result.returncode, result.stdout), (1, ""))
+                self.assertIn(key, result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
     def test_key_prints_model_lines_without_a_run(self):
         for key, expected_code in (("review", 0), ("nope", 1)):
             with self.subTest(key=key):

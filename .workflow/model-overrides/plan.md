@@ -9,7 +9,9 @@ Size: code 1097 · tests 955 · ratio 0.87 · largest touched check-run.py 882, 
 Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · Model
 
 ## Execution state
-<filled by execute>
+Current: T1 verification · writer: GPT-6.1 Sol
+Baseline: workflow 112 tests OK; checkup 8 tests OK; no pre-existing failures.
+Uncommitted: T1 scripts, tests and skill-impact row. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -17,7 +19,7 @@ Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · M
 | F1 | Lightest shape: one headerless table, read by next-step and checked by check-run; no brief decision adds standing cost (no deploy, pin or per-edit approval) | none |
 | F2 | `checks.table` (check-run.py:149) with `heading=None` reads a whole-file table, names `path:line: key` on a bad row, rejects duplicates and empty cells except the last | reused for routing.md; an empty Effort passes `table()` and must fail in the override parser |
 | F3 | `checks.decisions` (check-run.py:174), wired at check-run.py:785 and read by next-step.py:172, is a headerless run table both scripts use | `overrides(doc, keys)` sits beside it in check-run.py; next-step calls `checks.overrides` the same way |
-| F4 | `model()` and `EFFORTS` (next-step.py:14-21) already validate `Vendor · Model · effort` | both move to check-run.py; the cell is checked as `model(f"{cell} · {effort}")`, so a 3-part cell or bad effort fails there; no second parser |
+| F4 | `model()` and `EFFORTS` (next-step.py:14-21) already validate `Vendor · Model · effort` | both move to check-run.py; the combined cell uses that parser, plus a required parsed effort to reject a missing model name; no second parser |
 | F5 | check-run.py has no ROUTING.md path or key list; next-step reads `parents[1]/ROUTING.md` (next-step.py:191) with the phase columns at next-step.py:27 | the phase-column list moves to check-run.py as a constant; check-run reads keys from the skill's own ROUTING.md with `table()` |
 | F6 | Headers: check_run exempts learnings.md and decisions.md (check-run.py:782); SKILL.md:142 and MAINTAINING.md:51 state the same rule | routing.md is headerless like decisions.md (the human writes it by hand); all three places name it |
 | F7 | Writer seats also fill `fix:*` keys (fix:P0 … fix:operator, ROUTING.md phase table) | B5 compares the plan and review vendors with every `execute:*` and `fix:*` vendor (D3's writer-vs-reviewer intent); the brief names only `execute:*` |
@@ -73,3 +75,6 @@ none (the brief names no TODO item)
 ## Product doc impacts
 - PRODUCT.md, DESIGN.md: none exist.
 - ROADMAP.md: no changes; step 3's conductor reads the JSON, where an override changes only that run's `model` values.
+
+## Deviations
+- T1: F4 needed a required parsed-effort guard. A one-part model cell plus effort otherwise passes the shared optional-effort parser. Acceptance lines unchanged.

@@ -39,12 +39,13 @@ Exit 0 with no errors (warnings allowed), 1 with any error, 2 on bad input.
 import argparse
 import itertools
 import os
+from pathlib import Path
 import re
 import statistics
 import subprocess
 import sys
 
-ARTIFACTS = ["brainstorm.md", "plan.md", "patch_plan.md", "review.md", "learnings.md", "wrap.md", "decisions.md"]
+ARTIFACTS = ["brainstorm.md", "plan.md", "patch_plan.md", "review.md", "learnings.md", "wrap.md", "decisions.md", "routing.md"]
 SUBFOLDERS = ["receipts", "screens", "notes", "scripts", "data", "prototypes", "understand"]
 HEADER = ["Command", "Created", "Base", "Inputs", "Status"]
 STATUSES = {"drafting", "complete", "parked", "done"}
@@ -169,6 +170,30 @@ def table(doc, heading, columns):
     if not header:
         raise ValueError(f"{doc.path}: missing {heading} table")
     return rows
+
+
+EFFORTS = {"medium", "high", "xhigh"}
+
+
+def model(text, effort, key):
+    parts = [part.strip() for part in text.split("·")]
+    if len(parts) not in (2, 3) or not all(parts) or (len(parts) == 3 and parts[2] not in EFFORTS):
+        raise ValueError(f"{key}: expected Vendor · Model with optional · medium/high/xhigh: {text}")
+    return {"vendor": parts[0], "name": parts[1], "effort": parts[2] if len(parts) == 3 else effort}
+
+PHASE_COLUMNS = ["Key", "Phase / work", "Seat", "Effort", "Context", "Approval", "Notes"]
+
+
+def overrides(doc, keys):
+    rows = table(doc, None, ["Key", "Vendor · Model", "Effort"])
+    result = {}
+    for key, row in rows.items():
+        if key not in keys:
+            raise ValueError(f"{doc.path}: {key}: unknown routing key")
+        result[key] = model(f"{row['Vendor · Model']} · {row['Effort']}", None, f"{doc.path}: {key}")
+        if result[key]["effort"] is None:
+            raise ValueError(f"{doc.path}: {key}: expected Vendor · Model and an effort")
+    return result
 
 
 def decisions(doc):
@@ -778,7 +803,7 @@ def check_run(run_dir, rep):
                     and git_out(rep.repo, "ls-files", "--", brief.path)
                     and not git_out(rep.repo, "status", "--porcelain", "--", brief.path))
     for name, doc in run["docs"].items():
-        if name not in ("learnings.md", "decisions.md"):
+        if name not in ("learnings.md", "decisions.md", "routing.md"):
             check_header(doc, rep)
         if not rep.done and name in BUDGET:
             check_budget(doc, rep, BUDGET[name])
@@ -787,6 +812,12 @@ def check_run(run_dir, rep):
             decisions(run["docs"]["decisions.md"])
         except ValueError as error:
             rep.error(run["docs"]["decisions.md"].path, 0, str(error))
+    if "routing.md" in run["docs"]:
+        try:
+            keys = table(Doc(str(Path(__file__).resolve().parents[1] / "ROUTING.md")), "Phase", PHASE_COLUMNS)
+            overrides(run["docs"]["routing.md"], keys)
+        except ValueError as error:
+            rep.error(run["docs"]["routing.md"].path, 0, str(error))
     run_status = run["docs"]["brainstorm.md"].status() if "brainstorm.md" in run["docs"] else ""
     if rep.done:
         rep.note(run_dir, "done run: only header, sha and layout checks apply")

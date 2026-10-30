@@ -11,30 +11,21 @@ spec = importlib.util.spec_from_file_location("check_run", Path(__file__).with_n
 checks = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(checks)
 
-EFFORTS = {"medium", "high", "xhigh"}
-
-
-def model(text, effort, key):
-    parts = [part.strip() for part in text.split("·")]
-    if len(parts) not in (2, 3) or not all(parts) or (len(parts) == 3 and parts[2] not in EFFORTS):
-        raise ValueError(f"{key}: expected Vendor · Model with optional · medium/high/xhigh: {text}")
-    return {"vendor": parts[0], "name": parts[1], "effort": parts[2] if len(parts) == 3 else effort}
-
 
 def routing(path):
     doc = checks.Doc(str(path))
     seats = checks.table(doc, "Seat mapping", ["Seat", "Vendor", "Model", "Trial", "Fallback chain", "Notes"])
-    phases = checks.table(doc, "Phase", ["Key", "Phase / work", "Seat", "Effort", "Context", "Approval", "Notes"])
+    phases = checks.table(doc, "Phase", checks.PHASE_COLUMNS)
     # Parse every seat, including unused rows, so a broken configuration never produces a card.
     parsed = {}
     for key, row in seats.items():
-        primary = model(f"{row['Vendor']} · {row['Model']}", None, key)
-        trial = None if row["Trial"] == "—" else model(row["Trial"], None, key)
-        fallbacks = [model(item, None, key) for item in row["Fallback chain"].split(";")]
+        primary = checks.model(f"{row['Vendor']} · {row['Model']}", None, key)
+        trial = None if row["Trial"] == "—" else checks.model(row["Trial"], None, key)
+        fallbacks = [checks.model(item, None, key) for item in row["Fallback chain"].split(";")]
         parsed[key] = primary, trial, fallbacks
     routes = {}
     for key, row in phases.items():
-        if row["Effort"] not in EFFORTS or row["Context"] not in ("standard", "large") or row["Approval"] not in ("auto", "human"):
+        if row["Effort"] not in checks.EFFORTS or row["Context"] not in ("standard", "large") or row["Approval"] not in ("auto", "human"):
             raise ValueError(f"{path}: {key}: invalid Effort, Context or Approval")
         if row["Seat"] not in parsed:
             raise ValueError(f"{path}: {key}: unknown seat {row['Seat']}")
@@ -54,6 +45,8 @@ def model_lines(step):
     fallback_line = f"{fallback['name']} · {fallback['effort']}" if fallback else "none"
     if step["trial"]:
         model_line += " (trial)"
+    if step.get("override"):
+        model_line += " (override)"
     return f"- **Model:** {model_line}\n- **Fallback:** {fallback_line}\n"
 
 
@@ -63,6 +56,7 @@ def card(step, prefix):
     return (f"---\n**▶ Next: {step['phase']}** · {step['slug']}\n\n"
             f"- **Why:** {step['why']}\n- **Reset:** {'yes' if step['reset'] else 'no'}\n"
             f"{model_lines(step)}"
+            + (f"- **Warning:** {step['warning']}\n" if step.get("warning") else "") +
             f"- **Reads:** {', '.join(step['reads'])}\n\n**Run:**\n\n"
             f"```text\n{prefix}{step['command']}\n```\n---\n")
 
@@ -110,6 +104,16 @@ def ticket_step(repo, slug, doc, patch=False):
 
 def next_step(repo, slug, routes, prefix=""):
     run = repo / ".workflow" / slug
+    override_path = run / "routing.md"
+    warning = None
+    if override_path.exists():
+        routes = {key: dict(row) for key, row in routes.items()}
+        for key, current in checks.overrides(checks.Doc(str(override_path)), routes).items():
+            routes[key].update(model=current, trial=False, override=True)
+        writers = {row["model"]["vendor"] for key, row in routes.items() if key.startswith(("execute:", "fix:"))}
+        overlap = sorted({routes[key]["model"]["vendor"] for key in ("plan", "review") if key in routes} & writers)
+        if overlap:
+            warning = "same vendor writes and reviews: " + ", ".join(overlap)
     brief = checks.Doc(str(run / "brainstorm.md"))
     step = {"schema_version": 1, "slug": slug, "phase": "plan", "key": "plan", "ticket": None,
             "why": "The brief is complete; the run needs a plan.", "reads": [f".workflow/{slug}/brainstorm.md"],
@@ -178,6 +182,9 @@ def next_step(repo, slug, routes, prefix=""):
                 break
     if step["blocker"]:
         step.update(model=None, fallback=[], trial=False)
+        step.pop("override", None)
+    if warning:
+        step["warning"] = warning
     step["card"] = card(step, prefix)
     return step
 
