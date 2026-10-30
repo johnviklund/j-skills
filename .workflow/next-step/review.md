@@ -2,7 +2,7 @@ Command: workflow review next-step
 Created: 2026-10-30 · Opus 5.5
 Base:    91a5e68
 Inputs:  .workflow/next-step/plan.md @ 19533a5 · .workflow/next-step/patch_plan.md @ 10f7539
-Status:  complete
+Status:  done
 
 Scope, cycle 4: the fix diff 10f7539..91a5e68, which is C3-T1 3b72722, plus C3-1's class.
 Cycle 3 approved by human: 2026-10-29 — option 1a, one more cycle fixing C2-1 and C2-2.

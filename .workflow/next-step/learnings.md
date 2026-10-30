@@ -2,7 +2,7 @@ Command: workflow review next-step
 Created: 2026-10-29
 Base:    1aa0b47
 Inputs:  review.md @ 1aa0b47
-Status:  complete
+Status:  done
 
 ## Phase 4 — review (2026-10-29)
 - [durable→memory] Second occurrence of "A new guard needs one test per key it matches on": a new reader of run text was narrower than the corpus and than the check that already parses the same field. next-step's receipt pattern refuses the backticked form a real plan uses (C1-2), and its own copy of check-run's open-fix test reads only the latest review cycle (C1-1). Reuse the existing check's predicate rather than copying it, and test one case per real form found in `.workflow/`. The writer's sweeps reported 54 of 54 caught; tests.md:70 already asks for one mutation per added condition, and the whole-file sweep still found 8 survivors (C1-3). [routed → workflow tests.md 'Fixtures copy the real form' 2026-10-30]

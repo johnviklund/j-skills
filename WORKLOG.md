@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-30 · next-step · a script decides each run's next step, and the cards print its output · GPT-6.1 Sol
+- `next-step.py` reads a run's files and ROUTING.md (now keyed tables) and prints the closing card or schema-1 JSON; `workflow next` and `status` print it, patch tickets carry `Fixes:`, and checkup copies its model lines from `--key`.
+- Four review cycles found 8 defects (open findings read from the latest cycle only, backticked receipt paths, shifted finding ids, 4 untested guards); all fixed. Four missed P1s went to the private exam set.
+- Commits: 904f083 70fefa2 17c8020 53d959c a354025 e6a8e5d f2bba2b 0762b64 eac69f8 5c5e306 3b72722 0485880
+- Review: ship as-is (cycle 4, 0 open) @ 91a5e68
+- Run: 13 tickets · 7 sessions · 4 review cycles · 0 deviations · 0 findings overturned · net code +272 · tests +408
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@adfa1601a336, checkup@20651cbda779
+- Why: a script, not model judgement, must pick the next step so an outside conductor can drive runs.
+
 ## 2026-10-28 · lean-skill-hubs · six large skill hubs now load only the branch a run needs · GPT-6.1 Sol
 - `memory.remember`, `memory.compact`, `workflow`, `checkup`, `understand` and `verify` keep in `SKILL.md` only what every run needs; branch text sits in linked `references/` files (checkup one file per scope word, verify one per command). Hub sizes: workflow 13,238 to 11,499 bytes, checkup 23,975 to 6,058, verify 14,934 to 2,914.
 - A sentence ledger (`.workflow/lean-skill-hubs/scripts/`) accounts for every removed sentence as moved, duplicate or unaccounted; all six end at 0 unaccounted. Installed copies match the repo. Cycle 1 found an untested ledger window (P1) and five stale pointers (P3); both fixed.
@@ -145,12 +155,4 @@ oldest when appending would exceed that.
 - No closing card on turns that wait for an in-chat answer; the writer's model is read from the
   harness or config and recorded as the model name only.
 - Commits: b057e73 a3dbc08 df073d6 6c8098a 676e751 c82ccf3
-
-## 2026-09-30 · workflow v2.1 released · Opus 5.5
-- Spec phase retired; brainstorm is a grill ending in a brief with behaviours and test seams; plan
-  writes ≤8 tracer-bullet tickets with literal acceptance lines; operator tickets for live steps;
-  review checks the outcome on the surface users reach. Amended after a history review of real runs.
-- Commits: f2507d0
-- Why: v2.02 runs showed severity bars that couldn't escalate outcome failures and no lane for live
-  steps (an archived v2.1 review, since removed).
 

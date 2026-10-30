@@ -2,7 +2,7 @@ Command: workflow brainstorm next-step
 Created: 2026-10-29 · Sonnet 5.5
 Base:    62e8c26
 Inputs:  none
-Status:  complete
+Status:  done
 
 ## Problem
 The "what is next" answer is read by the model from the SKILL.md state table and copied from ROUTING.md rows, so two models can print two cards, and an orchestrator cannot read the card at all. TODO.md P1 checkup-next-actions C1-1 asks for a script to print the card's Model and Fallback lines.
