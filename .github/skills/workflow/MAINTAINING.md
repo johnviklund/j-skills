@@ -48,7 +48,7 @@ the only shared state. Nothing depends on that yet, but nothing blocks it.
 
 ## Run folder rules
 
-Run artifacts other than `learnings.md` and `decisions.md` open with a five-line header.
+Run artifacts other than the headerless `learnings.md`, `decisions.md` and `routing.md` open with a five-line header.
 The state machine reads it rather than guessing from which files exist:
 
 ```

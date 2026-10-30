@@ -34,6 +34,7 @@ One run = one folder, tracked in git, kept forever; its files are the state mach
 | `patch_plan.md` | review | fix tickets for the current patch cycle |
 | `review.md` | review | coverage, the current cycle's findings and verdict, a `## Resolved` table of earlier cycles |
 | `decisions.md` | any phase after brainstorm | headerless table of questions, defaults, statuses and answers |
+| `routing.md` | human, directly or by request | headerless `Key \| Vendor · Model \| Effort` table; replaces a phase's model and effort for this run; fallback, context and approval stay shared |
 | `learnings.md`, `wrap.md` | any / wrap | tagged lessons; wrap's checkpoint, then the run's ≤ ~40-line summary |
 
 **Layout.** The top level holds only the artifacts above; everything else goes in a subfolder by
@@ -108,8 +109,7 @@ approval) · **strict reviewer** (the skeptic — plan, review, patch plans, `re
 
 Invariants:
 
-- One step runs in one session only.
-- Name any model switch.
+- One step runs in one session only. Name any model switch.
 - **Name the running model from a record, not memory** (`references/phase-3-execute.md`).
 - **Sub-agents are read-only breadth**, their findings verified; writing runs in the main session.
 
@@ -139,7 +139,7 @@ A finished wrap keeps its ✅ summary card (`references/wrap.md`).
 - **Verify against the code — and the data.** Every interface, signature and column a phase relies on
   is checked in the real code; the brief's claims are hypotheses until then. An Outcome that depends
   on real data gets a read-only query before its behaviours are confirmed.
-- **Provenance header** — artifacts other than `learnings.md` and `decisions.md` open with five lines: `Command:`, `Created:` (a brief or plan adds `· <model>`), `Base:`
+- **Provenance header** — `learnings.md`, `decisions.md` and `routing.md` are headerless; other artifacts open with five lines: `Command:`, `Created:` (a brief or plan adds `· <model>`), `Base:`
   (git sha), `Inputs:` (`<artifact> @ <its Base>` or `none`), `Status:`. At phase entry the input is
   `Status: complete` and **fresh**: `git diff --stat <Base>..HEAD -- <files it names>` shows only this
   run's own ticket commits. Stale → name it and route to the phase that must rerun.

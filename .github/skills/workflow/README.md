@@ -207,6 +207,7 @@ These live in the same repo and plug into the workflow:
 
 Nothing is benchmarked up front. Changes are tried on real runs.
 
+- **One run's model.** Write `.workflow/<slug>/routing.md` yourself, or ask a phase to write it: `Key | Vendor · Model | Effort`, with phase keys from `ROUTING.md` and effort `medium`, `high` or `xhigh`. Only that run's model and effort change; fallback, context and approval stay shared.
 - **A new model.** Put it in the seat's Trial column in `ROUTING.md`. The card shows it, and
   wrap records it in the worklog. After two runs, `checkup seats` compares it with the current
   model, and you keep it or drop it.
