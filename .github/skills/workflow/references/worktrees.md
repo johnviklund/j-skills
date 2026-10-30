@@ -41,7 +41,7 @@ rule. A command that doesn't fit the run's state gets named and asked about.
 
 Before the first ticket, run `python3 <skill>/scripts/run-worktree.py open <slug> --repo <repo>`.
 Use its returned directory and repeat execute's readiness, freshness and baseline checks there.
-It reuses an existing run checkout. A run with a started ticket stays in its original checkout.
+It reuses an existing run checkout. A run with a started ticket or an execute decision stays in its original checkout.
 Otherwise it creates `.worktrees/<slug>` on `run/<slug>` from the primary branch
 when the primary checkout has uncommitted files or another live run
 there has a started ticket. A run already isolated in its own worktree does not occupy the

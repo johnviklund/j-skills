@@ -96,6 +96,9 @@ def where(repo, slug):
 
 
 def started(run_dir):
+    decisions = run_dir / "decisions.md"
+    if decisions.exists() and any(row["Phase"] == "execute" for row in checks.decisions(checks.Doc(str(decisions))).values()):
+        return True
     return any(checks.field(t, "Status")[1] not in (None, "todo")
                for name in ("plan.md", "patch_plan.md") if (plan := run_dir / name).exists()
                for t in checks.parse_tickets(checks.Doc(str(plan))))
