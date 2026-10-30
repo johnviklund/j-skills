@@ -2,7 +2,7 @@ Command: workflow review model-overrides
 Created: 2026-10-30 · Opus 5.5
 Base:    a7138d8
 Inputs:  .workflow/model-overrides/plan.md @ 43bd7b2 · .workflow/model-overrides/patch_plan.md @ ad0afd9
-Status:  complete
+Status:  done
 
 Scope, cycle 2: the fix diff 966b7f8..a7138d8, which is C1-T1 red 4b37b24 and fix 5d2d876 and C1-T2 a4135aa, plus the C1-1 and C1-2 classes.
 

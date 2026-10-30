@@ -2,23 +2,11 @@ Command: workflow plan model-overrides
 Created: 2026-10-30 · Opus 5.5
 Base:    43bd7b2
 Inputs:  .workflow/model-overrides/brainstorm.md @ f27a9e3
-Status:  complete
+Status:  done
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md; workflow `SKILL.md` run table and provenance rule, `MAINTAINING.md` §File layout · §Run folder rules · size table, `README.md` §Trying a new model)
 Size: code 1097 · tests 955 · ratio 0.87 · largest touched check-run.py 882, test_check_run.py 547, test_next_step.py 408, next-step.py 215 · over 1,000: none
 Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · Model
-
-## Execution state
-Current: all patch cycle 1 tickets done; ready for review.
-T1 @ d9a0f8f
-T2 @ 4db8014
-writer: GPT-6.1 Sol
-Session 1: T1
-Session 2: T2
-Session 3: C1-T1, C1-T2
-Baseline: workflow 112 tests OK; checkup 8 tests OK; no pre-existing failures.
-Final: workflow 119 tests OK; checkup 8 tests OK; patch receipt: receipts/c1-verification.md.
-Uncommitted: none after state commit. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |

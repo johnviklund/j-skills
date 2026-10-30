@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-30 · model-overrides · a run's routing.md overrides the model and effort for its own cards · GPT-6.1 Sol
+- A headerless `routing.md` in a run folder sets that run's model and effort per key; `next-step.py` shows `(override)` and warns when writer and reviewer share a vendor, `check-run.py` validates the rows, and done runs skip the check.
+- Review cycle 1 found 2 small P2s (done runs broke on a retired key; review and execute still read only `ROUTING.md`), both fixed; 3 P3s stay deferred in `review.md`.
+- Commits: d9a0f8f 4db8014 4b37b24 5d2d876 a4135aa 4d53dcb
+- Review: ship as-is (cycle 2, 0 open) @ 7689d09
+- Run: 2 tickets · 3 sessions · 2 review cycles · 1 deviations · 0 findings overturned · net code +38 · tests +78
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@62d05781d2ed, checkup@20651cbda779
+- Why: the human can try a model on one run without editing the shared mapping.
+
 ## 2026-10-30 · unattended-mode · a run can say it is unattended and its waiting questions reach the conductor as a blocker · GPT-6.1 Sol
 - `Mode: unattended` in a brief, `references/unattended.md` (defaults, always-stop list), checked `decisions.md` tables, a `next-step` blocker for `waiting` rows, and an execute decision keeps a run in its original checkout; workflow is 3.0.0.
 - Three review cycles found 3 defects fixed (UI code lost at an approval stop, resume in the wrong checkout) and left 2 deferred to `TODO.md` (a one-row fixture, an unhandled `ValueError`).

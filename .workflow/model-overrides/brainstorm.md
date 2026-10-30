@@ -2,7 +2,7 @@ Command: workflow brainstorm model-overrides
 Created: 2026-10-30 · Claude Sonnet 5.5
 Base:    f27a9e3
 Inputs:  none
-Status:  complete
+Status:  done
 Mode: attended
 
 ## Problem
