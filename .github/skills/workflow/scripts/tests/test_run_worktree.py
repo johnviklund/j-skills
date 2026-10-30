@@ -141,6 +141,25 @@ class OpenTests(RepoTests):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.strip(), ".worktrees/B")
 
+    def test_Open_resumes_first_ticket_with_an_execute_decision(self):
+        for phase in ("execute", "plan"):
+            with self.subTest(phase=phase):
+                self.setUp()
+                self.write(".workflow/B/plan.md", "### T1 — ticket\nStatus: todo\n")
+                self.write(".workflow/B/decisions.md",
+                           "| ID | Phase | Question | Default | Status | Answer |\n"
+                           "|---|---|---|---|---|---|\n"
+                           f"| D1 | {phase} | Approve T1? | commit | answered | commit |\n")
+                self.commit("first ticket decision")
+                self.write("src.py", "pending UI code\n")
+                before = self.git("worktree", "list").stdout
+                result = self.run_command("open")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), "." if phase == "execute" else ".worktrees/B")
+                if phase == "execute":
+                    self.assertEqual(self.git("worktree", "list").stdout, before)
+                self.assertEqual((self.repo / "src.py").read_text(), "pending UI code\n")
+
     def test_Open_stops_when_setup_fails(self):
         self.write("AGENTS.md", "## Worktree setup\n```sh\nfalse\ntouch ready\n```\n")
         self.commit("failing setup")
