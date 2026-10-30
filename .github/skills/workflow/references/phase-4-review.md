@@ -4,7 +4,7 @@
 
 Seat: **strict reviewer** (`ROUTING.md`), a different vendor from the code's writer. Read the
 `writer:` field and per-ticket `Writer:` lines in `plan.md` and look up each model's vendor in
-`ROUTING.md`; if one matches yours, this is a
+the run's `routing.md`, else `ROUTING.md`; if one matches yours, this is a
 degraded same-vendor review and `review.md` says so. A run with a user-visible change or a live
 promotion gets its verdict from a cross-vendor reviewer whenever `ROUTING.md` lists one that is
 available: stop with the card naming that model instead of signing off degraded. A same-vendor

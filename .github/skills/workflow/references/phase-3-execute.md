@@ -135,7 +135,7 @@ A contract ticket mid-flight gets finished and committed before a reset.
 **Name the running model from a record, not memory** — a model's recall of its own name lags its
 version (GPT-6.1 Sol calls itself GPT-6). Read the exact ID the harness context states; else the
 CLI config (Codex: `model` in `~/.codex/config.toml`; an in-session `/model` switch overrides it);
-else ask. Write only the model, as `ROUTING.md`'s seat mapping names it (`GPT-6.1 Sol`,
+else ask. Write only the model, as the run's `routing.md`, else `ROUTING.md`'s seat mapping, names it (`GPT-6.1 Sol`,
 `Opus 5.5`) — never the CLI, product or vendor. `Writer:` lines, worklog headings and the vendor
 check in review all read it.
 
