@@ -15,13 +15,13 @@ A run with `Mode: unattended` in its `brainstorm.md` header never waits in chat 
 
 ## Behaviours
 - B1 — `Mode: unattended` or `Mode: attended` in the header → `check-run.py` accepts it; any other value is an ERROR.
-- B2 — `references/unattended.md` holds the rules and the always-stop list once; `SKILL.md` points to it from the phase index.
+- B2 — a reader opens `SKILL.md` → it points to `references/unattended.md`, which holds the rules and the always-stop list once.
 - B3 — A `decisions.md` row with status `assumed` → `next-step.py --json` returns the normal next step with `blocker: null`.
 - B4 — A row with status `waiting` → `next-step.py --json` returns `blocker: {decision: "<id>", action: …}` and the card routes to the human.
 - B5 — That row changed to `answered` → the blocker clears and the normal next step returns.
 - B6 — A malformed `decisions.md` row (unknown status, missing column) → `check-run.py` ERROR.
 - B7 — A run with no `Mode` line → `next-step` output is identical to today's and both existing test suites stay green.
-- B8 — `README.md` says Version 3.0.0 and `ROADMAP.md` step 2 is marked done at wrap.
+- B8 — a reader opens `README.md` after wrap → it says Version 3.0.0 and `ROADMAP.md` step 2 is marked done.
 
 ## Decisions
 - D1 — Brainstorm stays human-run; plan, execute, review and wrap get the unattended rules — the brief is the human's definition of done (product call)
