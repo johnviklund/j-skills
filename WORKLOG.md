@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-10-30 · unattended-mode · a run can say it is unattended and its waiting questions reach the conductor as a blocker · GPT-6.1 Sol
+- `Mode: unattended` in a brief, `references/unattended.md` (defaults, always-stop list), checked `decisions.md` tables, a `next-step` blocker for `waiting` rows, and an execute decision keeps a run in its original checkout; workflow is 3.0.0.
+- Three review cycles found 3 defects fixed (UI code lost at an approval stop, resume in the wrong checkout) and left 2 deferred to `TODO.md` (a one-row fixture, an unhandled `ValueError`).
+- Commits: 39fe912 b5b8642 23f4ec6 2e8ad60 056a042 f268f88
+- Review: ship with 2 deferrals approved by the human (cycle 3) @ 91e6d9d
+- Run: 5 tickets · 3 sessions · 3 review cycles · 1 deviations · 0 findings overturned · net code +27 · tests +63
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@bd2e938, checkup@a354025
+- Why: an outside conductor needs fixed rules and a blocker for runs nobody watches.
+
 ## 2026-10-30 · next-step · a script decides each run's next step, and the cards print its output · GPT-6.1 Sol
 - `next-step.py` reads a run's files and ROUTING.md (now keyed tables) and prints the closing card or schema-1 JSON; `workflow next` and `status` print it, patch tickets carry `Fixes:`, and checkup copies its model lines from `--key`.
 - Four review cycles found 8 defects (open findings read from the latest cycle only, backticked receipt paths, shifted finding ids, 4 untested guards); all fixed. Four missed P1s went to the private exam set.
@@ -147,12 +157,3 @@ oldest when appending would exceed that.
   `## Resolved` table, one-line TODO intake, `TODO_ARCHIVE.md`/`ROADMAP_ARCHIVE.md` convention with
   size flags, `ROUTING.md` split into card rows and `ROUTING-NOTES.md`. Trialing (see `SKILL-IMPACT.md`).
 - Commits: 04fee86 e6cd6a0 090536f
-
-## 2026-09-30 · routing to GPT-6.1 Sol / Opus 5.5 / Sonnet 5.5; card and model-naming fixes · Opus 5.5
-- `ROUTING.md` restricted to the four models in use and `medium`–`xhigh` effort; GPT-6.1 Sol runs every
-  execute lane, Opus 5.5 plan and review, Sonnet 5.5 brainstorm and wrap. Plugin manifest renamed
-  to `j-skills` (Codex shows `j-skills:workflow`).
-- No closing card on turns that wait for an in-chat answer; the writer's model is read from the
-  harness or config and recorded as the model name only.
-- Commits: b057e73 a3dbc08 df073d6 6c8098a 676e751 c82ccf3
-

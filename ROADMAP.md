@@ -15,7 +15,6 @@ or its app. The conductor is optional; without it, j-skills works by hand as bef
 
 | # | Step | Run name | Status |
 | --- | --- | --- | --- |
-| 2 | Rules a phase follows when nobody is watching, plus `decisions.md`; ships as 3.0.0 | `unattended-mode` | Open: after `next-step` |
 | 3 | The conductor skill: reads the JSON and drives the runs | separate repo | Open: after `unattended-mode` |
 
 ## Goal: keep the code base and test suites from growing unchecked

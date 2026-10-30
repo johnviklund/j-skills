@@ -2,7 +2,7 @@ Command: workflow brainstorm unattended-mode
 Created: 2026-10-30 · Sonnet 5.5
 Base:    59d3763
 Inputs:  none
-Status:  complete
+Status:  done
 Mode:    attended
 
 ## Problem

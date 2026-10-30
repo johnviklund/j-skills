@@ -2,7 +2,7 @@ Command: workflow review unattended-mode
 Created: 2026-10-30 · Claude Opus 5.5
 Base:    fe33dbf
 Inputs:  .workflow/unattended-mode/plan.md @ b02cf59 · .workflow/unattended-mode/patch_plan.md @ a4d6991
-Status: complete
+Status: done
 
 Scope, cycle 3: the fix diff a4d6991..fe33dbf, which is C2-T1 red 056a042 and fix f268f88, plus the C1-1 class.
 Cycle 3 approved by human: 2026-10-30 — option 1a, one more cycle fixing C1-1.
