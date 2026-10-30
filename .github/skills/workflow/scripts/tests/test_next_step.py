@@ -64,6 +64,12 @@ class NextStepTests(unittest.TestCase):
     def override(self, rows):
         (self.run / "routing.md").write_text("| Key | Vendor · Model | Effort |\n|---|---|---|\n" + rows)
 
+    def test_done_override_ignores_retired_key(self):
+        brief = self.run / "brainstorm.md"
+        brief.write_text(brief.read_text().replace("Status: complete", "Status: done"))
+        self.override("| execute:mechanical | OpenAI · GPT-6 Sol | high |\n")
+        self.assertEqual(self.result()["phase"], "done")
+
     def test_override_model_keeps_route_policy(self):
         self.plan("### T1 — First\nLane: logic\nStatus: todo\n")
         for trial in (False, True):

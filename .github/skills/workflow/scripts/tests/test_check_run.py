@@ -454,6 +454,13 @@ DONE_WRAP = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").repla
 
 
 class WrapTests(unittest.TestCase):
+    def test_done_override_ignores_retired_key(self):
+        r = check({"brainstorm.md": BRIEF.replace("Status: complete", "Status: done"),
+                   "routing.md": "| Key | Vendor · Model | Effort |\n|---|---|---|\n"
+                                 "| execute:nope | OpenAI · Sol | high |\n"}, args=("--all",), result=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("0 errors", r.stdout)
+
     def test_done_ticket_shas_still_warn(self):
         for name in ("plan.md", "patch_plan.md"):
             for sha in ("deadbee", "{t1}"):
