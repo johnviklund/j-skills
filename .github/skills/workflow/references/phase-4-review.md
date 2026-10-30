@@ -167,7 +167,7 @@ A behavioural bug is one fix ticket with two commits: first a test that reproduc
 seen to fail, committed alone; then the fix, which leaves every test file untouched. The ticket
 records the first as `Red: <sha>`, and re-review diffs the test files from it to the fix. When
 the finding is a class that can recur (a field read in several places, a call site pattern), the
-fix ticket's acceptance names every site — list them with a search at planning time. The card routes to `workflow execute <slug>`, naming the
+fix ticket's acceptance names every site — list them with a search at planning time. A dirty-file question has two kinds of site: prose, and scripts that run `git status --porcelain`. A fix that calls a helper from another script compares that script's `except` clause with the helper's `raise`s. The card routes to `workflow execute <slug>`, naming the
 cycle and finding ids (`Patch cycle 1 · fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
 **Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,

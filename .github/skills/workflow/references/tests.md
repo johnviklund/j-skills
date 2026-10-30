@@ -73,7 +73,7 @@ not a sample.
 **Fixtures copy the real form.** Before a test builds a parsed section (a table, a heading, a path),
 list every form that section takes in the repo's files and git history, and give each one a case:
 the blank line after a table, a prose note, backticks. A receipt run on a real file does not guard
-the suite.
+the suite. A guard that scans rows gets a non-matching row before the matching one, or `any`→`all` survives.
 
 **Verify keywords.** `unittest -k` matches case-sensitively against `module.Class.method`, so put
 the keyword in each test method name and check the `Ran N tests` count, not just OK. A keyword must

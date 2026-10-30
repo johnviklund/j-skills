@@ -20,6 +20,7 @@ A pointer does two jobs: state what the material is, and list the **branches** t
 
 - **Front-load the leading word**: the pointer is where it does its triggering work.
 - **One trigger per branch.** Synonyms that rename a single branch are one branch written twice; collapse them and keep only genuinely distinct branches.
+- **Read each listed case against the rule's own steps.** A rule that lists cases pointing to other references can send one where the generic steps forbid it (a commit-and-push rule whose own UI case must stop first).
 - **Cut identity the body already carries.**
 
 ## The two loads
