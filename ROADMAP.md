@@ -13,9 +13,7 @@ vendors' models, live questions, wake-ups) belongs to a separate conductor skill
 Dependencies point one way: the conductor uses j-skills, and j-skills never names the conductor
 or its app. The conductor is optional; without it, j-skills works by hand as before.
 
-| # | Step | Run name | Status |
-| --- | --- | --- | --- |
-| 3 | The conductor skill: reads the JSON and drives the runs | separate repo | Open: after `unattended-mode` |
+No open steps. Step 3, the conductor skill, shipped in its own repo (see `ROADMAP_ARCHIVE.md`).
 
 ## Goal: keep the code base and test suites from growing unchecked
 
