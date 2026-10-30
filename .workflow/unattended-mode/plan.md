@@ -9,13 +9,14 @@ Size: code 1073 · tests 911 · ratio 0.85 · largest touched check-run.py 840, 
 Decisions: 1a (decisions.md has no header) · 2a (a waiting decision replaces a ticket or finding blocker) · 3a (tickets approved as listed)
 
 ## Execution state
-Current: T2 ready · writer: GPT-6.1 Sol · high
+Current: all tickets done; ready for review · writer: GPT-6.1 Sol · high
 T1 @ 39fe912
-Session 1: T1
+T2 @ b5b8642
+Session 1: T1, T2
 Baseline: 109 workflow tests OK · 8 checkup tests OK; no pre-existing failures.
-T1 final suite: 111 workflow tests OK · 8 checkup tests OK @ 39fe912.
+Final suite: 111 workflow tests OK · 8 checkup tests OK; receipts/t2-verification.md @ b5b8642.
 Contract: decisions.md is headerless; columns ID, Phase, Question, Default, Status, Answer.
-Uncommitted: plan.md execution state only. Pending decision: none.
+Uncommitted: none after execution-state commit. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -54,14 +55,15 @@ Delivers: B2, B8 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `grep` of `SKILL.md`, `references/unattended.md`, `references/phase-0-brainstorm.md`, `README.md` under `.github/skills/workflow/`
 Accept:
-- [ ] `SKILL.md` → `grep -c 'references/unattended.md'` returns 1 (B2)
-- [ ] `grep -rl '^## Always stop'` over the skill → prints only `references/unattended.md`; that section has exactly 5 bullets, one per D3 case (B2)
-- [ ] `unattended.md` → `grep -c '^| ID | Phase | Question | Default | Status | Answer |$'` returns 1, the columns T1 accepts (B2)
-- [ ] `phase-0-brainstorm.md` → `grep -c '^Mode:'` returns 1, in the brief header template (B2)
-- [ ] `README.md` → `grep -c 'Version 3.0.0'` returns 1 and `grep -c 'Version 2.1'` returns 0 (B8)
+- [x] `SKILL.md` → `grep -c 'references/unattended.md'` returns 1 (B2)
+- [x] `grep -rl '^## Always stop'` over the skill → prints only `references/unattended.md`; that section has exactly 5 bullets, one per D3 case (B2)
+- [x] `unattended.md` → `grep -c '^| ID | Phase | Question | Default | Status | Answer |$'` returns 1, the columns T1 accepts (B2)
+- [x] `phase-0-brainstorm.md` → `grep -c '^Mode:'` returns 1, in the brief header template (B2)
+- [x] `README.md` → `grep -c 'Version 3.0.0'` returns 1 and `grep -c 'Version 2.1'` returns 0 (B8)
 Verify: `W=.github/skills/workflow; grep -c 'references/unattended.md' $W/SKILL.md; grep -rl '^## Always stop' $W; grep -c '^| ID | Phase | Question | Default | Status | Answer |$' $W/references/unattended.md; grep -c '^Mode:' $W/references/phase-0-brainstorm.md; grep -c 'Version 3.0.0' $W/README.md` (pre: new file — 0 · none · not found · 0 · 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ b5b8642
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (the blocker on `next-step.py --json`) · T2 (the never-wait rules, version)
@@ -79,3 +81,6 @@ none named in the brief
 ## Product doc impacts
 - `ROADMAP.md`: step 2 `unattended-mode` moves to `ROADMAP_ARCHIVE.md` at wrap.
 - No `PRODUCT.md` or `DESIGN.md` in this repo.
+
+## Deviations
+- T2 also corrects MAINTAINING.md header exemptions and logs the skill change in SKILL-IMPACT.md. Acceptance lines are unchanged.
