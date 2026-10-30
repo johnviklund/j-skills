@@ -50,3 +50,5 @@ Escape hatches: 1 hit, the same `any(` false positive in next-step.py. Tests: wo
 
 ## Cycle 3 verdict
 Both cycle 2 fixes work. C2-T1's red test fails at its own commit and passes after a fix that leaves the tests untouched. The run-worktrees review now names C2-2, C3-1, and the new numbering matches every id a reviewer wrote across this repo's 54 review.md versions. C2-T2's test turns both checker mutations red. One new P1 sits in the C2-1 fix: deleting its table-row filter keeps the suite green, yet crashes on every real review.md (C3-1). The code is right; only its test is missing. This is past the cycle bound, so C3-1 goes to the human: a fourth cycle or defer to `TODO.md`. C3-2 stays here.
+
+Cycle 4 approved by human: 2026-10-30 — option 1a, one more cycle fixing C3-1. Patch cycle 3 (`patch_plan.md`): C3-T1 fixes C3-1.
