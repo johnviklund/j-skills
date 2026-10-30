@@ -9,9 +9,13 @@ Size: code 1097 · tests 955 · ratio 0.87 · largest touched check-run.py 882, 
 Decisions: 1a approve T1, T2 as listed · 2a an override accepts any Vendor · Model
 
 ## Execution state
-Current: T1 verification · writer: GPT-6.1 Sol
+Current: T2 todo; requires GPT-6.1 Sol · medium.
+T1 @ d9a0f8f
+writer: GPT-6.1 Sol
+Session 1: T1
 Baseline: workflow 112 tests OK; checkup 8 tests OK; no pre-existing failures.
-Uncommitted: T1 scripts, tests and skill-impact row. Pending decision: none.
+Final: workflow 117 tests OK; checkup 8 tests OK; receipt: receipts/t1-verification.md.
+Uncommitted: none after state commit. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -37,15 +41,16 @@ Delivers: B1, B2, B3, B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +35 · tests +50 · why: two CLIs observe the same override rows
 Seam: `next-step.py x --json` and its card; `check-run.py x` on a fixture run (shape: F2–F5, F7–F10)
 Accept:
-- [ ] routing.md row `| execute:logic | OpenAI · GPT-6 Sol | xhigh |`, logic ticket ready → JSON `model` `{"vendor": "OpenAI", "name": "GPT-6 Sol", "effort": "xhigh"}`, `context` `standard`, `approval` `auto` (B1)
-- [ ] same run → JSON `fallback` equals the run's without routing.md, `override` is `true`, card has `- **Model:** GPT-6 Sol · xhigh · standard (override)` (B4)
-- [ ] no routing.md, and a routing.md with only a `review` row → the plan step's card equals one literal card byte for byte, and the two JSONs are equal (B2, B3)
-- [ ] routing.md row `| review | OpenAI · GPT-6 Sol | xhigh |` → exit 0, card has `- **Warning:** same vendor writes and reviews: OpenAI`; B1's routing.md → no `Warning` line (B5)
-- [ ] each bad row (key `execute:nope`; cell `OpenAI`; effort `max`) → next-step exits 1, stdout empty, stderr names the row's key, no `Traceback` (B6)
-- [ ] the same three rows → check-run exits 1 with an `ERROR` line naming the key; B1's routing.md → `0 errors · 0 warnings` (B6)
+- [x] routing.md row `| execute:logic | OpenAI · GPT-6 Sol | xhigh |`, logic ticket ready → JSON `model` `{"vendor": "OpenAI", "name": "GPT-6 Sol", "effort": "xhigh"}`, `context` `standard`, `approval` `auto` (B1)
+- [x] same run → JSON `fallback` equals the run's without routing.md, `override` is `true`, card has `- **Model:** GPT-6 Sol · xhigh · standard (override)` (B4)
+- [x] no routing.md, and a routing.md with only a `review` row → the plan step's card equals one literal card byte for byte, and the two JSONs are equal (B2, B3)
+- [x] routing.md row `| review | OpenAI · GPT-6 Sol | xhigh |` → exit 0, card has `- **Warning:** same vendor writes and reviews: OpenAI`; B1's routing.md → no `Warning` line (B5)
+- [x] each bad row (key `execute:nope`; cell `OpenAI`; effort `max`) → next-step exits 1, stdout empty, stderr names the row's key, no `Traceback` (B6)
+- [x] the same three rows → check-run exits 1 with an `ERROR` line naming the key; B1's routing.md → `0 errors · 0 warnings` (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_next_step.py' && python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_check_run.py'` (pre: 26 OK · 52 OK)
 Skills: none
-Status: todo
+Status: done @ d9a0f8f
+Writer: GPT-6.1 Sol
 
 ### T2 — The skill docs name routing.md for the human and the agent
 Delivers: D5 (docs half) · Blocked by: T1 · Lane: mechanical
