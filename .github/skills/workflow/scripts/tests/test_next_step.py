@@ -269,6 +269,7 @@ Status: todo
             with self.subTest(resolved=resolved):
                 self.review("## Resolved\n| Finding | Title | Resolved |\n"
                             + "".join(f"| {id} | C2-2 | @ {self.base} |\n" for id in resolved)
+                            + "\n"
                             + "".join(f"## Cycle {cycle} findings\n"
                                       + "### P1 — Open\n- Disposition: fix now\n- Resolved: —\n" * count
                                       for cycle, count in cycles))
