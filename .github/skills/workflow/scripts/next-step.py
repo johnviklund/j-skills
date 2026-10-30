@@ -14,31 +14,6 @@ spec.loader.exec_module(checks)
 EFFORTS = {"medium", "high", "xhigh"}
 
 
-def table(doc, heading, columns):
-    rows = {}
-    header = False
-    for number, line in doc.section(heading) or []:
-        if not line.startswith("|"):
-            continue
-        cells = [cell.strip() for cell in line.strip("|").split("|")]
-        if all(re.fullmatch(r"[-:]+", cell) for cell in cells):
-            continue
-        label = f"{doc.path}:{number}: {cells[0]}"
-        if not header:
-            if cells != columns:
-                raise ValueError(f"{label}: expected columns {' | '.join(columns)}")
-            header = True
-            continue
-        if len(cells) != len(columns) or any(not cell for cell in cells[:-1]):
-            raise ValueError(f"{label}: expected {len(columns)} cells, with only Notes allowed empty")
-        if cells[0] in rows:
-            raise ValueError(f"{label}: duplicate row")
-        rows[cells[0]] = dict(zip(columns, cells))
-    if not header:
-        raise ValueError(f"{doc.path}: missing {heading} table")
-    return rows
-
-
 def model(text, effort, key):
     parts = [part.strip() for part in text.split("·")]
     if len(parts) not in (2, 3) or not all(parts) or (len(parts) == 3 and parts[2] not in EFFORTS):
@@ -48,8 +23,8 @@ def model(text, effort, key):
 
 def routing(path):
     doc = checks.Doc(str(path))
-    seats = table(doc, "Seat mapping", ["Seat", "Vendor", "Model", "Trial", "Fallback chain", "Notes"])
-    phases = table(doc, "Phase", ["Key", "Phase / work", "Seat", "Effort", "Context", "Approval", "Notes"])
+    seats = checks.table(doc, "Seat mapping", ["Seat", "Vendor", "Model", "Trial", "Fallback chain", "Notes"])
+    phases = checks.table(doc, "Phase", ["Key", "Phase / work", "Seat", "Effort", "Context", "Approval", "Notes"])
     # Parse every seat, including unused rows, so a broken configuration never produces a card.
     parsed = {}
     for key, row in seats.items():
@@ -194,6 +169,13 @@ def next_step(repo, slug, routes, prefix=""):
     step["command"] = None if step["phase"] == "done" else f"workflow {step['phase']} {slug}"
     if brief.status() == "parked":
         step.update(phase="parked", why="The run is parked.")
+    decisions_path = run / "decisions.md"
+    if decisions_path.exists():
+        for row in checks.decisions(checks.Doc(str(decisions_path))).values():
+            if row["Status"] == "waiting":
+                step["blocker"] = {"decision": row["ID"], "action": row["Question"]}
+                step["reads"].append(f".workflow/{slug}/decisions.md")
+                break
     if step["blocker"]:
         step.update(model=None, fallback=[], trial=False)
     step["card"] = card(step, prefix)

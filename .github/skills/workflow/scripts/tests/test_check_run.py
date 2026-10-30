@@ -63,7 +63,7 @@ def lines(n):
     return "".join(f"x{i}\n" for i in range(n))
 
 
-def check(files, ticket=None, args=("x",), seed=None, dirty=None):
+def check(files, ticket=None, args=("x",), seed=None, dirty=None, result=False):
     """Commit `ticket` dicts in order, then run-relative `files`, filling `{base}`, `{t1}`, `{t2}`.
     Return the subprocess output from check-run with `args`."""
     with tempfile.TemporaryDirectory() as repo:
@@ -89,7 +89,7 @@ def check(files, ticket=None, args=("x",), seed=None, dirty=None):
         write(repo, {os.path.join(RUN, rel): text.replace("{base}", base).replace("{t1}", t1)
                      for rel, text in (dirty or {}).items()})
         r = subprocess.run([sys.executable, SCRIPT, "--repo", repo, *args], capture_output=True, text=True)
-        return r.stdout + r.stderr
+        return r if result else r.stdout + r.stderr
 
 
 def write(repo, files):
@@ -101,6 +101,26 @@ def write(repo, files):
 
 
 class SeatTests(unittest.TestCase):
+    def test_unattended_mode_and_decisions_validation(self):
+        table = "| ID | Phase | Question | Default | Status | Answer |\n|---|---|---|---|---|---|\n"
+        for mode, row, error in [
+                ("unattended", "| D1 | plan | Which port? | 8000 | assumed | |", None),
+                ("attended", "| D1 | plan | Which port? | 8000 | answered | 8001 |", None),
+                ("unattended", "| D1 | plan | Which port? | 8000 | waiting | |", None),
+                ("sometimes", "| D1 | plan | Which port? | 8000 | assumed | |", "Mode"),
+                ("unattended", "| D2 | plan | Which port? | 8000 | maybe | |", "D2"),
+                ("unattended", "| D3 | plan | Which port? | 8000 | waiting |", "D3")]:
+            with self.subTest(mode=mode, row=row):
+                brief = BRIEF.replace("Status: complete\n", f"Status: complete\nMode: {mode}\n")
+                r = check({"brainstorm.md": brief, "decisions.md": table + row + "\n"}, result=True)
+                self.assertEqual(r.returncode, 1 if error else 0, r.stdout + r.stderr)
+                if error:
+                    self.assertRegex(r.stdout, rf"(?m)^ERROR .*{error}")
+                else:
+                    self.assertNotIn("Mode", r.stdout)
+                    self.assertNotIn("decisions.md", r.stdout)
+                    self.assertIn("0 errors · 0 warnings", r.stdout)
+
     def test_patch_ticket_needs_fixes_metadata(self):
         ticket = TICKET.format(id="C1-T1", delivers="B1", accept="fixed")
         for status, fixes, expected in [("complete", "", "ERROR"), ("drafting", "", "warn "),

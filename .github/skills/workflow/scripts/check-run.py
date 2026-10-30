@@ -44,7 +44,7 @@ import statistics
 import subprocess
 import sys
 
-ARTIFACTS = ["brainstorm.md", "plan.md", "patch_plan.md", "review.md", "learnings.md", "wrap.md"]
+ARTIFACTS = ["brainstorm.md", "plan.md", "patch_plan.md", "review.md", "learnings.md", "wrap.md", "decisions.md"]
 SUBFOLDERS = ["receipts", "screens", "notes", "scripts", "data", "prototypes", "understand"]
 HEADER = ["Command", "Created", "Base", "Inputs", "Status"]
 STATUSES = {"drafting", "complete", "parked", "done"}
@@ -146,6 +146,39 @@ class Doc:
         return self.header().get("Status", "").split()[0] if self.header().get("Status") else ""
 
 
+def table(doc, heading, columns):
+    rows = {}
+    header = False
+    for number, line in (enumerate(doc.lines, 1) if heading is None else doc.section(heading) or []):
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if all(re.fullmatch(r"[-:]+", cell) for cell in cells):
+            continue
+        label = f"{doc.path}:{number}: {cells[0]}"
+        if not header:
+            if cells != columns:
+                raise ValueError(f"{label}: expected columns {' | '.join(columns)}")
+            header = True
+            continue
+        if len(cells) != len(columns) or any(not cell for cell in cells[:-1]):
+            raise ValueError(f"{label}: expected {len(columns)} cells, with only the last column allowed empty")
+        if cells[0] in rows:
+            raise ValueError(f"{label}: duplicate row")
+        rows[cells[0]] = dict(zip(columns, cells))
+    if not header:
+        raise ValueError(f"{doc.path}: missing {heading} table")
+    return rows
+
+
+def decisions(doc):
+    rows = table(doc, None, ["ID", "Phase", "Question", "Default", "Status", "Answer"])
+    for id, row in rows.items():
+        if row["Status"] not in ("assumed", "waiting", "answered"):
+            raise ValueError(f"{doc.path}: {id}: unknown decision status {row['Status']}")
+    return rows
+
+
 def git_has(repo, sha, cache={}):
     if sha not in cache:
         r = subprocess.run(["git", "-C", repo, "cat-file", "-e", f"{sha}^{{commit}}"],
@@ -198,6 +231,10 @@ def require_sections(doc, rep, names, strict):
 def check_brief(run, rep):
     doc = run["docs"]["brainstorm.md"]
     status = doc.status()
+    if len(doc.lines) > 5:
+        key, mode = doc._field(5)
+        if key == "Mode" and mode not in ("attended", "unattended"):
+            rep.error(doc.path, 6, f"Mode `{mode}` must be attended or unattended")
     if status == "parked" and doc.section("Parked") is None:
         rep.error(doc.path, 0, "Status parked but no `## Parked` section saying what unparks it")
     body = doc.section("Behaviours") or []
@@ -741,10 +778,15 @@ def check_run(run_dir, rep):
                     and git_out(rep.repo, "ls-files", "--", brief.path)
                     and not git_out(rep.repo, "status", "--porcelain", "--", brief.path))
     for name, doc in run["docs"].items():
-        if name != "learnings.md":
+        if name not in ("learnings.md", "decisions.md"):
             check_header(doc, rep)
         if not rep.done and name in BUDGET:
             check_budget(doc, rep, BUDGET[name])
+    if "decisions.md" in run["docs"]:
+        try:
+            decisions(run["docs"]["decisions.md"])
+        except ValueError as error:
+            rep.error(run["docs"]["decisions.md"].path, 0, str(error))
     run_status = run["docs"]["brainstorm.md"].status() if "brainstorm.md" in run["docs"] else ""
     if rep.done:
         rep.note(run_dir, "done run: only header, sha and layout checks apply")

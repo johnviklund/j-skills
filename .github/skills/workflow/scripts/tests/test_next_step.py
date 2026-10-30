@@ -81,6 +81,29 @@ class NextStepTests(unittest.TestCase):
             f"Command: workflow plan x\nCreated: now\nBase: {self.base}\nInputs: none\nStatus: complete\n"
             + "## Tickets\n" + tickets)
 
+    def test_unattended_decision_states(self):
+        path = self.run / "decisions.md"
+        table = "| ID | Phase | Question | Default | Status | Answer |\n|---|---|---|---|---|---|\n"
+        for blocked in (False, True):
+            with self.subTest(blocked=blocked):
+                self.plan("### T1 — Run\nLane: operator\nStatus: "
+                          + ("awaiting-human" if blocked else "todo") + "\n")
+                baseline = self.result()
+                for status in ("assumed", "waiting", "answered"):
+                    rows = f"| D2 | execute | Which port? | 8000 | {status} | |\n"
+                    if status == "waiting":
+                        rows = ("| D1 | plan | First choice? | yes | assumed | |\n" + rows
+                                + "| D3 | execute | Later choice? | yes | waiting | |\n")
+                    path.write_text(table + rows)
+                    result = self.result()
+                    if status == "waiting":
+                        self.assertEqual(result["blocker"], {"decision": "D2", "action": "Which port?"})
+                        self.assertIsNone(result["model"])
+                        self.assertIn("**Model:** human · Which port?", result["card"])
+                    else:
+                        self.assertEqual(result, baseline)
+                path.unlink()
+
     def test_plan_ready_contract_ticket(self):
         self.plan(f"""### T1 — First
 Delivers: B1 · Blocked by: none · Lane: logic
