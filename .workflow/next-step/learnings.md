@@ -17,3 +17,6 @@ Status:  complete
 ## Phase 4 — review cycle 3 (2026-10-29)
 - [durable→memory] Fourth occurrence in this run of a test narrower than the real artifact (after C1-1, C1-2, C2-1). C2-T1 proved the fix on the real run-worktrees review in a receipt, but the committed test built its `## Resolved` table without the blank line every real table ends in, so deleting the filter that skips that line stays green (C3-1). A receipt run on a real file does not guard the suite: copy the real form into the fixture, blank lines included.
 - [durable→eval] code-review — the C2-1 fix adds `if text.startswith("|")` to skip non-table lines in `## Resolved`, but its test's table has no blank line, so deleting the filter keeps the suite green while next-step and check-run crash on every real review.md; missed by the writer (GPT-6.1 Sol) and its four-mutation sweep, caught by the reviewer (Claude Opus 5.5) in cycle 3 (C3-1).
+
+## Phase 4 — review cycle 4 (2026-10-30)
+- [durable→memory] Fifth occurrence in this run of a fixture narrower than the corpus, now at P3 and in the reviewer's own patch plan. C3-T1 copied the blank line the plan named, but 2 of 57 review.md versions also end the Resolved table in a prose note, so a blank-only filter stays green (C4-1). Before a fix ticket prescribes a fixture, scan every version of that section in git history and list each form it holds.
