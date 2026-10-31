@@ -2,11 +2,11 @@ Command: workflow plan lean-workflow-tests
 Created: 2026-10-31 · claude-opus-5-5
 Base:    9a77cd3
 Inputs:  .workflow/lean-workflow-tests/brainstorm.md @ aefd430
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope; no PRODUCT.md or DESIGN.md. ROADMAP.md §Goal: keep the code base and test suites from growing unchecked
 Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-tool lines moved from prototypes/ · tests 1,630 · largest touched test_run_worktree.py 597 · over 1,000: none
-Decisions: pending the ticket-list round
+Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), about 250
 
 ## Execution state
 <filled by execute>
