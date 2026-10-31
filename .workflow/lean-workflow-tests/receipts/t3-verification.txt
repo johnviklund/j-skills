@@ -1,0 +1,12 @@
+Check-run file: 49 tests, 563 lines, 87 static assertion calls.
+Coverage suite: 114 tests in 61.295s, OK; all Base coverage items retained.
+Direct-file check: 49 tests in 28.852s, OK, including relocated checkout cases.
+Required repo suites: workflow 114 tests in 90.098s OK; checkup 8 in 0.732s OK; exit 0.
+Times include concurrent verification work; isolated final timing belongs to T5.
+Assertion mapping and strengthened missing-budget diagnostic: receipts/mapping.md.
+Mutation: BudgetTests.test_budget_rules_warn: "T1: acceptance line has 41 words" changed to "T1: acceptance line has 42 words" → red.
+Mutation: OperatorTests.test_operator_script_test_respects_risk: "T3: cheap operator ticket adds scripts/test_probe.py" changed to "wrong cheap diagnostic" → red.
+Named Verify: 49 tests in 19.080s OK; compare.py base t3 reports lost 0 for every checked kind; exit 0.
+Coverage sets equal Base exactly, symmetric difference 0. Suite now has 114 tests and 258 cases.
+Corrected check-run catches retained: P2 361, messages 11, ratio 2; one timeout recorded separately.
+Production scripts unchanged from aefd430.

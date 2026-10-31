@@ -9,14 +9,14 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T3 ready; T2 complete.
+Current: T3 verifying check-run consolidation.
 T1 @ 6bdf81d
 T2 @ e86f78a
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
-Session 2: T1, T2
+Session 2: T1, T2; T3 in progress
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -33,11 +33,10 @@ Session 2: T1, T2
 | F11 | `checkup/references/seats.md:42` prints the `workflow improve tests` advice | D7 needs no new rule |
 | F12 | T2 to T4 change only tests, so their code Budget is 0 and check-run warns that the median code Budget is under 40 | The warning is expected here and is no merge signal |
 ## Deviations
-- Human approved 1a: correct Base to 266 cases; 274 counted eight outer contexts twice.
-  Evidence: receipts/t1-case-count.md. F4 counts whole diagnostic strings, including f-strings.
+- Human approved Base 266 cases; 274 counted eight outer contexts twice. Evidence: receipts/t1-case-count.md; F4 counts whole strings.
+- T3 assertions: Base 89 → 87; missing-budget check strengthened, cycle wording retained; see mapping.md.
 - T2 relocates assertions: run-worktree 155 → 126, check-run 89 → 92; values unchanged.
-- The mutation copy omitted ROUTING.md: two tests fail unmutated, and 32 P2 catches depend only
-  on those tests. The fixture now copies that dependency. Human approved regenerating and using corrected counts.
+- Human approved the corrected mutation baseline: copies now include ROUTING.md; 32 prototype catches depended only on fixture failures.
 ## Tickets
 ### T1 — Base receipts: coverage map and mutation run with message-string and 1.5 mutants
 Delivers: B4, B5 (Base half), prefactor for T2-T5 · Blocked by: none · Lane: logic
