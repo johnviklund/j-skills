@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-01 · lean-workflow-tests · workflow test suites fold duplicate cases and lose no covered line or caught mutant · GPT-6.1 Sol
+- Shared helpers (`fails()`, `run_command(expected=)`, `check(checkout=)`) and folded cases cut the workflow tests from 120 to 112 and 1,630 to 1,565 lines; the checkout test moved to check-run; median suite time 52.3 to 50.9 s.
+- The coverage map and mutation run (with message-string and `1.5` mutants) from the run's own tool lose nothing: `compare.py base final` → `lost 0`, and four hand mutants agree.
+- Commits: 6bdf81d e86f78a d508b3a 6c4b4ca a13c5a2 961deed
+- Review: ship as-is (cycle 2, 0 open) @ 2a8e5fc
+- Run: 5 tickets · 5 sessions · 2 review cycles · 5 deviations · 0 findings overturned · net code +0 · tests -65
+- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@306d1f188783, checkup@20651cbda779
+- Why: stop the tests growing faster than the scripts, with proof that nothing covered was lost.
+
 ## 2026-10-30 · model-overrides · a run's routing.md overrides the model and effort for its own cards · GPT-6.1 Sol
 - A headerless `routing.md` in a run folder sets that run's model and effort per key; `next-step.py` shows `(override)` and warns when writer and reviewer share a vendor, `check-run.py` validates the rows, and done runs skip the check.
 - Review cycle 1 found 2 small P2s (done runs broke on a retired key; review and execute still read only `ROUTING.md`), both fixed; 3 P3s stay deferred in `review.md`.
@@ -149,21 +159,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 Opus 5.5 · 4 GPT-6
 - Skills: workflow@2820722, checkup@2820722
 - Why: fewer, larger tickets and fewer review cycles cut the cost per run.
-
-## 2026-10-08 · slop-guards · workflow guards against bloated plans, tests and patches · Opus 5.5
-- `check-run.py` gained Budget/Risk/Size/Retired checks (2× code overrun warns, tests over 3× code
-  errors); plan, execute, review and wrap references now teach proportional tests and retiring
-  obsolete code; two review findings (empty Risk crash, zero Budget) fixed in cycle 2.
-- Commits: d5289bd b9381ca fbe43c1 d6280d0 6484bb8 6e8efc9 bc114fc dd167fe 0e888de
-- Review: ship as-is (cycle 2, 0 open) @ 752ad6b
-- Run: 12 tickets · 2 review cycles · 2 findings fixed
-- Why: stop AI-slop growth (long plans, oversized tests, dead code) with mechanical checks.
-
-## 2026-10-01 · docs refresh, MIT license, workflow v2.1.1 context budget · Sonnet 5.5
-- READMEs brought in line with the real wiring (direct symlinks into both CLIs, `j-skills` plugin
-  name, lowercase paths, memory pages); MIT `LICENSE` added; the roadmap emptied (no
-  planned work).
-- v2.1.1 cut per-run grounding cost: tiered reads, short `wrap.md` for done runs, `review.md`
-  `## Resolved` table, one-line TODO intake, `TODO_ARCHIVE.md`/`ROADMAP_ARCHIVE.md` convention with
-  size flags, `ROUTING.md` split into card rows and `ROUTING-NOTES.md`. Trialing (see `SKILL-IMPACT.md`).
-- Commits: 04fee86 e6cd6a0 090536f

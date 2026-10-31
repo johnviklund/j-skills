@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated: 2026-10-31. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
+Updated: 2026-11-01. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
 `memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
 `design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
@@ -21,7 +21,4 @@ Shipped 2026-10-17/18 (runs `lean-runs`, `growth-ratchets`, `guard-keys`): brief
 plan ≤ 20 acceptance lines, tests net ≤ 1.5× code per ticket, keyed waivers, one test per
 behaviour and per guard key. Their trials closed 2026-10-21 as kept (`SKILL-IMPACT_ARCHIVE.md`).
 
-| # | Step | Run name | Status |
-| --- | --- | --- | --- |
-| 1 | Judge the three trials on the next 3 work-repo runs (`topic-assistant` is the first under all rules, then `cli-split`): smaller runs, fewer test lines, no false errors, no squeezing to fit the limits | `checkup` | Done 2026-10-21: briefs and plans shrank to the caps (behaviours 11.2 → 6.6, acceptance 31 → 20.5) but net code per run did not (+331 → +361); 7 of 16 per-ticket ratio hits were false, absorbed by 14 waivers |
-| 4 | After 3 runs under the run-level ratio gate, read `checkup` test growth and decide: a simplify pass before review, real retiring at wrap, or nothing if growth has flattened | `checkup` | Done 2026-10-31: `lean-workflow-tests` simplifies tests; Base → after: 120 → 112 tests, 266 → 257 cases, 1,630 → 1,565 lines, median suite time 52.312 → 50.925 s. No standing rule added |
+No open steps. Steps 1 to 4 are in `ROADMAP_ARCHIVE.md`; the last, `lean-workflow-tests`, closed 2026-10-31.

@@ -41,3 +41,12 @@ else.
 - **Superseded by:** -
 - **Last confirmed:** 2026-10-28
 - **Source:** lean-skill-hubs C1-2 (five stale pointers left by the moves, found in review)
+
+### A baseline for coverage or mutation counts needs a control and a case count
+- **Topic:** Review practice: measuring that a test cleanup lost nothing
+- **Status:** current
+- **Decision:** Run the mutation tool once on an unmutated temporary copy before trusting its caught count: a copy missing a sibling file (`ROUTING.md`) fails tests by itself and inflates the count. Count test cases from the runner's own list, not coverage contexts: outer contexts that accompany subtests are counted twice (266 became 274). Record both numbers in the Base receipt before any test changes.
+- **Supersedes:** -
+- **Superseded by:** -
+- **Last confirmed:** 2026-10-31
+- **Source:** lean-workflow-tests T1 (prototype caught count inflated by 32 fixture failures; Base case count 274 vs 266)
