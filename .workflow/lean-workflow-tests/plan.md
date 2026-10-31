@@ -9,14 +9,15 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T3 verifying check-run consolidation.
+Current: T4 ready; session limit of three completed tickets reached.
 T1 @ 6bdf81d
 T2 @ e86f78a
+T3 @ d508b3a
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
-Session 2: T1, T2; T3 in progress
+Session 2: T1, T2, T3
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -69,13 +70,14 @@ Delivers: B1, B4, B5, B6 · Blocked by: T2 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `test_check_run.py`
 Accept:
-- [ ] `test_check_run.py` → under 54 tests and 566 lines; the five F10 cases and two tests gone, `test_budget_plan_with_size_and_budgets_is_clean` gone (B1)
-- [ ] the same file → the one-entry WORKLOG is a case of the worklog test, and `test_override_validation` keeps one valid row and one bad row (B1)
-- [ ] `compare.py base t3` → `lost 0` for covmap on all three scripts and for check-run.py mutants (B4, B5)
-- [ ] `receipts/mapping.md` → a row per removed test and per merged test of check-run; assertions 89 → N (B6)
+- [x] `test_check_run.py` → under 54 tests and 566 lines; the five F10 cases and two tests gone, `test_budget_plan_with_size_and_budgets_is_clean` gone (B1)
+- [x] the same file → the one-entry WORKLOG is a case of the worklog test, and `test_override_validation` keeps one valid row and one bad row (B1)
+- [x] `compare.py base t3` → `lost 0` for covmap on all three scripts and for check-run.py mutants (B4, B5)
+- [x] `receipts/mapping.md` → a row per removed test and per merged test of check-run; assertions 89 → N (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_check_run.py && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t3)` (pre: 54 tests OK, then compare.py new file)
 Skills: none
-Status: todo
+Status: done @ d508b3a
+Writer: GPT-6.1 Sol
 ### T4 — next-step tests: routing tests folded, failure checks share one helper
 Delivers: B3, B4, B5, B6 · Blocked by: T3 · Lane: logic
 Budget: code +0 · tests +0
