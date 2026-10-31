@@ -9,13 +9,14 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T2 verifying helper folds and moved checkout cases.
+Current: T3 ready; T2 complete.
 T1 @ 6bdf81d
+T2 @ e86f78a
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
-Session 2: T1; T2 in progress
+Session 2: T1, T2
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -57,12 +58,13 @@ Delivers: B2, B4, B5, B6 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `test_run_worktree.py` and `check()` in `test_check_run.py`
 Accept:
-- [ ] `test_run_worktree.py` → under 35 tests and 597 lines, `grep -c check-run` 0; its five checkout cases pass in `test_check_run.py` (B2)
-- [ ] `compare.py base t2` → `lost 0` for covmap on all three scripts and for run-worktree.py mutants (B4, B5)
-- [ ] `receipts/mapping.md` → a row per removed test naming the test and case holding each assertion; run-worktree assertions 155 → N (B6)
+- [x] `test_run_worktree.py` → under 35 tests and 597 lines, `grep -c check-run` 0; its five checkout cases pass in `test_check_run.py` (B2)
+- [x] `compare.py base t2` → `lost 0` for covmap on all three scripts and for run-worktree.py mutants (B4, B5)
+- [x] `receipts/mapping.md` → a row per removed test naming the test and case holding each assertion; run-worktree assertions 155 → N (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_[cr]*.py' && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t2)` (pre: 89 tests OK, then compare.py new file)
 Skills: none
-Status: todo
+Status: done @ e86f78a
+Writer: GPT-6.1 Sol
 ### T3 — check-run tests: date-only cases and duplicates gone, single cases in tables
 Delivers: B1, B4, B5, B6 · Blocked by: T2 · Lane: logic
 Budget: code +0 · tests +0
