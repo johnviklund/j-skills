@@ -7,15 +7,15 @@ Docs read: none in scope; no PRODUCT.md or DESIGN.md. ROADMAP.md §Goal: keep th
 Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-tool lines moved from prototypes/ · tests 1,630 · largest touched test_run_worktree.py 597 · over 1,000: none
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 ## Execution state
-Current: all tickets done; ready for review.
+Current: all tickets and C1-T1 done; ready for review. Pending decision: none.
 T1 @ 6bdf81d
 T2 @ e86f78a
 T3 @ d508b3a
 T4 @ 6c4b4ca
 T5 @ a13c5a2
 writer: GPT-6.1 Sol
-Final suites: workflow 112 tests in 50.709s OK; checkup 8 tests in 0.421s OK.
-Pending decision: none.
+Final suites: workflow 112 tests in 51.784s OK; checkup 8 tests in 0.423s OK.
+Session 5: C1-T1
 Session 4: T5
 Session 3: T4
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
