@@ -1,0 +1,7 @@
+Targeted suite: 89 tests in 40.834s, OK, exit 0.
+Coverage suite: 120 tests in 62.290s, OK; all Base coverage items retained.
+Final required suites: workflow 120 tests in 92.152s OK; checkup 8 in 0.403s OK; exit 0.
+Times include concurrent verification work; isolated final timing belongs to T5.
+Mutation proof: shared return-code expectation 0 changed to 1 → red.
+Mutation proof: shared output expectation changed to wrong-output → red.
+Assertion locations and counts: receipts/mapping.md. No expectation changed or removed.

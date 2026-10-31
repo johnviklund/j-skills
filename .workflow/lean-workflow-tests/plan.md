@@ -9,13 +9,13 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T2 ready; T1 baseline complete.
+Current: T2 verifying helper folds and moved checkout cases.
 T1 @ 6bdf81d
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
-Session 2: T1
+Session 2: T1; T2 in progress
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -31,14 +31,13 @@ Session 2: T1
 | F10 | `Created:` dates drive only the model warning at `check-run.py:226`. The date-only cases are the 4th of `test_plan_limits`, 5th of `test_committed_test_ratio`, 4th of `test_budget_ratio_reason`, plus `test_budget_old_plan_without_budget_warns:303` and `test_cycle_three_old_review_still_needs_approval:448`. Only `test_wrap_done_with_retired_is_clean:518` has a one-entry WORKLOG, the arm at `check-run.py:714` | Brief F1 and F3 hold as written |
 | F11 | `checkup/references/seats.md:42` prints the `workflow improve tests` advice | D7 needs no new rule |
 | F12 | T2 to T4 change only tests, so their code Budget is 0 and check-run warns that the median code Budget is under 40 | The warning is expected here and is no merge signal |
-
 ## Deviations
 - Human approved 1a: correct Base to 266 cases; 274 counted eight outer contexts twice.
   Evidence: receipts/t1-case-count.md. F4 counts whole diagnostic strings, including f-strings.
+- T2 relocates assertions: run-worktree 155 → 126, check-run 89 → 92; values unchanged.
 - The mutation copy omitted ROUTING.md: two tests fail unmutated, and 32 P2 catches depend only
   on those tests. The fixture now copies that dependency. Human approved regenerating and using corrected counts.
 ## Tickets
-
 ### T1 — Base receipts: coverage map and mutation run with message-string and 1.5 mutants
 Delivers: B4, B5 (Base half), prefactor for T2-T5 · Blocked by: none · Lane: logic
 Budget: code +120 · tests +0
@@ -53,7 +52,6 @@ Verify: `cd .workflow/lean-workflow-tests && python3 scripts/compare.py base bas
 Skills: none
 Status: done @ 6bdf81d
 Writer: GPT-6.1 Sol
-
 ### T2 — run-worktree tests fold behind shared helpers; the checkout test moves to check-run
 Delivers: B2, B4, B5, B6 · Blocked by: T1 · Lane: logic
 Budget: code +0 · tests +0
@@ -65,7 +63,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p 'test_[cr]*.py' && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t2)` (pre: 89 tests OK, then compare.py new file)
 Skills: none
 Status: todo
-
 ### T3 — check-run tests: date-only cases and duplicates gone, single cases in tables
 Delivers: B1, B4, B5, B6 · Blocked by: T2 · Lane: logic
 Budget: code +0 · tests +0
@@ -78,7 +75,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_check_run.py && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t3)` (pre: 54 tests OK, then compare.py new file)
 Skills: none
 Status: todo
-
 ### T4 — next-step tests: routing tests folded, failure checks share one helper
 Delivers: B3, B4, B5, B6 · Blocked by: T3 · Lane: logic
 Budget: code +0 · tests +0
@@ -90,7 +86,6 @@ Accept:
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_next_step.py && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t4)` (pre: 31 tests OK, then compare.py new file)
 Skills: none
 Status: todo
-
 ### T5 — Close: full comparison, suite time, ROADMAP step 4 and AGENTS.md
 Delivers: B4, B5, B7, B8 · Blocked by: T4 · Lane: mechanical
 Budget: code +0 · tests +0
@@ -103,19 +98,17 @@ Accept:
 Verify: `git diff --quiet aefd430..HEAD -- .github/skills/workflow/scripts/check-run.py .github/skills/workflow/scripts/next-step.py .github/skills/workflow/scripts/run-worktree.py && grep -q '^| 4 |.*Done 2026-' ROADMAP.md && grep -qE 'workflow suite takes about [0-9]+ s' AGENTS.md && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base final)` (pre: diff quiet, then ROADMAP grep fails)
 Skills: none
 Status: todo
-
 ## Coverage
 - Outcome → T5: the full-suite compare, the ROADMAP row and the timing receipts
 - B1 → T3 · B2 → T2 · B3 → T4 · B4 → T1, T2, T3, T4, T5 · B5 → T1, T2, T3, T4, T5 · B6 → T2, T3, T4 · B7 → T5 · B8 → T5
 - Out of scope: Worktree setup as a script, new tests for surviving or unreached mutants, the 133-case greedy minimum, in-process calls and faster fixtures, a standing simplify rule, the checkup suite → untouched
-
 ## Risks
 - T3 is the riskiest: check-run has the most cases, and its mutation run takes about 40 min.
 - T4's helper adds a `Traceback` check to tests that lacked one; a script that prints one is a finding, never a test edit.
 - Option not taken: check only line coverage per ticket. P1 calls 10 tests redundant that each catch a mutant no other test catches.
 
 ## TODO impacts
-none: the brief seeds from ROADMAP step 4, and `Worktree setup as a script` stays out of scope.
+none
 
 ## Product doc impacts
 - ROADMAP.md: step 4 "Open: no brainstorm until the numbers show growth is still a problem" becomes `Done` with the numbers (T5). Wrap moves the goal to `ROADMAP_ARCHIVE.md` (D7).

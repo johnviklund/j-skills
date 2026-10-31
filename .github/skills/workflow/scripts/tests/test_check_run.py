@@ -63,7 +63,7 @@ def lines(n):
     return "".join(f"x{i}\n" for i in range(n))
 
 
-def check(files, ticket=None, args=("x",), seed=None, dirty=None, result=False):
+def check(files, ticket=None, args=("x",), seed=None, dirty=None, result=False, checkout=None):
     """Commit `ticket` dicts in order, then run-relative `files`, filling `{base}`, `{t1}`, `{t2}`.
     Return the subprocess output from check-run with `args`."""
     with tempfile.TemporaryDirectory() as repo:
@@ -88,6 +88,10 @@ def check(files, ticket=None, args=("x",), seed=None, dirty=None, result=False):
         git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "run")
         write(repo, {os.path.join(RUN, rel): text.replace("{base}", base).replace("{t1}", t1)
                      for rel, text in (dirty or {}).items()})
+        if checkout:
+            path, branch = checkout
+            git("checkout", "-qb", branch) if path == "." else git("worktree", "add", "-qb", branch, path)
+            repo = os.path.join(repo, path)
         r = subprocess.run([sys.executable, SCRIPT, "--repo", repo, *args], capture_output=True, text=True)
         return r if result else r.stdout + r.stderr
 
@@ -564,3 +568,19 @@ class WrapTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CheckoutTests(unittest.TestCase):
+    def test_Checkout_warnings_exempt_only_the_matching_run_checkout(self):
+        for path, branch, expected in ((".worktrees/x", "run/x", (False, False)),
+                                      (".worktrees/x", "feature", (True, True)),
+                                      ("outside/x", "run/x", (True, True)),
+                                      (".worktrees/y", "run/x", (True, True)),
+                                      (".", "feature", (False, True))):
+            with self.subTest(path=path, branch=branch):
+                header = HEADER.format(cmd="fixture", created="2026-10-27 · Test", base="{base}")
+                r = check({"brainstorm.md": header, "plan.md": header + "## Checklist\n- fixture\n"},
+                          checkout=(path, branch), result=True)
+                self.assertEqual(("linked worktree" in r.stdout, "on branch" in r.stdout), expected, r.stdout)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertIn("== x", r.stdout)
