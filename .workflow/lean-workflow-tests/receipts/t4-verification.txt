@@ -1,0 +1,18 @@
+Baseline reused: T3 final required suites passed at d508b3a; later commit 2876216
+changes only this run's plan.md. Workflow 114 tests in 90.098s OK; checkup 8 in 0.732s OK.
+Before: next-step 31 tests, 467 lines, 91 static assertion calls, 5 Traceback checks.
+After: next-step 29 tests, 453 lines, 69 static assertion calls, 1 Traceback check in fails().
+Coverage suite: 112 tests in 59.078s OK; 257 cases.
+Coverage sets equal Base exactly: symmetric difference 0.
+check-run.py: 630 lines, 673 arms; next-step.py: 204 lines, 229 arms;
+run-worktree.py: 188 lines, 170 arms.
+Next-step mutation run: all 118 mutants evaluated with six workers and fail-fast.
+P2: 95 killed, 10 survived, 2 syntax; message: 1 killed, 10 survived.
+compare.py base t4: lost 0 for every script's lines and arms and every next-step mutant kind; exit 0.
+Required repo suites: workflow 112 tests in 52.521s OK; checkup 8 in 0.667s OK; exit 0.
+These times include concurrent verification; isolated median belongs to T5.
+Named Verify: next-step 29 tests in 9.762s OK, comparison lost 0; exit 0.
+Mutation proof in temporary copies: failure helper expected exit 1 inverted to 0 → red;
+diagnostic replaced with wrong diagnostic → red; forbidden Traceback replaced with empty string → red.
+Assertion relocation and strengthened failure checks: receipts/mapping.md.
+Production scripts unchanged from aefd430, checked with the three explicit script paths.

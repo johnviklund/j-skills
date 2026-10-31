@@ -9,13 +9,14 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T4 ready; session limit of three completed tickets reached.
+Current: T4 in progress; next-step consolidation and coverage/mutation verification.
 T1 @ 6bdf81d
 T2 @ e86f78a
 T3 @ d508b3a
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
+Session 3: T4 in progress.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
 Session 2: T1, T2, T3
 ## Findings
@@ -36,6 +37,7 @@ Session 2: T1, T2, T3
 ## Deviations
 - Human approved Base 266 cases; 274 counted eight outer contexts twice. Evidence: receipts/t1-case-count.md; F4 counts whole strings.
 - T3 assertions: Base 89 → 87; missing-budget check strengthened, cycle wording retained; see mapping.md.
+- T4 assertions: Base 91 → 69 through fails() and folded routing cases; failure checks strengthened, original expectations retained; see mapping.md.
 - T2 relocates assertions: run-worktree 155 → 126, check-run 89 → 92; values unchanged.
 - Human approved the corrected mutation baseline: copies now include ROUTING.md; 32 prototype catches depended only on fixture failures.
 ## Tickets
@@ -109,10 +111,8 @@ Status: todo
 - T3 is the riskiest: check-run has the most cases, and its mutation run takes about 40 min.
 - T4's helper adds a `Traceback` check to tests that lacked one; a script that prints one is a finding, never a test edit.
 - Option not taken: check only line coverage per ticket. P1 calls 10 tests redundant that each catch a mutant no other test catches.
-
 ## TODO impacts
 none
-
 ## Product doc impacts
 - ROADMAP.md: step 4 "Open: no brainstorm until the numbers show growth is still a problem" becomes `Done` with the numbers (T5). Wrap moves the goal to `ROADMAP_ARCHIVE.md` (D7).
 - AGENTS.md: "about a minute" becomes the measured time (T5).

@@ -61,14 +61,14 @@ class NextStepTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
+    def fails(self, result, *diagnostics):
+        self.assertEqual((result.returncode, result.stdout), (1, ""))
+        for diagnostic in diagnostics:
+            self.assertIn(diagnostic, result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
     def override(self, rows):
         (self.run / "routing.md").write_text("| Key | Vendor · Model | Effort |\n|---|---|---|\n" + rows)
-
-    def test_done_override_ignores_retired_key(self):
-        brief = self.run / "brainstorm.md"
-        brief.write_text(brief.read_text().replace("Status: complete", "Status: done"))
-        self.override("| execute:mechanical | OpenAI · GPT-6 Sol | high |\n")
-        self.assertEqual(self.result()["phase"], "done")
 
     def test_override_model_keeps_route_policy(self):
         self.plan("### T1 — First\nLane: logic\nStatus: todo\n")
@@ -116,9 +116,7 @@ class NextStepTests(unittest.TestCase):
             with self.subTest(row=row):
                 self.override(f"| {row} |\n")
                 result = self.cli("--json")
-                self.assertEqual((result.returncode, result.stdout), (1, ""))
-                self.assertIn(key, result.stderr)
-                self.assertNotIn("Traceback", result.stderr)
+                self.fails(result, key)
 
     def test_key_prints_model_lines_without_a_run(self):
         for key, expected_code in (("review", 0), ("nope", 1)):
@@ -126,14 +124,12 @@ class NextStepTests(unittest.TestCase):
                 result = subprocess.run([sys.executable, str(SCRIPT), "--key", key,
                                          "--routing", str(self.routing)], cwd=self.temp.name,
                                         capture_output=True, text=True)
-                self.assertEqual(result.returncode, expected_code, result.stderr)
                 if key == "review":
+                    self.assertEqual(result.returncode, expected_code, result.stderr)
                     self.assertEqual(result.stdout, "- **Model:** Opus 5.5 · xhigh · large\n"
                                      "- **Fallback:** Sonnet 5.5 · xhigh\n")
                 else:
-                    self.assertEqual(result.stdout, "")
-                    self.assertIn("nope", result.stderr)
-                    self.assertNotIn("Traceback", result.stderr)
+                    self.fails(result, "nope")
 
     def plan(self, tickets, name="plan.md"):
         (self.run / name).write_text(
@@ -225,14 +221,15 @@ Status: todo
 
     def test_patch_ticket_routes_by_severity_and_lane(self):
         self.plan("### T1 — Plan work\nLane: contract\nStatus: todo\n")
-        for severity, lane, seat, effort in [("P0", "logic", "Heavy executor", "high"),
-                                           ("P1", "logic", "Default executor", "medium"),
-                                           ("P3", "mechanical", "Mechanical lane", "medium")]:
-            with self.subTest(severity=severity, lane=lane):
-                self.plan(f"### C1-T1 — Fix\nFixes: C1-1 ({severity})\nLane: {lane}\nStatus: todo\n", "patch_plan.md")
+        for cycle, severity, lane, seat, effort in [(1, "P0", "logic", "Heavy executor", "high"),
+                                                  (1, "P1", "logic", "Default executor", "medium"),
+                                                  (1, "P3", "mechanical", "Mechanical lane", "medium"),
+                                                  (2, "P1", "logic", "Default executor", "medium")]:
+            with self.subTest(cycle=cycle, severity=severity, lane=lane):
+                self.plan(f"### C{cycle}-T1 — Fix\nFixes: C1-1 ({severity})\nLane: {lane}\nStatus: todo\n", "patch_plan.md")
                 result = self.result()
-                for key, value in {"phase": "execute", "ticket": "C1-T1", "seat": seat,
-                                   "why": "Patch cycle 1 · fix C1-1",
+                for key, value in {"phase": "execute", "ticket": f"C{cycle}-T1", "seat": seat,
+                                   "why": f"Patch cycle {cycle} · fix C1-1",
                                    "model": {"vendor": "OpenAI", "name": "GPT-6.1 Sol", "effort": effort}}.items():
                     self.assertEqual(result[key], value, key)
         patch = self.run / "patch_plan.md"
@@ -250,8 +247,7 @@ Status: todo
         self.routing.write_text(ROUTING.replace("| fix:operator | Fix operator | Default executor | high | standard | human | |\n", ""))
         self.plan("### C1-T1 — Fix\nFixes: C1-1 (P0)\nLane: operator\nStatus: todo\n", "patch_plan.md")
         result = self.cli("--json")
-        self.assertEqual((result.returncode, result.stdout), (1, ""))
-        self.assertIn("missing key fix:operator", result.stderr)
+        self.fails(result, "missing key fix:operator")
 
     def test_blocker_selects_awaiting_ticket_after_blocked_todo(self):
         self.plan("### T1 — Blocked\nBlocked by: T2 · Lane: logic\nStatus: todo\n"
@@ -261,13 +257,7 @@ Status: todo
     def test_fully_blocked_plan_has_diagnostic(self):
         self.plan("### T1 — Blocked\nBlocked by: T9 · Lane: logic\nStatus: todo\n")
         result = self.cli("--json")
-        self.assertEqual((result.returncode, result.stdout), (1, ""))
-        self.assertIn("no ready ticket", result.stderr)
-        self.assertNotIn("Traceback", result.stderr)
-
-    def test_patch_cycle_comes_from_ticket_id(self):
-        self.plan("### C2-T1 — Fix\nFixes: C1-1 (P1)\nLane: logic\nStatus: todo\n", "patch_plan.md")
-        self.assertEqual(self.result()["why"], "Patch cycle 2 · fix C1-1")
+        self.fails(result, "no ready ticket")
 
     def test_invalid_slug_and_repository_have_diagnostics(self):
         with tempfile.TemporaryDirectory() as outside:
@@ -275,18 +265,14 @@ Status: todo
                                            ("x", ("--repo", outside), "not inside a git repo")]:
                 with self.subTest(slug=slug, args=args):
                     result = self.cli("--json", *args, slug=slug)
-                    self.assertEqual((result.returncode, result.stdout), (1, ""))
-                    self.assertIn(diagnostic, result.stderr)
-                    self.assertNotIn("Traceback", result.stderr)
+                    self.fails(result, diagnostic)
 
     def test_patch_ticket_without_fixes_fails_without_json(self):
         for fixes in ("", "C1-1 (P9)", "T1 (P1)", "C1-1 (P1) junk"):
             with self.subTest(fixes=fixes):
                 self.plan(f"### C1-T1 — Fix\nFixes: {fixes}\nLane: logic\nStatus: todo\n", "patch_plan.md")
                 result = self.cli("--json")
-                self.assertEqual((result.returncode, result.stdout), (1, ""))
-                self.assertIn("C1-T1", result.stderr)
-                self.assertIn("Fixes: C<n>-<m> (P#)", result.stderr)
+                self.fails(result, "C1-T1", "Fixes: C<n>-<m> (P#)")
 
     def review(self, findings=""):
         self.plan(f"### T1 — Finished\nLane: logic\nStatus: done @ {self.base}\n")
@@ -377,8 +363,7 @@ Status: todo
         doc = self.run / "review.md"
         doc.write_text(doc.read_text().replace(self.base, "deadbeef"))
         result = self.cli("--json")
-        self.assertEqual((result.returncode, result.stdout), (1, ""))
-        self.assertIn("review.md: unknown Base deadbeef", result.stderr)
+        self.fails(result, "review.md: unknown Base deadbeef")
 
     def test_brief_drafting_parked_and_done(self):
         brief = self.run / "brainstorm.md"
@@ -390,7 +375,11 @@ Status: todo
                 result = self.result()
                 self.assertEqual((result["phase"], result["command"]), (phase, command))
         brief.write_text(original.replace("Status: complete", "Status: bogus"))
-        self.assertEqual(self.cli("--json").returncode, 1)
+        self.fails(self.cli("--json"), "unknown brief status bogus")
+
+        brief.write_text(original.replace("Status: complete", "Status: done"))
+        self.override("| execute:mechanical | OpenAI · GPT-6 Sol | high |\n")
+        self.assertEqual(self.result()["phase"], "done")
 
     def test_parked_run_resumes_after_planning(self):
         brief = self.run / "brainstorm.md"
@@ -448,10 +437,7 @@ Status: todo
             with self.subTest(routing=bad):
                 self.routing.write_text(bad)
                 result = self.cli("--json")
-                self.assertEqual(result.returncode, 1)
-                self.assertEqual(result.stdout, "")
-                self.assertIn(diagnostic, result.stderr)
-                self.assertNotIn("Traceback", result.stderr)
+                self.fails(result, diagnostic)
 
     def test_real_routing_resolves_all_thirteen_run_keys(self):
         spec = importlib.util.spec_from_file_location("next_step", SCRIPT)
