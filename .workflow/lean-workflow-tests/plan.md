@@ -7,14 +7,16 @@ Docs read: none in scope; no PRODUCT.md or DESIGN.md. ROADMAP.md §Goal: keep th
 Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-tool lines moved from prototypes/ · tests 1,630 · largest touched test_run_worktree.py 597 · over 1,000: none
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 ## Execution state
-Current: T5 ready; mechanical lane uses medium effort, so execution hands off.
+Current: all tickets done; ready for review.
 T1 @ 6bdf81d
 T2 @ e86f78a
 T3 @ d508b3a
 T4 @ 6c4b4ca
+T5 @ a13c5a2
 writer: GPT-6.1 Sol
-Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
+Final suites: workflow 112 tests in 50.709s OK; checkup 8 tests in 0.421s OK.
 Pending decision: none.
+Session 4: T5
 Session 3: T4
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
 Session 2: T1, T2, T3
@@ -96,20 +98,19 @@ Delivers: B4, B5, B7, B8 · Blocked by: T4 · Lane: mechanical
 Budget: code +0 · tests +0
 Seam: `compare.py base final`, ROADMAP.md, AGENTS.md
 Accept:
-- [ ] `compare.py base final` on a full run of all three scripts → `lost 0` for every script and kind (B4, B5)
-- [ ] ROADMAP.md step 4 → `Done 2026-…` with tests, cases, lines and median suite time, Base and after (B7)
-- [ ] AGENTS.md → `The workflow suite takes about N s`, N from `receipts/time-final.txt` (B7)
-- [ ] `git diff --stat aefd430..HEAD -- ` the three scripts → empty (B8)
+- [x] `compare.py base final` on a full run of all three scripts → `lost 0` for every script and kind (B4, B5)
+- [x] ROADMAP.md step 4 → `Done 2026-…` with tests, cases, lines and median suite time, Base and after (B7)
+- [x] AGENTS.md → `The workflow suite takes about N s`, N from `receipts/time-final.txt` (B7)
+- [x] `git diff --stat aefd430..HEAD -- ` the three scripts → empty (B8)
 Verify: `git diff --quiet aefd430..HEAD -- .github/skills/workflow/scripts/check-run.py .github/skills/workflow/scripts/next-step.py .github/skills/workflow/scripts/run-worktree.py && grep -q '^| 4 |.*Done 2026-' ROADMAP.md && grep -qE 'workflow suite takes about [0-9]+ s' AGENTS.md && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base final)` (pre: diff quiet, then ROADMAP grep fails)
 Skills: none
-Status: todo
+Status: done @ a13c5a2
+Writer: GPT-6.1 Sol
 ## Coverage
 - Outcome → T5: the full-suite compare, the ROADMAP row and the timing receipts
 - B1 → T3 · B2 → T2 · B3 → T4 · B4 → T1, T2, T3, T4, T5 · B5 → T1, T2, T3, T4, T5 · B6 → T2, T3, T4 · B7 → T5 · B8 → T5
 - Out of scope: Worktree setup as a script, new tests for surviving or unreached mutants, the 133-case greedy minimum, in-process calls and faster fixtures, a standing simplify rule, the checkup suite → untouched
 ## Risks
-- T3 is the riskiest: check-run has the most cases, and its mutation run takes about 40 min.
-- T4's helper adds a `Traceback` check to tests that lacked one; a script that prints one is a finding, never a test edit.
 - Option not taken: check only line coverage per ticket. P1 calls 10 tests redundant that each catch a mutant no other test catches.
 ## TODO impacts
 none
