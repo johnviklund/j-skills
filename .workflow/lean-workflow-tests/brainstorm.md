@@ -14,7 +14,7 @@ added tests +1,166 against code +623, and `test_run_worktree.py` is 597 lines fo
 The three files in `.github/skills/workflow/scripts/tests/` hold fewer tests and lines and run faster.
 Every line, branch arm, caught mutant and assertion they had at Base is still covered. Surface: the
 unittest `Ran N tests` line, `wc -l`, this run's receipts, and ROADMAP.md step 4.
-Base @ aefd430: 120 tests, 274 cases, 1,630 lines, 335 assertion calls, 60.1 s and 61.2 s.
+Base @ aefd430: 120 tests, 266 cases, 1,630 lines, 335 assertion calls, 60.1 s and 61.2 s.
 
 Terms: a **test** is one `def test_*`. A **case** is one `subTest`, or a test that has none. A
 **mutant** is a copy of a script with one deliberate small bug, and a test **catches** it when it fails.

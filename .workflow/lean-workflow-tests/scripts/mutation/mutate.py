@@ -23,6 +23,21 @@ SWAP = {ast.Eq: ast.NotEq, ast.NotEq: ast.Eq, ast.Lt: ast.LtE, ast.LtE: ast.Lt, 
 def mutants(path):
     src = path.read_text()
     tree = ast.parse(src)
+    # Only diagnostic call arguments get message mutants; paths and commands stay intact.
+    messages = set()
+    for call in ast.walk(tree):
+        if not isinstance(call, ast.Call):
+            continue
+        func = ast.unparse(call.func)
+        if func in {"rep.error", "rep.warn", "rep.note", "rep.missing_sha", "print", "sys.exit",
+                    "ValueError", "RuntimeError"}:
+            messages.update(id(n) for arg in call.args for n in ast.walk(arg)
+                            if isinstance(n, ast.JoinedStr) or
+                            isinstance(n, ast.Constant) and type(n.value) is str)
+    # F-string fragments share the whole string's span; mutate the JoinedStr once instead.
+    fragments = {id(n) for f in ast.walk(tree) if isinstance(f, ast.JoinedStr)
+                 for value in f.values for n in ast.walk(value)}
+    messages -= fragments
     out = []
     for node in ast.walk(tree):
         new = []
@@ -31,7 +46,7 @@ def mutants(path):
                 if type(op) in SWAP:
                     m = ast.Compare(node.left, list(node.ops), node.comparators)
                     m.ops[i] = SWAP[type(op)]()
-                    new.append((f"{type(op).__name__}->{SWAP[type(op)].__name__}", m))
+                    new.append((f"{type(op).__name__}->{SWAP[type(op)].__name__}:op{i}", m))
         elif isinstance(node, ast.BoolOp):
             other = ast.Or() if isinstance(node.op, ast.And) else ast.And()
             new.append((f"{type(node.op).__name__}->{type(other).__name__}", ast.BoolOp(other, node.values)))
@@ -40,6 +55,11 @@ def mutants(path):
         elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("any", "all"):
             other = "all" if node.func.id == "any" else "any"
             new.append((f"{node.func.id}->{other}", ast.Call(ast.Name(other, ast.Load()), node.args, node.keywords)))
+        elif id(node) in messages:
+            new.append(("message", ast.BinOp(ast.BinOp(ast.Constant("XX"), ast.Add(), node),
+                                            ast.Add(), ast.Constant("XX"))))
+        elif isinstance(node, ast.Constant) and type(node.value) is float and node.value == 1.5:
+            new.extend((f"ratio->{value}", ast.Constant(value)) for value in (1.4, 1.6))
         elif isinstance(node, ast.Constant) and type(node.value) is int:
             new.append((f"{node.value}->{node.value + 1}", ast.Constant(node.value + 1)))
         elif isinstance(node, ast.Constant) and type(node.value) is bool:
@@ -53,6 +73,12 @@ def mutants(path):
             else:
                 seg = (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
                 text = "(" + ast.unparse(m) + ")"
+            # AST columns are UTF-8 byte offsets. New message spans can contain Unicode.
+            if desc == "message":
+                lines = src.splitlines()
+                l1, c1, l2, c2 = seg
+                seg = (l1, len(lines[l1 - 1].encode()[:c1].decode()),
+                       l2, len(lines[l2 - 1].encode()[:c2].decode()))
             out.append({"id": f"{path.name}:{seg[0]}:{seg[1]}:{desc}", "file": path.name, "line": seg[0],
                         "seg": seg, "text": text, "desc": desc})
     return src, out
@@ -81,10 +107,12 @@ def coverage(covdir):
 FAIL = re.compile(r"^(?:FAIL|ERROR): \S+ \(([\w.]+)\) ?(.*)$", re.M)
 
 
-def run(scripts, m, tests, sources):
+def run(scripts, m, tests, sources, failfast=False):
     with tempfile.TemporaryDirectory() as tmp:
         copy = Path(tmp) / "scripts"
         shutil.copytree(scripts, copy, ignore=shutil.ignore_patterns("__pycache__"))
+        # The real-routing tests read this sibling of scripts, even for check-run mutants.
+        shutil.copy2(scripts.parent / "ROUTING.md", copy.parent / "ROUTING.md")
         mutated = apply(sources[m["file"]], m["seg"], m["text"])
         try:
             compile(mutated, m["file"], "exec")
@@ -93,7 +121,7 @@ def run(scripts, m, tests, sources):
         (copy / m["file"]).write_text(mutated)
         start = time.time()
         try:
-            r = subprocess.run([sys.executable, "-m", "unittest", *tests], cwd=copy / "tests",
+            r = subprocess.run([sys.executable, "-m", "unittest", *(["-f"] if failfast else []), *tests], cwd=copy / "tests",
                                capture_output=True, text=True, timeout=600)
         except subprocess.TimeoutExpired:
             return dict(m, tests=tests, killers=["timeout"], status="timeout", seconds=600)
@@ -112,6 +140,7 @@ def main():
     p.add_argument("--list", action="store_true"), p.add_argument("--workers", type=int, default=4)
     p.add_argument("--only")
     p.add_argument("--tests", help="comma-separated test ids: run only these, where they reach the line")
+    p.add_argument("--failfast", action="store_true", help="stop at first kill; survivors run all mapped tests")
     a = p.parse_args()
     scripts = Path(a.scripts).resolve()
     cov = coverage(a.covmap)
@@ -134,7 +163,7 @@ def main():
     results = [dict(m, tests=[], killers=[], status="unreached") for m, _ in uncovered]
     done = 0
     with ThreadPoolExecutor(a.workers) as pool:
-        for res in pool.map(lambda mt: run(scripts, mt[0], mt[1], sources), todo):
+        for res in pool.map(lambda mt: run(scripts, mt[0], mt[1], sources, a.failfast), todo):
             results.append(res)
             done += 1
             if done % 25 == 0:

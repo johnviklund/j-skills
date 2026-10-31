@@ -6,18 +6,21 @@ Status:  complete
 
 Docs read: none in scope; no PRODUCT.md or DESIGN.md. ROADMAP.md §Goal: keep the code base and test suites from growing unchecked
 Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-tool lines moved from prototypes/ · tests 1,630 · largest touched test_run_worktree.py 597 · over 1,000: none
-Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), about 250
+Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-<filled by execute>
-
+Current: T1 regenerating corrected mutation baseline; both corrections approved.
+writer: GPT-6.1 Sol
+Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
+Pending decision: none.
+Session 1: T1 incomplete; case-count and mutation-fixture findings.
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
 | F1 | Baseline @ 9a77cd3: workflow suite 120 tests OK in 52.3 s, checkup 8 OK. Tests 54 · 31 · 35, assertion calls 89 · 91 · 155, lines 566 · 467 · 597 match the brief. `git diff --stat aefd430..HEAD -- .github/skills/workflow/scripts` is empty | The tree is still Base, so T1 measures Base at HEAD. The brief's 60.1 s and 61.2 s came from another machine state, so T1 measures Base time again as a median of three |
 | F2 | The Base coverage map and mutation results exist only in `/tmp` (`covmap-before/`, `mut-before-*.json`) and have no message-string or `1.5` mutants | T1 regenerates Base into `receipts/` before any test changes |
 | F3 | `check-run.py:66` counts only `*.md` and `*.txt` as receipts; P2's raw JSON is 3.8 MB | Raw tool output stays in `/tmp`; receipts are sorted `.txt` item lists, one item per line |
-| F4 | The scripts hold 1,249 non-docstring strings; about 250 sit inside diagnostic calls: `rep.error/warn/note/missing_sha`, `print`, `sys.exit`, `raise ValueError/RuntimeError`. The one float is `TEST_RATIO = 1.5` at `check-run.py:63` | A message-string mutant wraps one string in a diagnostic call as `"XX" + s + "XX"`; the float mutants are `1.4` and `1.6`. All 1,249 strings would add about an hour per run |
+| F4 | The scripts hold 1,249 non-docstring fragments; 149 whole strings sit inside diagnostic calls: `rep.error/warn/note/missing_sha`, `print`, `sys.exit`, `raise ValueError/RuntimeError`. The one float is `TEST_RATIO = 1.5` at `check-run.py:63` | A message-string mutant wraps one string in a diagnostic call as `"XX" + s + "XX"`; the float mutants are `1.4` and `1.6`. All 1,249 strings would add about an hour per run |
 | F5 | Mutant ids collide once: `check-run.py:380:15:LtE->Lt`, a chained comparison | T1 makes ids unique, so compare loses no mutant |
 | F6 | P2 at Base took 8,725 CPU-s for 665 mutants, about 36 min on 4 workers; this machine has 8 cores | Runs use `--workers 6`. A full run takes about 50 min; T2 to T4 run `--only` their own script |
 | F7 | `next-step.py:112` calls check-run's `overrides()`, so next-step tests reach check-run lines | A loss across files shows only in a full-suite run, which T5 does |
@@ -27,6 +30,11 @@ Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only st
 | F11 | `checkup/references/seats.md:42` prints the `workflow improve tests` advice | D7 needs no new rule |
 | F12 | T2 to T4 change only tests, so their code Budget is 0 and check-run warns that the median code Budget is under 40 | The warning is expected here and is no merge signal |
 
+## Deviations
+- Human approved 1a: correct Base to 266 cases; 274 counted eight outer contexts twice.
+  Evidence: receipts/t1-case-count.md. F4 counts whole diagnostic strings, including f-strings.
+- The mutation copy omitted ROUTING.md: two tests fail unmutated, and 32 P2 catches depend only
+  on those tests. The fixture now copies that dependency. Human approved regenerating and using corrected counts.
 ## Tickets
 
 ### T1 — Base receipts: coverage map and mutation run with message-string and 1.5 mutants
@@ -34,8 +42,8 @@ Delivers: B4, B5 (Base half), prefactor for T2-T5 · Blocked by: none · Lane: l
 Budget: code +120 · tests +0
 Seam: `scripts/covmap/`, `scripts/mutation/`, `scripts/compare.py <base> <label>` in the run folder; P1 and P2 move there with `git mv`, P3 stays
 Accept:
-- [ ] `receipts/covmap-base.txt` totals → check-run.py 630 lines · 673 arms, next-step.py 204 · 229, run-worktree.py 188 · 170; 120 tests · 274 cases (B4)
-- [ ] `receipts/mutants-base.txt` → P2 kinds killed 392 · 95 · 89 as in P2, ids unique, and `TEST_RATIO` `1.4` and `1.6` mutants both caught (B5)
+- [ ] `receipts/covmap-base.txt` totals → check-run.py 630 lines · 673 arms, next-step.py 204 · 229, run-worktree.py 188 · 170; 120 tests · 266 cases (B4)
+- [ ] `receipts/mutants-base.txt` → corrected P2 caught counts recorded per script, ids unique, and `TEST_RATIO` `1.4` and `1.6` mutants both caught (B5)
 - [ ] the same receipt → message-string mutants listed per script with caught and survived counts, check-run.py caught > 0 (B5)
 - [ ] `compare.py base base` → `lost 0` per script and kind, exit 0; with one Base item deleted from a copy → exit 1 naming that item
 - [ ] `receipts/time-base.txt` → three workflow-suite times with nothing else running, and their median

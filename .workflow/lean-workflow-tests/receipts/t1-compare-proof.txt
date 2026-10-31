@@ -1,0 +1,3 @@
+covmap single-item deletion: exit 1; names line check-run.py 102
+mutants single-item deletion: exit 1; names killed check-run.py P2 check-run.py:107:11:Is->IsNot:op0
+Mutation: reverse before-minus-after; deleted-item assertion goes red as expected.
