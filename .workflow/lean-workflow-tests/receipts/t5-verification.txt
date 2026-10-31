@@ -1,0 +1,19 @@
+Baseline required suites: workflow 112 tests in 54.468s OK; checkup 8 in 0.434s OK; exit 0.
+Reuse search: existing covmap/run.py, mutation/mutate.py and compare.py cover all T5 checks; no new helper.
+Named Verify before edits: exit 1 at ROADMAP Done grep, as expected.
+Coverage full suite: 112 tests in 60.888s OK; 257 cases.
+Coverage sets equal Base exactly: symmetric difference 0.
+check-run.py: 630 lines, 673 arms; next-step.py: 204 lines, 229 arms;
+run-worktree.py: 188 lines, 170 arms.
+Full mutation run: --workers 6 --failfast, 752 covered mutants, 134 unreached.
+Outcomes: 559 killed, 180 survived, 12 syntax-invalid, 1 timeout.
+The timeout check-run.py:603:52:NotIn->In:op0 is also a timeout at Base.
+compare.py base final: lost 0 for all three scripts and every kind; exit 0.
+Isolated timing: 54.659, 50.925, 50.723 s; median 50.925 s. Base median 52.312 s.
+Totals: tests 120 → 112; cases 266 → 257; test lines 1,630 → 1,565.
+ROADMAP step 4 marked Done; AGENTS.md states about 51 s.
+Named Verify after edits: exit 0; three production script paths unchanged from aefd430.
+Final required suites: workflow 112 tests in 50.709s OK; checkup 8 in 0.421s OK; exit 0.
+No test assertions changed in T5. Mutation proof: none, doc/mechanical ticket.
+Raw mutation output: /tmp/lean-mutants-final.json
+SHA-256: 8f7d2131a88befce875f340f0a7663cfc3f0ab7ef12a721f2482d1f2a8250de3

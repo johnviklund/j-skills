@@ -1,0 +1,6 @@
+Command: python3 -m unittest discover -s .github/skills/workflow/scripts/tests
+Three sequential runs; no other task workloads running. Each: 112 tests, OK, exit 0.
+Run 1: 54.659 s
+Run 2: 50.925 s
+Run 3: 50.723 s
+Median: 50.925 s

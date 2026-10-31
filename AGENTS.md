@@ -21,8 +21,8 @@ reporting any step done, and paste the result:
 python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests
 ```
 
-Healthy output: each suite ends with `OK`, and the command exits 0. The workflow suite takes
-about a minute. Zero tests run is a failure, not a pass.
+Healthy output: each suite ends with `OK`, and the command exits 0.
+The workflow suite takes about 51 s. Zero tests run is a failure, not a pass.
 
 A failing test is fixed in the code, never by editing or deleting the test. A ticket that edits
 only Markdown also verifies by content with the `grep` its plan names.
