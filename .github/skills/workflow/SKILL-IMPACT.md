@@ -10,6 +10,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-10-31 | workflow | execute baseline: the previous ticket's passing suite is reused when the commits since it touch only the run's own `.workflow/<slug>/` files (the record commit each ticket ends with), not only when HEAD is unchanged. Judge: tickets after a record commit cite the earlier suite instead of rerunning it | the 2026-10-21 baseline-reuse row (reuse in 4 of 21 later ticket receipts; record commits move HEAD) | 3 runs | trialing |
 | 2026-10-31 | workflow | plan §5: a `Verify:` written as `! cmd` proves only a nonzero exit; when an acceptance line names an output literal, the Verify checks that literal. Judge: acceptance lines naming a literal that rest on a receipt alone in review (target 0) | conductor-skill C2-1 | 3 runs | trialing |
 | 2026-10-30 | workflow | plan Risks: check the claim an accepted risk rests on in the code; MAINTAINING: a new model source must reach every reader of the old one | model-overrides learnings (review C1-1, C1-2) | 3 runs | trialing |
 | 2026-10-30 | workflow | Done runs skip historical routing overrides in both CLIs; execute and review consult run routing before the shared model mapping. Judge: later done runs survive retired phase keys, and custom model vendors remain visible during review | model-overrides C1-T1, C1-T2 | 3 runs | trialing |
