@@ -210,7 +210,7 @@ def main():
             return land(repo, args.slug)
         path = open_run(repo, args.slug) if args.command == "open" else where(repo, args.slug)
         print(path.relative_to(repo).as_posix())
-    except (RuntimeError, OSError, subprocess.CalledProcessError) as error:
+    except (RuntimeError, OSError, ValueError, subprocess.CalledProcessError) as error:
         print(error, file=sys.stderr)
         return 1
     return 0

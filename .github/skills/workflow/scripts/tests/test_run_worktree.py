@@ -149,7 +149,8 @@ class OpenTests(RepoTests):
                 self.write(".workflow/B/decisions.md",
                            "| ID | Phase | Question | Default | Status | Answer |\n"
                            "|---|---|---|---|---|---|\n"
-                           f"| D1 | {phase} | Approve T1? | commit | answered | commit |\n")
+                           "| D1 | plan | Which port? | 8000 | assumed | 8000 |\n"
+                           f"| D2 | {phase} | Approve T1? | commit | answered | commit |\n")
                 self.commit("first ticket decision")
                 self.write("src.py", "pending UI code\n")
                 before = self.git("worktree", "list").stdout
@@ -159,6 +160,17 @@ class OpenTests(RepoTests):
                 if phase == "execute":
                     self.assertEqual(self.git("worktree", "list").stdout, before)
                 self.assertEqual((self.repo / "src.py").read_text(), "pending UI code\n")
+
+    def test_Open_reports_a_malformed_decision_row(self):
+        self.write(".workflow/B/decisions.md",
+                   "| ID | Phase | Question | Default | Status | Answer |\n"
+                   "|---|---|---|---|---|---|\n"
+                   "| D1 | execute | Approve T1? | commit | pending | commit |\n")
+        self.commit("bad decision status")
+        result = self.run_command("open")
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("D1: unknown decision status pending", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_Open_stops_when_setup_fails(self):
         self.write("AGENTS.md", "## Worktree setup\n```sh\nfalse\ntouch ready\n```\n")
