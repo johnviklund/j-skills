@@ -119,13 +119,13 @@ class NextStepTests(unittest.TestCase):
                 self.fails(result, key)
 
     def test_key_prints_model_lines_without_a_run(self):
-        for key, expected_code in (("review", 0), ("nope", 1)):
+        for key in ("review", "nope"):
             with self.subTest(key=key):
                 result = subprocess.run([sys.executable, str(SCRIPT), "--key", key,
                                          "--routing", str(self.routing)], cwd=self.temp.name,
                                         capture_output=True, text=True)
                 if key == "review":
-                    self.assertEqual(result.returncode, expected_code, result.stderr)
+                    self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(result.stdout, "- **Model:** Opus 5.5 · xhigh · large\n"
                                      "- **Fallback:** Sonnet 5.5 · xhigh\n")
                 else:

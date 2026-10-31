@@ -63,13 +63,13 @@ class OpenTests(RepoTests):
         self.write(".workflow/A/plan.md", "### T1 — ticket\nStatus: todo\n")
         self.commit("planned only")
         before = self.git("worktree", "list").stdout
-        result = self.run_command("open", expected=".")
+        self.run_command("open", expected=".")
         self.assertEqual(self.git("worktree", "list").stdout, before)
 
     def test_Open_excludes_multiple_isolated_runs_once(self):
         self.started()
         for slug in ("B", "C"):
-            result = self.run_command("open", slug, expected=f".worktrees/{slug}")
+            self.run_command("open", slug, expected=f".worktrees/{slug}")
         self.assertEqual((self.repo / ".git/info/exclude").read_text().splitlines().count(".worktrees/"), 1)
 
     def test_Open_keeps_started_run_with_its_uncommitted_work(self):
@@ -82,7 +82,7 @@ class OpenTests(RepoTests):
                     dirty = "t2.py" if started else "src.py"
                     self.write(dirty, "unfinished\n")
                     before = self.git("worktree", "list").stdout
-                    result = self.run_command("open", expected="." if started else ".worktrees/B")
+                    self.run_command("open", expected="." if started else ".worktrees/B")
                     if started:
                         self.assertEqual(self.git("worktree", "list").stdout, before)
                     self.assertEqual((self.repo / dirty).read_text(), "unfinished\n")
@@ -112,14 +112,14 @@ class OpenTests(RepoTests):
                         self.write(".workflow/A/plan.md", "### T1 — ticket\n")
                         self.commit("missing ticket status")
                 before = self.git("worktree", "list").stdout
-                result = self.run_command("open", expected=".")
+                self.run_command("open", expected=".")
                 self.assertEqual(self.git("worktree", "list").stdout, before)
 
     def test_Open_preserves_dirty_files_and_excludes_once(self):
         self.write("src.py", "uncommitted\n")
         before = self.git("status", "--porcelain").stdout
         for _ in range(2):
-            result = self.run_command("open", expected=".worktrees/B")
+            self.run_command("open", expected=".worktrees/B")
         self.assertEqual((self.repo / "src.py").read_text(), "uncommitted\n")
         self.assertEqual(self.git("status", "--porcelain").stdout, before)
         self.assertEqual((self.repo / ".git/info/exclude").read_text().splitlines().count(".worktrees/"), 1)
@@ -129,7 +129,7 @@ class OpenTests(RepoTests):
         self.write(".workflow/A/plan.md", "### T1 — ticket\nStatus: todo\n")
         self.commit("unstarted run")
         self.write("src.py", "uncommitted\n")
-        result = self.run_command("open", expected=".worktrees/B")
+        self.run_command("open", expected=".worktrees/B")
 
     def test_Open_resumes_first_ticket_with_an_execute_decision(self):
         for phase in ("execute", "plan"):
@@ -144,7 +144,7 @@ class OpenTests(RepoTests):
                 self.commit("first ticket decision")
                 self.write("src.py", "pending UI code\n")
                 before = self.git("worktree", "list").stdout
-                result = self.run_command("open", expected="." if phase == "execute" else ".worktrees/B")
+                self.run_command("open", expected="." if phase == "execute" else ".worktrees/B")
                 if phase == "execute":
                     self.assertEqual(self.git("worktree", "list").stdout, before)
                 self.assertEqual((self.repo / "src.py").read_text(), "pending UI code\n")
@@ -265,7 +265,7 @@ class WhereTests(RepoTests):
         self.assertEqual(self.run_command("open").returncode, 0)
         tip = self.git("rev-parse", "run/B").stdout
         self.git("worktree", "remove", ".worktrees/B")
-        result = self.run_command("where", expected=".worktrees/B")
+        self.run_command("where", expected=".worktrees/B")
         self.assertEqual(self.git("rev-parse", "HEAD", repo=self.repo / ".worktrees/B").stdout, tip)
 
     def test_Where_without_origin_uses_the_primary_checkout(self):
@@ -293,7 +293,7 @@ class WhereTests(RepoTests):
         self.assertEqual(self.run_command("where").stdout.strip(), ".")
         self.started()
         self.assertEqual(self.run_command("open").returncode, 0)
-        result = self.run_command("where", expected=".worktrees/B")
+        self.run_command("where", expected=".worktrees/B")
 
     def test_Where_recovers_and_fast_forwards_another_clone(self):
         self.started()
@@ -310,7 +310,7 @@ class WhereTests(RepoTests):
                 self.write("ticket.py", "advanced\n", repo=tree)
                 expected = self.commit("advance", repo=tree)
                 self.git("push", "-q", "origin", "run/B", repo=tree)
-            result = self.run_command("where", repo=clone, expected=".worktrees/B")
+            self.run_command("where", repo=clone, expected=".worktrees/B")
             self.assertEqual(self.git("rev-parse", "HEAD", repo=clone / ".worktrees/B").stdout.strip(), expected)
         self.assertEqual(self.git("status", "--porcelain", repo=clone).stdout, "")
 

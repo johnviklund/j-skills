@@ -388,8 +388,8 @@ class OperatorTests(unittest.TestCase):
                 self.assertRegex(out, r"(?m)^== x · complete · \d+ errors")
 
 
-def review(size="", created="2026-10-09"):
-    return (HEADER.format(cmd="review", created=created, base="{base}") + "\n## Coverage\n"
+def review(size=""):
+    return (HEADER.format(cmd="review", created="2026-10-09", base="{base}") + "\n## Coverage\n"
             + "- [x] T1 — acceptance 1/1 tested and passing\n" + size
             + "Independence: cross-vendor\n\n## Cycle 1 findings\n\n## Cycle 1 verdict\nship as-is\n")
 
@@ -418,8 +418,8 @@ class CycleTests(unittest.TestCase):
     SIZE = "Size: +40 code · +60 tests · ratio 1.5 · net +100 · over 1,000: none\n"
     LATER = "\n## Cycle 2 findings\n\n## Cycle 2 verdict\nfix\n\n## Cycle 3 findings\n{approval}\n## Cycle 3 verdict\nship\n"
 
-    def run_review(self, created="2026-10-10", approval=""):
-        text = review(self.SIZE, created) + self.LATER.format(approval=approval)
+    def run_review(self, approval=""):
+        text = review(self.SIZE) + self.LATER.format(approval=approval)
         return check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": text})
 
     def test_cycle_three_without_approval_is_an_error(self):
