@@ -9,11 +9,13 @@ Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-t
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
 
 ## Execution state
-Current: T1 regenerating corrected mutation baseline; both corrections approved.
+Current: T2 ready; T1 baseline complete.
+T1 @ 6bdf81d
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
+Session 2: T1
 ## Findings
 | # | What is true | What it changes |
 |---|---|---|
@@ -42,14 +44,15 @@ Delivers: B4, B5 (Base half), prefactor for T2-T5 · Blocked by: none · Lane: l
 Budget: code +120 · tests +0
 Seam: `scripts/covmap/`, `scripts/mutation/`, `scripts/compare.py <base> <label>` in the run folder; P1 and P2 move there with `git mv`, P3 stays
 Accept:
-- [ ] `receipts/covmap-base.txt` totals → check-run.py 630 lines · 673 arms, next-step.py 204 · 229, run-worktree.py 188 · 170; 120 tests · 266 cases (B4)
-- [ ] `receipts/mutants-base.txt` → corrected P2 caught counts recorded per script, ids unique, and `TEST_RATIO` `1.4` and `1.6` mutants both caught (B5)
-- [ ] the same receipt → message-string mutants listed per script with caught and survived counts, check-run.py caught > 0 (B5)
-- [ ] `compare.py base base` → `lost 0` per script and kind, exit 0; with one Base item deleted from a copy → exit 1 naming that item
-- [ ] `receipts/time-base.txt` → three workflow-suite times with nothing else running, and their median
+- [x] `receipts/covmap-base.txt` totals → check-run.py 630 lines · 673 arms, next-step.py 204 · 229, run-worktree.py 188 · 170; 120 tests · 266 cases (B4)
+- [x] `receipts/mutants-base.txt` → corrected P2 caught counts recorded per script, ids unique, and `TEST_RATIO` `1.4` and `1.6` mutants both caught (B5)
+- [x] the same receipt → message-string mutants listed per script with caught and survived counts, check-run.py caught > 0 (B5)
+- [x] `compare.py base base` → `lost 0` per script and kind, exit 0; with one Base item deleted from a copy → exit 1 naming that item
+- [x] `receipts/time-base.txt` → three workflow-suite times with nothing else running, and their median
 Verify: `cd .workflow/lean-workflow-tests && python3 scripts/compare.py base base` (pre: new file)
 Skills: none
-Status: todo
+Status: done @ 6bdf81d
+Writer: GPT-6.1 Sol
 
 ### T2 — run-worktree tests fold behind shared helpers; the checkout test moves to check-run
 Delivers: B2, B4, B5, B6 · Blocked by: T1 · Lane: logic
