@@ -26,26 +26,8 @@ Default target:
 - the repo in the current working directory
 
 Also update the shared `j-skills` repo when the learning changes:
-- a shared skill itself (this one, `memory.compact`, or any other skill living in `j-skills`)
+- a shared skill itself (this one, `memory.compact`, or any other skill living in `j-skills`); edit it per [the clone rule](references/skill-edits.md)
 - a cross-repo convention or workflow step that applies beyond the current repo
-
-**A skill edit lands only in a push-able clone.** Before editing a shared skill, find a
-`johnviklund/j-skills` checkout on this machine (`git -C <dir> remote get-url origin`) and confirm
-it with `git -C <dir> rev-parse --is-inside-work-tree`. Installed copies under `~/.agents/skills/`
-are snapshots and do not count. With no clone, hand each approved skill edit to the human as a
-**skill-edit prompt**, pasted into a session on the skills server, and leave `j-skills` itself
-alone: no clone into `/tmp`, no borrowed token, no push, no edit to the installed copy. A work
-machine's git identity cannot push to `j-skills`, and a borrowed token publishes under the wrong
-author. Repo-local fixes (`TODO.md`, `memory/` pages, the repo's own skills) still land in this
-repo. The prompt (default shape) goes in your report:
-
-```text
-In the j-skills clone, edit `.github/skills/<skill>/<file>`: <exact old text> → <exact new text>
-Add to `.github/skills/workflow/SKILL-IMPACT.md`: | <date> | <skill> | <change. Judge: …> | <generic from> | 3 runs | trialing |
-Apply per the log's `Mode:` line, commit only these files, push, then run `npx skills update -g`.
-```
-
-After the human pushes, each machine that runs the skills refreshes with `npx skills update -g`.
 
 ## Memory Layers
 
@@ -213,7 +195,7 @@ When the user invokes `/remember`:
      - `README.md` only when the user-facing setup or workflow changed
      - the relevant skill's `SKILL.md` for any promoted principle (new or existing skill), plus its `SKILL-IMPACT.md` line, in their own commit
      - `DESIGN.md` for any refined design-system section, when the repo has one
-   - Also update the shared `j-skills` repo when the change affects a shared skill or another cross-repo convention: in a push-able clone, or as a skill-edit prompt when the machine has none (*Scope*).
+   - Also update the shared `j-skills` repo when the change affects a shared skill or another cross-repo convention.
 
 7. When finishing a workflow pass, follow the [workflow wrap-up](references/workflow-runs.md).
 
