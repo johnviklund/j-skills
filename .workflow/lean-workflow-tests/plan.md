@@ -3,20 +3,19 @@ Created: 2026-10-31 · claude-opus-5-5
 Base:    9a77cd3
 Inputs:  .workflow/lean-workflow-tests/brainstorm.md @ aefd430
 Status:  complete
-
 Docs read: none in scope; no PRODUCT.md or DESIGN.md. ROADMAP.md §Goal: keep the code base and test suites from growing unchecked
 Size: code 0 skill lines touched (scripts 1,355 measured, unchanged) + 426 run-tool lines moved from prototypes/ · tests 1,630 · largest touched test_run_worktree.py 597 · over 1,000: none
 Decisions: 1a approve T1-T5 as listed · 2a message-string mutants cover only strings inside diagnostic calls (F4), 149 complete strings
-
 ## Execution state
-Current: T4 in progress; next-step consolidation and coverage/mutation verification.
+Current: T5 ready; mechanical lane uses medium effort, so execution hands off.
 T1 @ 6bdf81d
 T2 @ e86f78a
 T3 @ d508b3a
+T4 @ 6c4b4ca
 writer: GPT-6.1 Sol
 Baseline: workflow 120 tests in 52.675s OK; checkup 8 tests in 0.428s OK.
 Pending decision: none.
-Session 3: T4 in progress.
+Session 3: T4
 Session 1: T1 incomplete; case-count and mutation-fixture findings.
 Session 2: T1, T2, T3
 ## Findings
@@ -85,12 +84,13 @@ Delivers: B3, B4, B5, B6 · Blocked by: T3 · Lane: logic
 Budget: code +0 · tests +0
 Seam: `test_next_step.py`
 Accept:
-- [ ] `test_next_step.py` → under 31 tests and 467 lines; `grep -c Traceback` 1, inside the shared failure helper (B3)
-- [ ] `compare.py base t4` → `lost 0` for covmap on all three scripts and for next-step.py mutants (B4, B5)
-- [ ] `receipts/mapping.md` → a row per removed test and per merged test of next-step; assertions 91 → N (B6)
+- [x] `test_next_step.py` → under 31 tests and 467 lines; `grep -c Traceback` 1, inside the shared failure helper (B3)
+- [x] `compare.py base t4` → `lost 0` for covmap on all three scripts and for next-step.py mutants (B4, B5)
+- [x] `receipts/mapping.md` → a row per removed test and per merged test of next-step; assertions 91 → N (B6)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_next_step.py && (cd .workflow/lean-workflow-tests && python3 scripts/compare.py base t4)` (pre: 31 tests OK, then compare.py new file)
 Skills: none
-Status: todo
+Status: done @ 6c4b4ca
+Writer: GPT-6.1 Sol
 ### T5 — Close: full comparison, suite time, ROADMAP step 4 and AGENTS.md
 Delivers: B4, B5, B7, B8 · Blocked by: T4 · Lane: mechanical
 Budget: code +0 · tests +0
