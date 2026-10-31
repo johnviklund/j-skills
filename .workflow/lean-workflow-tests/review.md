@@ -2,7 +2,7 @@ Command: workflow review lean-workflow-tests
 Created: 2026-10-31
 Base:    3de9155
 Inputs:  .workflow/lean-workflow-tests/plan.md @ 9a77cd3 · patch_plan.md @ 6c5a986
-Status:  complete
+Status:   done
 
 ## Coverage
 - [x] T1 — acceptance 5/5: `covmap-base.txt` totals 630·673 / 204·229 / 188·170, 120 tests · 266 cases; `mutants-base.txt` ids unique, ratio 1.4/1.6 killed, message mutants per script; `time-base.txt` median 52.312 s

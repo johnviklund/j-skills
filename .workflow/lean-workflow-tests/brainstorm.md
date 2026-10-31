@@ -2,7 +2,7 @@ Command: workflow improve tests - goal: fewer tests, same coverage
 Created: 2026-10-31 · claude-opus-5-5
 Base:    aefd430
 Inputs:  none
-Status:  complete
+Status:   done
 Mode: attended
 
 ## Problem
