@@ -21,14 +21,14 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
 - **Pending skill proposals.** `find . ~/.agents -name 'SKILL.md.proposed' 2>/dev/null` and any
   `SKILL-IMPACT.md` row with outcome `proposed`: ⚠️ "awaiting your accept/reject — `mv` to accept,
   delete and mark `rejected` to decline". Never accept or reject on the human's behalf.
-- **Skill trials.** Entries also carry `Skills: <skill>@<sha>`. For each `trialing` line in the
-  skills repo's `SKILL-IMPACT.md`, compare `Run:` numbers for entries at the new sha against the
-  entries before it. The sha is the skill folder's tree hash: map it to a commit by matching
-  `git rev-parse <commit>:<skill folder>` over that folder's history; an entry whose sha matches
-  no commit is ⚠️ "unresolvable sha" and is left out of the comparison: once the trial count is reached, ⚠️ "trial complete -- better / worse / no
-  signal, N runs"; worse means recommend reverting. Never edit the skill. Compare only like with
-  like: v2.02 entries count checklist steps (≤12), v2.1 entries count tickets (≤8), so across that
-  boundary compare review cycles and deviations only.
+- **Skill trials.** Run `python3 <checkup skill folder>/scripts/skill-trials.py [REPO ...]`.
+  Pass every repo whose worklog and learnings supply trial evidence; no arguments means this repo.
+  Python 3 is the only dependency; the impact table defaults to the sibling workflow skill.
+  Copy its lines. A finished trial needs a save tag or better mean review cycles plus deviations.
+  The script compares the first N later runs against the last N earlier runs for the row's skills.
+  Dates define the window, so same-day changes share numbers; the comparison does not attribute gains to one rule.
+  Other trial units require a manual count. A removal candidate goes to `workflow improve <skill>`;
+  confirm with the human before removing a rule. A From note `insurance: <incident>` protects it.
 - **Trial in progress.** A model on a seat with only one run: ✅ note "trial, 1 run -- needs one
   more before judging".
 - **Promotion candidate.** A non-incumbent with ≥2 runs that ties or beats the incumbent on

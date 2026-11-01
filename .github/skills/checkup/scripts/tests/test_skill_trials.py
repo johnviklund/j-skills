@@ -73,3 +73,47 @@ class SkillTrialsTests(unittest.TestCase):
             with self.subTest(date=date, skill=skill):
                 self.tag(self.a, f"- [saved→skill] {date} {skill} — stopped it\n")
                 self.assertIn(f"· {saves} save", self.scan("--sweep")[-1])
+
+    def worklog(self, after=3, score=4, before=True, repo=None, skill="workflow"):
+        entries = []
+        for date, count, value in [("2026-10-31", 3 if before else 0, 4),
+                                   ("2026-11-02", after, score)]:
+            entries.extend(f"## {date} · run-{i}\n- Run: 2 tickets · 1 sessions · "
+                           f"{value - 1} review cycles · 1 deviations · 0 findings overturned\n"
+                           f"- Skills: {skill}@abc\n" for i in range(count))
+        (repo or self.a).joinpath("WORKLOG.md").write_text("\n".join(reversed(entries)))
+
+    def test_finished_trial_verdicts(self):
+        for score, save, source, expected in [
+            (2, False, "run", "✅ 2026-11-01 workflow · trial complete · kept · numbers better (before 4.0 → after 2.0)"),
+            (4, False, "run", "⚠️ 2026-11-01 workflow · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve workflow"),
+            (6, True, "run", "✅ 2026-11-01 workflow · trial complete · kept · 1 save"),
+            (6, False, "insurance: release", "✅ 2026-11-01 workflow · trial complete · kept · insurance: release")]:
+            with self.subTest(score=score, save=save, source=source):
+                self.rows(self.row(source=source))
+                self.worklog(score=score)
+                self.tag(self.a, "[saved→skill] 2026-11-01 workflow — stopped it" if save else "")
+                self.assertTrue(self.scan()[0].startswith(expected), self.scan())
+                self.assertTrue(self.scan("--sweep")[0].startswith(
+                    ("keep" if score < 4 or save else "insurance" if "insurance:" in source else "candidate") + " ·"))
+
+    def test_trial_completion_and_missing_evidence(self):
+        for count, unit, before, skill, expected in [
+            (2, "runs", True, "workflow", []),
+            (3, "checkups", True, "workflow", ["open · count checkups by hand"]),
+            (3, "runs", False, "workflow", ["numbers unavailable (before n/a → after 4.0)"]),
+            (3, "runs", True, "checkup", [])]:
+            with self.subTest(count=count, unit=unit, before=before, skill=skill):
+                self.rows(self.row().replace("3 runs", f"3 {unit}"))
+                self.worklog(after=count, before=before, skill=skill)
+                out = self.scan()
+                self.assertEqual(len(out), len(expected))
+                for needle in expected:
+                    self.assertIn(needle, out[0])
+                self.assertEqual(len(self.scan("--sweep")), 1)
+
+    def test_worklog_evidence_across_repos(self):
+        self.rows(self.row())
+        self.worklog(after=2, score=2)
+        self.worklog(after=1, score=2, before=False, repo=self.b)
+        self.assertIn("numbers better (before 4.0 → after 2.0)", self.scan()[0])
