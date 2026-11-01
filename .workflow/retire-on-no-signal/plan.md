@@ -9,13 +9,15 @@ Size: code 0 · tests 0 · ratio n/a (the script and its test are new files) · 
 Decisions: tickets approved 1a · 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
 
 ## Execution state
-Current: T2 todo; T1 done.
+Current: T3 awaiting-human; T1 and T2 done.
 T1 @ 3aeab1c
+T2 @ 1ad5a7d
 writer: GPT-6.1 Sol
-Session 1: T1
+Session 1: T1, T2
 Baseline: workflow 124 tests OK; checkup 12 tests OK. No pre-existing failures.
 T1 final: workflow 124 tests OK; checkup 12 tests OK.
-Uncommitted: run records only. Pending decision: none.
+T2 final: workflow 124 tests OK; checkup 15 tests OK.
+Uncommitted: run records only. Pending decision: T3 row choices.
 
 ## Findings
 | # | What is true | What it changes |
@@ -56,14 +58,15 @@ Delivers: B2, B3 · Blocked by: T1 · Lane: logic
 Budget: code +60 · tests +80 · why: each case needs worklog entries before and after its row
 Seam: stdout of `python3 .github/skills/checkup/scripts/skill-trials.py [REPO ...]` (no `--sweep`) on fixture repos; `seats.md` by grep
 Accept:
-- [ ] `3 runs` row, 0 saves, cycles plus deviations averaging 4 before and 2 after → `✅ <date> <skill> · trial complete · kept · numbers better (before 4.0 → after 2.0)` (B3)
-- [ ] The same row averaging 4 after → `⚠️ <date> <skill> · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve <skill>` (B2)
-- [ ] A finished row with 1 save and a higher average after → its line holds `kept · 1 save`, not `removal candidate` (B3)
-- [ ] A `3 runs` row with 2 later entries → no line without `--sweep`; a `3 checkups` row → line ends `open · count checkups by hand` (B2)
-- [ ] `seats.md` *Skill trials* runs `scripts/skill-trials.py` and names `workflow improve` for a candidate; the tree-hash mapping text `git rev-parse <commit>:<skill folder>` is gone (B2)
+- [x] `3 runs` row, 0 saves, cycles plus deviations averaging 4 before and 2 after → `✅ <date> <skill> · trial complete · kept · numbers better (before 4.0 → after 2.0)` (B3)
+- [x] The same row averaging 4 after → `⚠️ <date> <skill> · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve <skill>` (B2)
+- [x] A finished row with 1 save and a higher average after → its line holds `kept · 1 save`, not `removal candidate` (B3)
+- [x] A `3 runs` row with 2 later entries → no line without `--sweep`; a `3 checkups` row → line ends `open · count checkups by hand` (B2)
+- [x] `seats.md` *Skill trials* runs `scripts/skill-trials.py` and names `workflow improve` for a candidate; the tree-hash mapping text `git rev-parse <commit>:<skill folder>` is gone (B2)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py && grep -q 'scripts/skill-trials.py' .github/skills/checkup/references/seats.md && ! grep -q 'rev-parse <commit>:<skill folder>' .github/skills/checkup/references/seats.md` (pre: new file · `NO TESTS RAN`, exit 5)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 1ad5a7d
+Writer: GPT-6.1 Sol
 
 ### T3 — The first sweep over this repo's open trials, confirmed by the human
 Delivers: B6 · Blocked by: T1, T2 · Lane: operator
@@ -76,7 +79,7 @@ Accept:
 - [ ] after recording → `skill-trials.py --sweep .` prints no line starting `keep ·`, and each human answer has a `decisions.md` row (D3)
 Verify: `receipt: receipts/t3-sweep.txt — 37 rows · 0 tag lines; then the sweep shows no keep line` (pre: no receipt)
 Skills: none
-Status: todo
+Status: awaiting-human
 
 ## Coverage
 - Outcome → T2 (`checkup seats` runs the script and names a finished trial with no save and no gain as a candidate for `workflow improve`)
