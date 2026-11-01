@@ -7,7 +7,12 @@ Status:  complete
 Three tickets for cycle 2, approved by the human as a third cycle ("1a"). C2-T1 fixes a crash, so it lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 changes tests only. C2-T3 edits one README sentence.
 
 ## Execution state
-Current: C2-T1 ready
+Current: C2-T1 done; C2-T2 ready
+C2-T1 @ a8b72da
+writer: GPT-6.1 Sol
+Baseline: workflow 124 tests OK; checkup 20 tests OK.
+C2-T1 final: workflow 124 tests OK; checkup 22 tests OK.
+Uncommitted: none after record commit. Pending decision: none.
 
 ## Tickets
 
@@ -18,14 +23,17 @@ Budget: code +6 · tests +14
 Seam: exit code, stdout and stderr of `skill-trials.py` on fixture impact and archive files, and on this repo
 Change: in `rows()` at `skill-trials.py:13`, split cells on unescaped pipes only: `re.split(r"(?<!\\)\|", line.strip())[1:-1]`. Cells keep their text as written. A row that still has a cell count other than 6 raises `ValueError` naming `<file>:<line>`, so `main()` exits 2 with that message. Site search: `rows()` is the only parser of `SKILL-IMPACT` rows; the `split("|")` calls in `check-run.py:156,596` read run artifacts and are out of scope.
 Accept:
-- [ ] An archive fixture row with `\|` inside its Change cell, as real archive row 17 has, plus a trialing impact row with `\|` in its Change → `--sweep` exits 0 and prints that row's Change as written (C2-1)
-- [ ] A save tag whose words match only that archive row → no `⚠️ tag` line (C2-1)
-- [ ] An archive row with 5 cells at line 3 → exit 2, and stderr holds `SKILL-IMPACT_ARCHIVE.md:3` (C2-1)
-- [ ] From this repo's root, `skill-trials.py .` and `skill-trials.py --sweep .` each exit 0; the sweep prints one `^(keep|insurance|candidate) · ` line per `| trialing |` row of `SKILL-IMPACT.md`, 27 today (C2-1, Outcome)
-- [ ] Narrowing `except (OSError, ValueError)` at `:104` to `except OSError` fails the suite (C2-1)
+- [x] An archive fixture row with `\|` inside its Change cell, as real archive row 17 has, plus a trialing impact row with `\|` in its Change → `--sweep` exits 0 and prints that row's Change as written (C2-1)
+- [x] A save tag whose words match only that archive row → no `⚠️ tag` line (C2-1)
+- [x] An archive row with 5 cells at line 3 → exit 2, and stderr holds `SKILL-IMPACT_ARCHIVE.md:3` (C2-1)
+- [x] From this repo's root, `skill-trials.py .` and `skill-trials.py --sweep .` each exit 0; the sweep prints one `^(keep|insurance|candidate) · ` line per `| trialing |` row of `SKILL-IMPACT.md`, 27 today (C2-1, Outcome)
+- [x] Narrowing `except (OSError, ValueError)` at `:104` to `except OSError` fails the suite (C2-1)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py && python3 .github/skills/checkup/scripts/skill-trials.py . >/dev/null && [ "$(python3 .github/skills/checkup/scripts/skill-trials.py --sweep . | grep -cE '^(keep|insurance|candidate) · ')" = "$(grep -c '| trialing |$' .github/skills/workflow/SKILL-IMPACT.md)" ]` (pre: the new archive case fails, and `skill-trials.py .` exits 2 with `too many values to unpack`)
 Skills: .github/skills/workflow/references/tests.md
-Status: todo
+Status: done @ a8b72da
+Writer: GPT-6.1 Sol
+Red: 81bd914
+Proof: receipts/c2-t1-verification.md
 
 ### C2-T2 — Tests kill the three surviving mutations
 Delivers: B2, B3, B6 · Blocked by: C2-T1 · Lane: logic
