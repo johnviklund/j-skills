@@ -209,7 +209,11 @@ class SkillTrialsTests(unittest.TestCase):
 
     def test_bad_archive_row_names_location(self):
         self.rows(self.row())
-        self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text("# Archive\n\n" + self.row().replace(" | run", ""))
-        result = subprocess.run([sys.executable, str(SCRIPT), "--impact", str(self.impact), str(self.a)], capture_output=True, text=True)
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("SKILL-IMPACT_ARCHIVE.md:3", result.stderr)
+        for cells, row in [(5, self.row().replace(" | run", "")),
+                           (7, self.row(change="push | guard"))]:
+            with self.subTest(cells=cells):
+                self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text("# Archive\n\n" + row)
+                result = subprocess.run([sys.executable, str(SCRIPT), "--impact", str(self.impact), str(self.a)], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("SKILL-IMPACT_ARCHIVE.md:3", result.stderr)
+                self.assertIn(f"got {cells}", result.stderr)
