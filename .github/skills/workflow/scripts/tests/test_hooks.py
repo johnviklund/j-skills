@@ -117,6 +117,18 @@ class PrePushTests(HookRepo):
         self.git('remote', 'add', 'origin', str(self.origin))
         self.assertEqual(self.install().returncode, 0)
 
+    def test_PrePush_secret_to_spaced_target_is_refused(self):
+        spaced = self.root / 'origin space.git'
+        self.origin.rename(spaced)
+        token = 'gh' + 'p_' + ''.join(random.Random(17).sample(string.ascii_letters + string.digits, 36))
+        self.stage('credential.txt', token + '\n')
+        self.assertEqual(self.commit().returncode, 0)
+        result = self.git('push', str(spaced), 'HEAD:refs/heads/leak')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn(token, result.stdout + result.stderr)
+        self.assertNotEqual(self.git('--git-dir=' + str(spaced), 'rev-parse', '--verify',
+                                     'refs/heads/leak').returncode, 0)
+
     def test_PrePush_secret_is_redacted_and_remote_history_is_excluded(self):
         token = 'gh' + 'p_' + ''.join(random.Random(17).sample(string.ascii_letters + string.digits, 36))
         self.stage('credential.txt', token + '\n')
