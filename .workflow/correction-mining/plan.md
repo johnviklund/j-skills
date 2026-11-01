@@ -10,10 +10,12 @@ Decisions: 1a (tickets approved) · 2a (checkup calls the script from references
 
 ## Execution state
 T1 @ 00623b1
+T2 @ a5cd7fc
 writer: GPT-6.1 Sol
-Session 1: T1
-Baseline: workflow 126 tests OK; checkup 30 tests OK.
-Current: T2 todo; no pending decision.
+Session 1: T1, T2
+Initial suite: workflow 126 tests OK; checkup 30 tests OK, including T1.
+Final suite: workflow 126 tests OK; checkup 33 tests OK.
+Current: T3 todo; reset for mechanical lane medium effort; no pending decision.
 
 ## Findings
 | # | What is true | What it changes |
@@ -53,14 +55,15 @@ Delivers: B2, B3, B4 · Blocked by: T1 · Lane: logic
 Budget: code +65 · tests +90 · why: Codex and Copilot fixtures copy their real duplicate and unattended records (F4, F5, F8)
 Seam: the same command, on Claude, Codex and Copilot fixtures; test classes end in `StoreTests` and never contain `ClaudeTests`
 Accept:
-- [ ] Claude denial of Bash `cd /r && git push` → `denial · Bash · git`; of Edit → `denial · Edit`; a `tool_result` quoting the phrase mid-text → no key (B2)
-- [ ] A denial whose result holds `the user said:\nuse a branch` → redirect `- claude · denial · Bash · git: use a branch` (B3)
-- [ ] Codex `turn_aborted` `interrupted` after `custom_tool_call` `exec` → one `interrupt · exec` despite the `<turn_aborted>` message; the next `UserMessage` is the redirect (B4)
-- [ ] A Codex file whose `session_meta` source holds `subagent` → no key; the stores line counts it as read (B4)
-- [ ] Copilot denial `unattended_fallback` → no key; same denial from another `decisionSource` → `denial · shell · ls` (B4)
+- [x] Claude denial of Bash `cd /r && git push` → `denial · Bash · git`; of Edit → `denial · Edit`; a `tool_result` quoting the phrase mid-text → no key (B2)
+- [x] A denial whose result holds `the user said:\nuse a branch` → redirect `- claude · denial · Bash · git: use a branch` (B3)
+- [x] Codex `turn_aborted` `interrupted` after `custom_tool_call` `exec` → one `interrupt · exec` despite the `<turn_aborted>` message; the next `UserMessage` is the redirect (B4)
+- [x] A Codex file whose `session_meta` source holds `subagent` → no key; the stores line counts it as read (B4)
+- [x] Copilot denial `unattended_fallback` → no key; same denial from another `decisionSource` → `denial · shell · ls` (B4)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_corrections.py -k StoreTests` (pre: new file)
 Skills: none
-Status: todo
+Status: done @ a5cd7fc
+Writer: GPT-6.1 Sol
 
 ### T3 — checkup and retro run the script
 Delivers: B8 · Blocked by: T1 · Lane: mechanical
