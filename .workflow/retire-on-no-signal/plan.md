@@ -9,7 +9,7 @@ Size: code 0 · tests 0 · ratio n/a (the script and its test are new files) · 
 Decisions: tickets approved 1a · 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
 
 ## Execution state
-Current: all patch cycle 2 tickets done; review ready.
+Current: patch cycle 3 ticket C3-T1 done; review ready.
 T1 @ 3aeab1c
 T2 @ 1ad5a7d
 T3 @ dcaedc4
@@ -20,6 +20,7 @@ Session 3: C1-T1, C1-T2, C1-T3
 Session 4: C1-T4, C1-T5
 Session 5: C2-T1
 Session 6: C2-T2, C2-T3
+Session 7: C3-T1
 Baseline: workflow 124 tests OK; checkup 12 tests OK. No pre-existing failures.
 T1 final: workflow 124 tests OK; checkup 12 tests OK.
 T2 final: workflow 124 tests OK; checkup 15 tests OK.
