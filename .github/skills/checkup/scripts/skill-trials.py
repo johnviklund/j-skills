@@ -63,17 +63,19 @@ def report(row, sweep, entries):
     insurance = "insurance:" in row["source"]
     saves = f'{row["saves"]} save' + ("" if row["saves"] == 1 else "s")
     label = "insurance" if insurance else "keep" if row["saves"] or better else "candidate"
+    words = row["change"].split()
+    change = " ".join(words[:6]) + ("…" if len(words) > 6 else "")
     if sweep:
         detail = f" · {numbers}" if entries else ""
         print(f'{label} · {row["date"]} · {row["skill"]} · {saves} · {row["change"]}{detail}')
     elif "runs" not in unit:
-        print(f'⚠️ {row["date"]} {row["skill"]} · open · count {unit} by hand')
+        print(f'⚠️ {row["date"]} {row["skill"]} · {change} · open · count {unit} by hand')
     elif len(after) == int(count):
         reason = row["source"] if insurance else saves if row["saves"] else numbers
         verdict = f"kept · {reason}" + (f" · {numbers}" if insurance or row["saves"] else "")
         if label == "candidate":
             verdict = f"0 saves · {numbers} · removal candidate → workflow improve {row['names'][0]}"
-        print(f'{"⚠️" if label == "candidate" else "✅"} {row["date"]} {row["skill"]} · trial complete · {verdict}')
+        print(f'{"⚠️" if label == "candidate" else "✅"} {row["date"]} {row["skill"]} · {change} · trial complete · {verdict}')
 
 
 

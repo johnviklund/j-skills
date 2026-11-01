@@ -86,3 +86,7 @@ Accept:
 Verify: `[ "$(grep -c 'worse means revert' .github/skills/workflow/references/learning-worklog.md)" = 0 ] && grep -q 'workflow improve' .github/skills/workflow/references/learning-worklog.md && [ "$(grep -c 'saved→skill' .github/skills/memory.remember/references/workflow-runs.md)" = 1 ]` (pre: counts 1 and 0)
 Skills: .github/skills/agent-docs/SKILL.md
 Status: todo
+
+## Deviations
+C1-T3 updates four existing expected strings to include the required change prefix; all 18 existing assertion calls remain, with 3 added.
+Budget waived: C1-T3 — tests net +11 versus budget +10; the extra line separates the new test method. Production net +2 versus budget +4.
