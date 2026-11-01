@@ -57,6 +57,8 @@ of removing waste. The human should be able to approve the whole list without we
      page's occurrences, `WORKLOG.md`, `SKILL-IMPACT.md`, an earlier retro), or a step every run
      takes causes it. A judgement slip with no earlier sign is a `one-off`: `memory.remember`
      promotes a judgement call to a skill at 3 occurrences, and a retro does not jump that ladder.
+     Run `python3 <checkup skill folder>/scripts/corrections.py` from the repo, using Python 3 and git.
+     A matching root cause under `repeats:` counts as "seen twice"; cite its key, never its redirect text, because transcripts are private.
    - **Decision-changing** — names which agent does what differently, at which step. A change
      that only adds reading is a `no-op`.
    - **Uncovered** — read the target file and `SKILL-IMPACT.md` first. A clear rule that exists

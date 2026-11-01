@@ -11,6 +11,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-11-01 | checkup · retro | Checkup reports the first five correction repeats; retro uses a matching repeat as recurrence evidence and cites only its key. Judge: the next three uses find repeated corrections without saving redirect text | correction-mining B8 | 3 uses | trialing |
 | 2026-11-01 | workflow · checkup | Save tags count per impact row; finished trials without saves or better date-window numbers become removal candidates. Insurance notes exempt a rule. The first human-confirmed sweep keeps 11 rows and leaves 26 candidates. Judge: future completed trials use saves or numbers, and candidates prompt workflow improve before removal | retire-on-no-signal B1–B6 | 3 runs | trialing |
 | 2026-11-01 | workflow · checkup | Git hooks enforce run checks before commits and redacted secret scans before pushes. Bootstrap installs them; checkup offers missing hooks and reports missing Claude bypass denials. Judge: invalid runs and secrets block real git operations; clean branches and unrelated commits pass | git-hooks B1–B8 | 3 runs | trialing |
 | 2026-11-01 | workflow | Restore manual secret scans and run checks when the hook check does not report installed. Judge: repos without hooks still scan pushes and validate artifact commits | git-hooks C1-T3, review C1-2 | 3 runs | trialing |

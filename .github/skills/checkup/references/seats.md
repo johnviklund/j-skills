@@ -29,6 +29,8 @@ ls -d evals/strict-reviewer 2>/dev/null                                # old per
   Dates define the window, so same-day changes share numbers; the comparison does not attribute gains to one rule.
   Other trial units require a manual count. A removal candidate goes to `workflow improve <skill>`;
   confirm with the human before removing a rule. A From note `insurance: <incident>` protects it.
+- **Corrections.** Run `python3 <checkup skill folder>/scripts/corrections.py` from the repo, using Python 3 and git.
+  Report the first 5 lines under `repeats:` or say there are none; copy no redirect line into a file, because transcripts are private.
 - **Trial in progress.** A model on a seat with only one run: ✅ note "trial, 1 run -- needs one
   more before judging".
 - **Promotion candidate.** A non-incumbent with ≥2 runs that ties or beats the incumbent on
