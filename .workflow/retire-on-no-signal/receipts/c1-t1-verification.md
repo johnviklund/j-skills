@@ -27,3 +27,5 @@
 | Remove repo directory check | red |
 | Stop catching filesystem errors | red |
 | Resolve installed impact from wrong parent | red |
+
+Full suites: workflow 124 tests OK; checkup 18 tests OK; exit 0.

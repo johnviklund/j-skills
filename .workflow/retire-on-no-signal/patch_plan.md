@@ -7,7 +7,11 @@ Status:  complete
 Five tickets for cycle 1. C1-T1 and C1-T2 change tests only, so they have no Red commit. C1-T3 and C1-T4 fix behaviour bugs, so each lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T5 edits two docs.
 
 ## Execution state
-Current: C1-T1 ready
+Current: C1-T2 ready
+C1-T1 @ 953e4ac
+writer: GPT-6.1 Sol
+C1-T1 final: workflow 124 tests OK; checkup 18 tests OK.
+Pending decision: none.
 
 ## Tickets
 
@@ -18,15 +22,16 @@ Budget: code +0 · tests +60
 Seam: stdout and exit code of `skill-trials.py` on fixture repos, run as a subprocess like the existing tests
 Change: tests only, in `test_skill_trials.py`. Fixtures copy the real forms of `SKILL-IMPACT.md`, `learnings.md` and `WORKLOG.md`.
 Accept:
-- [ ] The impact fixture opens with the real title, `Mode:` line and prose; a learnings file holds a `## Phase` heading, a `[durable→memory]` line and a tag ending `[routed → SKILL-IMPACT 2026-11-02]` → exit 0, the tag counts once (C1-1)
-- [ ] A worklog with a preamble and four blocks, each missing one of date, `review cycles`, `deviations` and `- Skills:` → exit 0 and the numbers ignore those four blocks (C1-1)
-- [ ] Five entries before and five after with distinct scores, newest first, split across both repos, plus one on the row's date → the exact means of the last 3 before and the first 3 after (C1-1)
-- [ ] A sweep with worklog entries prints `· numbers` on every line; a kept-by-save line holds `kept · 1 save · numbers`, so `1 saves` fails (C1-1)
-- [ ] No repo argument, run from a fixture repo, counts its tag; one repo passed twice counts once; a missing repo and a missing `--impact` each exit 2 naming the path (C1-1)
-- [ ] The script copied to `<tmp>/skills/checkup/scripts/` with no `--impact` reads `<tmp>/skills/workflow/SKILL-IMPACT.md`; each of the 19 C1-1 mutations, applied alone, fails the suite (C1-1)
+- [x] The impact fixture opens with the real title, `Mode:` line and prose; a learnings file holds a `## Phase` heading, a `[durable→memory]` line and a tag ending `[routed → SKILL-IMPACT 2026-11-02]` → exit 0, the tag counts once (C1-1)
+- [x] A worklog with a preamble and four blocks, each missing one of date, `review cycles`, `deviations` and `- Skills:` → exit 0 and the numbers ignore those four blocks (C1-1)
+- [x] Five entries before and five after with distinct scores, newest first, split across both repos, plus one on the row's date → the exact means of the last 3 before and the first 3 after (C1-1)
+- [x] A sweep with worklog entries prints `· numbers` on every line; a kept-by-save line holds `kept · 1 save · numbers`, so `1 saves` fails (C1-1)
+- [x] No repo argument, run from a fixture repo, counts its tag; one repo passed twice counts once; a missing repo and a missing `--impact` each exit 2 naming the path (C1-1)
+- [x] The script copied to `<tmp>/skills/checkup/scripts/` with no `--impact` reads `<tmp>/skills/workflow/SKILL-IMPACT.md`; each of the 19 C1-1 mutations, applied alone, fails the suite (C1-1)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py` (pre: 6 tests OK, and each of the 19 mutations also passes)
 Skills: .github/skills/workflow/references/tests.md
-Status: todo
+Status: done @ 953e4ac
+Writer: GPT-6.1 Sol
 
 ### C1-T2 — Delete the fixture write that the next line overwrites
 Delivers: B6 · Blocked by: C1-T1 · Lane: mechanical
