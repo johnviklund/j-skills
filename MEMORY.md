@@ -1,13 +1,3 @@
-<!-- Compaction summary:
-     Source: eac0a72785dab627f23dbacb249f45b269944c92
-     Input: 2 pages + 4 legacy inline entries (in .github/skills/workflow/MEMORY.md) (soft ceiling ~40 pages)
-     Active: 5 | Stale: 0 | Superseded: 0 | Same-claim merges: 1 | Malformed fixed: 0
-     Contradicted: 0 | Skill-promotion candidates (Occurrences 3+): 0 (the 8-occurrence page is already promoted)
-     Doctrine-misfiled (relocate-and-delete): 0
-     Unpaged repeats: 0
-     Cross-file overlaps: 1 README | 1 AGENTS | 0 PRODUCT | 0 archive | 3 skill | 0 design
-     Net: 2 pages + 4 entries → 5 pages (under ceiling? yes)
--->
 # Memory
 
 - [fix-guard-needs-firing-test](memory/fix-guard-needs-firing-test.md) — every key a guard matches on, and the guard itself, needs a case only it decides · occurrences 8 · 2026-11-01
