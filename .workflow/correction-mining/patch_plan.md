@@ -7,7 +7,13 @@ Status:  complete
 Three tickets for cycle 1. C1-T1 is a bug fix: a red test commit first, then the fix. C1-T2 and C1-T3 change tests only: the code is correct, so they have no red commit.
 
 ## Execution state
-Current: no ticket started.
+Current: C1-T1 done; C1-T2 ready.
+C1-T1 @ 9911caa
+writer: GPT-6.1 Sol
+Baseline reused: review at 1806a43, workflow 126 OK; checkup 33 OK; only review records changed.
+C1-T1 full suite: workflow 126 OK; checkup 34 OK; exit 0.
+Red test commit: eecbc49, both cases fail with No closing quotation.
+Mutation: remove fallback → red in isolated worktree; control 9 tests OK.
 
 ## Tickets
 
@@ -18,12 +24,13 @@ Budget: code +3 · tests +8
 Seam: `corrections.py` as a subprocess on a Claude fixture, like `test_StoreTests_denials`
 Change: in `command_head` (`corrections.py:38-43`), catch `ValueError` from `shlex.split` and fall back to `command.split()`. Site search: `shlex.split` at `:39` is the only call that parses free text with a grammar; `json.loads` at `:18` already catches `ValueError`.
 Accept:
-- [ ] A denied Bash `cat > f <<'EOF'\nit's fine\nEOF` → exit 0, `denial · Bash · cat` counted (C1-1)
-- [ ] A denied Bash `echo don't` → exit 0, `denial · Bash · echo` counted (C1-1)
-- [ ] Red: the test commit alone fails with `No closing quotation` on stderr; the fix commit touches no test file (C1-1)
+- [x] A denied Bash `cat > f <<'EOF'\nit's fine\nEOF` → exit 0, `denial · Bash · cat` counted (C1-1)
+- [x] A denied Bash `echo don't` → exit 0, `denial · Bash · echo` counted (C1-1)
+- [x] Red: the test commit alone fails with `No closing quotation` on stderr; the fix commit touches no test file (C1-1)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_corrections.py -k StoreTests` (pre: red test exits 1)
 Skills: .github/skills/workflow/references/tests.md
-Status: todo
+Status: done @ 9911caa
+Writer: GPT-6.1 Sol
 
 ### C1-T2 — Kill the Claude and Codex survivors
 Delivers: B1, B4, B6 · Blocked by: C1-T1 · Lane: logic

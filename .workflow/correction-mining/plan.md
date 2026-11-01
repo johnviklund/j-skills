@@ -15,6 +15,7 @@ T3 @ 5683806
 writer: GPT-6.1 Sol
 Session 1: T1, T2
 Session 2: T3
+Session 3: C1-T1
 Initial suite: workflow 126 tests OK; checkup 30 tests OK, including T1.
 Final suite: workflow 126 tests OK; checkup 33 tests OK.
 Current: all tickets done; ready for review; no pending decision.

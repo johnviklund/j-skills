@@ -39,15 +39,15 @@ class Fixture(unittest.TestCase):
                  'copilot': f'.copilot/session-state/{name}/events.jsonl'}
         path = self.home / roots[store]
         path.parent.mkdir(parents=True, exist_ok=True)
-        if store == 'claude':
+        if store == 'claude' and cwd is not False:
             records = [dict(type='system', cwd=str(cwd or self.repo)), *records]
         path.write_text(''.join(json.dumps(r) + '\n' for r in records))
         stamp = time.time() - age * 86400
         os.utime(path, (stamp, stamp))
 
-    def report(self, *args):
+    def report(self, *args, cwd=None):
         env = {k: v for k, v in os.environ.items() if k not in ('CLAUDE_CONFIG_DIR', 'CODEX_HOME')}
-        r = subprocess.run([sys.executable, str(SCRIPT), *args], cwd=self.repo,
+        r = subprocess.run([sys.executable, str(SCRIPT), *args], cwd=cwd or self.repo,
                            env={**env, 'HOME': str(self.home)}, capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
         return r.stdout
@@ -56,6 +56,10 @@ class Fixture(unittest.TestCase):
 class ClaudeTests(Fixture):
     def test_ClaudeTests_interrupt_shapes(self):
         for records, key in [([tool(), INTERRUPT], 'Bash'),
+                             ([tool(), dict(type='assistant', message={'content': [
+                                 dict(type='text', text='assistant-only')]}), INTERRUPT, user('retry')], 'Bash'),
+                             ([tool(), dict(type='assistant', message={'content': [
+                                 dict(type='thinking', thinking='assistant-only')]}), INTERRUPT], 'Bash'),
                              ([tool(), user('new turn'), INTERRUPT], 'no tool'),
                              ([user('[Request interrupted by user]')], 'no tool'),
                              ([user([dict(type='tool_result', content='quoted [Request interrupted by user]')])], None),
@@ -65,6 +69,7 @@ class ClaudeTests(Fixture):
                 self.write(records)
                 out = self.report()
                 self.assertEqual('once: 1 key(s)' in out, key is not None)
+                self.assertNotIn('assistant-only', out)
                 if key:
                     self.write(records, 'b')
                     self.assertIn(f'- interrupt · {key} · 2 sessions · 2 times', self.report())
@@ -87,7 +92,7 @@ class ClaudeTests(Fixture):
         self.assertIn('- interrupt · Bash · 2 sessions · 3 times', self.report())
 
     def test_ClaudeTests_filters(self):
-        cases = [(0, None, (), True), (15, None, (), False), (20, None, ('--days', '30'), True),
+        cases = [(0, None, (), True), (0, False, (), False), (15, None, (), False), (20, None, ('--days', '30'), True),
                  (13, self.repo / '.worktrees/x', (), True),
                  (0, str(self.repo) + '-old', (), False),
                  (0, self.home, (), False), (0, self.home, ('--all-repos',), True)]
@@ -95,6 +100,12 @@ class ClaudeTests(Fixture):
             with self.subTest(age=age, cwd=cwd, args=args):
                 self.write([INTERRUPT], cwd=cwd, age=age)
                 self.assertEqual('once: 1 key(s)' in self.report(*args), kept)
+
+    def test_ClaudeTests_repo_subdirectory(self):
+        self.write([tool(), INTERRUPT])
+        sub = self.repo / 'sub'
+        sub.mkdir()
+        self.assertIn('once: 1 key(s)', self.report(cwd=sub))
 
     def test_ClaudeTests_missing_stores(self):
         self.assertEqual(self.report().splitlines()[0],
@@ -137,6 +148,9 @@ class StoreTests(Fixture):
                         dict(type='event_msg', payload=dict(type='turn_aborted', reason=reason)),
                         dict(type='response_item', payload=dict(type='message', role='developer',
                              content=[dict(type='input_text', text='<turn_aborted>') ])),
+                        *[dict(type='event_msg', payload=dict(type='item_completed', item=dict(
+                            type=kind, content=[dict(type='text', text='non-user')])))
+                          for kind in ('Reasoning', 'AgentMessage')],
                         dict(type='event_msg', payload=dict(type='item_completed',
                              item=dict(type='UserMessage', content=[dict(type='text', text='try again')]))),
                         dict(type='event_msg', payload=dict(type='item_completed',
@@ -152,6 +166,15 @@ class StoreTests(Fixture):
                     self.write(rows, 'b', store='codex')
                     self.assertIn('- interrupt · exec · 2 sessions · 2 times', self.report())
                     (self.home / '.codex/sessions/2026/11/01/rollout-b.jsonl').unlink()
+
+    def test_StoreTests_codex_tool_reset(self):
+        self.write([dict(type='session_meta', payload=dict(cwd=str(self.repo))),
+                    dict(type='response_item', payload=dict(type='custom_tool_call', name='exec')),
+                    dict(type='event_msg', payload=dict(type='item_completed', item=dict(type='UserMessage'))),
+                    dict(type='event_msg', payload=dict(type='turn_aborted', reason='interrupted')),
+                    dict(type='event_msg', payload=dict(type='item_completed', item=dict(
+                        type='UserMessage', content=[dict(type='text', text='retry')])))], store='codex')
+        self.assertIn('- codex · interrupt · no tool: retry', self.report())
 
     def test_StoreTests_copilot(self):
         for source, kind, kept in [('unattended_fallback', 'denied-no-approval-rule', False),
