@@ -9,7 +9,7 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: patch cycle 1, C1-T4 todo; session limit reached
+Current: patch cycle 1 complete; ready for review
 T3 @ cb2e649
 T2 @ 2556e51
 T1 @ f1ed6eb
@@ -17,6 +17,7 @@ writer: GPT-6.1 Sol
 Baseline: workflow 112 tests OK; checkup 8 tests OK
 Session 1: T1, T2, T3
 Session 2: C1-T1, C1-T2, C1-T3
+Session 3: C1-T4, C1-T5
 Reuse: no install, marker or skill-path helper found, as F12 records.
 
 ## Findings
@@ -109,3 +110,4 @@ none: the brief came from ROADMAP.md row 1, not TODO.md
 - T1: corrected the new warning assertion from `WARN` to `warnings`, matching the checker output. No existing assertion changed.
 - T2: the new token fixture needed varied characters to exceed gitleaks entropy filtering. The RuleID assertion now accepts gitleaks column spacing. No existing assertion changed.
 - T3: two surviving mutations justified cases for non-executable hooks and deny rules in Copilot settings. Both mutations now fail.
+- C1-T5: extended the existing NoVerify expected-warning cases with the required narrow-rule pair. Assertions remain 4 before and after; none removed or weakened. Proof: receipts/c1-t4-t5-verification.md.

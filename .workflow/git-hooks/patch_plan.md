@@ -7,13 +7,16 @@ Status:  complete
 Five tickets. C1-T1 and C1-T5 fix behaviour bugs, so each lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T2 adds tests only. C1-T3 and C1-T4 edit Markdown only.
 
 ## Execution state
-Current: C1-T4 todo; session limit reached
+Current: all patch cycle 1 tickets done; ready for review
 C1-T1 @ a2d308f
 C1-T2 @ d6de8e2
 C1-T3 @ 8667607
+C1-T4 @ fb9bf81
+C1-T5 @ 1c09a05
 writer: GPT-6.1 Sol
-Baseline: workflow 119 tests OK; checkup 9 tests OK
+Baseline: workflow 122 tests OK; checkup 9 tests OK
 Red: C1-T1 @ 860ebb2, spaced-target push incorrectly exits 0
+Red: C1-T5 @ 5d4f0a8, narrow deny rules incorrectly suppress warning
 Reuse: existing HookRepo and PrePush fixtures; no helper needed
 
 ## Tickets
@@ -72,10 +75,11 @@ Budget: code +0 · tests +0
 Seam: `SKILL.md` ground rules
 Change: append "Write an artifact only after the reads it reports on have returned." to the pre-commit line from C1-T3, or put it on its own line after it.
 Accept:
-- [ ] `grep -c 'Write an artifact only after the reads it reports on have returned' .github/skills/workflow/SKILL.md` → 1 (C1-5)
+- [x] `grep -c 'Write an artifact only after the reads it reports on have returned' .github/skills/workflow/SKILL.md` → 1 (C1-5)
 Verify: `grep -c 'Write an artifact only after the reads it reports on have returned' .github/skills/workflow/SKILL.md` (pre: 0)
 Skills: none
-Status: todo
+Status: done @ fb9bf81
+Writer: GPT-6.1 Sol
 
 ### C1-T5 — Probe the --no-verify deny rules with a realistic command
 Delivers: B8 · Blocked by: none · Lane: logic
@@ -84,9 +88,11 @@ Budget: code +2 · tests +3
 Seam: `config-scan.py` run as a subprocess in a temp repo and home
 Change: `config-scan.py:181` probes `Bash(git commit -m x --no-verify)` and `Bash(git push origin main --no-verify)`.
 Accept:
-- [ ] Deny `Bash(git commit --no-verify)` and `Bash(git push --no-verify)` → the line prints (C1-4)
-- [ ] Existing subtest still passes: both `*--no-verify*` rules → no line (C1-4)
-- [ ] Existing subtest still passes: `Bash(git *--no-verify*)` alone → no line (C1-4)
+- [x] Deny `Bash(git commit --no-verify)` and `Bash(git push --no-verify)` → the line prints (C1-4)
+- [x] Existing subtest still passes: both `*--no-verify*` rules → no line (C1-4)
+- [x] Existing subtest still passes: `Bash(git *--no-verify*)` alone → no line (C1-4)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -k NoVerify` (pre: the new subtest fails)
 Skills: none
-Status: todo
+Status: done @ 1c09a05
+Writer: GPT-6.1 Sol
+Red: 5d4f0a8
