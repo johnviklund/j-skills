@@ -2,11 +2,11 @@ Command: workflow plan retire-on-no-signal
 Created: 2026-11-01 · claude-opus-5-5
 Base:    d116760
 Inputs:  .workflow/retire-on-no-signal/brainstorm.md @ 952031e
-Status:  drafting
+Status:  complete
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md)
 Size: code 0 · tests 0 · ratio n/a (the script and its test are new files) · largest touched seats.md 76, learning-worklog.md 136, SKILL-IMPACT.md 71 (Markdown) · over 1,000: none
-Decisions: 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
+Decisions: tickets approved 1a · 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
 
 ## Execution state
 
