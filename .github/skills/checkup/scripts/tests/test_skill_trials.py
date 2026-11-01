@@ -184,3 +184,16 @@ class SkillTrialsTests(unittest.TestCase):
                 warning = ["⚠️ tag .workflow/run/learnings.md:1 matches 0 rows; add words of the change"]
                 self.assertEqual(self.scan("--sweep"), (warning if location == "missing" else []) +
                                  ["candidate · 2026-11-01 · workflow · 0 saves · other"])
+
+    def test_escaped_pipe_rows(self):
+        self.rows(self.row(r"Risk: cheap\|costly\|irreversible"))
+        self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text(self.row(r"check-run \| tail; git commit", outcome="kept"))
+        self.tag(self.a, r"[saved→skill] 2026-11-01 workflow check-run \| tail; git commit — stopped it")
+        self.assertEqual(self.scan("--sweep"), [r"candidate · 2026-11-01 · workflow · 0 saves · Risk: cheap\|costly\|irreversible"])
+
+    def test_bad_archive_row_names_location(self):
+        self.rows(self.row())
+        self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text("# Archive\n\n" + self.row().replace(" | run", ""))
+        result = subprocess.run([sys.executable, str(SCRIPT), "--impact", str(self.impact), str(self.a)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("SKILL-IMPACT_ARCHIVE.md:3", result.stderr)
