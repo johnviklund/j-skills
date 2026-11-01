@@ -117,15 +117,16 @@ class ConfigScanTests(unittest.TestCase):
         push = 'Bash(git push *--no-verify*)'
         self.write(self.home, '.copilot/settings.json', {'permissions': {'deny': [commit, push]}})
         narrow = ['Bash(git commit --no-verify)', 'Bash(git push --no-verify)']
+        partial = [[narrow[0], push], [commit, narrow[1]]]
         for workflow in (False, True):
             if workflow:
                 os.makedirs(os.path.join(self.repo, '.workflow'))
-            for deny in ([], [commit], [push], [commit, push], ['Bash(git *--no-verify*)'], narrow):
+            for deny in ([], [commit], [push], [commit, push], ['Bash(git *--no-verify*)'], narrow, *partial):
                 with self.subTest(workflow=workflow, deny=deny):
                     self.write(self.home, '.claude/settings.json', {'permissions': {'deny': deny}})
                     out = self.run_scan()
                     missing = [line for line in out if 'no-verify' in line]
-                    expected = workflow and deny in ([], [commit], [push], narrow)
+                    expected = workflow and deny in ([], [commit], [push], narrow, *partial)
                     self.assertEqual(len(missing), int(expected), out)
                     if expected:
                         self.assertTrue(missing[0].startswith('⚠️ '))

@@ -23,3 +23,16 @@ Writer: GPT-6.1 Sol
   the hook exits 0; unittest exit 1. The working copy stays unchanged.
 - PrePush: Ran 5 tests, OK, exit 0.
 - Final: workflow Ran 124 tests in 56.213s, OK; checkup Ran 9 tests in 0.985s, OK; exit 0.
+
+## C2-T3
+
+- Reused the parametrized NoVerify test. No production change or new helper.
+- NoVerify: Ran 1 test, OK, exit 0. Both mixed narrow/wide cases print the warning.
+- Mutation: reverted the commit probe alone in a disposable copy. The narrow-commit/wide-push
+  subtest fails, exit 1. Reverted the push probe alone in another disposable copy.
+  The wide-commit/narrow-push subtest fails, exit 1. The working copy stays unchanged.
+- Existing assertions: 4 before, 4 after. Added the two required expected-warning cases;
+  no assertion was removed or weakened.
+- No screen changes. Existing git-hooks SKILL-IMPACT rows cover these patches.
+- Final: workflow Ran 124 tests in 56.480s, OK; checkup Ran 9 tests in 1.117s, OK; exit 0.
+- git diff --check: exit 0.

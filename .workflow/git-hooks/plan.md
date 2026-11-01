@@ -9,7 +9,7 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: patch cycle 3; C2-T2 ready
+Current: patch cycle 3; C2-T3 ready
 T3 @ cb2e649
 T2 @ 2556e51
 T1 @ f1ed6eb
@@ -18,7 +18,7 @@ Baseline: workflow 112 tests OK; checkup 8 tests OK
 Session 1: T1, T2, T3
 Session 2: C1-T1, C1-T2, C1-T3
 Session 3: C1-T4, C1-T5
-Session 4: C2-T1
+Session 4: C2-T1, C2-T2
 Reuse: no install, marker or skill-path helper found, as F12 records.
 
 ## Findings
@@ -112,3 +112,6 @@ none: the brief came from ROADMAP.md row 1, not TODO.md
 - T2: the new token fixture needed varied characters to exceed gitleaks entropy filtering. The RuleID assertion now accepts gitleaks column spacing. No existing assertion changed.
 - T3: two surviving mutations justified cases for non-executable hooks and deny rules in Copilot settings. Both mutations now fail.
 - C1-T5: extended the existing NoVerify expected-warning cases with the required narrow-rule pair. Assertions remain 4 before and after; none removed or weakened. Proof: receipts/c1-t4-t5-verification.md.
+
+- C2-T3: extended NoVerify expected-warning cases with each mixed narrow/wide pair. Assertions remain 4 before and after; none removed or weakened.
+- Ratio waived: run — the approved review patches require independent regression cases for remote history, invalid revisions, and each denial probe. Tests net +246 versus code added +157 exceed 1.5; removing those cases would leave the reported regressions unguarded.

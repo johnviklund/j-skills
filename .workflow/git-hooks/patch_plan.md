@@ -7,7 +7,8 @@ Status:  complete
 Three tickets for cycle 3, approved by the human. C2-T1 fixes a behaviour bug, so it lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 and C2-T3 add tests only.
 
 ## Execution state
-Current: C2-T2 ready
+Current: C2-T3 ready
+C2-T2 @ ffc3856
 C2-T1 @ 0cf89fa
 writer: GPT-6.1 Sol
 Baseline: workflow 122 tests OK; checkup 9 tests OK
@@ -38,11 +39,12 @@ Budget: code +0 · tests +8
 Seam: `hooks.py pre-push origin` run as a subprocess in the `PrePush` temp repo, ref lines on stdin
 Change: tests only, in `test_hooks.py`; the guard already exists, so no Red commit.
 Accept:
-- [ ] stdin `refs/heads/x 1234567890abcdef1234567890abcdef12345678 refs/heads/x <40 zeros>` → exit 1, stderr names `refs/heads/x` (C2-2)
-- [ ] Mutation: disabling the guard's `if` fails the new test (reviewer checks)
+- [x] stdin `refs/heads/x 1234567890abcdef1234567890abcdef12345678 refs/heads/x <40 zeros>` → exit 1, stderr names `refs/heads/x` (C2-2)
+- [x] Mutation: disabling the guard's `if` fails the new test (reviewer checks)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: all pass; with the guard disabled, the new test fails)
 Skills: none
-Status: todo
+Status: done @ ffc3856
+Writer: GPT-6.1 Sol
 
 ### C2-T3 — Narrow each --no-verify rule on its own
 Delivers: B8 · Blocked by: none · Lane: logic
