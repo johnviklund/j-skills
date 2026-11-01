@@ -9,7 +9,8 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: T3, todo
+Current: all tickets done; review next
+T3 @ cb2e649
 T2 @ 2556e51
 T1 @ f1ed6eb
 writer: GPT-6.1 Sol
@@ -74,14 +75,15 @@ Delivers: B7, B8 · Blocked by: T1 · Lane: logic
 Budget: code +35 · tests +45 · why: one case per deny key plus the repo and no-repo cases
 Seam: `hooks.py install --check` and `config-scan.py` run as subprocesses in temp repos and homes
 Accept:
-- [ ] `install --check` in a repo missing both hooks → prints `would install pre-commit, pre-push` and writes nothing; with both installed → prints `installed` (B7)
-- [ ] `config-scan.py` in a repo with `.workflow/` and Claude settings denying neither command → one ⚠️ line holding both exact rules (B8)
-- [ ] Deny list with only the commit rule, then only the push rule → the line prints; both rules, then `Bash(git *--no-verify*)` alone → no line (B8)
-- [ ] A repo without `.workflow/` and the same settings → no line, and the existing 8 config-scan tests pass unchanged (B8)
-- [ ] checkup `workspace.md` runs `hooks.py install --check`, `config.md` names the `--no-verify` line, SKILL.md's safe-fix list has the hook install (B7)
+- [x] `install --check` in a repo missing both hooks → prints `would install pre-commit, pre-push` and writes nothing; with both installed → prints `installed` (B7)
+- [x] `config-scan.py` in a repo with `.workflow/` and Claude settings denying neither command → one ⚠️ line holding both exact rules (B8)
+- [x] Deny list with only the commit rule, then only the push rule → the line prints; both rules, then `Bash(git *--no-verify*)` alone → no line (B8)
+- [x] A repo without `.workflow/` and the same settings → no line, and the existing 8 config-scan tests pass unchanged (B8)
+- [x] checkup `workspace.md` runs `hooks.py install --check`, `config.md` names the `--no-verify` line, SKILL.md's safe-fix list has the hook install (B7)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k HookCheck && python3 -m unittest discover -s .github/skills/checkup/scripts/tests -k NoVerify && grep -c 'hooks.py install --check' .github/skills/checkup/references/workspace.md && grep -c 'no-verify' .github/skills/checkup/references/config.md && grep -c 'hooks.py install' .github/skills/checkup/SKILL.md` (pre: new file, NO TESTS RAN exit 5 · greps 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ cb2e649
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T2 refuses the push and names the cause, T1 refuses the commit and makes bootstrap install, T3 makes checkup report, T1 and T2 shrink the two SKILL.md rules
