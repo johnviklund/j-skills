@@ -15,11 +15,15 @@ any time something worth keeping gets solved — don't wait for wrap-up:
 ## Phase N — <name> (YYYY-MM-DD)
 - [durable→memory] <the fix, gotcha, or decision>
 - [used→memory] <slug> — held | wrong: <what was wrong>   ← a memory page this session relied on
+- [saved→skill] <row date> <skill> [words of the change] — <what it stopped>
 - [durable→skill] <the transferable principle, stripped of concrete schema/names/logic>
 - [durable→design] <the UI pattern/convention/token decision>
 - [durable→eval] code-review — <the P0/P1 that was missed, and by whom> (artifacts: the diff + the finding)
 - [drop] <one-off noise>
 ```
+
+A save tag names the matching SKILL-IMPACT row. When date and skill repeat, add words
+from its Change cell that identify exactly one row. Record a prevented mistake when it happens.
 
 ### `[durable→eval]` — a small reviewer exam, and nothing else
 
