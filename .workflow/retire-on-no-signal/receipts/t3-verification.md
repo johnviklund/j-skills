@@ -1,0 +1,12 @@
+T3 verification
+- Approval: human answered 1a, approving all recommendations in notes/t3-choices.md.
+- Baseline: reused T2 final at 1ad5a7d; subsequent commits contain only this run's records.
+- Reuse: existing skill-trials.py produced the sweep; no new helper or test.
+- Receipt: t3-sweep.txt has 37 label lines, 0 tag warnings, 11 keeps, 26 candidates, 0 insurance.
+- All 37 choices are answered rows in decisions.md.
+- Outcome edits: exactly 11 original trialing rows changed to kept with numbers and date; all other original rows unchanged.
+- Post-apply sweep: 26 candidates, 0 keeps. New impact row then added for this run: 27 candidates, 0 keeps.
+- Full output remains outside the repo; the receipt retains labels and numbers, with row numbers pointing to notes/t3-choices.md.
+- Workflow suite: Ran 124 tests in 56.666s, OK.
+- Checkup suite: Ran 15 tests in 3.349s, OK. Combined exit: 0.
+- Mutation: none, operator ticket. Existing assertions changed: 0. No rules removed; no UI changes.
