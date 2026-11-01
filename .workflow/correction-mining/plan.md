@@ -2,24 +2,11 @@ Command: workflow plan correction-mining
 Created: 2026-11-01 · Opus 5.5
 Base:    83c2f24
 Inputs:  .workflow/correction-mining/brainstorm.md @ 7b58235
-Status:  complete
+Status:  done
 
 Docs read: none in scope (no PRODUCT.md or DESIGN.md); ROADMAP.md row 3 by grep
 Size: code 227 · tests 0 · ratio 0 · largest touched retro/SKILL.md 151, checkup/references/seats.md 76 · new corrections.py, tests/test_corrections.py · over 1,000: none
 Decisions: 1a (tickets approved) · 2a (checkup calls the script from references/seats.md)
-
-## Execution state
-T1 @ 00623b1
-T2 @ a5cd7fc
-T3 @ 5683806
-writer: GPT-6.1 Sol
-Session 1: T1, T2
-Session 2: T3
-Session 3: C1-T1, C1-T2, C1-T3
-Initial suite: workflow 126 tests OK; checkup 30 tests OK, including T1.
-Final suite: workflow 126 tests OK; checkup 33 tests OK.
-Current: all tickets done; ready for review; no pending decision.
-T3 suite: workflow 126 tests OK; checkup 33 tests OK; exit 0.
 
 ## Findings
 | # | What is true | What it changes |

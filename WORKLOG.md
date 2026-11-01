@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-02 · correction-mining · a stdlib script lists repeated denials, interrupts and redirects from Claude, Codex and Copilot transcripts · GPT-6.1 Sol
+- `checkup/scripts/corrections.py` prints repeated denials and interrupts and the redirect turns to stdout only; `checkup` reports the top 5 repeats and `retro` cites one in its *Recurring* test.
+- Two review cycles found 2 P1 (an unmatched quote in a denied command crashed the report; 15 of 48 mutants survived the writer's sweep); both fixed, 1 P2 deferred to `TODO.md`, 5 P3 stay in `review.md`.
+- Commits: 00623b1 a5cd7fc 5683806 eecbc49 9911caa c3a6606 f7c04bf
+- Review: ship as-is (cycle 2, 0 open) @ 77efe6d
+- Run: 3 tickets · 3 sessions · 2 review cycles · 4 deviations · 0 findings overturned · net code +182 · tests +218
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@11e805e2c25a, checkup@ef4000aec266
+- Why: corrections the human gives are counted across sessions, so a repeat becomes visible without anyone running `retro` on each one.
+
 ## 2026-11-01 · retire-on-no-signal · skill trials end in keep, insurance or a removal candidate, counted from save tags · GPT-6.1 Sol
 - `skill-trials.py` counts `[saved→skill]` tags per `SKILL-IMPACT.md` row and judges finished trials by saves and `Run:` numbers; `--sweep` labelled all 37 open rows, and the human confirmed each (no removal).
 - Four review cycles found 1 P0 (archive rows with `\|` crashed the report) and 5 P1/P2 defects, mostly tests that missed one side of a guard; all fixed, 1 P3 group stays in `review.md`.
@@ -146,14 +156,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@e478a17
 - Why: three growth-ratchets findings were one untested guard key each, and the cap was met by unwrapping.
-
-## 2026-10-18 · growth-ratchets · check-run counts tests net and honours only keyed waivers · GPT-6.1 Sol
-- `check-run.py` compares net test growth with code additions, so rewrites and moves no longer trip the ratio. Only a keyed `Ratio waived: T#` or `Budget waived: T#` line with a reason skips its check, and the output repeats the numbers. Plans created before 2026-10-19 keep the old rules. `WORKLOG.md` moved to the repo root, so `check_worklog` finds the entries.
-- Cycles 1 and 2 each found a P1 test gap (waiver ticket key, then waiver kind), both fixed by tests only.
-- Commits: 1a65a10 9974505 ee191dc cfa48ca
-- Review: ship as-is (cycle 3, 0 open) @ a9bb5fe
-- Run: 2 tickets · 4 sessions · 3 review cycles · 0 deviations · 0 findings overturned
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@cfa48ca
-- Why: the added-line test ratio flagged rewrites, and any mention of a waiver skipped the check.
-

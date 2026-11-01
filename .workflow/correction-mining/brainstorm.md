@@ -2,7 +2,7 @@ Command: workflow brainstorm correction-mining
 Created: 2026-11-01 · Sonnet 5.5
 Base:    7b58235
 Inputs:  none
-Status:  complete
+Status:  done
 Mode: attended
 
 ## Problem

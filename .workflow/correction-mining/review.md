@@ -2,7 +2,7 @@ Command: workflow review correction-mining
 Created: 2026-11-01 · cycle 2 2026-11-02 · Claude Opus 5.5
 Base:    77efe6d
 Inputs:  .workflow/correction-mining/plan.md @ 83c2f24
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing; live line holds (`--days 30` → `- interrupt · no tool · 2 sessions · 3 times`)

@@ -30,6 +30,4 @@ of it j-skills already does. Three gaps: two ground rules are prose only, no ski
 been reverted (every "no signal" trial ends kept), and a correction becomes a rule only when an
 agent logs it or someone runs `retro` on that session. One run per step, in this order.
 
-| # | Step | Slug | Status |
-|---|---|---|---|
-| 3 | Mine corrections from every session: a stdlib script reads the transcript stores `retro` lists and pulls human redirect turns, interrupts and denied tool calls over the last N days, by repo. `checkup` reports the top repeats; `retro` uses them for its *Recurring* test | `correction-mining` | next |
+No open steps. Steps 1 to 3 are in `ROADMAP_ARCHIVE.md`; the last, `correction-mining`, closed 2026-11-02.
