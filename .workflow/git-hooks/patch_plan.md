@@ -6,6 +6,14 @@ Status:  complete
 
 Five tickets. C1-T1 and C1-T5 fix behaviour bugs, so each lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T2 adds tests only. C1-T3 and C1-T4 edit Markdown only.
 
+## Execution state
+Current: C1-T2 todo
+C1-T1 @ a2d308f
+writer: GPT-6.1 Sol
+Baseline: workflow 119 tests OK; checkup 9 tests OK
+Red: C1-T1 @ 860ebb2, spaced-target push incorrectly exits 0
+Reuse: existing HookRepo and PrePush fixtures; no helper needed
+
 ## Tickets
 
 ### C1-T1 — Fail closed when the push range cannot be listed
@@ -15,12 +23,14 @@ Budget: code +8 · tests +15
 Seam: `git push` from a temp repo with the hooks installed, to a bare origin whose path holds a space
 Change: `hooks.py pre_push` scans `<sha> --not --remotes`, with no remote name, so `$1` never enters `--log-opts`. Before gitleaks it runs `git rev-list --quiet <sha> --not --remotes`; a nonzero exit refuses the push and names the ref. The delete skip at `:98` stays.
 Accept:
-- [ ] Push of a `ghp_` commit to a bare repo at a path with a space → refused, output lacks the token (C1-1)
-- [ ] Existing cases still pass: a clean branch over a secret already on origin pushes, and a branch delete pushes (C1-1)
-- [ ] Mutation M14, dropping the delete skip, now fails `PrePush` (reviewer checks)
+- [x] Push of a `ghp_` commit to a bare repo at a path with a space → refused, output lacks the token (C1-1)
+- [x] Existing cases still pass: a clean branch over a secret already on origin pushes, and a branch delete pushes (C1-1)
+- [x] Mutation M14, dropping the delete skip, now fails `PrePush` (reviewer checks)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: the new case fails, the remote gets the commit)
 Skills: none
-Status: todo
+Status: done @ a2d308f
+Writer: GPT-6.1 Sol
+Red: 860ebb2
 
 ### C1-T2 — Cover the four surviving pre-commit and stub mutations
 Delivers: B4, B5 · Blocked by: none · Lane: logic
