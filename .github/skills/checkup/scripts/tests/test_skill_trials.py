@@ -170,3 +170,17 @@ class SkillTrialsTests(unittest.TestCase):
         self.assertEqual(len(out), 2)
         self.rows(self.row("manual trial").replace("3 runs", "3 checkups"))
         self.assertEqual(self.scan(), ["⚠️ 2026-11-01 workflow · manual trial · open · count checkups by hand"])
+
+    def test_closed_row_saves(self):
+        archive = self.impact.with_name("SKILL-IMPACT_ARCHIVE.md")
+        for location in ("impact", "archive", "missing"):
+            with self.subTest(location=location):
+                self.rows(self.row("other"), *([self.row(outcome="kept")] if location == "impact" else []))
+                if location == "archive":
+                    archive.write_text(self.row(outcome="kept"))
+                elif archive.exists():
+                    archive.unlink()
+                self.tag(self.a, "[saved→skill] 2026-11-01 workflow push guard — stopped it\n")
+                warning = ["⚠️ tag .workflow/run/learnings.md:1 matches 0 rows; add words of the change"]
+                self.assertEqual(self.scan("--sweep"), (warning if location == "missing" else []) +
+                                 ["candidate · 2026-11-01 · workflow · 0 saves · other"])
