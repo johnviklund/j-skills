@@ -83,11 +83,13 @@ A change to a skill is gated the same way a model is: on the runs after it. `mem
 applies the edit in its own commit (never mixed with code; with no push-able `j-skills` clone, as a
 skill-edit prompt for the human, per its *Scope*) and adds a line to the skills repo's
 `SKILL-IMPACT.md` (`<date> · <skill> · <what changed> · from: <memory page> · trial until: <N runs>`).
-The next N worklog entries carry `Skills: <skill>@<sha>` so `checkup` can compare `Run:` numbers
-before and after. The sha is the first 12 characters of the skill folder's git tree hash: for an
+The next N worklog entries carry `Skills: <skill>@<sha>`. Checkup compares `Run:` numbers by date
+and skill name, as described in `checkup/references/seats.md`.
+The sha is the first 12 characters of the skill folder's git tree hash: for an
 installed skill, `skillFolderHash` in `~/.local/state/skills/.skill-lock.json`; for a repo-local
-skill, `git rev-parse HEAD:<skill folder>`. Never a commit, a file hash or a guess; worse means revert the commit and log the reversal in the same file. A change
-considered and rejected is logged there too, so it is not re-proposed.
+skill, `git rev-parse HEAD:<skill folder>`. Never a commit, a file hash or a guess.
+A finished trial with no save and no better numbers is a removal candidate for `workflow improve`.
+Remove it only after the human confirms. A change considered and rejected is logged there too, so it is not re-proposed.
 
 ## Worklog — `workflow log`
 
