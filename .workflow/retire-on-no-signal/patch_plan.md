@@ -7,12 +7,13 @@ Status:  complete
 Three tickets for cycle 2, approved by the human as a third cycle ("1a"). C2-T1 fixes a crash, so it lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 changes tests only. C2-T3 edits one README sentence.
 
 ## Execution state
-Current: C2-T2 done; C2-T3 ready
+Current: all cycle 2 patch tickets done; review ready.
 C2-T1 @ a8b72da
 C2-T2 @ 25a4739
+C2-T3 @ c76edeb
 writer: GPT-6.1 Sol
 Baseline: workflow 124 tests OK; checkup 20 tests OK.
-C2-T2 final: workflow 124 tests OK; checkup 25 tests OK.
+C2-T3 final: workflow 124 tests OK; checkup 25 tests OK.
 Uncommitted: none after record commit. Pending decision: none.
 
 ## Tickets
@@ -60,10 +61,12 @@ Budget: code +0 · tests +0
 Seam: `.github/skills/workflow/README.md` by grep
 Change: at `README.md:214-215`, replace "`checkup` compares the runs before and after. If the runs got worse, revert the commit and log why." with "`checkup seats` counts save tags and compares the runs before and after. A finished trial with no save and no better numbers becomes a removal candidate for `workflow improve`, and you confirm before anything is removed." Site search: `git grep -n -i -E 'revert the commit|worse means|got worse' -- .github README.md` finds only this line.
 Accept:
-- [ ] The site search returns no hit, and the README's *A skill change* bullet names `workflow improve` (C1-5)
+- [x] The site search returns no hit, and the README's *A skill change* bullet names `workflow improve` (C1-5)
 Verify: `[ "$(git grep -h -i -E 'revert the commit|worse means|got worse' -- .github README.md | wc -l)" = 0 ] && grep -q 'removal candidate for `workflow improve`' .github/skills/workflow/README.md` (pre: one hit at `README.md:215`)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ c76edeb
+Writer: GPT-6.1 Sol
+Proof: receipts/c2-t3-verification.md
 
 ## Deviations
 Budget waived: C2-T2 — tests +16 against +15; the extra blank line separates three independent regression cases.
