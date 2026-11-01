@@ -1,2 +1,7 @@
 ## Phase 4 — review (2026-11-01)
 - [durable→memory] A new script's fixtures held only lines its filters keep: no prose line in the impact table, no non-tag line in learnings.md. Deleting the `| 20` row filter or the `if not tag` guard kept every test green and crashes on the real files. Second occurrence after the exam case on a Resolved-table fixture with no blank line. Fix: each fixture copies the real file's non-matching lines, and review deletes each filter once.
+
+## Phase 4 — review cycle 2 (2026-11-01)
+- [durable→memory] Third occurrence of a fixture holding only lines the parser handles: C1-T4 made the script read `SKILL-IMPACT_ARCHIVE.md`, the fixture archive held one clean row, and 4 real rows hold `\|` in a cell, so the report exits 2 on this repo while all 20 tests pass. The trialing `tests.md` rule *Fixtures copy the real form* did not stop it: evidence against that row. Fix: a ticket that makes a parser read a real file runs the script on that file in its acceptance.
+- [durable→eval] code-review — C1-T4 (GPT-6.1 Sol) made `skill-trials.py` parse every archive row, and real archive rows hold `\|` inside a cell, so every report run crashes; the writer missed it, the reviewer caught it in cycle 2 by running the report on this repo.
+- [durable→memory] Cycle 1's whole-file sweep of 43 mutations skipped one `and` operand and one value a print line interpolates; both survive the tests. A sweep lists each operand of an `and` chain and each interpolated value as its own mutation.
