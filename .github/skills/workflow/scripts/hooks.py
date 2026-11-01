@@ -92,16 +92,17 @@ def pre_push(remote):
         print('workflow: install gitleaks before pushing (brew install gitleaks or mise use -g gitleaks)',
               file=sys.stderr)
         return 1
+    exclusion = f'--remotes={remote}' if remote in git('remote').splitlines() else '--remotes'
     # Git sends one local/remote ref pair per line; all-zero local SHAs delete refs.
     for line in sys.stdin:
         local_ref, local_sha, remote_ref, remote_sha = line.split()
         if set(local_sha) == {'0'}:
             continue
-        if subprocess.run(['git', 'rev-list', '--quiet', local_sha, '--not', '--remotes']).returncode:
+        if subprocess.run(['git', 'rev-list', '--quiet', local_sha, '--not', exclusion]).returncode:
             print(f'workflow: cannot list outgoing commits for {local_ref}', file=sys.stderr)
             return 1
         result = subprocess.run(['gitleaks', 'git',
-                                 f'--log-opts={local_sha} --not --remotes',
+                                 f'--log-opts={local_sha} --not {exclusion}',
                                  '--redact', '-v', '--no-banner'])
         if result.returncode:
             return result.returncode
