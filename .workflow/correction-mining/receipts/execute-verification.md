@@ -30,4 +30,15 @@ Live report: stores claude 129 files, codex 121 files, copilot 0 files.
 Live repeat: interrupt · no tool · 2 sessions · 3 times.
 No redirect text or transcript paths are retained in this receipt.
 
-T3 remains todo. Workflow requires a reset when the next ticket changes effort, from high to medium.
+T3 · checkup and retro run the script · Commit: 5683806
+Changed: Checkup reports five correction repeats; retro cites matching keys as recurrence evidence.
+Proof: All six planned grep checks pass; workflow 126 tests OK; checkup 33 tests OK; exit 0.
+Mutation: none — doc or mechanical ticket. The content check failed before the edit and passed after it.
+Try it: none — nothing changes on screen; the planned grep checks verify the instructions.
+Noticed: Added the required skill-impact row. Copilot's registration command failed during bundled-package extraction; descriptions and triggers are unchanged.
+Reuse: Extended the existing seat checks and Recurring criterion; no helper or abstraction added.
+
+T3 command: python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests
+T3 result: workflow Ran 126 tests in 56.338s, OK; checkup Ran 33 tests in 7.066s, OK; exit 0.
+Baseline reused: the preceding result on a5cd7fc; the only intervening commit changed this run's records.
+All T3 acceptance lines pass. No redirect text was saved. Completed-run gate follows in check-run.py.

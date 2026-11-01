@@ -11,11 +11,14 @@ Decisions: 1a (tickets approved) · 2a (checkup calls the script from references
 ## Execution state
 T1 @ 00623b1
 T2 @ a5cd7fc
+T3 @ 5683806
 writer: GPT-6.1 Sol
 Session 1: T1, T2
+Session 2: T3
 Initial suite: workflow 126 tests OK; checkup 30 tests OK, including T1.
 Final suite: workflow 126 tests OK; checkup 33 tests OK.
-Current: T3 todo; reset for mechanical lane medium effort; no pending decision.
+Current: all tickets done; ready for review; no pending decision.
+T3 suite: workflow 126 tests OK; checkup 33 tests OK; exit 0.
 
 ## Findings
 | # | What is true | What it changes |
@@ -70,11 +73,12 @@ Delivers: B8 · Blocked by: T1 · Lane: mechanical
 Budget: code +6 · tests +0
 Seam: `grep` on `checkup/references/seats.md` and `retro/SKILL.md`
 Accept:
-- [ ] `seats.md` has a **Corrections** bullet that runs `scripts/corrections.py`, reports the first 5 `repeats:` lines, and copies no redirect line into a file (B8)
-- [ ] `retro/SKILL.md` *Recurring* runs `corrections.py`, counts a matching repeat as "seen twice", and cites its key, never its redirect text (B8)
+- [x] `seats.md` has a **Corrections** bullet that runs `scripts/corrections.py`, reports the first 5 `repeats:` lines, and copies no redirect line into a file (B8)
+- [x] `retro/SKILL.md` *Recurring* runs `corrections.py`, counts a matching repeat as "seen twice", and cites its key, never its redirect text (B8)
 Verify: `grep -q 'corrections.py' .github/skills/checkup/references/seats.md && grep -q 'corrections.py' .github/skills/retro/SKILL.md && grep -q 'first 5' .github/skills/checkup/references/seats.md && grep -q 'no redirect line' .github/skills/checkup/references/seats.md && grep -q 'seen twice' .github/skills/retro/SKILL.md && grep -q 'never its redirect text' .github/skills/retro/SKILL.md` (pre: exit 1)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 5683806
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T1 (real-store report in this repo), T3 (checkup and retro name the script)
@@ -95,3 +99,5 @@ none (the brief seeds from ROADMAP.md row 3, not TODO.md)
 
 ## Deviations
 - Budget waived: T2 — code net +71 against +65; cwd extraction and request joins keep all three readers explicit.
+- T3 also logs the skill change in SKILL-IMPACT.md, as agent-docs requires. Net +5 lines stays within the +6 budget.
+- Copilot registration check could not start because its bundled-package extraction failed. Descriptions and triggers are unchanged; T3 verifies by its planned content check.
