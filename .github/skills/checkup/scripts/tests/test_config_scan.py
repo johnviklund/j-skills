@@ -112,5 +112,24 @@ class ConfigScanTests(unittest.TestCase):
         self.assertTrue(out[1].startswith("⚠️ ~/.claude/settings.json:1: holds a secret (GitHub token)"), out)
 
 
+    def test_NoVerify_rules_in_workflow_repos(self):
+        commit = 'Bash(git commit *--no-verify*)'
+        push = 'Bash(git push *--no-verify*)'
+        self.write(self.home, '.copilot/settings.json', {'permissions': {'deny': [commit, push]}})
+        for workflow in (False, True):
+            if workflow:
+                os.makedirs(os.path.join(self.repo, '.workflow'))
+            for deny in ([], [commit], [push], [commit, push], ['Bash(git *--no-verify*)']):
+                with self.subTest(workflow=workflow, deny=deny):
+                    self.write(self.home, '.claude/settings.json', {'permissions': {'deny': deny}})
+                    out = self.run_scan()
+                    missing = [line for line in out if 'no-verify' in line]
+                    expected = workflow and deny in ([], [commit], [push])
+                    self.assertEqual(len(missing), int(expected), out)
+                    if expected:
+                        self.assertTrue(missing[0].startswith('⚠️ '))
+                        self.assertIn(commit, missing[0])
+                        self.assertIn(push, missing[0])
+
 if __name__ == "__main__":
     unittest.main()

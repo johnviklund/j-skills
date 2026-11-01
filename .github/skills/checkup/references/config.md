@@ -11,3 +11,6 @@
   Copy its lines into the Config section unchanged; they never include a value, so quote them
   rather than opening the files, which would put a secret into the transcript. A setting that
   skips asking may be the human's choice: it stays a ⚠️ line and is never changed here.
+
+- **Hook bypass.** Copy the scanner's `--no-verify` warning and exact Claude deny rules. The human applies them with `update-config`.
+  Git hooks run under any vendor or agent; Claude deny rules only cover the usual command forms in Claude Code.

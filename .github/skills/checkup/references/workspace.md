@@ -14,6 +14,8 @@ git log @{u}.. --oneline 2>/dev/null                                      # unpu
 git ls-files | grep -Ei '(^|/)\.DS_Store$|(^|/)\.env$|/node_modules/|/\.venv|\.pyc$' 2>/dev/null
 ```
 
+- **Workflow hooks.** In a repo with `.workflow/`, run `python3 <workflow skill folder>/scripts/hooks.py install --check`.
+  A missing hook or refused foreign configuration is a warning. Offer installation as an opt-in fix, one at a time.
 - **Run shape.** In a repo with `.workflow/`, run the workflow skill's checker over every run:
   `python3 <workflow skill folder>/scripts/check-run.py --all`. Each ERROR on a live run is 🔴;
   ERRORs and warnings on done runs are ⚠️, counted per run, not listed.

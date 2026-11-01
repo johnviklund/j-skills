@@ -9,6 +9,7 @@ It never prints a setting's value. Python 3.8+ standard library and git; exits 0
 The secret shapes and the pipe-to-shell and Claude key checks are adapted from ruflo-protector
 (hooks/scan.ts, hooks/screen.ts) in https://github.com/ruvnet/ruflo, MIT (THIRD-PARTY-NOTICES.md).
 """
+import fnmatch
 import json
 import os
 import re
@@ -159,10 +160,35 @@ def scan(path, kind):
     return out
 
 
+def no_verify():
+    """Report missing Claude denials once, combining project and personal settings."""
+    if not os.path.isdir('.workflow'):
+        return []
+    deny = []
+    for path, kind in FILES:
+        if kind != 'claude':
+            continue
+        try:
+            with open(path, encoding='utf-8') as source:
+                data = json.load(source)
+            perms = data.get('permissions', {}) if isinstance(data, dict) else {}
+            rules = perms.get('deny', []) if isinstance(perms, dict) else []
+            if isinstance(rules, list):
+                deny.extend(rule for rule in rules if isinstance(rule, str))
+        except (OSError, ValueError):
+            continue  # scan() reports unreadable or malformed settings separately.
+    if all(any(fnmatch.fnmatchcase(f'Bash(git {command} --no-verify)', rule) for rule in deny)
+           for command in ('commit', 'push')):
+        return []
+    return ['⚠️ Claude permissions.deny: --no-verify can skip workflow hooks; add '
+            'Bash(git commit *--no-verify*) and Bash(git push *--no-verify*) with update-config; '
+            'these rules cover usual command forms only']
+
+
 def main():
     seen = set()
     read = 0
-    findings = []
+    findings = no_verify()
     for path, kind in FILES:
         if not os.path.isfile(path) or os.path.realpath(path) in seen:
             continue

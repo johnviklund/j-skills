@@ -153,3 +153,18 @@ class PrePushTests(HookRepo):
         self.assertNotEqual(result.returncode, 0)
         for folder in ('.github', '.agents', '.claude', '.codex', '.copilot'):
             self.assertIn(folder, result.stderr)
+
+
+class HookCheckTests(HookRepo):
+    def test_HookCheck_dry_run_and_installed(self):
+        result = self.install('--check')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), 'would install pre-commit, pre-push')
+        self.assertFalse((self.repo / '.git/hooks/pre-commit').exists())
+        self.assertFalse((self.repo / '.git/hooks/pre-push').exists())
+        self.assertEqual(self.install().returncode, 0)
+        self.assertEqual(self.install('--check').stdout.strip(), 'installed')
+        (self.repo / '.git/hooks/pre-push').chmod(0o644)
+        self.assertEqual(self.install('--check').stdout.strip(), 'would install pre-push')
+        (self.repo / '.git/hooks/pre-push').unlink()
+        self.assertEqual(self.install('--check').stdout.strip(), 'would install pre-push')

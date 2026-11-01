@@ -9,11 +9,12 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: T2, todo
+Current: T3, todo
+T2 @ 2556e51
 T1 @ f1ed6eb
 writer: GPT-6.1 Sol
 Baseline: workflow 112 tests OK; checkup 8 tests OK
-Session 1: T1
+Session 1: T1, T2, T3
 Reuse: no install, marker or skill-path helper found, as F12 records.
 
 ## Findings
@@ -58,14 +59,15 @@ Delivers: B1, B2, B3 · Blocked by: T1 · Lane: logic
 Budget: code +35 · tests +50 · why: each case pushes through real git to a bare origin
 Seam: `git push` from a temp repo with the hooks installed to a bare origin
 Accept:
-- [ ] Push of a commit holding a `ghp_` token built at runtime → refused; output has `RuleID: github-pat` and `File:`, and lacks the token (B1)
-- [ ] Secret already on origin, then a new branch with one clean commit and no upstream → push exits 0; deleting that branch on origin → exits 0 (B2)
-- [ ] PATH without gitleaks → push refused, output says to install gitleaks (B3)
-- [ ] Stub finds no `hooks.py` → push refused, stderr lists every searched path (2a)
-- [ ] SKILL.md's scan rule is one line naming the pre-push hook; secret-scan.md and README.md say the human pushes unscanned with `--no-verify`
+- [x] Push of a commit holding a `ghp_` token built at runtime → refused; output has `RuleID: github-pat` and `File:`, and lacks the token (B1)
+- [x] Secret already on origin, then a new branch with one clean commit and no upstream → push exits 0; deleting that branch on origin → exits 0 (B2)
+- [x] PATH without gitleaks → push refused, output says to install gitleaks (B3)
+- [x] Stub finds no `hooks.py` → push refused, stderr lists every searched path (2a)
+- [x] SKILL.md's scan rule is one line naming the pre-push hook; secret-scan.md and README.md say the human pushes unscanned with `--no-verify`
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush && grep -c 'pre-push hook' .github/skills/workflow/SKILL.md README.md && grep -c 'no-verify' .github/skills/workflow/references/secret-scan.md` (pre: new file, NO TESTS RAN exit 5 · greps 0)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ 2556e51
+Writer: GPT-6.1 Sol
 
 ### T3 — checkup reports missing hooks and an open --no-verify
 Delivers: B7, B8 · Blocked by: T1 · Lane: logic
@@ -103,3 +105,4 @@ none: the brief came from ROADMAP.md row 1, not TODO.md
 ## Deviations
 - T1: corrected the new warning assertion from `WARN` to `warnings`, matching the checker output. No existing assertion changed.
 - T2: the new token fixture needed varied characters to exceed gitleaks entropy filtering. The RuleID assertion now accepts gitleaks column spacing. No existing assertion changed.
+- T3: two surviving mutations justified cases for non-executable hooks and deny rules in Copilot settings. Both mutations now fail.

@@ -70,6 +70,7 @@ Read each selected section before running its checks:
 Only these may be applied during a checkup, and only after the user approves each:
 
 - Create a missing or repair a broken `~/.codex/skills/<name>` symlink for a repo-local skill.
+- Install missing workflow hooks with `python3 <workflow skill folder>/scripts/hooks.py install`; foreign hooks and `core.hooksPath` stay unchanged.
 - Remove a tracked `.DS_Store` (and add it to `.gitignore` if missing).
 - Add obviously-missing `.gitignore` entries (`.DS_Store`, `.env`, venvs, build output).
 - Delete a leftover `.proposed.md` **only** after confirming its content was already accepted/routed.

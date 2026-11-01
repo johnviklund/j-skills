@@ -42,7 +42,7 @@ exit {missing_exit}
 '''
 
 
-def install():
+def install(check=False):
     configured = subprocess.run(['git', 'config', '--get', 'core.hooksPath'],
                                 capture_output=True, text=True)
     if configured.returncode == 0:
@@ -54,6 +54,11 @@ def install():
         if path.exists() and MARKER not in path.read_text():
             print(f'Refusing foreign hook: {path}', file=sys.stderr)
             return 1
+    if check:
+        missing = [hook for hook in HOOKS if not (directory / hook).is_file()
+                   or not os.access(directory / hook, os.X_OK)]
+        print('would install ' + ', '.join(missing) if missing else 'installed')
+        return 0
     directory.mkdir(parents=True, exist_ok=True)
     for hook in HOOKS:
         path = directory / hook
@@ -103,11 +108,12 @@ def pre_push(remote):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=('install', *HOOKS))
+    parser.add_argument('--check', action='store_true', help='report missing hooks without writing')
     parser.add_argument('args', nargs='*', help='git hook arguments')
     args = parser.parse_args()
     try:
         if args.command == 'install':
-            return install()
+            return install(args.check)
         if args.command == 'pre-commit':
             return pre_commit()
         return pre_push(args.args[0])
