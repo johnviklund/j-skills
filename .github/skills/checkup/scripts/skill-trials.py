@@ -5,20 +5,20 @@ from pathlib import Path
 import re
 
 
-def rows(path):
+def rows(path, trialing=True):
     result = []
     for line in path.read_text().splitlines():
         if not re.match(r"\| 20\d\d-", line):
             continue
         date, skill, change, source, trial, outcome = (c.strip() for c in line.strip("|").split("|"))
-        if outcome == "trialing":
+        if not trialing or outcome == "trialing":
             names = [s.removesuffix(" (new)").strip() for s in skill.split(" · ")]
             result.append(dict(date=date, skill=skill, names=names, change=change,
                                source=source, trial=trial, saves=0))
     return result
 
 
-def count_saves(trials, repos):
+def count_saves(trials, repos, all_rows):
     for repo in repos:
         for path in sorted((repo / ".workflow").glob("*/learnings.md")):
             for number, line in enumerate(path.read_text().splitlines(), 1):
@@ -26,11 +26,12 @@ def count_saves(trials, repos):
                 if not tag:
                     continue
                 date, skill, words = tag.groups()
-                matches = [r for r in trials if r["date"] == date and skill in r["names"]
-                           and words.strip().casefold() in r["change"].casefold()]
+                matches_row = lambda r: (r["date"] == date and skill in r["names"]
+                                        and words.strip().casefold() in r["change"].casefold())
+                matches = [r for r in trials if matches_row(r)]
                 if len(matches) == 1:
                     matches[0]["saves"] += 1
-                else:
+                elif matches or not any(matches_row(r) for r in all_rows):
                     print(f"⚠️ tag {path.relative_to(repo)}:{number} matches {len(matches)} rows; add words of the change")
 
 
@@ -92,7 +93,11 @@ def main():
             if not repo.is_dir():
                 parser.error(f"evidence repo is not a directory: {repo}")
         trials = rows(args.impact)
-        count_saves(trials, repos)
+        archive = args.impact.with_name("SKILL-IMPACT_ARCHIVE.md")
+        all_rows = rows(args.impact, trialing=False)
+        if archive.exists():
+            all_rows += rows(archive, trialing=False)
+        count_saves(trials, repos, all_rows)
         entries = worklogs(repos)
         for row in trials:
             report(row, args.sweep, entries)
