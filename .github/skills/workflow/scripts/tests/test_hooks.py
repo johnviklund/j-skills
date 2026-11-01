@@ -84,9 +84,11 @@ class InstallPreCommitTests(HookRepo):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('ERROR', result.stdout + result.stderr)
         self.git('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'broken fixture')
-        for name in ('src.py', '.workflow/.gitkeep', '.workflow/archive/old.txt'):
+        for name in ('src.py', '.workflow/.gitkeep', '.workflow/archive/old.txt', 'docs/r/notes.md'):
             self.stage(name, 'fixture\n')
             self.assertEqual(self.commit().returncode, 0, name)
+        self.assertEqual(self.git('rm', '-r', '.workflow/r').returncode, 0)
+        self.assertEqual(self.commit().returncode, 0)
         self.stage('.workflow/r/brainstorm.md',
                    'Command: workflow brainstorm r\nCreated: 2026-11-01\nBase: ' +
                    self.git('rev-parse', 'HEAD').stdout.strip() + '\nInputs: none\nStatus: drafting\n')
@@ -107,6 +109,25 @@ class InstallPreCommitTests(HookRepo):
         self.assertEqual(result.returncode, 0, result.stderr)
         for folder in ('.github', '.agents', '.claude', '.codex', '.copilot'):
             self.assertIn(folder, result.stderr)
+
+    def test_PreCommit_missing_checker_warns_and_allows(self):
+        self.assertEqual(self.install().returncode, 0)
+        (self.scripts / 'check-run.py').unlink()
+        self.stage('.workflow/r/brainstorm.md', 'broken\n')
+        result = self.commit()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('check-run.py', result.stderr)
+
+    def test_PreCommit_external_CODEX_HOME_fallback(self):
+        self.env['CODEX_HOME'] = str(self.root / 'codex-external')
+        self.assertEqual(self.install().returncode, 0)
+        target = Path(self.env['CODEX_HOME']) / 'skills/workflow'
+        target.parent.mkdir(parents=True)
+        self.scripts.parent.rename(target)
+        self.stage('.workflow/r/brainstorm.md', 'broken\n')
+        result = self.commit()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('ERROR', result.stdout + result.stderr)
 
 
 class PrePushTests(HookRepo):
