@@ -7,8 +7,9 @@ Status:  complete
 Five tickets. C1-T1 and C1-T5 fix behaviour bugs, so each lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T2 adds tests only. C1-T3 and C1-T4 edit Markdown only.
 
 ## Execution state
-Current: C1-T2 todo
+Current: C1-T3 todo
 C1-T1 @ a2d308f
+C1-T2 @ d6de8e2
 writer: GPT-6.1 Sol
 Baseline: workflow 119 tests OK; checkup 9 tests OK
 Red: C1-T1 @ 860ebb2, spaced-target push incorrectly exits 0
@@ -39,13 +40,14 @@ Budget: code +0 · tests +30
 Seam: `git commit` in a temp repo with the hooks installed, beside a committed broken run `r`
 Change: tests only, in `test_hooks.py`; no script changes, so no Red commit.
 Accept:
-- [ ] Commit staging `docs/r/notes.md` → allowed (M7) (C1-3)
-- [ ] Commit of `git rm -r .workflow/r` → allowed (M10) (C1-3)
-- [ ] `check-run.py` deleted from the installing copy, broken run staged → allowed, stderr names `check-run.py` (M11) (C1-3)
-- [ ] Installing copy gone, a copy only under a `CODEX_HOME` outside `HOME` → a broken run's commit is refused (M22) (C1-3)
+- [x] Commit staging `docs/r/notes.md` → allowed (M7) (C1-3)
+- [x] Commit of `git rm -r .workflow/r` → allowed (M10) (C1-3)
+- [x] `check-run.py` deleted from the installing copy, broken run staged → allowed, stderr names `check-run.py` (M11) (C1-3)
+- [x] Installing copy gone, a copy only under a `CODEX_HOME` outside `HOME` → a broken run's commit is refused (M22) (C1-3)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py` (pre: all pass, and each of M7, M10, M11, M22 stays green)
 Skills: none
-Status: todo
+Status: done @ d6de8e2
+Writer: GPT-6.1 Sol
 
 ### C1-T3 — The hook rules keep a manual fallback for repos without hooks
 Delivers: B1, B4 · Blocked by: none · Lane: mechanical

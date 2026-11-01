@@ -9,14 +9,14 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: patch cycle 1, C1-T2 todo
+Current: patch cycle 1, C1-T3 todo
 T3 @ cb2e649
 T2 @ 2556e51
 T1 @ f1ed6eb
 writer: GPT-6.1 Sol
 Baseline: workflow 112 tests OK; checkup 8 tests OK
 Session 1: T1, T2, T3
-Session 2: C1-T1
+Session 2: C1-T1, C1-T2
 Reuse: no install, marker or skill-path helper found, as F12 records.
 
 ## Findings
