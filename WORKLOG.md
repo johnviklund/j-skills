@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-01 · git-hooks · pre-commit and pre-push hooks enforce the run check and the secret scan · GPT-6.1 Sol
+- `hooks.py` installs a pre-commit hook (runs `check-run.py` on staged run files) and a pre-push hook (gitleaks over the commits the push adds); `bootstrap` installs them and `checkup` flags a repo without them or with an open `--no-verify`.
+- Three review cycles found 9 defects (a secret passing a spaced push target, commits on another remote skipped, 3 untested guards); all fixed, 2 P3s stay in `review.md`.
+- Commits: f1ed6eb 2556e51 cb2e649 a2d308f d6de8e2 8667607 0cf89fa ffc3856 3368007
+- Review: ship as-is (cycle 3, 0 open) @ a152e3e
+- Run: 3 tickets · 4 sessions · 3 review cycles · 5 deviations · 0 findings overturned · net code +157 · tests +246
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@83f608b20044, checkup@a71b8a916aee
+- Why: the secret scan and the run check stop depending on an agent reading prose.
+
 ## 2026-11-01 · lean-workflow-tests · workflow test suites fold duplicate cases and lose no covered line or caught mutant · GPT-6.1 Sol
 - Shared helpers (`fails()`, `run_command(expected=)`, `check(checkout=)`) and folded cases cut the workflow tests from 120 to 112 and 1,630 to 1,565 lines; the checkout test moved to check-run; median suite time 52.3 to 50.9 s.
 - The coverage map and mutation run (with message-string and `1.5` mutants) from the run's own tool lose nothing: `compare.py base final` → `lost 0`, and four hand mutants agree.
@@ -148,14 +158,3 @@ oldest when appending would exceed that.
 - Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@e92cdbe
 - Why: workflow runs grew the test suite and took too many sessions.
-
-## 2026-10-10 · run-sizing · workflow plans bigger tickets, runs 3 per session, caps review at two cycles · Opus 5.5
-- `check-run.py` warns on a low median code Budget, allows 6 acceptance lines, and errors on an
-  unapproved third review cycle; plan, execute, review, wrap and README rules and counts updated.
-- Cycle 1 found two P1s (no six-line boundary test; wrap missed patch sessions), both fixed.
-- Commits: 1d56b03 d3ce44c f3d885e 36b844d 69370a6
-- Review: ship as-is (cycle 2, 0 open) @ 38dea5d
-- Run: 3 tickets · 2 sessions · 2 review cycles · 2 deviations · 0 findings overturned
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 Opus 5.5 · 4 GPT-6
-- Skills: workflow@2820722, checkup@2820722
-- Why: fewer, larger tickets and fewer review cycles cut the cost per run.

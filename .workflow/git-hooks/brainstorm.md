@@ -2,7 +2,7 @@ Command: workflow brainstorm git-hooks
 Created: 2026-11-01 · Claude Sonnet 5.5
 Base:    e3b8e98
 Inputs:  none
-Status:  complete
+Status:  done
 Mode: attended
 
 ## Problem

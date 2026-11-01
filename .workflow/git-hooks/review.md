@@ -2,7 +2,7 @@ Command: workflow review git-hooks
 Created: 2026-11-01 · Claude Opus 5.5
 Base:    a152e3e
 Inputs:  .workflow/git-hooks/plan.md @ 90b7bd1
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing; `grep -c 'pre-commit hook'` SKILL.md 1, `hooks.py install` bootstrap.md 1
