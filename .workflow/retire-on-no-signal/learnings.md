@@ -1,0 +1,2 @@
+## Phase 4 — review (2026-11-01)
+- [durable→memory] A new script's fixtures held only lines its filters keep: no prose line in the impact table, no non-tag line in learnings.md. Deleting the `| 20` row filter or the `if not tag` guard kept every test green and crashes on the real files. Second occurrence after the exam case on a Resolved-table fixture with no blank line. Fix: each fixture copies the real file's non-matching lines, and review deletes each filter once.
