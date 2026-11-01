@@ -117,3 +117,48 @@ class SkillTrialsTests(unittest.TestCase):
         self.worklog(after=2, score=2)
         self.worklog(after=1, score=2, before=False, repo=self.b)
         self.assertIn("numbers better (before 4.0 → after 2.0)", self.scan()[0])
+
+    def test_real_forms_and_numbers_on_every_line(self):
+        self.rows(self.row(), self.row(change="rollback"))
+        self.impact.write_text("# SKILL-IMPACT — changes to these skills, and what the runs after them showed\n\n"
+                               "Mode: autonomous\n\nOne line per change, newest first.\n" + self.impact.read_text())
+        self.tag(self.a, "## Execute\n- [durable→memory] Keep evidence\n"
+                 "- [saved→skill] 2026-11-01 workflow push guard — stopped it [routed → SKILL-IMPACT 2026-11-02]\n")
+        self.worklog(score=6)
+        out = self.scan("--sweep")
+        self.assertEqual(len(out), 2)
+        self.assertTrue(all("· numbers not better (before 4.0 → after 6.0)" in line for line in out))
+        self.assertIn("kept · 1 save · numbers not better (before 4.0 → after 6.0)", self.scan()[0])
+
+    def test_date_windows_and_incomplete_worklog_blocks(self):
+        self.rows(self.row())
+        dates = [f"2026-10-{day}" for day in range(27, 32)] + [f"2026-11-{day:02}" for day in range(1, 7)]
+        blocks = [f"## {date} · run\n- Run: {score} review cycles · 0 deviations\n- Skills: workflow@abc\n"
+                  for date, score in zip(dates, [20, 15, 9, 6, 3, 99, 1, 2, 3, 10, 14])]
+        malformed = "## 2026-10-31 · incomplete\n- Run: 90 review cycles · 0 deviations\n- Skills: workflow@abc\n"
+        incomplete = [malformed.replace(part, "") for part in
+                      ["2026-10-31", "90 review cycles", "0 deviations", "- Skills: workflow@abc"]]
+        for repo, subset in [(self.a, blocks[::2]), (self.b, blocks[1::2])]:
+            (repo / "WORKLOG.md").write_text("# WORKLOG\nPreamble\n" + "\n".join(reversed(subset + incomplete)))
+        self.assertIn("numbers better (before 6.0 → after 2.0)", self.scan()[0])
+
+    def test_cli_defaults_deduplication_and_path_errors(self):
+        self.rows(self.row())
+        self.tag(self.a, "[saved→skill] 2026-11-01 workflow — stopped it\n")
+        installed = self.root / "skills/checkup/scripts/skill-trials.py"
+        installed.parent.mkdir(parents=True)
+        installed.write_bytes(SCRIPT.read_bytes())
+        impact = self.root / "skills/workflow/SKILL-IMPACT.md"
+        impact.parent.mkdir()
+        impact.write_bytes(self.impact.read_bytes())
+        for script, args, code, needle in [
+            (SCRIPT, ["--impact", str(self.impact), "--sweep"], 0, "· 1 save ·"),
+            (SCRIPT, ["--impact", str(self.impact), "--sweep", str(self.a), str(self.a)], 0, "· 1 save ·"),
+            (SCRIPT, ["--impact", str(self.impact), str(self.root / "absent-repo")], 2, "absent-repo"),
+            (SCRIPT, ["--impact", str(self.root / "absent-impact")], 2, "absent-impact"),
+            (installed, ["--sweep"], 0, "· 1 save ·")]:
+            with self.subTest(script=script, args=args):
+                result = subprocess.run([sys.executable, str(script), *args], cwd=self.a,
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertIn(needle, result.stdout if code == 0 else result.stderr)
