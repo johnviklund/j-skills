@@ -22,3 +22,16 @@ plan ≤ 20 acceptance lines, tests net ≤ 1.5× code per ticket, keyed waivers
 behaviour and per guard key. Their trials closed 2026-10-21 as kept (`SKILL-IMPACT_ARCHIVE.md`).
 
 No open steps. Steps 1 to 4 are in `ROADMAP_ARCHIVE.md`; the last, `lean-workflow-tests`, closed 2026-10-31.
+
+## Goal: a harness that is pruned on evidence and enforced by code
+
+Decided 2026-11-01, from a review of harness-engineering advice checked against its sources. Most
+of it j-skills already does. Three gaps: two ground rules are prose only, no skill change has ever
+been reverted (every "no signal" trial ends kept), and a correction becomes a rule only when an
+agent logs it or someone runs `retro` on that session. One run per step, in this order.
+
+| # | Step | Slug | Status |
+|---|---|---|---|
+| 1 | Git hooks for the two mechanical ground rules: pre-push runs gitleaks over the pushed range, pre-commit runs `check-run.py` when staged paths are under `.workflow/<slug>/`. `bootstrap` installs them, `checkup` flags a repo without them, `--no-verify` is denied; the two prose rules shrink to one line each. Open: how a hook finds the installed `check-run.py` on both machines | `git-hooks` | next |
+| 2 | "No signal" means retire, not keep: a learnings tag records when a skill rule visibly stopped a mistake, `checkup seats` counts it per `SKILL-IMPACT.md` row, and a trial that ends with no save becomes a removal candidate for `workflow improve`. A rule guarding a rare, costly failure stays, marked `insurance: <incident>` from its `From` column. Also judges the open `trialing` rows | `retire-on-no-signal` | after 1 |
+| 3 | Mine corrections from every session: a stdlib script reads the transcript stores `retro` lists and pulls human redirect turns, interrupts and denied tool calls over the last N days, by repo. `checkup` reports the top repeats; `retro` uses them for its *Recurring* test | `correction-mining` | after 2 |
