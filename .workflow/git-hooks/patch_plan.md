@@ -7,7 +7,11 @@ Status:  complete
 Three tickets for cycle 3, approved by the human. C2-T1 fixes a behaviour bug, so it lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 and C2-T3 add tests only.
 
 ## Execution state
-Current: C2-T1 ready
+Current: C2-T2 ready
+C2-T1 @ 0cf89fa
+writer: GPT-6.1 Sol
+Baseline: workflow 122 tests OK; checkup 9 tests OK
+Reuse: existing PrePush fixture and git helper; no new helper.
 
 ## Tickets
 
@@ -18,12 +22,14 @@ Budget: code +4 · tests +15
 Seam: `git push` from a temp repo with the hooks installed and two bare remotes, `work` and `origin`
 Change: `hooks.py pre_push` builds one exclusion: `--remotes=<remote>` when `remote` is a name listed by `git remote`, else `--remotes`. Git refuses remote names with spaces, so the name is safe inside `--log-opts`. The rev-list guard and the gitleaks `--log-opts` both use it. A push to a URL or path keeps `--remotes`, as now.
 Accept:
-- [ ] A `ghp_` commit already on `work` (pushed with `core.hooksPath=/dev/null`), then `git push origin HEAD:refs/heads/feature` → refused, output lacks the token, `origin` lacks `refs/heads/feature` (C2-1)
-- [ ] Existing `PrePush` cases still pass: spaced-path target refused, clean branch over a secret already on origin pushes, branch delete pushes (C2-1)
-- [ ] Mutation: replacing the named exclusion with plain `--remotes` fails the new test (reviewer checks)
+- [x] A `ghp_` commit already on `work` (pushed with `core.hooksPath=/dev/null`), then `git push origin HEAD:refs/heads/feature` → refused, output lacks the token, `origin` lacks `refs/heads/feature` (C2-1)
+- [x] Existing `PrePush` cases still pass: spaced-path target refused, clean branch over a secret already on origin pushes, branch delete pushes (C2-1)
+- [x] Mutation: replacing the named exclusion with plain `--remotes` fails the new test (reviewer checks)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: the new case fails and `origin` holds the commit)
 Skills: none
-Status: todo
+Status: done @ 0cf89fa
+Writer: GPT-6.1 Sol
+Red: 4e10116
 
 ### C2-T2 — Test the rev-list guard
 Delivers: B1 · Blocked by: C2-T1 · Lane: logic

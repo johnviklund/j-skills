@@ -153,6 +153,13 @@ class PrePushTests(HookRepo):
         self.assertNotEqual(self.git('--git-dir=' + str(self.origin), 'rev-parse', '--verify',
                                      'refs/heads/feature').returncode, 0)
 
+    def test_PrePush_unknown_revision_is_refused(self):
+        result = self.run_cmd(sys.executable, str(self.scripts / 'hooks.py'), 'pre-push', 'origin',
+                              input='refs/heads/x 1234567890abcdef1234567890abcdef12345678 '
+                                    'refs/heads/x ' + '0' * 40 + '\n')
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('refs/heads/x', result.stderr)
+
     def test_PrePush_secret_to_spaced_target_is_refused(self):
         spaced = self.root / 'origin space.git'
         self.origin.rename(spaced)
