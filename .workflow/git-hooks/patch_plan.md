@@ -7,7 +7,8 @@ Status:  complete
 Three tickets for cycle 3, approved by the human. C2-T1 fixes a behaviour bug, so it lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 and C2-T3 add tests only.
 
 ## Execution state
-Current: C2-T3 ready
+Current: patch cycle 3 complete; ready for review
+C2-T3 @ 3368007
 C2-T2 @ ffc3856
 C2-T1 @ 0cf89fa
 writer: GPT-6.1 Sol
@@ -53,9 +54,10 @@ Budget: code +0 · tests +3
 Seam: `config-scan.py` run as a subprocess in a temp repo and home
 Change: tests only: two more `deny` cases in `test_config_scan.py`, `[Bash(git commit --no-verify), push]` and `[commit, Bash(git push --no-verify)]`, each expected to print the line.
 Accept:
-- [ ] Deny narrow commit + wide push → the line prints (C2-3)
-- [ ] Deny wide commit + narrow push → the line prints (C2-3)
-- [ ] Mutation: reverting either probe string alone at `config-scan.py:181` fails a subtest (reviewer checks)
+- [x] Deny narrow commit + wide push → the line prints (C2-3)
+- [x] Deny wide commit + narrow push → the line prints (C2-3)
+- [x] Mutation: reverting either probe string alone at `config-scan.py:181` fails a subtest (reviewer checks)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -k NoVerify` (pre: all pass; each probe reverted alone fails a subtest)
 Skills: none
-Status: todo
+Status: done @ 3368007
+Writer: GPT-6.1 Sol
