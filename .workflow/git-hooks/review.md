@@ -37,19 +37,19 @@ Threats: config-scan → Claude settings · unchanged from cycle 1: reads only `
 ### P1 — pre-push skips commits that are already on another remote (C2-1)
 - Evidence: B1 · regression from C1-T1. `hooks.py:104` now excludes `--remotes` (every remote), where it used to exclude only the push target. Temp repo with remotes `work` and `origin`: a `ghp_` commit reaches `work` without the hook (another clone, a teammate's branch), then `git push origin HEAD:refs/heads/feature` exits 0 and the public remote holds the commit. The same push under the 6ea2df2 `hooks.py` exits 1. The `remote` parameter at `hooks.py:90` is now unused (same-run waste).
 - Remedy: when `$1` is a name in `git remote`, exclude `--remotes=<name>` (git refuses remote names with spaces); for a URL or path, keep `--remotes`. Use the same range in the rev-list guard. One test: two remotes, secret on `work`, push to `origin` refused.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 
 ### P1 — The new rev-list guard has no test (C2-2)
 - Evidence: `hooks.py:100-102` · disabling the guard keeps all 122 tests green. The guard matters: with it disabled, `hooks.py pre-push origin` given an unknown sha on stdin prints `scanned ~0 bytes`, `no leaks found` and exits 0; with it, exit 1. Same class as a case in the private reviewer exam set.
 - Remedy: one `PrePush` test feeding an unknown sha to `hooks.py pre-push origin` → exit 1, stderr names the ref.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 
 ### P1 — Each --no-verify probe can regress alone unseen (C2-3)
 - Evidence: `config-scan.py:181` · reverting only the commit probe to `Bash(git commit --no-verify)` survives, and so does reverting only the push probe: the `narrow` subtest narrows both rules, so the other probe still prints the line.
 - Remedy: two more subtests in `test_config_scan.py`: `[narrow commit, wide push]` and `[wide commit, narrow push]`, each → the line prints.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 
 ### P3 — Minor, deferred (C2-4)
@@ -62,3 +62,4 @@ Threats: config-scan → Claude settings · unchanged from cycle 1: reads only `
 
 ## Cycle 2 verdict
 Cycle 1's five findings are fixed. Cycle 2 found 3 new P1 and 1 P3. C2-1 breaks B1. The two-cycle limit is reached, so the three P1s wait for the human: a third cycle or a deferral.
+Cycle 3 approved by human: 2026-11-01, answer "1a" to the cycle-bound question. `patch_plan.md` holds C2-T1 to C2-T3.

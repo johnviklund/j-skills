@@ -1,98 +1,53 @@
-Command: workflow review git-hooks · patch cycle 1
+Command: workflow review git-hooks · patch cycle 2
 Created: 2026-11-01 · Claude Opus 5.5
-Base:    6ea2df2
-Inputs:  .workflow/git-hooks/review.md @ 6ea2df2
+Base:    b071f38
+Inputs:  .workflow/git-hooks/review.md @ b071f38
 Status:  complete
 
-Five tickets. C1-T1 and C1-T5 fix behaviour bugs, so each lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T2 adds tests only. C1-T3 and C1-T4 edit Markdown only.
+Three tickets for cycle 3, approved by the human. C2-T1 fixes a behaviour bug, so it lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 and C2-T3 add tests only.
 
 ## Execution state
-Current: all patch cycle 1 tickets done; ready for review
-C1-T1 @ a2d308f
-C1-T2 @ d6de8e2
-C1-T3 @ 8667607
-C1-T4 @ fb9bf81
-C1-T5 @ 1c09a05
-writer: GPT-6.1 Sol
-Baseline: workflow 122 tests OK; checkup 9 tests OK
-Red: C1-T1 @ 860ebb2, spaced-target push incorrectly exits 0
-Red: C1-T5 @ 5d4f0a8, narrow deny rules incorrectly suppress warning
-Reuse: existing HookRepo and PrePush fixtures; no helper needed
+Current: C2-T1 ready
 
 ## Tickets
 
-### C1-T1 — Fail closed when the push range cannot be listed
-Delivers: B1, B2 · Blocked by: none · Lane: logic
-Fixes: C1-1 (P1)
-Budget: code +8 · tests +15
-Seam: `git push` from a temp repo with the hooks installed, to a bare origin whose path holds a space
-Change: `hooks.py pre_push` scans `<sha> --not --remotes`, with no remote name, so `$1` never enters `--log-opts`. Before gitleaks it runs `git rev-list --quiet <sha> --not --remotes`; a nonzero exit refuses the push and names the ref. The delete skip at `:98` stays.
+### C2-T1 — Exclude only the push target's remote refs when the target is a named remote
+Delivers: B1 · Blocked by: none · Lane: logic
+Fixes: C2-1 (P1)
+Budget: code +4 · tests +15
+Seam: `git push` from a temp repo with the hooks installed and two bare remotes, `work` and `origin`
+Change: `hooks.py pre_push` builds one exclusion: `--remotes=<remote>` when `remote` is a name listed by `git remote`, else `--remotes`. Git refuses remote names with spaces, so the name is safe inside `--log-opts`. The rev-list guard and the gitleaks `--log-opts` both use it. A push to a URL or path keeps `--remotes`, as now.
 Accept:
-- [x] Push of a `ghp_` commit to a bare repo at a path with a space → refused, output lacks the token (C1-1)
-- [x] Existing cases still pass: a clean branch over a secret already on origin pushes, and a branch delete pushes (C1-1)
-- [x] Mutation M14, dropping the delete skip, now fails `PrePush` (reviewer checks)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: the new case fails, the remote gets the commit)
+- [ ] A `ghp_` commit already on `work` (pushed with `core.hooksPath=/dev/null`), then `git push origin HEAD:refs/heads/feature` → refused, output lacks the token, `origin` lacks `refs/heads/feature` (C2-1)
+- [ ] Existing `PrePush` cases still pass: spaced-path target refused, clean branch over a secret already on origin pushes, branch delete pushes (C2-1)
+- [ ] Mutation: replacing the named exclusion with plain `--remotes` fails the new test (reviewer checks)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: the new case fails and `origin` holds the commit)
 Skills: none
-Status: done @ a2d308f
-Writer: GPT-6.1 Sol
-Red: 860ebb2
+Status: todo
 
-### C1-T2 — Cover the four surviving pre-commit and stub mutations
-Delivers: B4, B5 · Blocked by: none · Lane: logic
-Fixes: C1-3 (P1)
-Budget: code +0 · tests +30
-Seam: `git commit` in a temp repo with the hooks installed, beside a committed broken run `r`
-Change: tests only, in `test_hooks.py`; no script changes, so no Red commit.
+### C2-T2 — Test the rev-list guard
+Delivers: B1 · Blocked by: C2-T1 · Lane: logic
+Fixes: C2-2 (P1)
+Budget: code +0 · tests +8
+Seam: `hooks.py pre-push origin` run as a subprocess in the `PrePush` temp repo, ref lines on stdin
+Change: tests only, in `test_hooks.py`; the guard already exists, so no Red commit.
 Accept:
-- [x] Commit staging `docs/r/notes.md` → allowed (M7) (C1-3)
-- [x] Commit of `git rm -r .workflow/r` → allowed (M10) (C1-3)
-- [x] `check-run.py` deleted from the installing copy, broken run staged → allowed, stderr names `check-run.py` (M11) (C1-3)
-- [x] Installing copy gone, a copy only under a `CODEX_HOME` outside `HOME` → a broken run's commit is refused (M22) (C1-3)
-Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py` (pre: all pass, and each of M7, M10, M11, M22 stays green)
+- [ ] stdin `refs/heads/x 1234567890abcdef1234567890abcdef12345678 refs/heads/x <40 zeros>` → exit 1, stderr names `refs/heads/x` (C2-2)
+- [ ] Mutation: disabling the guard's `if` fails the new test (reviewer checks)
+Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PrePush` (pre: all pass; with the guard disabled, the new test fails)
 Skills: none
-Status: done @ d6de8e2
-Writer: GPT-6.1 Sol
+Status: todo
 
-### C1-T3 — The hook rules keep a manual fallback for repos without hooks
-Delivers: B1, B4 · Blocked by: none · Lane: mechanical
-Fixes: C1-2 (P1)
-Budget: code +0 · tests +0
-Seam: `SKILL.md` ground rules and `worktrees.md` *Commit and hand off*
-Change: each of `SKILL.md:157-158` stays one line and adds: when `hooks.py install --check` does not print `installed`, run the old command by hand. For the push: `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`, or `origin/<primary>..HEAD` without an upstream. For the commit: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`. `worktrees.md:60` says the pre-push hook scans, or the hub's manual scan where no hook is installed.
-Accept:
-- [x] `grep -c 'install --check' .github/skills/workflow/SKILL.md` → 2 (C1-2)
-- [x] `grep -c 'gitleaks git --log-opts="@{u}..HEAD"' .github/skills/workflow/SKILL.md` → 1 (C1-2)
-- [x] `grep -c "hub's gitleaks scan" .github/skills/workflow/references/worktrees.md` → 0 (C1-2)
-Verify: `grep -c 'install --check' .github/skills/workflow/SKILL.md && grep -c 'gitleaks git --log-opts="@{u}..HEAD"' .github/skills/workflow/SKILL.md && ! grep -q "hub's gitleaks scan" .github/skills/workflow/references/worktrees.md` (pre: 0 · 0 · 1)
-Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: done @ 8667607
-Writer: GPT-6.1 Sol
-
-### C1-T4 — Restore the write-after-reads rule
-Delivers: B4 · Blocked by: C1-T3 · Lane: mechanical
-Fixes: C1-5 (P2)
-Budget: code +0 · tests +0
-Seam: `SKILL.md` ground rules
-Change: append "Write an artifact only after the reads it reports on have returned." to the pre-commit line from C1-T3, or put it on its own line after it.
-Accept:
-- [x] `grep -c 'Write an artifact only after the reads it reports on have returned' .github/skills/workflow/SKILL.md` → 1 (C1-5)
-Verify: `grep -c 'Write an artifact only after the reads it reports on have returned' .github/skills/workflow/SKILL.md` (pre: 0)
-Skills: none
-Status: done @ fb9bf81
-Writer: GPT-6.1 Sol
-
-### C1-T5 — Probe the --no-verify deny rules with a realistic command
+### C2-T3 — Narrow each --no-verify rule on its own
 Delivers: B8 · Blocked by: none · Lane: logic
-Fixes: C1-4 (P2)
-Budget: code +2 · tests +3
+Fixes: C2-3 (P1)
+Budget: code +0 · tests +3
 Seam: `config-scan.py` run as a subprocess in a temp repo and home
-Change: `config-scan.py:181` probes `Bash(git commit -m x --no-verify)` and `Bash(git push origin main --no-verify)`.
+Change: tests only: two more `deny` cases in `test_config_scan.py`, `[Bash(git commit --no-verify), push]` and `[commit, Bash(git push --no-verify)]`, each expected to print the line.
 Accept:
-- [x] Deny `Bash(git commit --no-verify)` and `Bash(git push --no-verify)` → the line prints (C1-4)
-- [x] Existing subtest still passes: both `*--no-verify*` rules → no line (C1-4)
-- [x] Existing subtest still passes: `Bash(git *--no-verify*)` alone → no line (C1-4)
-Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -k NoVerify` (pre: the new subtest fails)
+- [ ] Deny narrow commit + wide push → the line prints (C2-3)
+- [ ] Deny wide commit + narrow push → the line prints (C2-3)
+- [ ] Mutation: reverting either probe string alone at `config-scan.py:181` fails a subtest (reviewer checks)
+Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -k NoVerify` (pre: all pass; each probe reverted alone fails a subtest)
 Skills: none
-Status: done @ 1c09a05
-Writer: GPT-6.1 Sol
-Red: 5d4f0a8
+Status: todo
