@@ -1,59 +1,64 @@
 Command: workflow review git-hooks
 Created: 2026-11-01 · Claude Opus 5.5
-Base:    6ea2df2
+Base:    d3df91f
 Inputs:  .workflow/git-hooks/plan.md @ 90b7bd1
 Status:  complete
 
 ## Coverage
 - [x] T1 — acceptance 6/6 tested and passing; `grep -c 'pre-commit hook'` SKILL.md 1, `hooks.py install` bootstrap.md 1
-- [x] T2 — acceptance 5/5 tested and passing; B1 fails for one input, see C1-1
-- [x] T3 — acceptance 5/5 tested and passing; the deny check accepts too-narrow rules, see C1-4
-- [x] B1…B8 delivered, B1 with the C1-1 hole · Outcome observed via manual run, no verify skill: in a temp repo the installed pre-push refused a `ghp_` commit to `origin`, and in this repo `hooks.py install --check` printed `would install pre-commit, pre-push` and `config-scan.py` printed 1 `--no-verify` line · out of scope untouched: no CI, settings, gitleaks config or chaining in the diff
-- [x] .workflow/ dependency check: hits are pre-existing run tooling (`run-worktree.py:66,126`, test fixtures); this run adds none
-- [x] Escape-hatch scan: no hits · new dependencies: none
-- [x] Full suites: workflow `Ran 119 tests` OK, checkup `Ran 9 tests` OK, exit 0; existing config-scan tests unchanged
-Size: +153 code · +189 tests · ratio 1.24 · net +341 · over 1,000: none
-Reachability: `hooks.py` → the installed stubs, run by `bootstrap.md` step 5 and checkup `workspace.md`; `no_verify()` → `config-scan.py main()` · guards shown failing: hooks.py sweep M1–M23 in a throwaway worktree, 16 killed; survivors M3, M5, M9 are equivalent; M7, M10, M11, M14, M22 are C1-1 and C1-3
+- [x] T2 — acceptance 5/5 tested and passing; B1 fails for one input after C1-T1, see C2-1
+- [x] T3 — acceptance 5/5 tested and passing
+- [x] C1-T1 — spaced-target test passes; reverting the fix fails it; M14 now killed. The fix opens C2-1 and adds an untested guard, C2-2
+- [x] C1-T2 — M7, M10, M11, M22 each killed in a throwaway worktree
+- [x] C1-T3 — greps 2 · 1 · 0 as accepted; no other prose site names the old hub scan (`design/SKILL.md:95` keeps its own scan, out of scope)
+- [x] C1-T4 — grep 1
+- [x] C1-T5 — narrow subtest passes; each probe string reverted on its own survives, see C2-3
+- [x] Red commits 860ebb2, 5d4f0a8 touch tests only; fix commits a2d308f, 1c09a05 touch no test file
+- [x] B1…B8 delivered, B1 with the C2-1 hole · Outcome observed via manual run, no verify skill: temp repo with two remotes, see C2-1 · out of scope untouched
+- [x] .workflow/ dependency check: no new hits · escape-hatch scan: no hits · new dependencies: none
+- [x] Full suites at d3df91f: workflow `Ran 122 tests` OK, checkup `Ran 9 tests` OK, exit 0
+Size: +156 code · +223 tests · ratio 1.43 · net +378 · over 1,000: none
+Reachability: `hooks.py` → the installed stubs; `no_verify()` → `config-scan.py main()` · guards shown failing: M7, M10, M11, M14, M22, C1-T1 revert; not shown: the rev-list guard (C2-2), each probe member (C2-3)
 Independence: cross-vendor (writer GPT-6.1 Sol / OpenAI · reviewer Claude Opus 5.5 / Anthropic)
-Threats: hook stub → hooks.py · git sends ref lines on stdin and the remote name or URL as `$1`; the staged paths come from the user; the repo's own committed `hooks.py` runs when the installing copy is gone (plan F14, F15) · it reaches `python3`, `check-run.py` and `gitleaks` · it only allows or refuses the commit or push · gitleaks prints redacted output · fails open when gitleaks's git log call fails, C1-1 · worst case: a secret reaches the remote
-Threats: config-scan → Claude settings · reads only `permissions.deny` strings from the three Claude files (`config-scan.py:163-185`) · prints a fixed line, never a setting value · fails closed: unreadable files count as no rule
+Threats: hook stub → hooks.py · git sends ref lines on stdin and the remote name or URL as `$1`; `$1` no longer enters any command · it reaches `python3`, `check-run.py`, `git rev-list` and `gitleaks` · it only allows or refuses the commit or push · gitleaks prints redacted output · fails open for commits already on any other remote, C2-1 · worst case: a secret reaches a public remote
+Threats: config-scan → Claude settings · unchanged from cycle 1: reads only `permissions.deny` strings, prints a fixed line, fails closed
 
-## Cycle 1 findings
-### P1 — pre-push lets a secret through when the push target holds a space (C1-1)
-- Evidence: B1 · `hooks.py:101` puts `$1` into `--log-opts`, and gitleaks splits that on spaces. `git push "/tmp/x/o space.git" HEAD:refs/heads/leak` with a `ghp_` commit printed `no leaks found`, exited 0, and the remote holds the commit. gitleaks 8.30.1 exits 0 whenever its git log call fails: a bad revision and the split range both scanned 0 bytes. Mutation M14, which drops the delete skip at `hooks.py:98`, survives for the same reason.
-- Disposition: fix now
+## Resolved
+| Finding | Sev | Title | Disposition | Resolved |
+|---|---|---|---|---|
+| C1-1 | P1 | pre-push lets a secret through when the push target holds a space | fix now | @ a2d308f (cycle 2) |
+| C1-2 | P1 | A repo without the hooks loses both rules | fix now | @ 8667607 (cycle 2) |
+| C1-3 | P1 | Four more hooks.py mutations survive | fix now | @ d6de8e2 (cycle 2) |
+| C1-4 | P2 | The --no-verify check accepts deny rules that block only the bare form | fix now | @ 1c09a05 (cycle 2) |
+| C1-5 | P2 | SKILL.md dropped a rule the hook does not cover | fix now | @ fb9bf81 (cycle 2) |
+| C1-6 | P3 | Minor, deferred (redundant `is_file()`, foreign-hook decode traceback, `git commit:*` false warning; the bare-URL item is fixed by C1-T1) | defer — stays here | settled (cycle 2) |
+
+## Cycle 2 findings
+### P1 — pre-push skips commits that are already on another remote (C2-1)
+- Evidence: B1 · regression from C1-T1. `hooks.py:104` now excludes `--remotes` (every remote), where it used to exclude only the push target. Temp repo with remotes `work` and `origin`: a `ghp_` commit reaches `work` without the hook (another clone, a teammate's branch), then `git push origin HEAD:refs/heads/feature` exits 0 and the public remote holds the commit. The same push under the 6ea2df2 `hooks.py` exits 1. The `remote` parameter at `hooks.py:90` is now unused (same-run waste).
+- Remedy: when `$1` is a name in `git remote`, exclude `--remotes=<name>` (git refuses remote names with spaces); for a URL or path, keep `--remotes`. Use the same range in the rev-list guard. One test: two remotes, secret on `work`, push to `origin` refused.
+- Disposition: fix now — escalated, cycle bound reached
 - Resolved: —
 
-### P1 — A repo without the hooks loses both rules (C1-2)
-- Evidence: `SKILL.md:157-158` now only describe the hooks. `worktrees.md:60` still says "run the hub's gitleaks scan", and the hub no longer has one. In this repo `hooks.py install --check` prints `would install pre-commit, pre-push`. An agent here, or in any repo checkup has not fixed, pushes unscanned and commits unchecked artifacts with no rule against it. Before this run it had both rules.
-- Disposition: fix now
+### P1 — The new rev-list guard has no test (C2-2)
+- Evidence: `hooks.py:100-102` · disabling the guard keeps all 122 tests green. The guard matters: with it disabled, `hooks.py pre-push origin` given an unknown sha on stdin prints `scanned ~0 bytes`, `no leaks found` and exits 0; with it, exit 1. Same class as a case in the private reviewer exam set.
+- Remedy: one `PrePush` test feeding an unknown sha to `hooks.py pre-push origin` → exit 1, stderr names the ref.
+- Disposition: fix now — escalated, cycle bound reached
 - Resolved: —
 
-### P1 — Four more hooks.py mutations survive (C1-3)
-- Evidence: whole-file sweep of the new `hooks.py`. M7 drops `parts[0] == '.workflow'` at `:77`. M10 drops the `is_dir()` skip at `:78`, so a `git rm -r` of a run would run check-run on a missing folder, exit 2, and block. M11 makes the missing-`check-run.py` branch at `:80-82` block. M22 drops the `$CODEX_HOME` path at `:30`; the tests set it to `$HOME/.codex`. All four keep `test_hooks.py` green.
-- Disposition: fix now
+### P1 — Each --no-verify probe can regress alone unseen (C2-3)
+- Evidence: `config-scan.py:181` · reverting only the commit probe to `Bash(git commit --no-verify)` survives, and so does reverting only the push probe: the `narrow` subtest narrows both rules, so the other probe still prints the line.
+- Remedy: two more subtests in `test_config_scan.py`: `[narrow commit, wide push]` and `[wide commit, narrow push]`, each → the line prints.
+- Disposition: fix now — escalated, cycle bound reached
 - Resolved: —
 
-### P2 — The --no-verify check accepts deny rules that block only the bare form (C1-4)
-- Evidence: B8 · `config-scan.py:181` tests only `Bash(git commit --no-verify)`. Deny rules `Bash(git commit --no-verify)` and `Bash(git push --no-verify)` give 0 lines, yet they miss `git commit -m x --no-verify`. Small: change the two probe strings and add one test case.
-- Disposition: fix now
-- Resolved: —
-
-### P2 — SKILL.md dropped a rule the hook does not cover (C1-5)
-- Evidence: `git diff 90b7bd1..HEAD -- .github/skills/workflow/SKILL.md` removes "Write an artifact only after the reads it reports on have returned." check-run does not check that cited files exist, so the hook does not enforce it. Small: restore the one sentence.
-- Disposition: fix now
-- Resolved: —
-
-### P3 — Minor, deferred
-- `hooks.py:58` `is_file()` is redundant: `os.access` is already false for a missing file (M3). `hooks.py:66` write guard changes nothing, the content is the same (M5).
-- `hooks.py:54` `read_text()` on a non-UTF-8 foreign hook raises `UnicodeDecodeError`, which `main()` does not catch, so the user sees a traceback.
-- `config-scan.py:181` warns when `Bash(git commit:*)` already denies every commit.
-- A push to a bare URL makes `--remotes=<url>` match nothing, so the whole history is scanned and an old allowed secret blocks it. C1-T1 removes the remote name, which also fixes this.
+### P3 — Minor, deferred (C2-4)
+- The manual fallback `gitleaks git --log-opts="@{u}..HEAD"` (`SKILL.md:157`) exits 0 with `no leaks found` on a branch with no upstream, because gitleaks passes a failed git log. The rule says to switch ranges in that case; the text predates this run.
 - Disposition: defer — stays here
 - Resolved: —
 
 ## Pre-existing / environmental
 - This repo has no hooks installed yet. Installing them is checkup's opt-in fix, D3, and is the human's call.
 
-## Cycle 1 verdict
-Patch cycle 1: 3 P1 and 2 small P2 fix now, 4 P3 deferred. `patch_plan.md` holds C1-T1 to C1-T5.
+## Cycle 2 verdict
+Cycle 1's five findings are fixed. Cycle 2 found 3 new P1 and 1 P3. C2-1 breaks B1. The two-cycle limit is reached, so the three P1s wait for the human: a third cycle or a deferral.
