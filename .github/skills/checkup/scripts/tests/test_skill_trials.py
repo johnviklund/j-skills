@@ -82,10 +82,10 @@ class SkillTrialsTests(unittest.TestCase):
 
     def test_finished_trial_verdicts(self):
         for score, save, source, expected in [
-            (2, False, "run", "✅ 2026-11-01 workflow · trial complete · kept · numbers better (before 4.0 → after 2.0)"),
-            (4, False, "run", "⚠️ 2026-11-01 workflow · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve workflow"),
-            (6, True, "run", "✅ 2026-11-01 workflow · trial complete · kept · 1 save"),
-            (6, False, "insurance: release", "✅ 2026-11-01 workflow · trial complete · kept · insurance: release")]:
+            (2, False, "run", "✅ 2026-11-01 workflow · push guard · trial complete · kept · numbers better (before 4.0 → after 2.0)"),
+            (4, False, "run", "⚠️ 2026-11-01 workflow · push guard · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve workflow"),
+            (6, True, "run", "✅ 2026-11-01 workflow · push guard · trial complete · kept · 1 save"),
+            (6, False, "insurance: release", "✅ 2026-11-01 workflow · push guard · trial complete · kept · insurance: release")]:
             with self.subTest(score=score, save=save, source=source):
                 self.rows(self.row(source=source))
                 self.worklog(score=score)
@@ -159,3 +159,14 @@ class SkillTrialsTests(unittest.TestCase):
                                         capture_output=True, text=True)
                 self.assertEqual(result.returncode, code, result.stderr)
                 self.assertIn(needle, result.stdout if code == 0 else result.stderr)
+
+    def test_report_identifies_each_change(self):
+        self.rows(*(self.row(change).replace("2026-11-01", "2026-10-30") for change in
+                    ["tests.md: a fixture copies every real form", "Run routing tables override model and effort"]))
+        self.worklog()
+        out = self.scan()
+        for line, words in zip(out, ["tests.md: a fixture copies every real…", "Run routing tables override model and…"]):
+            self.assertIn(f"2026-10-30 workflow · {words} · trial complete · 0 saves · numbers unavailable", line)
+        self.assertEqual(len(out), 2)
+        self.rows(self.row("manual trial").replace("3 runs", "3 checkups"))
+        self.assertEqual(self.scan(), ["⚠️ 2026-11-01 workflow · manual trial · open · count checkups by hand"])
