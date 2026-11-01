@@ -36,7 +36,10 @@ def in_repo(cwd, root):
 
 
 def command_head(command):
-    parts = shlex.split(command)
+    try:
+        parts = shlex.split(command)
+    except ValueError:
+        parts = command.split()
     # Ignore a leading directory change when identifying the command being denied.
     if parts and parts[0] == 'cd' and '&&' in parts:
         parts = parts[parts.index('&&') + 1:]
