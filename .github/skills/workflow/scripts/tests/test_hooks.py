@@ -138,6 +138,21 @@ class PrePushTests(HookRepo):
         self.git('remote', 'add', 'origin', str(self.origin))
         self.assertEqual(self.install().returncode, 0)
 
+    def test_PrePush_secret_on_other_remote_is_refused(self):
+        work = self.root / 'work.git'
+        self.assertEqual(self.git('init', '-q', '--bare', str(work)).returncode, 0)
+        self.assertEqual(self.git('remote', 'add', 'work', str(work)).returncode, 0)
+        token = 'gh' + 'p_' + ''.join(random.Random(17).sample(string.ascii_letters + string.digits, 36))
+        self.stage('credential.txt', token + '\n')
+        self.assertEqual(self.commit().returncode, 0)
+        self.assertEqual(self.git('-c', 'core.hooksPath=/dev/null', 'push', 'work',
+                                  'HEAD:refs/heads/seed').returncode, 0)
+        result = self.git('push', 'origin', 'HEAD:refs/heads/feature')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn(token, result.stdout + result.stderr)
+        self.assertNotEqual(self.git('--git-dir=' + str(self.origin), 'rev-parse', '--verify',
+                                     'refs/heads/feature').returncode, 0)
+
     def test_PrePush_secret_to_spaced_target_is_refused(self):
         spaced = self.root / 'origin space.git'
         self.origin.rename(spaced)
