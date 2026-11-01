@@ -97,8 +97,11 @@ def pre_push(remote):
         local_ref, local_sha, remote_ref, remote_sha = line.split()
         if set(local_sha) == {'0'}:
             continue
+        if subprocess.run(['git', 'rev-list', '--quiet', local_sha, '--not', '--remotes']).returncode:
+            print(f'workflow: cannot list outgoing commits for {local_ref}', file=sys.stderr)
+            return 1
         result = subprocess.run(['gitleaks', 'git',
-                                 f'--log-opts={local_sha} --not --remotes={remote}',
+                                 f'--log-opts={local_sha} --not --remotes',
                                  '--redact', '-v', '--no-banner'])
         if result.returncode:
             return result.returncode
