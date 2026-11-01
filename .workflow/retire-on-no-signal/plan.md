@@ -9,15 +9,18 @@ Size: code 0 · tests 0 · ratio n/a (the script and its test are new files) · 
 Decisions: tickets approved 1a · 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
 
 ## Execution state
-Current: T3 awaiting-human; T1 and T2 done.
+Current: all tickets done; ready for review.
 T1 @ 3aeab1c
 T2 @ 1ad5a7d
+T3 @ dcaedc4
 writer: GPT-6.1 Sol
 Session 1: T1, T2
+Session 2: T3
 Baseline: workflow 124 tests OK; checkup 12 tests OK. No pre-existing failures.
 T1 final: workflow 124 tests OK; checkup 12 tests OK.
 T2 final: workflow 124 tests OK; checkup 15 tests OK.
-Uncommitted: run records only. Pending decision: T3 row choices.
+T3 final: workflow 124 tests OK; checkup 15 tests OK.
+Uncommitted: none after record commit. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -75,11 +78,12 @@ Runner: agent after approval · Risk: cheap (Markdown edits to `SKILL-IMPACT.md`
 Seam: `receipts/t3-sweep.txt` and the Outcome column of `SKILL-IMPACT.md`
 Handoff: run `python3 .github/skills/checkup/scripts/skill-trials.py --sweep . > .workflow/retire-on-no-signal/receipts/t3-sweep.txt`, this repo only. Show the human each row's label in the plan's decision shape; record the answers in `decisions.md`. A confirmed keep row's Outcome becomes `kept — <saves or numbers> (<date>)`; a confirmed insurance row gets `insurance: <incident>` in From and `kept`; a candidate stays `trialing`, so `checkup seats` keeps naming it for `workflow improve`.
 Accept:
-- [ ] receipt → 37 lines matching `^(keep|insurance|candidate) · ` and 0 `⚠️ tag` lines (D3)
-- [ ] after recording → `skill-trials.py --sweep .` prints no line starting `keep ·`, and each human answer has a `decisions.md` row (D3)
+- [x] receipt → 37 lines matching `^(keep|insurance|candidate) · ` and 0 `⚠️ tag` lines (D3)
+- [x] after recording → `skill-trials.py --sweep .` prints no line starting `keep ·`, and each human answer has a `decisions.md` row (D3)
 Verify: `receipt: receipts/t3-sweep.txt — 37 rows · 0 tag lines; then the sweep shows no keep line` (pre: no receipt)
 Skills: none
-Status: awaiting-human
+Status: done @ dcaedc4
+Writer: GPT-6.1 Sol
 
 ## Coverage
 - Outcome → T2 (`checkup seats` runs the script and names a finished trial with no save and no gain as a candidate for `workflow improve`)
@@ -95,3 +99,6 @@ None named by the brief.
 
 ## Product doc impacts
 No `PRODUCT.md` or `DESIGN.md`. `ROADMAP.md` step 2 (`retire-on-no-signal`) is completed by this run; wrap archives the row.
+
+## Deviations
+T3 receipt keeps labels, row references and numbers rather than full Change prose. The full-output checksum and temporary path preserve provenance without duplicating home-path examples.
