@@ -36,7 +36,7 @@ Threats: none — the brief and the diff add no boundary; the script reads local
 
 ### P2 — Two docs still follow the old trial rules
 - Evidence: `learning-worklog.md:86-89` says checkup compares by tree-hash sha and "worse means revert the commit". `seats.md` now says a candidate goes to `workflow improve`, with the human confirming before any removal. Wrap step 4 (`wrap.md:63`) routes every tagged learnings line, and `wrap.md:163` needs all of them routed. But `memory.remember/references/workflow-runs.md:6` lists no `[saved→skill]`, and the tag reads like `[durable→skill]`.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 - Reopened in cycle 2: C1-T5 fixed both named sites, but `workflow/README.md:214-215` still says "If the runs got worse, revert the commit and log why." The patch plan's site search missed it.
 - Remedy: replace that sentence with the `seats.md` rule. A finished trial with no save and no better numbers becomes a removal candidate for `workflow improve`, and nothing is removed until the human confirms.
@@ -52,14 +52,15 @@ Fix before wrap: 2 P1 and 3 small P2 in one patch cycle, `patch_plan.md` C1-T1 t
 ### P0 — The closed-row fix crashes the report on this repo's real archive (C2-1)
 - Evidence: Outcome false on its surface. `skill-trials.py .` and `--sweep .` both exit 2 with `too many values to unpack (expected 6)`, so `checkup seats` prints no trial line. C1-T4 now parses every row of `SKILL-IMPACT_ARCHIVE.md` (`skill-trials.py:96-99`), and archive rows 17, 18, 22 and 23 hold `\|` inside a cell. `rows()` splits on every `|` (`:13`). The fixture archive holds one clean row (`test_skill_trials.py:180`), so all 20 tests pass. This also makes cycle 1's deferred P3 (a `|` in a cell stops the report) a crash on real data. Third time a fixture held only lines the parser handles. The sweep also shows the `ValueError` arm of `except` `:104` untested: narrowing it to `OSError` keeps all 20 tests green.
 - Remedy: split cells on unescaped pipes, `re.split(r"(?<!\\)\|", line.strip())[1:-1]`. A row that still has the wrong cell count exits 2 naming `<file>:<line>`. The archive fixture copies a real row with `\|` in a cell, and the acceptance runs `skill-trials.py .` and `--sweep .` on this repo, each exit 0.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 
 ### P1 — Three more mutations survive, outside cycle 1's sweep (C2-2)
 - Evidence: whole-file sweep at 8bca6d7. First, `better = bool(before and after and …)` `:61` without `after` divides by zero for a row with worklog entries before it and none after, a trial that just started. No fixture has one; today's 2026-11-01 rows do, and the mutant exits 1 on them. Second, `workflow improve {row['names'][0]}` `:78` printing the whole Skill cell survives. No fixture has a finished multi-skill candidate, and the real report has one, `2026-10-26 memory.remember · memory.compact · workflow`. Third, C1-T3's `len(words) > 6` `:68` as `>= 6` survives, since no fixture Change has exactly 6 words. Cycle 1's sweep never tried the first two, so they are a reviewer miss.
 - Remedy: three cases in `test_skill_trials.py`. A `3 runs` row with 3 entries before and none after: `--sweep` prints `numbers unavailable (before 4.0 → after n/a)`. A finished `design (new) · workflow` candidate: the line ends `workflow improve design`. A 6-word Change: its words with no `…`.
-- Disposition: fix now — escalated, cycle bound reached
+- Disposition: fix now — cycle 3 approved
 - Resolved: —
 
 ## Cycle 2 verdict
 Cycle 1's C1-1 to C1-4 are fixed and C1-5 is reopened for one README sentence. Cycle 2 found 1 P0 and 1 P1. C2-1 makes the Outcome false: the report exits 2 on this repo. The two-cycle limit is reached, so C2-1, C2-2 and C1-5 wait for the human: a third cycle or a deferral.
+Cycle 3 approved by human: 2026-11-01, answer "1a" to the cycle-bound question. `patch_plan.md` holds C2-T1 to C2-T3.
