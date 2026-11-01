@@ -542,6 +542,17 @@ class WrapTests(unittest.TestCase):
         self.assertRegex(out, r"(?m)^warn  tests/test_x.py  reads a path inside .workflow")
         self.assertNotIn("src/x.py", out)
 
+    def test_wrap_all_warns_on_a_test_naming_a_real_run_beside_fixtures(self):
+        pin = {"tests/test_x.py": "fixture('.workflow/tmp/plan.md')\nopen('.workflow/x/notes.md')\n"}
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan()}, pin, args=("--all",))
+        self.assertRegex(out, r"(?m)^warn  tests/test_x.py  reads a path inside .workflow/x/:")
+
+    def test_wrap_all_ignores_a_test_building_workflow_fixtures(self):
+        pin = {"tests/test_x.py": "fixture('.workflow/tmp/plan.md')\nfixture('.workflow/r')\n"}
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan()}, pin, args=("--all",))
+        self.assertNotIn("tests/test_x.py", out)
+        self.assertIn("== repo · 0 warnings", out)
+
 
 class CheckoutTests(unittest.TestCase):
     def test_Checkout_warnings_exempt_only_the_matching_run_checkout(self):

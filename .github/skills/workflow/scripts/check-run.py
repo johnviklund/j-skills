@@ -742,13 +742,18 @@ def check_layout(run, rep):
 
 
 def check_pins(repo, rep):
-    """Code outside the run folders never reads inside them; a test that does pins a run's files."""
+    """Code outside the run folders never reads inside them; a test that does pins a run's files.
+    Only a real run's slug counts: tests that build .workflow/<slug>/ fixtures in a temp repo pin nothing."""
+    root = os.path.join(repo, ".workflow")
+    runs = {d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))} if os.path.isdir(root) else set()
     for f in git_out(repo, "ls-files").splitlines():
         if (re.search(TEST_FILE, f) and not re.match(r"[.]workflow/", f) and not re.search(RECEIPTS, f)
                 and os.path.isfile(os.path.join(repo, f))):
             with open(os.path.join(repo, f), encoding="utf-8", errors="replace") as fh:
-                if re.search(r"[.]workflow/", fh.read()):
-                    rep.warn(os.path.join(repo, f), 0, "reads a path inside .workflow: code outside the run folders never does")
+                pinned = sorted(runs.intersection(re.findall(r"[.]workflow/([\w.-]+)/", fh.read())))
+            if pinned:
+                rep.warn(os.path.join(repo, f), 0, f"reads a path inside .workflow/{pinned[0]}/: "
+                                                   "code outside the run folders never does")
 
 
 def is_legacy(run, status):
