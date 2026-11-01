@@ -15,7 +15,7 @@ T3 @ 5683806
 writer: GPT-6.1 Sol
 Session 1: T1, T2
 Session 2: T3
-Session 3: C1-T1
+Session 3: C1-T1, C1-T2
 Initial suite: workflow 126 tests OK; checkup 30 tests OK, including T1.
 Final suite: workflow 126 tests OK; checkup 33 tests OK.
 Current: all tickets done; ready for review; no pending decision.
@@ -102,3 +102,5 @@ none (the brief seeds from ROADMAP.md row 3, not TODO.md)
 - Budget waived: T2 — code net +71 against +65; cwd extraction and request joins keep all three readers explicit.
 - T3 also logs the skill change in SKILL-IMPACT.md, as agent-docs requires. Net +5 lines stays within the +6 budget.
 - Copilot registration check could not start because its bundled-package extraction failed. Descriptions and triggers are unchanged; T3 verifies by its planned content check.
+
+- C1-T3 strengthens the conditional Copilot redirect assertion to an exact list for every case. Assertion calls increase from 24 to 28; the old positive expectation remains.

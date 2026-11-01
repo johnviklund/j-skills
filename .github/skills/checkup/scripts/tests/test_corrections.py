@@ -91,6 +91,24 @@ class ClaudeTests(Fixture):
         self.write([tool(), INTERRUPT], 'b')
         self.assertIn('- interrupt · Bash · 2 sessions · 3 times', self.report())
 
+    def test_ClaudeTests_repeat_order(self):
+        for name, count in [('Bash', 1), ('Edit', 2), ('Write', 3)]:
+            for i in range(count):
+                self.write([tool(name), INTERRUPT], name=f'{name}{i}')
+        out = self.report()
+        self.assertEqual(out.split('repeats:\n')[1].split('once:')[0].splitlines(), [
+            '- interrupt · Write · 3 sessions · 3 times', '- interrupt · Edit · 2 sessions · 2 times'])
+        self.assertIn('once: 1 key(s)', out)
+
+    def test_ClaudeTests_redirect_newline(self):
+        self.write([tool(), INTERRUPT, user('first\nsecond')])
+        self.assertEqual(self.report().split('redirects:\n')[1].splitlines(),
+                         ['- claude · interrupt · Bash: first second'])
+
+    def test_ClaudeTests_non_object_record(self):
+        self.write([['non-object'], tool(), INTERRUPT, user('retry')])
+        self.assertIn('- claude · interrupt · Bash: retry', self.report())
+
     def test_ClaudeTests_filters(self):
         cases = [(0, None, (), True), (0, False, (), False), (15, None, (), False), (20, None, ('--days', '30'), True),
                  (13, self.repo / '.worktrees/x', (), True),
@@ -132,7 +150,7 @@ class StoreTests(Fixture):
                         self.assertNotIn(': next', out)
 
     def test_StoreTests_unbalanced_commands(self):
-        for command, head in [("cat > f <<'EOF'\nit's fine\nEOF", 'cat'), ("echo don't", 'echo')]:
+        for command, head in [("cat > f <<'EOF'\nit's fine\nEOF", 'cat'), ("echo don't", 'echo'), ("cd /r", 'cd')]:
             with self.subTest(command=command):
                 self.write([tool(command=command), user([dict(type='tool_result', tool_use_id='t1',
                     content="The user doesn't want to proceed with this tool use.")]), user('retry')])
@@ -187,12 +205,13 @@ class StoreTests(Fixture):
                          kind='shell', commands=[dict(identifier='ls')]))),
                     dict(type='permission.completed', data=dict(requestId='r1',
                          result=dict(kind=kind), decisionSource=source)),
-                    dict(type='user.message', data=dict(content='use rg'))], store='copilot')
+                    dict(type='user.message', data=dict(content='use rg')),
+                    dict(type='user.message', data=dict(content='later'))], store='copilot')
                 out = self.report()
                 self.assertIn('copilot 1 file(s)', out)
                 self.assertEqual('once: 1 key(s)' in out, kept)
-                if kept:
-                    self.assertIn('- copilot · denial · shell · ls: use rg', out)
+                self.assertEqual([line for line in out.splitlines() if line.startswith('- copilot')],
+                                 ['- copilot · denial · shell · ls: use rg'] if kept else [])
 
 
 if __name__ == '__main__':
