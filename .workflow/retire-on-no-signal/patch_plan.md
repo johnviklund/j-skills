@@ -7,11 +7,12 @@ Status:  complete
 Three tickets for cycle 2, approved by the human as a third cycle ("1a"). C2-T1 fixes a crash, so it lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C2-T2 changes tests only. C2-T3 edits one README sentence.
 
 ## Execution state
-Current: C2-T1 done; C2-T2 ready
+Current: C2-T2 done; C2-T3 ready
 C2-T1 @ a8b72da
+C2-T2 @ 25a4739
 writer: GPT-6.1 Sol
 Baseline: workflow 124 tests OK; checkup 20 tests OK.
-C2-T1 final: workflow 124 tests OK; checkup 22 tests OK.
+C2-T2 final: workflow 124 tests OK; checkup 25 tests OK.
 Uncommitted: none after record commit. Pending decision: none.
 
 ## Tickets
@@ -42,13 +43,15 @@ Budget: code +0 · tests +15
 Seam: stdout of `skill-trials.py` on fixture repos, run as a subprocess like the existing tests
 Change: tests only, in `test_skill_trials.py`.
 Accept:
-- [ ] A `3 runs` row with 3 worklog entries before it and none after → `--sweep` exits 0 and its line ends `numbers unavailable (before 4.0 → after n/a)`; without `--sweep`, no line (C2-2)
-- [ ] A finished `design (new) · workflow` row with no save and numbers not better → its line ends `removal candidate → workflow improve design` (C2-2)
-- [ ] A finished row whose Change has exactly 6 words → its line holds those 6 words followed by ` · trial complete`, with no `…` (C2-2)
-- [ ] Each mutation applied alone fails the suite: `before and after and` at `:61` without `after`; `{row['names'][0]}` at `:78` as `{row['skill']}`; `len(words) > 6` at `:68` as `>= 6` (C2-2)
+- [x] A `3 runs` row with 3 worklog entries before it and none after → `--sweep` exits 0 and its line ends `numbers unavailable (before 4.0 → after n/a)`; without `--sweep`, no line (C2-2)
+- [x] A finished `design (new) · workflow` row with no save and numbers not better → its line ends `removal candidate → workflow improve design` (C2-2)
+- [x] A finished row whose Change has exactly 6 words → its line holds those 6 words followed by ` · trial complete`, with no `…` (C2-2)
+- [x] Each mutation applied alone fails the suite: `before and after and` at `:61` without `after`; `{row['names'][0]}` at `:78` as `{row['skill']}`; `len(words) > 6` at `:68` as `>= 6` (C2-2)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py` (pre: suite OK, and each of the three mutations also passes)
 Skills: .github/skills/workflow/references/tests.md
-Status: todo
+Status: done @ 25a4739
+Writer: GPT-6.1 Sol
+Proof: receipts/c2-t2-verification.md
 
 ### C2-T3 — The workflow README follows the trial rule
 Delivers: B2 · Blocked by: none · Lane: mechanical
