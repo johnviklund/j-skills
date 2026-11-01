@@ -62,6 +62,7 @@ output); create `WORKLOG.md` with its bounded-rolling header. `.workflow/` is **
 runs are the repo's history and wrap refuses to finish in a repo that ignores them. Make sure no
 `.gitignore` rule matches it (`git check-ignore -q .workflow` must fail), and create
 `.workflow/.gitkeep` so the folder exists in the bootstrap commit.
+Run `python3 <workflow skill folder>/scripts/hooks.py install`; resolve any foreign hook or `core.hooksPath` refusal before continuing.
 
 **6. Audit before committing (recommended, strict-reviewer seat, fresh session).** Check every
 claim in `PRODUCT.md` and `ROADMAP.md` traces to the PRD or an explicit human answer from step

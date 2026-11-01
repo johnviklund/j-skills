@@ -9,7 +9,11 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-none yet
+Current: T1, verification complete; commit pending
+writer: GPT-6.1 Sol
+Baseline: workflow 112 tests OK; checkup 8 tests OK
+Session 1: T1
+Reuse: no install, marker or skill-path helper found, as F12 records.
 
 ## Findings
 | # | What is true | What it changes |
@@ -93,3 +97,6 @@ none: the brief came from ROADMAP.md row 1, not TODO.md
 - PRODUCT.md, DESIGN.md: not in this repo
 - ROADMAP.md: row 1 `git-hooks` is done at wrap; its open question, how a hook finds `check-run.py` on both machines, is answered by D1
 - README.md:211-213: "Without it the agent asks before pushing" becomes untrue; T2 replaces it with "the pre-push hook refuses the push"
+
+## Deviations
+- T1: corrected the new warning assertion from `WARN` to `warnings`, matching the checker output. No existing assertion changed.

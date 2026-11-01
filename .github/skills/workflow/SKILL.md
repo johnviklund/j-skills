@@ -157,9 +157,7 @@ A finished wrap keeps its ✅ summary card (`references/wrap.md`).
 - **Secret scan before every push.** `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`
   (no upstream: `origin/<primary>..HEAD`); `--redact` keeps the value out of the transcript.
   Receipts are the usual source: a live query or log with a token in it. Exit 0 → push. Otherwise follow [references/secret-scan.md](references/secret-scan.md).
-- **A run artifact is committed only on a passing check.** Chain it: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`.
-  A pipe such as `| tail` hides check-run's exit code, and a review once went out that cited files
-  and shas that do not exist. Write an artifact only after the reads it reports on have returned.
+- The pre-commit hook checks staged run artifacts with `check-run.py`; errors block the commit, warnings pass.
 
 ## Command index
 
