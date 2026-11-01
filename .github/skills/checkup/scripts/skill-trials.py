@@ -7,10 +7,13 @@ import re
 
 def rows(path, trialing=True):
     result = []
-    for line in path.read_text().splitlines():
+    for number, line in enumerate(path.read_text().splitlines(), 1):
         if not re.match(r"\| 20\d\d-", line):
             continue
-        date, skill, change, source, trial, outcome = (c.strip() for c in line.strip("|").split("|"))
+        cells = re.split(r"(?<!\\)\|", line.strip())[1:-1]
+        if len(cells) != 6:
+            raise ValueError(f"{path}:{number}: expected 6 cells, got {len(cells)}")
+        date, skill, change, source, trial, outcome = (c.strip() for c in cells)
         if not trialing or outcome == "trialing":
             names = [s.removesuffix(" (new)").strip() for s in skill.split(" · ")]
             result.append(dict(date=date, skill=skill, names=names, change=change,
