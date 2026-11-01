@@ -7,11 +7,13 @@ Status:  complete
 Five tickets for cycle 1. C1-T1 and C1-T2 change tests only, so they have no Red commit. C1-T3 and C1-T4 fix behaviour bugs, so each lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T5 edits two docs.
 
 ## Execution state
-Current: C1-T3 ready
+Current: C1-T4 ready; session 3 reached three tickets.
 C1-T1 @ 953e4ac
 C1-T2 @ 59bd7be
+C1-T3 @ 7fa0e3d
 writer: GPT-6.1 Sol
-C1-T1 final: workflow 124 tests OK; checkup 18 tests OK.
+C1-T1 and C1-T2 final: workflow 124 tests OK; checkup 18 tests OK.
+C1-T3 final: workflow 124 tests OK; checkup 19 tests OK.
 Pending decision: none.
 
 ## Tickets
@@ -54,11 +56,13 @@ Budget: code +4 · tests +10
 Seam: stdout of `skill-trials.py` without `--sweep` on fixture repos
 Change: in normal mode, put the first 6 words of the Change cell after the skill, then `…` when cut: `⚠️ <date> <skill> · <6 words>… · trial complete · …`, and the same for the `open` line. Sweep lines stay as they are.
 Accept:
-- [ ] Two finished `2026-10-30 · workflow` rows with Change `tests.md: a fixture copies every real form` and `Run routing tables override model and effort` → two candidate lines, each holding its own first 6 words (C1-3)
-- [ ] A `3 checkups` row prints `· open · count checkups by hand` after its words; the T2 verdict wording after the words is unchanged (C1-3)
+- [x] Two finished `2026-10-30 · workflow` rows with Change `tests.md: a fixture copies every real form` and `Run routing tables override model and effort` → two candidate lines, each holding its own first 6 words (C1-3)
+- [x] A `3 checkups` row prints `· open · count checkups by hand` after its words; the T2 verdict wording after the words is unchanged (C1-3)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py` (pre: the new case fails because both lines are identical)
 Skills: none
-Status: todo
+Status: done @ 7fa0e3d
+Writer: GPT-6.1 Sol
+Red: 711f01a
 
 ### C1-T4 — A save tag for a closed row prints no warning
 Delivers: B1, B5 · Blocked by: C1-T3 · Lane: logic

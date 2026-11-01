@@ -9,3 +9,5 @@
 - Existing assertion calls: 18 before, 18 retained; 3 new calls make 21 total.
 - Four expected verdict strings gain the required `push guard` prefix. No verdict expectation was weakened or removed.
 - No test file changes after the Red commit.
+
+Full suites: workflow 124 tests OK; checkup 19 tests OK; exit 0.
