@@ -52,7 +52,7 @@ oldest when appending would exceed that.
 - Review: ship with 2 deferrals approved by the human (cycle 3) @ 91e6d9d
 - Run: 5 tickets · 3 sessions · 3 review cycles · 1 deviations · 0 findings overturned · net code +27 · tests +63
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@bd2e938, checkup@a354025
+- Skills: workflow@9638c307782f, checkup@20651cbda779
 - Why: an outside conductor needs fixed rules and a blocker for runs nobody watches.
 
 ## 2026-10-30 · next-step · a script decides each run's next step, and the cards print its output · GPT-6.1 Sol
