@@ -32,5 +32,4 @@ agent logs it or someone runs `retro` on that session. One run per step, in this
 
 | # | Step | Slug | Status |
 |---|---|---|---|
-| 2 | "No signal" means retire, not keep: a learnings tag records when a skill rule visibly stopped a mistake, `checkup seats` counts it per `SKILL-IMPACT.md` row, and a trial that ends with no save becomes a removal candidate for `workflow improve`. A rule guarding a rare, costly failure stays, marked `insurance: <incident>` from its `From` column. Also judges the open `trialing` rows | `retire-on-no-signal` | next |
-| 3 | Mine corrections from every session: a stdlib script reads the transcript stores `retro` lists and pulls human redirect turns, interrupts and denied tool calls over the last N days, by repo. `checkup` reports the top repeats; `retro` uses them for its *Recurring* test | `correction-mining` | after 2 |
+| 3 | Mine corrections from every session: a stdlib script reads the transcript stores `retro` lists and pulls human redirect turns, interrupts and denied tool calls over the last N days, by repo. `checkup` reports the top repeats; `retro` uses them for its *Recurring* test | `correction-mining` | next |

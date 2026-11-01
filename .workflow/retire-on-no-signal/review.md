@@ -2,7 +2,7 @@ Command: workflow review retire-on-no-signal
 Created: 2026-11-01 · Claude Opus 5.5
 Base:    3c4ac2c
 Inputs:  .workflow/retire-on-no-signal/plan.md @ d116760 · patch_plan.md @ 83cfa35
-Status:  complete
+Status:  done
 
 ## Coverage
 - [x] T1, T2, T3, C1-T1 to C1-T5, C2-T1 to C2-T3 — covered in cycles 1 to 3; nothing in cycle 4 touches them

@@ -2,7 +2,7 @@ Command: workflow brainstorm retire-on-no-signal
 Created: 2026-11-01 · claude-sonnet-5-5
 Base:    952031e
 Inputs:  none
-Status:  complete
+Status:  done
 Mode: attended
 
 ## Problem

@@ -5,6 +5,16 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-01 · retire-on-no-signal · skill trials end in keep, insurance or a removal candidate, counted from save tags · GPT-6.1 Sol
+- `skill-trials.py` counts `[saved→skill]` tags per `SKILL-IMPACT.md` row and judges finished trials by saves and `Run:` numbers; `--sweep` labelled all 37 open rows, and the human confirmed each (no removal).
+- Four review cycles found 1 P0 (archive rows with `\|` crashed the report) and 5 P1/P2 defects, mostly tests that missed one side of a guard; all fixed, 1 P3 group stays in `review.md`.
+- Commits: 3aeab1c 1ad5a7d dcaedc4 953e4ac a8b72da 25a4739 2dc5056
+- Review: ship as-is (cycle 4, 0 open) @ d1c3141
+- Run: 3 tickets · 7 sessions · 4 review cycles · 1 deviations · 0 findings overturned · net code +112 · tests +219
+- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
+- Skills: workflow@ef6309467514, checkup@1d1808312d83
+- Why: a skill rule now earns its place on a recorded save, and "no signal" no longer means keep.
+
 ## 2026-11-01 · git-hooks · pre-commit and pre-push hooks enforce the run check and the secret scan · GPT-6.1 Sol
 - `hooks.py` installs a pre-commit hook (runs `check-run.py` on staged run files) and a pre-push hook (gitleaks over the commits the push adds); `bootstrap` installs them and `checkup` flags a repo without them or with an open `--no-verify`.
 - Three review cycles found 9 defects (a secret passing a spaced push target, commits on another remote skipped, 3 untested guards); all fixed, 2 P3s stay in `review.md`.
@@ -147,14 +157,3 @@ oldest when appending would exceed that.
 - Skills: workflow@cfa48ca
 - Why: the added-line test ratio flagged rewrites, and any mention of a waiver skipped the check.
 
-## 2026-10-17 · lean-runs · workflow caps run size and test growth · GPT-6.1 Sol
-- `check-run.py` errors on briefs over 8 behaviours, plans over 20 acceptance lines (unless a split
-  was declined) and tickets whose tests exceed 1.5× code; warns on a high Budget with no `why:`.
-  Runs created before 2026-10-18 keep the old rules. Docs now ask for one test per behaviour.
-- Cycle 1 found one P1 (old-run lane gate untested), fixed in cycle 2.
-- Commits: 3c64d1b c07710e 2b6835a e92cdbe
-- Review: ship as-is (cycle 2, 0 open) @ 4a085e5
-- Run: 3 tickets · 3 sessions · 2 review cycles · 1 deviations · 0 findings overturned
-- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@e92cdbe
-- Why: workflow runs grew the test suite and took too many sessions.
