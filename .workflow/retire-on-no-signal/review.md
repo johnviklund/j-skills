@@ -42,8 +42,9 @@ Cycle 3 approved by human: 2026-11-01, answer "1a" to the cycle-bound question. 
 ### P1 — A row with too many cells is not tested for its location message (C3-1)
 - Evidence: surviving mutation. `skill-trials.py:14` `len(cells) != 6` as `len(cells) < 6` keeps all 25 checkup tests green, because the only bad-row fixture has 5 cells (`test_skill_trials.py:212`). Under that mutant a 7-cell row, which is what an unescaped `|` in a cell makes, exits 2 with `too many values to unpack (expected 6)`: the exact C2-1 message the fix was meant to replace. Unmutated it prints `<file>:3: expected 6 cells, got 7`. Behaviour is correct today; nothing guards it. The cycle 2 patch plan named only the 5-cell case, so this is a reviewer miss.
 - Remedy: one more case in `test_bad_archive_row_names_location`: an archive row at line 3 with an extra unescaped `|` exits 2, and stderr holds `SKILL-IMPACT_ARCHIVE.md:3` and `got 7`. Tests only, about 4 lines.
-- Disposition: fix now — a fourth cycle waits for the human (cycle bound)
+- Disposition: fix now — cycle 4 approved
 - Resolved: —
 
 ## Cycle 3 verdict
 C1-5, C2-1 and C2-2 are fixed and stamped. The Outcome holds on this repo: both report commands exit 0 and the sweep labels all 27 trialing rows. One new P1: a test gap in C2-1's own guard. It breaks no B# and not the Outcome. Cycle 3 was already the approved extra cycle, so C3-1 goes to the human: a fourth cycle with one test, or a deferral.
+Cycle 4 approved by human: 2026-11-01, answer "1a" to the cycle-bound question. `patch_plan.md` holds C3-T1.
