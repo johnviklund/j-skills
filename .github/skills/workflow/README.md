@@ -211,8 +211,9 @@ Nothing is benchmarked up front. Changes are tried on real runs.
 - **A new model.** Put it in the seat's Trial column in `ROUTING.md`. The card shows it, and
   wrap records it in the worklog. After two runs, `checkup seats` compares it with the current
   model, and you keep it or drop it.
-- **A skill change.** The change gets a `trialing` line in `SKILL-IMPACT.md`. `checkup` compares
-  the runs before and after. If the runs got worse, revert the commit and log why.
+- **A skill change.** The change gets a `trialing` line in `SKILL-IMPACT.md`. `checkup seats`
+  counts save tags and compares the runs before and after. A finished trial with no save and
+  no better numbers becomes a removal candidate for `workflow improve`, and you confirm before anything is removed.
 
 The first line of `SKILL-IMPACT.md` sets who applies skill edits. With `Mode: autonomous`,
 `memory.remember` commits them directly. With `Mode: approve`, it writes `SKILL.md.proposed`
