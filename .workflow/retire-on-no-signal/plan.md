@@ -9,6 +9,13 @@ Size: code 0 · tests 0 · ratio n/a (the script and its test are new files) · 
 Decisions: tickets approved 1a · 1a (keep D2's numbers arm; every line prints before and after numbers) · 2a (repo folders as arguments, default `.`)
 
 ## Execution state
+Current: T2 todo; T1 done.
+T1 @ 3aeab1c
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: workflow 124 tests OK; checkup 12 tests OK. No pre-existing failures.
+T1 final: workflow 124 tests OK; checkup 12 tests OK.
+Uncommitted: run records only. Pending decision: none.
 
 ## Findings
 | # | What is true | What it changes |
@@ -33,15 +40,16 @@ Delivers: B1, B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +100 · tests +100
 Seam: stdout of `python3 .github/skills/checkup/scripts/skill-trials.py --sweep [--impact PATH] [REPO ...]` on a fixture `SKILL-IMPACT.md` and fixture repos; the docs by grep
 Accept:
-- [ ] One `2026-11-01 · workflow` row; `- [saved→skill] 2026-11-01 workflow — stopped a bad push` in each of two repo args → `--sweep A B` prints a line starting `keep · 2026-11-01 · workflow · 2 saves` (B1)
-- [ ] Two `2026-10-30 · workflow` rows; a tag `[saved→skill] 2026-10-30 workflow run routing — …` with `run routing` only in the second Change → second row `1 save`, first `0 saves` (B5)
-- [ ] The same two rows and a tag with no words → `⚠️ tag .workflow/<slug>/learnings.md:<n> matches 2 rows; add words of the change`, and both rows `0 saves` (B5)
-- [ ] A row with From `insurance: lost a release` and 0 saves → its line starts `insurance ·`, never `candidate ·` (B4)
-- [ ] `--sweep` prints exactly one line per `trialing` row, none for a `kept` row, and leaves every fixture file's bytes unchanged (B6)
-- [ ] `learning-worklog.md` lists `- [saved→skill] <row date> <skill> [words of the change] — <what it stopped>`; the `SKILL-IMPACT.md` header names `insurance: <incident>`; no row ends `| trial |` (B1, B4)
+- [x] One `2026-11-01 · workflow` row; `- [saved→skill] 2026-11-01 workflow — stopped a bad push` in each of two repo args → `--sweep A B` prints a line starting `keep · 2026-11-01 · workflow · 2 saves` (B1)
+- [x] Two `2026-10-30 · workflow` rows; a tag `[saved→skill] 2026-10-30 workflow run routing — …` with `run routing` only in the second Change → second row `1 save`, first `0 saves` (B5)
+- [x] The same two rows and a tag with no words → `⚠️ tag .workflow/<slug>/learnings.md:<n> matches 2 rows; add words of the change`, and both rows `0 saves` (B5)
+- [x] A row with From `insurance: lost a release` and 0 saves → its line starts `insurance ·`, never `candidate ·` (B4)
+- [x] `--sweep` prints exactly one line per `trialing` row, none for a `kept` row, and leaves every fixture file's bytes unchanged (B6)
+- [x] `learning-worklog.md` lists `- [saved→skill] <row date> <skill> [words of the change] — <what it stopped>`; the `SKILL-IMPACT.md` header names `insurance: <incident>`; no row ends `| trial |` (B1, B4)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py && grep -q 'saved→skill\] <row date> <skill>' .github/skills/workflow/references/learning-worklog.md && grep -q 'insurance: <incident>' .github/skills/workflow/SKILL-IMPACT.md && ! grep -q '| trial |$' .github/skills/workflow/SKILL-IMPACT.md` (pre: new file · `NO TESTS RAN`, exit 5)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 3aeab1c
+Writer: GPT-6.1 Sol
 
 ### T2 — A finished trial is judged on saves and worklog numbers in `checkup seats`
 Delivers: B2, B3 · Blocked by: T1 · Lane: logic
