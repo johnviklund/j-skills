@@ -154,8 +154,8 @@ A finished wrap keeps its ✅ summary card (`references/wrap.md`).
 - **Simplicity.** The smallest diff that passes is the target: every added line is one more for
   review to read and the next run to keep. Search the repo for an existing helper before writing
   one, and say in the ticket report what the search found. A new abstraction needs two live callers.
-- The pre-push hook scans outgoing commits with redacted gitleaks output; a blocked push follows [secret-scan.md](references/secret-scan.md).
-- The pre-commit hook checks staged run artifacts with `check-run.py`; errors block the commit, warnings pass.
+- The pre-push hook scans outgoing commits with redacted gitleaks output; when `python3 <skill>/scripts/hooks.py install --check` does not print `installed`, run `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner` by hand before pushing, using `origin/<primary>..HEAD` without an upstream; a blocked push follows [secret-scan.md](references/secret-scan.md).
+- The pre-commit hook checks staged run artifacts with `check-run.py`; errors block the commit, warnings pass; when `python3 <skill>/scripts/hooks.py install --check` does not print `installed`, run `python3 <skill>/scripts/check-run.py <slug> && git commit ...` by hand.
 
 ## Command index
 

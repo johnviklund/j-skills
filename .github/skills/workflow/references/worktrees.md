@@ -57,8 +57,8 @@ a failed setup stops execution. Resume only after checking and completing setup 
 ## Commit and hand off
 
 Commit code and run artifacts together on the resolved branch. A run checkout stays on
-`run/<slug>` through review and wrap. Before every closing card, run the hub's gitleaks scan,
-then push that branch with `git push -u origin run/<slug>`; a primary-checkout run pushes the
+`run/<slug>` through review and wrap. The pre-push hook scans outgoing commits; where no hook is installed, run the hub's manual scan.
+Before every closing card, push that branch with `git push -u origin run/<slug>`; a primary-checkout run pushes the
 primary branch as before. The first run-branch scan uses `origin/<primary>..HEAD` when no
 upstream exists. Scan or push failure stops the handoff. The card command stays
 `workflow <phase> <slug>`; the next phase resolves its checkout again.
