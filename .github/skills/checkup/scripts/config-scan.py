@@ -177,8 +177,8 @@ def no_verify():
                 deny.extend(rule for rule in rules if isinstance(rule, str))
         except (OSError, ValueError):
             continue  # scan() reports unreadable or malformed settings separately.
-    if all(any(fnmatch.fnmatchcase(f'Bash(git {command} --no-verify)', rule) for rule in deny)
-           for command in ('commit', 'push')):
+    if all(any(fnmatch.fnmatchcase(command, rule) for rule in deny)
+           for command in ('Bash(git commit -m x --no-verify)', 'Bash(git push origin main --no-verify)')):
         return []
     return ['⚠️ Claude permissions.deny: --no-verify can skip workflow hooks; add '
             'Bash(git commit *--no-verify*) and Bash(git push *--no-verify*) with update-config; '
