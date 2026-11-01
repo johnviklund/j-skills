@@ -7,15 +7,17 @@ Status:  complete
 Five tickets for cycle 1. C1-T1 and C1-T2 change tests only, so they have no Red commit. C1-T3 and C1-T4 fix behaviour bugs, so each lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T5 edits two docs.
 
 ## Execution state
-Current: C1-T5 ready; session 4 in progress.
+Current: all five patch tickets done; ready for review.
 C1-T1 @ 953e4ac
 C1-T2 @ 59bd7be
 C1-T3 @ 7fa0e3d
 C1-T4 @ fb6e29b
+C1-T5 @ 20e416a
 writer: GPT-6.1 Sol
 C1-T1 and C1-T2 final: workflow 124 tests OK; checkup 18 tests OK.
 C1-T3 final: workflow 124 tests OK; checkup 19 tests OK.
 C1-T4 final: workflow 124 tests OK; checkup 20 tests OK.
+C1-T5 final: workflow 124 tests OK; checkup 20 tests OK.
 Pending decision: none.
 
 ## Tickets
@@ -89,11 +91,12 @@ Budget: code +0 · tests +0
 Seam: `learning-worklog.md` and `memory.remember/references/workflow-runs.md` by grep
 Change: in `learning-worklog.md:86-89`, keep the sha definition, and say checkup compares `Run:` numbers by date and skill name (`checkup/references/seats.md`). A finished trial with no save and no better numbers is a removal candidate for `workflow improve`, removed only after the human confirms. In `workflow-runs.md` step 3, a `[saved→skill]` line gets the routed mark `[routed → SKILL-IMPACT <date>]`, and no file changes.
 Accept:
-- [ ] `learning-worklog.md` holds no `worse means revert` and names `workflow improve` (C1-5)
-- [ ] `workflow-runs.md` names `[saved→skill]` once, on a line that says to change no file (C1-5)
+- [x] `learning-worklog.md` holds no `worse means revert` and names `workflow improve` (C1-5)
+- [x] `workflow-runs.md` names `[saved→skill]` once, on a line that says to change no file (C1-5)
 Verify: `[ "$(grep -c 'worse means revert' .github/skills/workflow/references/learning-worklog.md)" = 0 ] && grep -q 'workflow improve' .github/skills/workflow/references/learning-worklog.md && [ "$(grep -c 'saved→skill' .github/skills/memory.remember/references/workflow-runs.md)" = 1 ]` (pre: counts 1 and 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ 20e416a
+Writer: GPT-6.1 Sol
 
 ## Deviations
 C1-T3 updates four existing expected strings to include the required change prefix; all 18 existing assertion calls remain, with 3 added.
