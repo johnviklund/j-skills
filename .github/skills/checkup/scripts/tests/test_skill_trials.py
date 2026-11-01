@@ -37,9 +37,6 @@ class SkillTrialsTests(unittest.TestCase):
         return result.stdout.splitlines()
 
     def test_saves_across_repos_and_sweep_is_read_only(self):
-        self.rows(self.row(), self.row(source="insurance: lost a release"),
-                  self.row(outcome="kept"))
-        # Distinguish the insurance row so only the first row receives these saves.
         self.rows(self.row(), self.row(change="rollback", source="insurance: lost a release"),
                   self.row(outcome="kept"))
         for repo in (self.a, self.b):
