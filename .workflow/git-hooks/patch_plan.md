@@ -7,9 +7,10 @@ Status:  complete
 Five tickets. C1-T1 and C1-T5 fix behaviour bugs, so each lands as two commits: first a failing test on its own, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T2 adds tests only. C1-T3 and C1-T4 edit Markdown only.
 
 ## Execution state
-Current: C1-T3 todo
+Current: C1-T4 todo; session limit reached
 C1-T1 @ a2d308f
 C1-T2 @ d6de8e2
+C1-T3 @ 8667607
 writer: GPT-6.1 Sol
 Baseline: workflow 119 tests OK; checkup 9 tests OK
 Red: C1-T1 @ 860ebb2, spaced-target push incorrectly exits 0
@@ -56,12 +57,13 @@ Budget: code +0 · tests +0
 Seam: `SKILL.md` ground rules and `worktrees.md` *Commit and hand off*
 Change: each of `SKILL.md:157-158` stays one line and adds: when `hooks.py install --check` does not print `installed`, run the old command by hand. For the push: `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner`, or `origin/<primary>..HEAD` without an upstream. For the commit: `python3 <skill>/scripts/check-run.py <slug> && git commit ...`. `worktrees.md:60` says the pre-push hook scans, or the hub's manual scan where no hook is installed.
 Accept:
-- [ ] `grep -c 'install --check' .github/skills/workflow/SKILL.md` → 2 (C1-2)
-- [ ] `grep -c 'gitleaks git --log-opts="@{u}..HEAD"' .github/skills/workflow/SKILL.md` → 1 (C1-2)
-- [ ] `grep -c "hub's gitleaks scan" .github/skills/workflow/references/worktrees.md` → 0 (C1-2)
+- [x] `grep -c 'install --check' .github/skills/workflow/SKILL.md` → 2 (C1-2)
+- [x] `grep -c 'gitleaks git --log-opts="@{u}..HEAD"' .github/skills/workflow/SKILL.md` → 1 (C1-2)
+- [x] `grep -c "hub's gitleaks scan" .github/skills/workflow/references/worktrees.md` → 0 (C1-2)
 Verify: `grep -c 'install --check' .github/skills/workflow/SKILL.md && grep -c 'gitleaks git --log-opts="@{u}..HEAD"' .github/skills/workflow/SKILL.md && ! grep -q "hub's gitleaks scan" .github/skills/workflow/references/worktrees.md` (pre: 0 · 0 · 1)
 Skills: .github/skills/agent-docs/SKILL.md, .github/skills/plain/SKILL.md
-Status: todo
+Status: done @ 8667607
+Writer: GPT-6.1 Sol
 
 ### C1-T4 — Restore the write-after-reads rule
 Delivers: B4 · Blocked by: C1-T3 · Lane: mechanical

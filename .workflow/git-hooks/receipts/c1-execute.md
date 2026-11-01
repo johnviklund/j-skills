@@ -2,7 +2,7 @@ Command: workflow execute git-hooks
 Created: 2026-11-01 · GPT-6.1 Sol
 Base:    a2d308f
 Inputs:  .workflow/git-hooks/patch_plan.md @ 6ea2df2
-Status:  drafting
+Status:  complete
 
 ## C1-T1
 - Baseline: workflow 119 tests OK; checkup 9 tests OK; exit 0.
@@ -17,3 +17,10 @@ Status:  drafting
 - Hook suite: 10 tests OK. Full workflow: 122 tests OK; checkup: 9 tests OK; exit 0.
 - M7, M10, M11, M22 each produce exactly one assertion failure in a disposable copy.
 - Existing assertions: 46 before and 46 retained; 8 assertions added. No existing assertion changed or removed.
+
+## C1-T3
+- Content pre-check: hook-check references 0, manual scan references 0, stale worktrees wording 1.
+- Content post-check: hook-check references 2, manual scan references 1, stale worktrees wording absent; Verify exits 0.
+- Full workflow: 122 tests OK; checkup: 9 tests OK; exit 0.
+- Mutation: none, documentation ticket. Existing rule locations reused; no helper added.
+- C1-T4 and C1-T5 remain todo. Session stops at the three-ticket limit.
