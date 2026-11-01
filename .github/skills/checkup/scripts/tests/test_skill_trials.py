@@ -191,6 +191,22 @@ class SkillTrialsTests(unittest.TestCase):
         self.tag(self.a, r"[saved→skill] 2026-11-01 workflow check-run \| tail; git commit — stopped it")
         self.assertEqual(self.scan("--sweep"), [r"candidate · 2026-11-01 · workflow · 0 saves · Risk: cheap\|costly\|irreversible"])
 
+    def test_trial_without_after_runs(self):
+        self.rows(self.row())
+        self.worklog(after=0)
+        self.assertTrue(self.scan("--sweep")[0].endswith("numbers unavailable (before 4.0 → after n/a)"))
+        self.assertEqual(self.scan(), [])
+
+    def test_finished_multiskill_candidate(self):
+        self.rows(self.row(skill="design (new) · workflow"))
+        self.worklog()
+        self.assertTrue(self.scan()[0].endswith("removal candidate → workflow improve design"))
+
+    def test_change_at_six_word_boundary(self):
+        self.rows(self.row("one two three four five six"))
+        self.worklog()
+        self.assertIn(" · one two three four five six · trial complete", self.scan()[0])
+
     def test_bad_archive_row_names_location(self):
         self.rows(self.row())
         self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text("# Archive\n\n" + self.row().replace(" | run", ""))

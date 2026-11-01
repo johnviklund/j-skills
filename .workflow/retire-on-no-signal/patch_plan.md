@@ -63,3 +63,4 @@ Skills: .github/skills/agent-docs/SKILL.md
 Status: todo
 
 ## Deviations
+Budget waived: C2-T2 — tests +16 against +15; the extra blank line separates three independent regression cases.
