@@ -8,6 +8,7 @@ import argparse
 import os
 from pathlib import Path
 import shlex
+import shutil
 import subprocess
 import sys
 
@@ -81,6 +82,24 @@ def pre_commit():
     return 0
 
 
+def pre_push(remote):
+    if not shutil.which('gitleaks'):
+        print('workflow: install gitleaks before pushing (brew install gitleaks or mise use -g gitleaks)',
+              file=sys.stderr)
+        return 1
+    # Git sends one local/remote ref pair per line; all-zero local SHAs delete refs.
+    for line in sys.stdin:
+        local_ref, local_sha, remote_ref, remote_sha = line.split()
+        if set(local_sha) == {'0'}:
+            continue
+        result = subprocess.run(['gitleaks', 'git',
+                                 f'--log-opts={local_sha} --not --remotes={remote}',
+                                 '--redact', '-v', '--no-banner'])
+        if result.returncode:
+            return result.returncode
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=('install', *HOOKS))
@@ -91,7 +110,7 @@ def main():
             return install()
         if args.command == 'pre-commit':
             return pre_commit()
-        return 1  # pre-push is implemented by the next ticket.
+        return pre_push(args.args[0])
     except (OSError, subprocess.CalledProcessError) as error:
         print(f'workflow hook: {error}', file=sys.stderr)
         return 1

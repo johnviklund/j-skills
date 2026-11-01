@@ -210,7 +210,8 @@ in headers, tickets or review notes are caught by a script.
 
 Before every push, the agent scans the new commits for secrets with
 [gitleaks](https://github.com/gitleaks/gitleaks). Install it once, for example with
-`brew install gitleaks` or `mise use -g gitleaks`. Without it the agent asks before pushing.
+`brew install gitleaks` or `mise use -g gitleaks`. The pre-push hook refuses a push without it.
+The human can push unscanned with `git push --no-verify`; record that choice in the run.
 
 [`ROUTING.md`](.github/skills/workflow/ROUTING.md) sets the models, and the
 [workflow guide](.github/skills/workflow/README.md) explains every command.

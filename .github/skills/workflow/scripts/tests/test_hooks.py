@@ -1,5 +1,7 @@
 """Exercise installed hooks through real git in disposable repositories."""
 import os
+import random
+import string
 from pathlib import Path
 import shutil
 import subprocess
@@ -103,5 +105,51 @@ class InstallPreCommitTests(HookRepo):
         target.unlink()
         result = self.commit()
         self.assertEqual(result.returncode, 0, result.stderr)
+        for folder in ('.github', '.agents', '.claude', '.codex', '.copilot'):
+            self.assertIn(folder, result.stderr)
+
+
+class PrePushTests(HookRepo):
+    def setUp(self):
+        super().setUp()
+        self.origin = self.root / 'origin.git'
+        self.git('init', '-q', '--bare', str(self.origin))
+        self.git('remote', 'add', 'origin', str(self.origin))
+        self.assertEqual(self.install().returncode, 0)
+
+    def test_PrePush_secret_is_redacted_and_remote_history_is_excluded(self):
+        token = 'gh' + 'p_' + ''.join(random.Random(17).sample(string.ascii_letters + string.digits, 36))
+        self.stage('credential.txt', token + '\n')
+        self.assertEqual(self.commit().returncode, 0)
+        result = self.git('push', 'origin', 'HEAD:refs/heads/seed')
+        out = result.stdout + result.stderr
+        self.assertNotEqual(result.returncode, 0)
+        self.assertRegex(out, r'RuleID:\s+github-pat')
+        self.assertIn('File:', out)
+        self.assertNotIn(token, out)
+        # Seed remote history without installed hooks, then restore them.
+        result = self.git('-c', 'core.hooksPath=/dev/null', 'push', 'origin', 'HEAD:refs/heads/seed')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.git('checkout', '-qb', 'clean')
+        self.stage('clean.txt', 'clean\n')
+        self.assertEqual(self.commit().returncode, 0)
+        result = self.git('push', 'origin', 'clean')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.git('push', 'origin', '--delete', 'clean').returncode, 0)
+
+    def test_PrePush_missing_scanner_or_script_blocks(self):
+        self.stage('clean.txt', 'clean\n')
+        self.assertEqual(self.commit().returncode, 0)
+        minimal = self.root / 'bin'
+        minimal.mkdir()
+        for name in ('git', 'python3', 'sh'):
+            (minimal / name).symlink_to(shutil.which(name))
+        env = {**self.env, 'PATH': str(minimal)}
+        result = self.run_cmd('git', 'push', 'origin', 'HEAD:refs/heads/new', env=env)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('install gitleaks', result.stderr)
+        shutil.rmtree(self.scripts.parent)
+        result = self.git('push', 'origin', 'HEAD:refs/heads/new')
+        self.assertNotEqual(result.returncode, 0)
         for folder in ('.github', '.agents', '.claude', '.codex', '.copilot'):
             self.assertIn(folder, result.stderr)

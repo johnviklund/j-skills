@@ -9,7 +9,8 @@ Size: code 182 · tests 116 · ratio 0.64 · largest touched README.md 366, chec
 Decisions: 1a · 2a · 3a, with the human's note that the run must work with any vendor and any harness, which F15 applies
 
 ## Execution state
-Current: T1, verification complete; commit pending
+Current: T2, todo
+T1 @ f1ed6eb
 writer: GPT-6.1 Sol
 Baseline: workflow 112 tests OK; checkup 8 tests OK
 Session 1: T1
@@ -41,15 +42,16 @@ Delivers: B4, B5, B6 · Blocked by: none · Lane: logic
 Budget: code +95 · tests +100 · why: each case builds a temp repo and commits through real git
 Seam: `hooks.py install` and `git commit` in a temp repo with HOME set to an empty temp folder
 Accept:
-- [ ] Install in a repo with no hooks → `pre-commit` and `pre-push` written, executable, marker line in each; a second install leaves both files byte-identical (B6)
-- [ ] A foreign `pre-push` hook, and separately a set `core.hooksPath` → exit 1, output names it, no hook file written (B6)
-- [ ] Commit staging `.workflow/r/brainstorm.md` without a provenance header → refused, output holds check-run's `ERROR` line (B4)
-- [ ] Commit staging a drafting brief that only warns → allowed; commits staging `src.py` alone and `.workflow/.gitkeep` alone beside a committed broken run → allowed (B4)
-- [ ] Install folder deleted, copy linked at the repo's `.agents/skills/workflow` → a broken run's commit is refused; no copy anywhere → allowed, stderr lists every searched path (B5)
-- [ ] SKILL.md's artifact rule is one line naming the pre-commit hook; bootstrap.md step 5 runs `hooks.py install` (grep count 1 each)
+- [x] Install in a repo with no hooks → `pre-commit` and `pre-push` written, executable, marker line in each; a second install leaves both files byte-identical (B6)
+- [x] A foreign `pre-push` hook, and separately a set `core.hooksPath` → exit 1, output names it, no hook file written (B6)
+- [x] Commit staging `.workflow/r/brainstorm.md` without a provenance header → refused, output holds check-run's `ERROR` line (B4)
+- [x] Commit staging a drafting brief that only warns → allowed; commits staging `src.py` alone and `.workflow/.gitkeep` alone beside a committed broken run → allowed (B4)
+- [x] Install folder deleted, copy linked at the repo's `.agents/skills/workflow` → a broken run's commit is refused; no copy anywhere → allowed, stderr lists every searched path (B5)
+- [x] SKILL.md's artifact rule is one line naming the pre-commit hook; bootstrap.md step 5 runs `hooks.py install` (grep count 1 each)
 Verify: `python3 -m unittest discover -s .github/skills/workflow/scripts/tests -p test_hooks.py -k PreCommit -k Install && grep -c 'pre-commit hook' .github/skills/workflow/SKILL.md && grep -c 'hooks.py install' .github/skills/workflow/references/bootstrap.md` (pre: new file, NO TESTS RAN exit 5 · greps 0)
 Skills: .github/skills/agent-docs/SKILL.md
-Status: todo
+Status: done @ f1ed6eb
+Writer: GPT-6.1 Sol
 
 ### T2 — Refuse a push that carries a secret or skips the scan
 Delivers: B1, B2, B3 · Blocked by: T1 · Lane: logic
@@ -100,3 +102,4 @@ none: the brief came from ROADMAP.md row 1, not TODO.md
 
 ## Deviations
 - T1: corrected the new warning assertion from `WARN` to `warnings`, matching the checker output. No existing assertion changed.
+- T2: the new token fixture needed varied characters to exceed gitleaks entropy filtering. The RuleID assertion now accepts gitleaks column spacing. No existing assertion changed.

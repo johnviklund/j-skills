@@ -6,4 +6,4 @@ A finding
   fingerprint to `.gitleaksignore`; a pattern that will recur (an ID field, a public token) gets an
   allowlist in `.gitleaks.toml` instead, extending the default rules, proven by a rescan where
   the pattern is gone and a planted key is still caught. Scanner missing → no push; ask: ➡️ **a** install it · **b** push
-  unscanned, noted on the card.
+  unscanned: the human runs `git push --no-verify`, noted on the card.
