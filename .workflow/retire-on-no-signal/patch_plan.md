@@ -7,8 +7,9 @@ Status:  complete
 Five tickets for cycle 1. C1-T1 and C1-T2 change tests only, so they have no Red commit. C1-T3 and C1-T4 fix behaviour bugs, so each lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T5 edits two docs.
 
 ## Execution state
-Current: C1-T2 ready
+Current: C1-T3 ready
 C1-T1 @ 953e4ac
+C1-T2 @ 59bd7be
 writer: GPT-6.1 Sol
 C1-T1 final: workflow 124 tests OK; checkup 18 tests OK.
 Pending decision: none.
@@ -40,10 +41,11 @@ Budget: code +0 · tests -3
 Seam: `test_skill_trials.py` `test_saves_across_repos_and_sweep_is_read_only`
 Change: delete the first `self.rows(...)` call and the comment above the second; the test keeps the second call.
 Accept:
-- [ ] That test calls `self.rows(` exactly once and still passes (C1-2)
+- [x] That test calls `self.rows(` exactly once and still passes (C1-2)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py && [ "$(sed -n '/def test_saves_across/,/def test_tag/p' .github/skills/checkup/scripts/tests/test_skill_trials.py | grep -c 'self.rows(')" = 1 ]` (pre: count 2)
 Skills: none
-Status: todo
+Status: done @ 59bd7be
+Writer: GPT-6.1 Sol
 
 ### C1-T3 — Each report line names the row it judges
 Delivers: B2 · Blocked by: C1-T2 · Lane: logic
