@@ -9,7 +9,11 @@ Size: code 227 · tests 0 · ratio 0 · largest touched retro/SKILL.md 151, chec
 Decisions: 1a (tickets approved) · 2a (checkup calls the script from references/seats.md)
 
 ## Execution state
-<filled by execute>
+T1 @ 00623b1
+writer: GPT-6.1 Sol
+Session 1: T1
+Baseline: workflow 126 tests OK; checkup 30 tests OK.
+Current: T2 todo; no pending decision.
 
 ## Findings
 | # | What is true | What it changes |
@@ -33,15 +37,16 @@ Delivers: B1, B3, B5, B6, B7 · Blocked by: none · Lane: logic
 Budget: code +140 · tests +180 · why: each fixture copies the real near-miss records (F1, F6) and every filter gets both sides
 Seam: `python3 .github/skills/checkup/scripts/corrections.py [--days N] [--all-repos]` run as a subprocess with a temp `HOME` and repo
 Accept:
-- [ ] Interrupt after a `Bash` tool_use → `interrupt · Bash`; after text only → `interrupt · no tool`; a `tool_result` quoting the phrase and an `isSidechain` record each → no key (B1)
-- [ ] First human turn after an interrupt → `- claude · interrupt · Bash: <text>`; 250 characters print as 200; later, `isMeta` and `<command-name>` turns each → no line (B3)
-- [ ] A key in 2 files → `- interrupt · Bash · 2 sessions · 3 times` under `repeats:`; a key twice in 1 file → absent there, counted in `once: 1 key(s)` (B7)
-- [ ] Defaults skip a 15-day file, a sibling `<repo>-old` cwd and another repo, and keep a 13-day `.worktrees/x` file; `--days 30` keeps a 20-day file; `--all-repos` keeps the other repo (B6)
-- [ ] No `~/.claude/projects` → exit 0, first line `stores: claude missing · codex missing · copilot missing` (B5)
-- [ ] In this repo on the real stores, `--days 30` → exit 0, a line starting `- interrupt · no tool · 2 sessions` (seen 2026-11-01, F7) (B7)
+- [x] Interrupt after a `Bash` tool_use → `interrupt · Bash`; after text only → `interrupt · no tool`; a `tool_result` quoting the phrase and an `isSidechain` record each → no key (B1)
+- [x] First human turn after an interrupt → `- claude · interrupt · Bash: <text>`; 250 characters print as 200; later, `isMeta` and `<command-name>` turns each → no line (B3)
+- [x] A key in 2 files → `- interrupt · Bash · 2 sessions · 3 times` under `repeats:`; a key twice in 1 file → absent there, counted in `once: 1 key(s)` (B7)
+- [x] Defaults skip a 15-day file, a sibling `<repo>-old` cwd and another repo, and keep a 13-day `.worktrees/x` file; `--days 30` keeps a 20-day file; `--all-repos` keeps the other repo (B6)
+- [x] No `~/.claude/projects` → exit 0, first line `stores: claude missing · codex missing · copilot missing` (B5)
+- [x] In this repo on the real stores, `--days 30` → exit 0, a line starting `- interrupt · no tool · 2 sessions` (seen 2026-11-01, F7) (B7)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_corrections.py -k ClaudeTests && python3 .github/skills/checkup/scripts/corrections.py --days 30 | grep -q '^- interrupt · no tool · 2 sessions'` (pre: new file)
 Skills: none
-Status: todo
+Status: done @ 00623b1
+Writer: GPT-6.1 Sol
 
 ### T2 — Denials and the other two stores
 Delivers: B2, B3, B4 · Blocked by: T1 · Lane: logic
@@ -84,3 +89,6 @@ none (the brief seeds from ROADMAP.md row 3, not TODO.md)
 ## Product doc impacts
 - ROADMAP.md: row 3 `correction-mining` goes from `next` to done at wrap; nothing it states becomes untrue
 - No PRODUCT.md or DESIGN.md
+
+## Deviations
+- Budget waived: T2 — code net +71 against +65; cwd extraction and request joins keep all three readers explicit.

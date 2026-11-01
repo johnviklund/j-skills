@@ -4,6 +4,7 @@ import argparse
 from collections import Counter, defaultdict
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import time
@@ -34,9 +35,60 @@ def in_repo(cwd, root):
     return path == root or root / '.worktrees' in path.parents
 
 
+def command_head(command):
+    parts = shlex.split(command)
+    # Ignore a leading directory change when identifying the command being denied.
+    if parts and parts[0] == 'cd' and '&&' in parts:
+        parts = parts[parts.index('&&') + 1:]
+    return parts[0] if parts else 'no command'
+
+
+def codex(rows):
+    if any(r.get('type') == 'session_meta' and 'subagent' in r.get('payload', {}).get('source', '')
+           for r in rows):
+        return
+    tool, pending = 'no tool', None
+    for row in rows:
+        data = row.get('payload', {})
+        if row.get('type') == 'response_item' and data.get('type') == 'custom_tool_call':
+            tool = data.get('name', 'no tool')
+        if row.get('type') != 'event_msg':
+            continue
+        if data.get('type') == 'turn_aborted' and data.get('reason') == 'interrupted':
+            pending = f'interrupt · {tool}'
+            yield pending, None
+        item = data.get('item', {})
+        if data.get('type') == 'item_completed' and item.get('type') == 'UserMessage':
+            if pending:
+                yield pending, ' '.join(b.get('text', '') for b in item.get('content', []))
+                pending = None
+            tool = 'no tool'
+
+
+def copilot(rows):
+    requests, pending = {}, None
+    for row in rows:
+        data = row.get('data', {})
+        if row.get('type') == 'permission.requested':
+            request = data.get('permissionRequest', {})
+            commands = request.get('commands', [])
+            requests[data.get('requestId')] = ('denial · ' + request.get('kind', 'unknown') +
+                (' · ' + commands[0]['identifier'] if commands else ''))
+        if (row.get('type') == 'permission.completed' and
+                data.get('result', {}).get('kind', '').startswith('denied') and
+                data.get('decisionSource') != 'unattended_fallback'):
+            pending = requests.get(data.get('requestId'))
+            if pending:
+                yield pending, None
+        if row.get('type') == 'user.message' and pending:
+            yield pending, data.get('content', '')
+            pending = None
+
+
 def claude(rows):
     tool = 'no tool'
     pending = None
+    tools = {}
     for row in rows:
         if row.get('isSidechain'):
             continue
@@ -45,8 +97,21 @@ def claude(rows):
             for block in content if isinstance(content, list) else []:
                 if block.get('type') == 'tool_use':
                     tool = block.get('name', 'no tool')
+                    tools[block.get('id')] = (tool, block.get('input', {}))
         if row.get('type') != 'user' or row.get('isMeta'):
             continue
+        for block in content if isinstance(content, list) else []:
+            result = block.get('content', '')
+            if (block.get('type') == 'tool_result' and isinstance(result, str) and
+                    result.startswith("The user doesn't want to proceed")):
+                name, inputs = tools.get(block.get('tool_use_id'), (tool, {}))
+                pending = f'denial · {name}'
+                if name == 'Bash':
+                    pending += ' · ' + command_head(inputs.get('command', ''))
+                yield pending, None
+                if 'the user said:' in result:
+                    yield pending, result.split('the user said:', 1)[1].strip()
+                    pending = None
         texts = ([content] if isinstance(content, str) else
                  [b.get('text', '') for b in content if b.get('type') == 'text'])
         for text in texts:
@@ -83,11 +148,15 @@ def main():
             except OSError:
                 continue
             rows = list(records(path))
-            cwd = next((r['cwd'] for r in rows if r.get('cwd')), '')
+            cwds = [r.get('cwd') if store == 'claude' else
+                    r.get('payload', {}).get('cwd') if store == 'codex' and r.get('type') == 'session_meta' else
+                    r.get('data', {}).get('context', {}).get('cwd') if store == 'copilot' and r.get('type') == 'session.start'
+                    else None for r in rows]
+            cwd = next((c for c in cwds if c), '')
             if not args.all_repos and (not cwd or not in_repo(cwd, root)):
                 continue
             total += 1
-            events = claude(rows) if store == 'claude' else []
+            events = {'claude': claude, 'codex': codex, 'copilot': copilot}[store](rows)
             for key, text in events:
                 if text is None:
                     counts[key] += 1
