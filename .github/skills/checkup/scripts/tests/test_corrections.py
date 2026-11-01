@@ -120,6 +120,13 @@ class StoreTests(Fixture):
                     if redirect == 'use a branch':
                         self.assertNotIn(': next', out)
 
+    def test_StoreTests_unbalanced_commands(self):
+        for command, head in [("cat > f <<'EOF'\nit's fine\nEOF", 'cat'), ("echo don't", 'echo')]:
+            with self.subTest(command=command):
+                self.write([tool(command=command), user([dict(type='tool_result', tool_use_id='t1',
+                    content="The user doesn't want to proceed with this tool use.")]), user('retry')])
+                self.assertIn(f'- claude · denial · Bash · {head}: retry', self.report())
+
     def test_StoreTests_codex(self):
         for source, reason, kept in [('vscode', 'interrupted', True),
                                      ({'subagent': {'guardian_review': {}}}, 'interrupted', False),
