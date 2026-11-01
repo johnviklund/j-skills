@@ -1,7 +1,9 @@
-# A guard added by a fix ticket ships with no test that makes it fire
-Applies when: writing or reviewing a patch ticket whose fix adds a guard, check or early return.
-Root cause: the ticket's acceptance names the case that failed, so the new guard is covered only by the original case; deleting the guard keeps every test green.
-Fix: the patch ticket accepts one line that makes the guard fire (an input only the guard refuses), and review mutates the guard once to see it fail.
-Evidence: git-hooks (C2-2) · exam case missed-assistant-privacy-guard-has-no-test (private set, 2026-10-21)
-Occurrences: 2 · Last confirmed: 2026-11-01 · Status: active
+# A guard ships with a key no test decides, so mutating that key keeps every test green
+Applies when: writing or reviewing a ticket that adds or patches a guard, check, gate or early return, or a doc ticket whose Verify greps stand in for one.
+Root cause: acceptance names the case that failed, so the guard is covered only by that case; the guard itself, and each ID, date, lane, kind or line window it matches on, has no case that only it decides. Deleting the guard or mutating one key keeps every test green.
+Fix: a patch ticket accepts one line that makes the new guard fire (an input only the guard refuses), and review mutates the guard once to see it fail. For each key the guard matches on, add one case in which only that key differs; when review finds one untested key, list every key and mutate each. A line or size window the guard reads (`lines[:12]`) is a key: add a case just past it and mutate its edges. A check that parses a field another check already parses reuses that pattern and gets one case per real form in the corpus. A new gate beside an existing one gets a desk check on a case it must refuse. A doc ticket's Verify greps every phrase that carries the rule, one key per grep. Measure doc growth in words, not lines, because unwrapping text meets a line cap. The `!=`/range and `and`-operand sides are in [[parser-tests-need-real-file-and-both-sides]].
+Evidence: git-hooks (C2-2) · exam case missed-assistant-privacy-guard-has-no-test (private set, 2026-10-21) · run-ratio-and-retire (C1-1, run gate matcher narrower than the corpus) · lean-runs (C1-1, lane gate) · growth-ratchets (C1-1 ticket key, C2-1 waiver kind, C1-2 line cap met by unwrapping) · guard-keys (P3-1, Verify grepped one phrase per rule) · memory-patterns-and-budget (C1-2 Verify greps missed deciding words, C1-1 new gate had no desk check) · lean-skill-hubs (C1-1, 12-line contents window)
+Occurrences: 8 · Last confirmed: 2026-11-01 · Status: active
 Enforced by: judgement
+Promoted to: workflow (references/tests.md, references/phase-4-review.md, references/phase-3-execute.md, by guard-keys 2026-10-18; trial closed in SKILL-IMPACT_ARCHIVE.md)
+<!-- memory.compact 2026-11-01: merged the legacy workflow/MEMORY.md entry "A new guard needs one test per key it matches on" (same cause: a guard key no test decides; same fix: one case per key, mutate each). Evidence unioned, Occurrences 2 → 8, Promoted to carried from the legacy entry. Slug kept because run records link it. -->
