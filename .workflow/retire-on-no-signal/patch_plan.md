@@ -7,13 +7,15 @@ Status:  complete
 Five tickets for cycle 1. C1-T1 and C1-T2 change tests only, so they have no Red commit. C1-T3 and C1-T4 fix behaviour bugs, so each lands as two commits: first a failing test alone, recorded as `Red: <sha>`, then the fix, which leaves test files untouched. C1-T5 edits two docs.
 
 ## Execution state
-Current: C1-T4 ready; session 3 reached three tickets.
+Current: C1-T5 ready; session 4 in progress.
 C1-T1 @ 953e4ac
 C1-T2 @ 59bd7be
 C1-T3 @ 7fa0e3d
+C1-T4 @ fb6e29b
 writer: GPT-6.1 Sol
 C1-T1 and C1-T2 final: workflow 124 tests OK; checkup 18 tests OK.
 C1-T3 final: workflow 124 tests OK; checkup 19 tests OK.
+C1-T4 final: workflow 124 tests OK; checkup 20 tests OK.
 Pending decision: none.
 
 ## Tickets
@@ -71,12 +73,14 @@ Budget: code +8 · tests +12
 Seam: stdout of `skill-trials.py --sweep` on a fixture impact file, an archive file beside it, and fixture repos
 Change: a tag still counts only on exactly one trialing match, and 2 or more trialing matches still warn. With 0 trialing matches, it warns only when no row of any outcome matches, in `--impact` or in `SKILL-IMPACT_ARCHIVE.md` beside it.
 Accept:
-- [ ] A tag whose words match one `kept` row → no `⚠️ tag` line and every row `0 saves` (C1-4)
-- [ ] A tag matching one row in `SKILL-IMPACT_ARCHIVE.md` beside the impact file → no `⚠️ tag` line; with no archive file, the same tag still warns `matches 0 rows` (C1-4)
-- [ ] The T1 cases for one save, ambiguous words and the sweep's line count keep passing (B1, B5, B6)
+- [x] A tag whose words match one `kept` row → no `⚠️ tag` line and every row `0 saves` (C1-4)
+- [x] A tag matching one row in `SKILL-IMPACT_ARCHIVE.md` beside the impact file → no `⚠️ tag` line; with no archive file, the same tag still warns `matches 0 rows` (C1-4)
+- [x] The T1 cases for one save, ambiguous words and the sweep's line count keep passing (B1, B5, B6)
 Verify: `python3 -m unittest discover -s .github/skills/checkup/scripts/tests -p test_skill_trials.py` (pre: the kept-row case prints `matches 0 rows`)
 Skills: none
-Status: todo
+Status: done @ fb6e29b
+Writer: GPT-6.1 Sol
+Red: d3d54b6
 
 ### C1-T5 — Two docs follow the new trial rules
 Delivers: B1, B2 · Blocked by: none · Lane: mechanical
@@ -94,3 +98,5 @@ Status: todo
 ## Deviations
 C1-T3 updates four existing expected strings to include the required change prefix; all 18 existing assertion calls remain, with 3 added.
 Budget waived: C1-T3 — tests net +11 versus budget +10; the extra line separates the new test method. Production net +2 versus budget +4.
+
+Budget waived: C1-T4 — tests net +14 versus budget +12; the extra lines manage the archive fixture in one parametrized test. Production net +5 versus budget +8.
