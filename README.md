@@ -212,6 +212,8 @@ Before every push, the agent scans the new commits for secrets with
 [gitleaks](https://github.com/gitleaks/gitleaks). Install it once, for example with
 `brew install gitleaks` or `mise use -g gitleaks`. The pre-push hook refuses a push without it.
 The human can push unscanned with `git push --no-verify`; record that choice in the run.
+Optional: to stop an agent from skipping the hooks with `--no-verify`, `checkup` suggests two deny
+rules for your Claude settings. j-skills works without them.
 
 [`ROUTING.md`](.github/skills/workflow/ROUTING.md) sets the models, and the
 [workflow guide](.github/skills/workflow/README.md) explains every command.
@@ -221,6 +223,8 @@ The human can push unscanned with `git push --no-verify`; record that choice in 
 Use it after a session that felt slow.
 
 - It finds where the agent lost time: failed commands, long searches, corrections from you.
+- It also checks whether you gave the same correction in more than one session, by reading the saved
+  transcripts on your machine. Nothing is written to a file.
 - It suggests fixes, ranked by how much time they would save.
 - Each fix you approve goes to the skill or file that owns it.
 - Run `retro` for the current session, `retro <slug>` for a workflow run, or `retro <session id>`.
@@ -251,6 +255,7 @@ Use it now and then, when memory feels bloated.
 Use it when something feels off, or before a cleanup.
 
 - It checks skills, memory, docs, the workspace, config and how each model performs.
+- It lists the five corrections you repeat most across sessions, so a repeat can become a rule.
 - It only reads. Safe fixes are offered one at a time, and you choose.
 
 ### evals
