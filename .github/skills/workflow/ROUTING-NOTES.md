@@ -5,7 +5,8 @@ and is the only file the closing card needs; like it, this file may name models.
 
 **History.** The 2026-09-30 seat change (GPT-6.1 Sol on every execute lane, Opus 5.5 on plan and
 review, Sonnet 5.5 on brainstorm and wrap) was a direct promotion by the human, without trial
-runs; the strict reviewer's `evals.run reviewer` for Opus 5.5 is still owed.
+runs. The strict reviewer's `evals.run reviewer` for Opus 5.5 at xhigh ran on 2026-11-03:
+recall 10/10 on 10 missed cases, 0 false alarms on their clean twins.
 
 **How a model earns a seat — trial runs.** Put the candidate in the seat for one or two real
 runs; the worklog's `Run:` and `Seats:` lines (tickets, review cycles, deviations, findings
