@@ -65,10 +65,20 @@ standing in for the live system.
 Run each new case, watch it fail for the expected reason, then write the least code that passes.
 The failing run proves the test can catch the bug; a test that never went red proves nothing.
 
-**Prove it can fail.** At green, invert or revert one line of the change and rerun: it must go
-red. The report records it as `Mutation: <line> → red`. Add a test beyond the acceptance lines
-only when a mutation survives. A new guard or parser gets one mutation per condition it adds,
-not a sample.
+**Prove it can fail.** At green, Python code runs `python3 <skill>/scripts/mutate.py --base <the
+ticket's start sha> --path <each code file touched> -- <the tests of those files>`. It flips every
+comparison, `and`/`or`, `not`, `any`/`all`, `if` test, bool and int on the changed lines,
+uncommitted work included, in throwaway worktrees, and lists each mutant the tests keep green.
+Each survivor gets a test, or, when no test could tell it apart (a help string, a worker count),
+`Equivalent mutant: <file>:<line> <desc> — <why>` under `## Deviations`. Other code: invert one
+line per condition the change adds and rerun; it must go red. Add a test beyond the acceptance
+lines only when a mutation survives.
+**The run's sweep.** Once every plan ticket is done, run it over the whole run (`--base <plan
+Base>`, the full suite, `--jobs 4`, detached when long) and commit its output as
+`receipts/mutation.txt`. `check-run.py` warns when a run that changed Python code has none, and
+errors on a survivor no `Equivalent mutant:` line names. A script decides this, not a reviewer
+cycle: in four long runs, 12 of 33 P0–P2 findings were surviving mutants or untested guards,
+found one cycle at a time.
 
 **Fixtures copy the real form.** Before a test builds a parsed section (a table, a heading, a path),
 list every form that section takes in the repo's files and git history, and give each one a case:

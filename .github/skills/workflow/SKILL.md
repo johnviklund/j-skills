@@ -50,7 +50,7 @@ Provenance headers carry `Status:` — `drafting` (resume that phase) · `comple
 | `plan.md` with a ticket `awaiting-human` and none other ready | the human's action named in that ticket, then execute |
 | `plan.md` with a ticket not `done` | execute |
 | every ticket done; no `review.md`, or code changed since its `Base` | review |
-| `patch_plan.md` with a ticket not `done` | execute (runs the patch plan) |
+| `patch_plan.md` with a ticket not `done` or `objected` | execute (runs the patch plan) |
 | `review.md` with no open finding and no code change since its `Base` | wrap |
 
 ## Grounding — tiered reads

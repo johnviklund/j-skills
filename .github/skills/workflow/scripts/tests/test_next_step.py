@@ -1,5 +1,6 @@
 """Next-step's CLI contract on small, independent run and routing fixtures."""
 import importlib.util
+import itertools
 import json
 from pathlib import Path
 import subprocess
@@ -321,6 +322,17 @@ Status: todo
                 self.review(finding)
                 self.assertEqual(self.result()["phase"], "wrap")
 
+    def test_objected_fix_counts_finished_and_returns_to_review(self):
+        self.review("### P1 — Defect\n- Disposition: fix now\n### P2 — Other\n- Disposition: fix now\n")
+        objected = "### C1-T1 — Fix\nFixes: C1-1 (P1)\nLane: logic\nStatus: objected\nObjection: passes\n"
+        later = "### C1-T2 — Next\nFixes: C1-2 (P2)\nLane: logic\nBlocked by: C1-T1\nStatus: {}\n"
+        self.plan(objected + later.format("todo"), "patch_plan.md")
+        self.assertEqual(self.result()["ticket"], "C1-T2")
+        self.plan(objected + later.format(f"done @ {self.base}"), "patch_plan.md")
+        result = self.result()
+        self.assertEqual((result["phase"], result["blocker"]), ("review", None))
+        self.assertEqual(result["why"], "C1-T1 objected; judge each objection, then re-review")
+
     def test_prior_cycle_finding_blocks_wrap_until_resolved(self):
         for resolved, phase in [("—", "review"), (f"@ {self.base}", "wrap")]:
             with self.subTest(resolved=resolved):
@@ -451,3 +463,64 @@ Status: todo
             with self.subTest(key=key):
                 self.assertIn(routes[key]["model"]["effort"], ("medium", "high", "xhigh"))
         self.assertLessEqual(path.stat().st_size, 5500)
+
+
+class StateSpaceTests(unittest.TestCase):
+    """Every combination of run artifact states, checked against SKILL.md's state table."""
+
+    def test_state_space_routes_only_finished_work_to_wrap(self):
+        spec = importlib.util.spec_from_file_location("next_step", SCRIPT)
+        ns = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(ns)
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, run = Path(tmp), Path(tmp) / ".workflow" / "x"
+            git = lambda *a: subprocess.run(["git", "-C", tmp, *a], check=True, capture_output=True, text=True).stdout.strip()
+            git("init", "-q", "-b", "main")
+            shas = []
+            for name in ("base", "code"):
+                (repo / "tool.py").write_text(name)
+                git("add", "-A")
+                git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", name)
+                shas.append(git("rev-parse", "HEAD"))
+            run.mkdir(parents=True)
+            (repo / "ROUTING.md").write_text(ROUTING)
+            routes = ns.routing(repo / "ROUTING.md")
+            head = lambda cmd, status, base=shas[0]: (f"Command: workflow {cmd} x\nCreated: now\nBase: {base}\n"
+                                                      f"Inputs: none\nStatus: {status}\n")
+            ticket = lambda tid, status: (f"### {tid} — T\nFixes: C1-1 (P1)\nLane: logic\nStatus: {status}\n"
+                                          + ("Objection: passes\n" if status == "objected" else ""))
+            done = f"done @ {shas[0]}"
+            plans = {"none": None, "drafting": head("plan", "drafting") + ticket("T1", "todo"),
+                     **{name: head("plan", "complete") + ticket("T1", status) for name, status in
+                        (("todo", "todo"), ("awaiting", "awaiting-human"), ("done", done))}}
+            patches = {"none": None, "drafting": head("review", "drafting") + ticket("C1-T1", "todo"),
+                       **{name: head("review", "complete") + ticket("C1-T1", status) for name, status in
+                          (("todo", "todo"), ("done", done), ("objected", "objected"))}}
+            findings = {"none": None, "drafting": "", "open": "### P1 — D\n- Disposition: fix now\n",
+                        "resolved": f"### P1 — D\n- Disposition: fix now\n- Resolved: @ {shas[1]}\n",
+                        "deferred": "### P2 — D\n- Disposition: defer\n"}
+            for brief, plan, patch, review, moved in itertools.product(
+                    ("complete", "parked"), plans, patches, findings, (False, True)):
+                status = "drafting" if review == "drafting" else "complete"
+                files = {"brainstorm.md": head("brainstorm", brief), "plan.md": plans[plan], "patch_plan.md": patches[patch],
+                         "review.md": None if review == "none" else head("review", status, shas[0 if moved else 1])
+                         + f"## Cycle 1 findings\n{findings[review]}\n## Cycle 1 verdict\nship\n"}
+                for name, text in files.items():
+                    (run / name).unlink(missing_ok=True) if text is None else (run / name).write_text(text)
+                with self.subTest(brief=brief, plan=plan, patch=patch, review=review, moved=moved):
+                    step = ns.next_step(repo, "x", routes)
+                    ready = (plan == "done" and patch in ("none", "done", "objected")
+                             and review in ("resolved", "deferred") and not moved)
+                    if brief == "parked":
+                        self.assertEqual(step["phase"], "parked")
+                    else:
+                        self.assertEqual(step["phase"] == "wrap", ready)
+                    if plan == patch == "none":  # a patch plan only exists after a plan and a review
+                        self.assertEqual(step["key"], "plan")
+                    if step["key"].startswith(("execute", "fix")):
+                        doc = (run / ("patch_plan.md" if step["ticket"].startswith("C") else "plan.md")).read_text()
+                        self.assertIn("Status: complete", doc)
+                        self.assertRegex(doc, rf"### {step['ticket']} — T\nFixes: \S+ \(P1\)\nLane: logic\n"
+                                              r"Status: (todo|awaiting-human)\n")
+                    for finding in (step["blocker"] or {}).get("findings", []):
+                        self.assertEqual((finding, review), ("C1-1", "open"))

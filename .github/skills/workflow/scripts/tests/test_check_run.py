@@ -1,5 +1,6 @@
 """check-run.py driven as a subprocess on fixture runs in temp git repos."""
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -568,6 +569,59 @@ class CheckoutTests(unittest.TestCase):
                 self.assertEqual(("linked worktree" in r.stdout, "on branch" in r.stdout), expected, r.stdout)
                 self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
                 self.assertIn("== x", r.stdout)
+
+
+class ObjectionAndMutationTests(unittest.TestCase):
+    def test_objected_status_needs_patch_plan_and_evidence(self):
+        fix = TICKET.format(id="C1-T1", delivers="B1", accept="fixed").replace("Status: todo", "Status: objected")
+        patch = HEADER.format(cmd="review", created="now", base="{base}") + fix + "Fixes: C1-1 (P1)\n"
+        for name, files, diagnostic in (
+                ("evidence", {"patch_plan.md": patch + "Objection: `python3 t.py` passes on the input\n"}, None),
+                ("no evidence", {"patch_plan.md": patch}, "C1-T1: objected needs `Objection:"),
+                ("plan ticket", {"plan.md": plan().replace("Status: todo", "Status: objected", 1)},
+                 "T1: only a patch_plan.md fix ticket can be objected")):
+            with self.subTest(name):
+                out = check({"brainstorm.md": BRIEF, **files})
+                self.assertNotIn("must be todo, awaiting-human, objected or done", out)
+                if diagnostic:
+                    self.assertRegex(out, r"(?m)^ERROR .*" + re.escape(diagnostic))
+                else:
+                    self.assertNotIn("objected", out)
+
+    def test_finished_python_run_needs_mutation_receipt(self):
+        done = plan(t1_done=True).replace("Status: todo", "Status: done @ {t1}\nWriter: m")
+        survivor = "survived src/app.py:1 1->2: (2)\nmutants 1 · killed 0 · survived 1 · timed out 0 (counted killed)\n"
+        equivalent = "## Deviations\n- Equivalent mutant: src/app.py:1 1->2 — the value is never read\n"
+        missing = "has no receipts/mutation.txt"
+        unexplained = "receipts/mutation.txt: src/app.py:1 1->2 survived"
+        where = f"{RUN}/plan.md  "
+        for name, code, receipt, extra, expected in (
+                ("no receipt", ["notes.rst", "src/app.py"], None, "", ("warn  " + where, missing)),
+                ("survivor", ["src/app.py"], survivor, "", ("ERROR " + where, unexplained)),
+                ("equivalent", ["src/app.py"], survivor, equivalent, None),
+                ("tests only", ["tests/test_app.py"], None, "", None),
+                ("run script", [".workflow/x/scripts/probe.py"], None, "", None)):
+            with self.subTest(name):
+                files = {"brainstorm.md": BRIEF, "plan.md": done + extra}
+                if receipt:
+                    files["receipts/mutation.txt"] = receipt
+                out = check(files, dict.fromkeys(code, "x = 1\n"))
+                found = [line for line in out.splitlines() if missing in line or unexplained in line]
+                self.assertEqual(found, [l for l in out.splitlines() if expected and l.startswith(expected[0])
+                                         and expected[1] in l], out)
+                self.assertEqual(len(found), int(bool(expected)))
+
+    def test_wrap_counts_overturned_findings(self):
+        wrap = HEADER.format(cmd="wrap", created="2026-10-09", base="{base}").replace("complete", "drafting") + "\n## Steps\n"
+        resolved = ("## Resolved\n| Finding | Sev | Title | Disposition | Resolved |\n|---|---|---|---|---|\n"
+                    "| C1-1 | P1 | t | wontfix — overturned: the input passes | settled (cycle 2) |\n"
+                    "| C1-2 | P1 | overturned title | fix now | @ {base} (cycle 2) |\n"
+                    "| C1-3 | P1 | t | wontfix — overturned: no closing pipe\n| C1-4 | P3 |\n\n")
+        findings = ("### P2 — y\n- Disposition: wontfix — overturned: no failing input\n"
+                    "### P3 — w\n- Disposition: wontfix — taste\n")
+        text = review().replace("## Cycle 1 findings\n", resolved + "## Cycle 1 findings\n" + findings)
+        out = check({"brainstorm.md": BRIEF, "plan.md": plan(), "review.md": text, "wrap.md": wrap})
+        self.assertRegex(out, r"(?m)^note .*wrap.md .*findings overturned: 3 ")
 
 
 if __name__ == "__main__":

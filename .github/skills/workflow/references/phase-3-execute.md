@@ -59,7 +59,7 @@ without a receipt it is skipped.
    T# · <title> · Commit: <sha | not yet>
    Changed: <what now works differently, in the user's terms — no code>
    Proof: <Verify pass/fail + the number that proves it>
-   Mutation: <the line inverted> → red | none — doc or mechanical ticket
+   Mutation: mutate.py <killed>/<total>, <n> equivalent | <the line inverted> → red | none — doc or mechanical ticket
    Try it: none — nothing changes on screen; <the test or receipt that shows the change> | <start command (AGENTS.md), page or route, what to do, what to see> · screens/T#-…-after.jpg
    Noticed: none | <deviations, unrequested visible changes, an existing test's assertion changed, a helper written despite a reuse hit>
    ```
@@ -99,8 +99,8 @@ a nearby bug, a tempting refactor, a missing feature — is one line under `## D
 the ticket continues. **Existing tests keep their assertions.** Log changed or removed assertions as
 deviations, count assertions before and after, and name the change in the report's `Noticed:` line.
 Budget waivers under `## Deviations` require `Budget waived: T# — <reason>`; they note net and budget.
-Ticket test ratios warn without a waiver. Once every plan ticket is done, run the completed-run gate from `tests.md`
-before review; an exception requires `Ratio waived: run — <reason>` under `## Deviations`. Receipt pointers skip neither check.
+Ticket test ratios warn without a waiver. Once every plan ticket is done, run the completed-run gate and the
+run's mutation sweep from `tests.md` before review; an exception requires `Ratio waived: run — <reason>` under `## Deviations`. Receipt pointers skip neither check.
 
 **Acceptance lines are the contract.** When an acceptance line can't pass as written, or the plan
 turns out wrong about the code, stop and report it: what the line says, what the code does, and
@@ -111,6 +111,14 @@ rate, a limit) stops the run when an operator ticket's spend or a target depends
 the Finding and every later target derived from it, so they are re-derived before money is spent. Otherwise update the Finding in place, log a
 `## Deviations` line and continue.
 A one-item probe proves the path works, never the full run's runtime or cost.
+
+**A fix ticket may object.** A review finding is a hypothesis too. Before Red on a fix ticket, run
+the finding's evidence: its failing input, or the mutant it names. When that does not fail, or the
+fix would break a B# or an acceptance line, do not build it: set `Status: objected`, add
+`Objection: <the command you ran and what it showed>`, commit, and go on to the next ticket. The
+card then routes to review, which judges each objection first. Object only with a command's
+output, never on taste or effort. Accepting every finding was the norm: 15 runs in a row
+recorded 0 findings overturned.
 
 ## Run folder layout
 

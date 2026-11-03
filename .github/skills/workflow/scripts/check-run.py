@@ -13,11 +13,13 @@ Checks what a script can count, so no phase has to eyeball it:
 - slop guards for every run not yet done: a `Budget:` on logic and contract plan
   tickets, and their median code Budget (under MERGE_BELOW over 4+ tickets warns: merge), acceptance lines of at most ACCEPT_WORDS words; a done ticket's commit within
   OVERRUN× its budget; ticket test ratios warn, and the completed-run test ratio gates before review;
+  a completed run that changed Python code keeps receipts/mutation.txt, each survivor named as an equivalent mutant;
+  only a patch_plan.md fix ticket may be `objected`, with an `Objection:` line;
   run ratio and ticket budget waivers need a reason under `Ratio waived:` or `Budget waived:`;
   added test lines that import a test module or read SQL source text warn (tests.md);
   a `Risk:` on operator tickets, and no script test in the run's `scripts/` for a `cheap` one;
   a `Size:` line in a complete review's Coverage; a wrap in progress notes the run's net code and test
-  lines since plan.md's Base; a `Retired:` line in a done wrap, and a
+  lines since plan.md's Base and its overturned findings; a `Retired:` line in a done wrap, and a
   WORKLOG.md entry for the run with `Seats:` and `Skills:` that names a reviewer review.md names;
 - review.md: findings with a disposition, P0/P1 deferrals approved, a verdict once complete; a third or later cycle carries `Cycle N approved by human:`;
 - the folder: only the artifacts at the top level, everything else in a known subfolder;
@@ -404,9 +406,14 @@ def check_tickets(run, doc, rep, behaviours, strict):
         if st is None:
             rep.error(doc.path, t["line"], f"{t['id']}: no `Status:` line")
         else:
-            m = re.match(r"^(todo|awaiting-human|done @ (" + SHA + r"))\b", st)
+            m = re.match(r"^(todo|awaiting-human|objected|done @ (" + SHA + r"))\b", st)
             if not m:
-                rep.error(doc.path, n_st, f"{t['id']}: Status `{st}` must be todo, awaiting-human or done @ <sha>")
+                rep.error(doc.path, n_st, f"{t['id']}: Status `{st}` must be todo, awaiting-human, objected or done @ <sha>")
+            elif m.group(1) == "objected":
+                if not doc.path.endswith("/patch_plan.md"):
+                    rep.error(doc.path, n_st, f"{t['id']}: only a patch_plan.md fix ticket can be objected")
+                elif not field(t, "Objection")[1]:
+                    rep.error(doc.path, n_st, f"{t['id']}: objected needs `Objection: <command and what it showed>`")
             elif m.group(2):
                 if not git_has(rep.repo, m.group(2)):
                     rep.missing_sha(doc.path, n_st, f"{t['id']}: done @ {m.group(2)} is not a commit in this repo")
@@ -494,16 +501,22 @@ def growth(repo, a, b):
     return code, code_net, tests
 
 
-def check_run_ratio(doc, tickets, rep):
+def run_range(doc, tickets, rep):
+    """(plan Base, latest `done @` commit) once every ticket is done, else None."""
     shas = [re.match(r"done @ (" + SHA + r")\b", field(t, "Status")[1] or "") for t in tickets]
     base = re.match(SHA, doc.header().get("Base", ""))
     if not shas or not all(shas) or not base:
-        return
+        return None
     commits = [base.group(0)] + [m.group(1) for m in shas]
     if not all(git_has(rep.repo, sha) for sha in commits):
-        return  # header and ticket checks report dangling pointers
-    last = max(commits[1:], key=lambda sha: int(git_out(rep.repo, "rev-list", "--count", sha)))
-    code, _, tests = growth(rep.repo, commits[0], last)
+        return None  # header and ticket checks report dangling pointers
+    return commits[0], max(commits[1:], key=lambda sha: int(git_out(rep.repo, "rev-list", "--count", sha)))
+
+
+def check_run_ratio(doc, span, rep):
+    if not span:
+        return
+    code, _, tests = growth(rep.repo, *span)
     if tests >= RUN_TEST_FLOOR and tests > TEST_RATIO * code:
         reason = waiver(doc, "Ratio", "run")
         msg = f"run: tests net +{tests} over {TEST_RATIO}× code added +{code} (allowed {TEST_RATIO * code:g})"
@@ -511,6 +524,26 @@ def check_run_ratio(doc, tickets, rep):
             rep.warn(doc.path, 0, msg + f"; Ratio waived: run — {reason}")
         else:
             rep.error(doc.path, 0, msg + ": cut tests or record `Ratio waived: run — <reason>` under `## Deviations`")
+
+
+def check_mutation(run, doc, span, rep):
+    """tests.md: a finished run that changed Python code keeps mutate.py's output in receipts/mutation.txt,
+    and every survivor in it is named under `## Deviations` as `Equivalent mutant: <file>:<line> <desc>`."""
+    if not span or not any(path.endswith(".py") and not re.search(TEST_FILE, path) and not path.startswith(".workflow/")
+                           for path in git_out(rep.repo, "diff", "--name-only", *span).splitlines()):
+        return
+    receipt = os.path.join(run["dir"], "receipts", "mutation.txt")
+    if not os.path.isfile(receipt):
+        rep.warn(doc.path, 0, "run changes Python code but has no receipts/mutation.txt: "
+                              "run mutate.py over the run (tests.md, Prove it can fail)")
+        return
+    explained = " ".join(x for _, x in doc.section("Deviations") or [] if "Equivalent mutant:" in x)
+    with open(receipt, encoding="utf-8") as f:
+        for line in f:
+            m = re.match(r"survived (\S+:\d+ \S+):", line)
+            if m and f"Equivalent mutant: {m[1]}" not in explained:
+                rep.error(doc.path, 0, f"receipts/mutation.txt: {m[1]} survived: add a test, or record "
+                                       f"`Equivalent mutant: {m[1]} — <why>` under `## Deviations`")
 
 
 def check_test_smells(t, sha, doc, rep, n):
@@ -575,7 +608,9 @@ def check_plan(run, rep, behaviours):
     strict = doc.status() in ("complete", "done")
     require_sections(doc, rep, PLAN_SECTIONS, strict)
     tickets = check_tickets(run, doc, rep, behaviours, strict)
-    check_run_ratio(doc, tickets, rep)
+    span = run_range(doc, tickets, rep)
+    check_run_ratio(doc, span, rep)
+    check_mutation(run, doc, span, rep)
     accepts = sum(bool(re.match(r"^\s*- \[[ x]\] ", x)) for t in tickets for _, x in t["lines"])
     if strict and accepts > PLAN_ACCEPT_MAX and not any(
             re.match(r"Split declined by human:\s*\S", x) for x in doc.lines):
@@ -690,6 +725,15 @@ def check_wrap(run, rep):
         if doc.section("Steps") is None:
             rep.warn(doc.path, 0, "wrap in progress but no `## Steps` checklist")
         note_net_growth(run, rep)
+        if "review.md" in run["docs"]:
+            review = run["docs"]["review.md"]
+            overturned = re.compile(r"wontfix" + DASH + "overturned")
+            cells = [x.split("|") for _, x in review.section("Resolved") or [] if x.startswith("|")]
+            rows = [c for c in cells if len(c) > 4 and overturned.match(c[4].strip())]
+            open_rows = [f for group in review_findings(review).values() for f in group
+                         if any(overturned.match(x.split("Disposition:", 1)[1].strip())
+                                for _, x in f["lines"] if x.strip().startswith("- Disposition:"))]
+            rep.note(doc.path, f"findings overturned: {len(rows) + len(open_rows)} (copy onto the WORKLOG.md `Run:` line)")
 
 
 def note_net_growth(run, rep):

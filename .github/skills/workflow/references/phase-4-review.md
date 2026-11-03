@@ -59,13 +59,16 @@ Review answers two questions, kept apart so one can't hide the other:
     diff added it; P2 when it was there before.
   - **Reachability.** Every new module, export or file has a live importer from an entry point,
     and every new guard or check is shown failing once. Unreachable new code is P1.
-  - **Verify the verification.** Pick the riskiest acceptance line, invert one condition the
-    change adds, and run its test in a throwaway `git worktree`, never committed. A test that
-    stays green is a P1 missing assertion. If one guard key is untested, list
+  - **Verify the verification.** For Python code, rerun `mutate.py` over the run (`tests.md`,
+    *The run's sweep*) and compare with `receipts/mutation.txt`: a survivor no `Equivalent
+    mutant:` line names, or an equivalent one a test could tell apart, is a P1 missing assertion.
+    For other code, pick the riskiest acceptance line, invert one condition the change adds, and
+    run its test in a throwaway `git worktree`, never committed. A test that stays green is a P1
+    missing assertion. If one guard key is untested, list
     every key the guard matches on and mutate each. When a fix adds a catch-all, such as a
     fallback that clears state at the end of a run, also mutate the narrower path it overlaps:
     the catch-all can keep that path's tests green after the path breaks.
-    A run that adds a new file gets a whole-file sweep in its first review: one mutation per
+    Outside Python, a run that adds a new file gets a whole-file sweep in its first review: one mutation per
     condition and per tuple member, each listed by name, since sampling guards leaves survivors
     for later cycles. A fix that reuses a helper, or one parser serving text with two grammars
     (markdown and shell), is checked at the helper's boundaries against the code it replaces.
@@ -79,7 +82,7 @@ Review answers two questions, kept apart so one can't hide the other:
 | | Means | Default disposition |
 |---|---|---|
 | **P0** | data loss, security hole, crash on a normal path, a behaviour inverted, wrong or misleading data shown to users as correct | fix now |
-| **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input; same-run waste, unreachable new code, a surviving mutation | fix now |
+| **P1** | an acceptance line or behaviour missing or wrong; the Outcome false on its surface; an out-of-scope item touched; a defect with a concrete failing input; same-run waste, unreachable new code, a surviving mutation (from cycle 2: *Test-only findings*) | fix now |
 | **P2** | real but outside what was agreed: scope creep, an edge case no behaviour covers, a design concern, waste older than the run | **small** → fix now; otherwise defer → `TODO.md` |
 | **P3** | minor; at most five reported, the rest as a count | defer (stays in `review.md`) |
 
@@ -111,6 +114,7 @@ is a pointer plus the number that proves it (`file:line`, command, count) — ne
 - [x] .workflow/ dependency check
 Size: +<code> code · +<tests> tests · ratio <tests/code> · net +<n> · over 1,000: <files | none>
 Reachability: <each new file → its live importer | none new> · guards shown failing: <ids | none>
+Mutation: receipts/mutation.txt <killed>/<total>, <n> equivalent · rerun <same | survivors> | not Python: <hand mutations>
 Independence: cross-vendor | same-vendor (degraded)
 Threats: none — the brief and the diff add no boundary
 
@@ -170,7 +174,7 @@ the finding is a class that can recur (a field read in several places, a call si
 fix ticket's acceptance names every site — list them with a search at planning time. A dirty-file question has two kinds of site: prose, and scripts that run `git status --porcelain`. A fix that calls a helper from another script compares that script's `except` clause with the helper's `raise`s. The card routes to `workflow execute <slug>`, naming the
 cycle and finding ids (`Patch cycle 1 · fix C1-1, C1-2`); P0 tickets go to the heavy executor.
 
-**Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done. Set `Status: drafting`,
+**Re-review (cycle N ≥ 2)** — `workflow review <slug>` once every fix ticket is done or objected. Set `Status: drafting`,
 append `## Cycle N findings` and `## Cycle N verdict`, and move `Base` to the sha reviewed. As each
 earlier finding is stamped (or its defer/wontfix is settled) it folds into `## Resolved` as one row —
 the full text stays in git; a finding still open keeps its section. Read only `## Resolved`, open
@@ -181,6 +185,18 @@ reopens the finding at its original severity), confirm each bug fix left the tes
 its reproducing test passes, and look for regressions the fix diff introduced. Something new
 outside that scope is recorded at P2 and deferred however small, except a P0 (fix now) or a P1, which goes to the human as a
 decision (row shape in `SKILL.md`): ➡️ a) fix now when it breaks a B# or the Outcome · b) defer to `TODO.md`.
+
+**Objections first.** For each `objected` fix ticket, rerun its `Objection:` command before
+anything else. When it holds, the finding was wrong: set its disposition to `wontfix —
+overturned: <what the command showed>`; `check-run.py` counts these for the worklog's `Run:` line.
+When it does not hold, add `- Objection: rejected — <the input that still fails>` under the
+finding, which stays fix now and goes into the next patch plan. An overturned P0/P1 is a reviewer
+miss: record it in `learnings.md`. After cycle 2, the cycle-bound decision quotes each objection.
+
+**Test-only findings.** From cycle 2, a finding whose only evidence is a surviving mutant or a
+missing test, with no failing input and no broken B# or Outcome, is P3 when `mutate.py` ran clean
+on the fix diff. A survivor the script reports stays P1: the writer skipped the sweep. Late
+cycles are for defects: in the four longest recent runs, several cycles found nothing but tests.
 
 **Cycle bound — two.** After cycle 2, every open fix-now finding goes to the human as one
 decision (row shape in `SKILL.md`): a) one more cycle · ➡️ b) defer to `TODO.md` when it breaks no B# and not the Outcome.

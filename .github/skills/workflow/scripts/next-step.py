@@ -61,16 +61,21 @@ def card(step, prefix):
             f"```text\n{prefix}{step['command']}\n```\n---\n")
 
 
+def finished(status):
+    """A done ticket, or a fix ticket the writer objected to: review judges the objection."""
+    return status.startswith("done @ ") or status == "objected"
+
+
 def ticket_step(repo, slug, doc, patch=False):
     run = repo / ".workflow" / slug
     blocker, reads = None, []
     tickets = checks.parse_tickets(doc)
     statuses = {t["id"]: checks.field(t, "Status")[1] or "" for t in tickets}
-    unfinished = [t for t in tickets if not statuses[t["id"]].startswith("done @ ")]
+    unfinished = [t for t in tickets if not finished(statuses[t["id"]])]
     selected = None
     for t in unfinished:
         dependencies = re.findall(r"(?:C\d+-)?T\d+", checks.field(t, "Blocked by")[1] or "")
-        if not all(statuses.get(dep, "").startswith("done @ ") for dep in dependencies):
+        if not all(finished(statuses.get(dep, "")) for dep in dependencies):
             continue
         status = statuses[t["id"]]
         receipt = re.search(r"receipt:\s*`?(receipts/[^\s`]+)", checks.field(t, "Verify")[1] or "")
@@ -121,8 +126,7 @@ def next_step(repo, slug, routes, prefix=""):
     docs = {name: checks.Doc(str(run / name)) for name in ("plan.md", "patch_plan.md", "review.md")
             if (run / name).exists()} if brief.status() in ("complete", "parked") else {}
     plan, patch, review = (docs.get(name) for name in ("plan.md", "patch_plan.md", "review.md"))
-    unfinished = lambda doc: any(not (checks.field(t, "Status")[1] or "").startswith("done @ ")
-                                 for t in checks.parse_tickets(doc))
+    unfinished = lambda doc: any(not finished(checks.field(t, "Status")[1] or "") for t in checks.parse_tickets(doc))
     if brief.status() == "drafting":
         step.update(phase="brainstorm", key="brainstorm", why="The brief is unfinished.")
     elif brief.status() == "done":
@@ -156,6 +160,9 @@ def next_step(repo, slug, routes, prefix=""):
                 step["why"] = "The review is unfinished."
             elif open_ids:
                 step["why"] = f"Patch cycle {cycle} · fix {', '.join(open_ids)}"
+                objected = [t["id"] for t in checks.parse_tickets(patch) if checks.field(t, "Status")[1] == "objected"] if patch else []
+                if objected:
+                    step["why"] = f"{', '.join(objected)} objected; judge each objection, then re-review"
                 if not current_patch:
                     step["blocker"] = {"findings": open_ids, "action": f"Resolve {', '.join(open_ids)} before continuing."}
             elif not changed:

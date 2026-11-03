@@ -176,7 +176,7 @@ Accept:
 - [ ] <input/situation> → <literal expected result> (B3)
 Verify: `<test command scoped to the seam>` (pre: <e.g. 14 passed | new file>)
 Skills: <path/to/SKILL.md> | none
-Status: todo                              (todo · awaiting-human · done @ <sha>)
+Status: todo                              (todo · awaiting-human · done @ <sha>; a fix ticket may end objected)
 
 ## Coverage
 - Outcome → T# (the ticket whose acceptance observes it on the named surface)
