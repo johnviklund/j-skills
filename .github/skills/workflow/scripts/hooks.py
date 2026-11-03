@@ -92,17 +92,22 @@ def pre_push(remote):
         print('workflow: install gitleaks before pushing (brew install gitleaks or mise use -g gitleaks)',
               file=sys.stderr)
         return 1
-    exclusion = f'--remotes={remote}' if remote in git('remote').splitlines() else '--remotes'
+    named = remote in git('remote').splitlines()
     # Git sends one local/remote ref pair per line; all-zero local SHAs delete refs.
     for line in sys.stdin:
         local_ref, local_sha, remote_ref, remote_sha = line.split()
         if set(local_sha) == {'0'}:
             continue
-        if subprocess.run(['git', 'rev-list', '--quiet', local_sha, '--not', exclusion]).returncode:
+        # A URL or path target is known to hold only the sha its ref points at, when we have it.
+        known = set(remote_sha) != {'0'} and not subprocess.run(
+            ['git', 'cat-file', '-e', f'{remote_sha}^{{commit}}'], capture_output=True).returncode
+        exclusion = [f'--remotes={remote}'] if named else [remote_sha] if known else []
+        not_part = ['--not', *exclusion] if exclusion else []
+        if subprocess.run(['git', 'rev-list', '--quiet', local_sha, *not_part]).returncode:
             print(f'workflow: cannot list outgoing commits for {local_ref}', file=sys.stderr)
             return 1
         result = subprocess.run(['gitleaks', 'git',
-                                 f'--log-opts={local_sha} --not {exclusion}',
+                                 f'--log-opts={" ".join([local_sha, *not_part])}',
                                  '--redact', '-v', '--no-banner'])
         if result.returncode:
             return result.returncode

@@ -153,6 +153,38 @@ class PrePushTests(HookRepo):
         self.assertNotEqual(self.git('--git-dir=' + str(self.origin), 'rev-parse', '--verify',
                                      'refs/heads/feature').returncode, 0)
 
+    def test_PrePush_url_target_excludes_only_its_own_ref(self):
+        work = self.root / 'work.git'
+        self.assertEqual(self.git('init', '-q', '--bare', str(work)).returncode, 0)
+        self.assertEqual(self.git('remote', 'add', 'work', str(work)).returncode, 0)
+        self.stage('first.txt', 'clean\n')
+        self.assertEqual(self.commit().returncode, 0)
+        result = self.git('push', str(self.origin), 'HEAD:refs/heads/first')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        # The target moves on to a commit this repo lacks; a force push scans everything instead.
+        other = self.root / 'other'
+        self.assertEqual(self.git('clone', '-q', '-b', 'first', str(self.origin), str(other)).returncode, 0)
+        for args in (('commit', '-q', '--allow-empty', '-m', 'elsewhere'), ('push', '-q', 'origin', 'first')):
+            self.assertEqual(subprocess.run(['git', '-C', str(other), '-c', 'core.hooksPath=/dev/null', '-c', 'user.name=t',
+                                            '-c', 'user.email=t@t.invalid', *args],
+                                            env=self.env, capture_output=True).returncode, 0)
+        result = self.git('push', '--force', str(self.origin), 'HEAD:refs/heads/first')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        token = 'gh' + 'p_' + ''.join(random.Random(17).sample(string.ascii_letters + string.digits, 36))
+        self.stage('credential.txt', token + '\n')
+        self.assertEqual(self.commit().returncode, 0)
+        unhooked = ('-c', 'core.hooksPath=/dev/null', 'push')
+        self.assertEqual(self.git(*unhooked, 'work', 'HEAD:refs/heads/seed').returncode, 0)
+        result = self.git('push', str(self.origin), 'HEAD:refs/heads/leak')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn(token, result.stdout + result.stderr)
+        # Once the target's own ref holds the secret, a clean commit on top of it pushes.
+        self.assertEqual(self.git(*unhooked, str(self.origin), 'HEAD:refs/heads/seed').returncode, 0)
+        self.stage('clean.txt', 'clean\n')
+        self.assertEqual(self.commit().returncode, 0)
+        result = self.git('push', str(self.origin), 'HEAD:refs/heads/seed')
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_PrePush_unknown_revision_is_refused(self):
         result = self.run_cmd(sys.executable, str(self.scripts / 'hooks.py'), 'pre-push', 'origin',
                               input='refs/heads/x 1234567890abcdef1234567890abcdef12345678 '
