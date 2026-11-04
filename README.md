@@ -1,6 +1,6 @@
 # j-skills
 
-Eleven skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
+Twelve skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
 Use `workflow` to take a coding task from idea to reviewed code. Use the other skills when you
 need an explanation, app checks, saved lessons or help improving how you work.
 
@@ -80,6 +80,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | When you need… | Skill | Example message | Result |
 |---|---|---|---|
 | A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| A code change on the short path, on trial next to `workflow` | [jflow](#jflow) | `jflow spec export-csv` | A one-page spec with a Proof table, then the change, built and proved on the real thing |
 | A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
 | A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
 | A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams, screenshots and source links, and an optional video |
@@ -191,6 +192,22 @@ that needs.
 - When the change turns out to need new data, an API, a schema or logic, it hands over to
   `workflow brainstorm`, bringing the mockups along as evidence.
 - The record is `.design/<slug>/design.md` with its mockups and screens.
+
+### jflow
+
+Use it to try the short path next to `workflow`. It is on trial: `ROADMAP.md` says how the trial is
+judged.
+
+- `jflow spec <slug>` asks about what to build, never how, and writes a one-page spec. Its Proof
+  table says what a pass looks like, and every row must be able to fail.
+- `jflow build <slug>` runs one session that builds the whole change and keeps every later fix.
+- `jflow prove <slug>` runs in a fresh session on the other vendor. It runs the table on the real
+  thing and gives each row a verdict.
+- `jflow review <slug>` runs only for risky changes, and reports only defects with a failing input.
+- `jflow done <slug>` runs the final checks, records the run and pushes.
+
+Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
+see that again. The record is `.jflow/<slug>/`.
 
 ### workflow
 
@@ -318,7 +335,7 @@ Install every skill:
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
 mkdir -p ~/.codex/skills
-for n in agent-docs checkup design evals memory.compact memory.remember plain retro understand verify workflow; do
+for n in agent-docs checkup design evals jflow memory.compact memory.remember plain retro understand verify workflow; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
 done
 ```

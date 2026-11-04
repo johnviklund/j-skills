@@ -58,9 +58,8 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
 1. Done 2026-11-04. `evals.run reviewer`, 11 known defects on 10 past misses: Astra 10, Sol 9, Sol
    with a traced-failing-input rule 10, with 0, 1 and 0 false alarms. Astra did not beat Sol, so Sol
    takes the seat with the rule. The exam is diff-only, so the first real reviews test the run half.
-2. Confirm the models in each CLI's picker. Codex lists GPT-6.1 Terra; the Copilot CLI here lists
-   only GPT-5.6 Terra, which is the first thing to try there, then Sonnet 5.5.
-3. Write the skill and try it once on a small j-skills change.
+2. Done 2026-11-04. GPT-6.1 Terra is in the Codex and work Copilot pickers, Astra is not in Copilot.
+3. Done 2026-11-04. `.github/skills/jflow/`, first tried on the `corrections-bad-records` run.
 4. Replay two past work-repo runs through prove alone, and count the real defects it catches.
 5. Run the next three work-repo tasks on `jflow`: two with an Opus builder, one with a Sol builder.
    Log sessions, fix rounds, usage, the human's minutes and bugs found within a week of shipping.

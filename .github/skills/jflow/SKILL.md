@@ -36,6 +36,8 @@ sessions of one vendor share blind spots. With an OpenAI builder, prove moves to
 and review to Opus 5.5 · high. A session on the wrong vendor says so in its first line and in its
 receipt, then carries on.
 
+A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
+
 Read the one reference for the command. Its completion criterion ends the step.
 
 ## The run: `.jflow/<slug>/`
@@ -61,10 +63,10 @@ Bare `jflow <slug>` reads the run folder and prints the card for the first row t
 |---|---|
 | no `spec.md`, or `Status: drafting` | `jflow spec` |
 | `Status: ready`, no commit since `Base` | `jflow build` |
-| code committed, no prove receipt for `HEAD` | `jflow prove` |
+| code changed since the newest prove receipt's sha, or no receipt yet | `jflow prove` |
 | newest prove receipt has BROKEN | back to the builder session with that receipt |
 | newest prove receipt has BLOCKED or UNREACHABLE | the human decides, per `references/prove.md` |
-| all rows PROVED, `Review: required`, no review receipt for `HEAD` | `jflow review` |
+| all rows PROVED, `Review: required`, code changed since the newest review receipt's sha, or no receipt yet | `jflow review` |
 | newest review receipt has defects | back to the builder session with that receipt |
 | otherwise | `jflow done` |
 | `Status: done` | nothing; say so |
