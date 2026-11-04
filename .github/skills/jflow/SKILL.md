@@ -92,6 +92,8 @@ message: `Fix .jflow/<slug>/receipts/prove-2.md, then print the card.`
 In Codex, run prove with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.
 
-Commit each step's files before the card. Every step runs in any CLI, as a plain message in a
+Commit each step's files before the card, and leave pushing to `jflow done`, even when the repo's
+own instructions say to push: pre-push checks belong to the finished change, not to each receipt.
+Every step runs in any CLI, as a plain message in a
 session the human starts. Where the builder session cannot be resumed, a new session on the
 builder's model takes the branch, `spec.md`, `notes.md` and the open receipt, and says so in `notes.md`.
