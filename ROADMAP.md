@@ -25,7 +25,7 @@ not write, catches most of what review catches, for less. Review becomes a short
 | `jflow spec <slug>` | Opus 5.5, with the human | Grill the what, never the how | `spec.md`, about one page |
 | `jflow build <slug>` | Opus 5.5 | One session builds it all; no plan phase, no tickets | Commits and a few lines of judgement calls |
 | `jflow prove <slug>` | GPT-6.1 Terra, medium | Fresh context runs the Proof table on the real app | PROVED, BROKEN, BLOCKED or UNREACHABLE per row, with receipts |
-| `jflow review <slug>` | GPT-6 Astra, high | Read-only pass, only when risk asks for it | Defects shown failing by a run, plus a list of maybes |
+| `jflow review <slug>` | GPT-6.1 Sol, high | Read-only pass, only when risk asks for it | Defects with a failing input shown by a run or traced, plus a list of maybes |
 
 - **Spec:** problem, goals, non-goals, constraints with "ask first" boundaries, Proof table. A line
   belongs only if the human would object to the builder choosing differently. Facts are looked up,
@@ -55,9 +55,9 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
 
 **Steps, in order.**
 
-1. Run `evals.run reviewer` on GPT-6 Astra high and GPT-6.1 Sol high, with today's review
-   instructions and with the "shown failing by a run" rule. That rule may cost recall, so measure
-   it. Astra lists at about five times Sol's price, so it must beat Sol to take the seat.
+1. Done 2026-11-04. `evals.run reviewer`, 11 known defects on 10 past misses: Astra 10, Sol 9, Sol
+   with a traced-failing-input rule 10, with 0, 1 and 0 false alarms. Astra did not beat Sol, so Sol
+   takes the seat with the rule. The exam is diff-only, so the first real reviews test the run half.
 2. Confirm the models in each CLI's picker. Codex lists GPT-6.1 Terra; the Copilot CLI here lists
    only GPT-5.6 Terra, which is the first thing to try there, then Sonnet 5.5.
 3. Write the skill and try it once on a small j-skills change.
