@@ -7,6 +7,7 @@ import os
 import shlex
 from pathlib import Path
 import subprocess
+import sys
 import time
 
 
@@ -133,6 +134,7 @@ def main():
     parser.add_argument('--days', type=int, default=14)  # Two weeks is the default review window.
     parser.add_argument('--all-repos', action='store_true')
     args = parser.parse_args()
+    sys.stdout.reconfigure(errors='replace')  # A transcript's JSON can hold a lone surrogate.
     home = Path.home()
     stores = [('claude', Path(os.environ.get('CLAUDE_CONFIG_DIR') or home / '.claude') / 'projects', '*/*.jsonl'),
               ('codex', Path(os.environ.get('CODEX_HOME') or home / '.codex') / 'sessions', '*/*/*/rollout-*.jsonl'),
@@ -150,23 +152,26 @@ def main():
                     continue
             except OSError:
                 continue
-            rows = list(records(path))
-            cwds = [r.get('cwd') if store == 'claude' else
-                    r.get('payload', {}).get('cwd') if store == 'codex' and r.get('type') == 'session_meta' else
-                    r.get('data', {}).get('context', {}).get('cwd') if store == 'copilot' and r.get('type') == 'session.start'
-                    else None for r in rows]
-            cwd = next((c for c in cwds if c), '')
-            if not args.all_repos and (not cwd or not in_repo(cwd, root)):
-                continue
+            try:
+                rows = list(records(path))
+                cwds = [r.get('cwd') if store == 'claude' else
+                        r.get('payload', {}).get('cwd') if store == 'codex' and r.get('type') == 'session_meta' else
+                        r.get('data', {}).get('context', {}).get('cwd') if store == 'copilot' and r.get('type') == 'session.start'
+                        else None for r in rows]
+                cwd = next((c for c in cwds if c), '')
+                if not args.all_repos and (not cwd or not in_repo(cwd, root)):
+                    continue
+                events = list({'claude': claude, 'codex': codex, 'copilot': copilot}[store](rows))
+            except Exception:
+                continue  # Transcript formats are not ours: one odd record skips its file, not the report.
             total += 1
-            events = {'claude': claude, 'codex': codex, 'copilot': copilot}[store](rows)
             for key, text in events:
                 if text is None:
                     counts[key] += 1
                     sessions[key].add((store, str(path)))
                 else:
                     # One terminal line per redirect, capped at the brief's 200 characters.
-                    redirects.append(f'- {store} · {key}: {text[:200].replace(chr(10), " ").replace(chr(13), " ")}')
+                    redirects.append(f'- {store} · {key}: {str(text)[:200].replace(chr(10), " ").replace(chr(13), " ")}')
         read.append(f'{store} {total} file(s)' if folder.is_dir() else f'{store} missing')
     print('stores: ' + ' · '.join(read))
     print('repeats:')

@@ -213,6 +213,36 @@ class StoreTests(Fixture):
                 self.assertEqual([line for line in out.splitlines() if line.startswith('- copilot')],
                                  ['- copilot · denial · shell · ls: use rg'] if kept else [])
 
+    def test_StoreTests_malformed_transcript_keeps_report(self):
+        start = dict(type='session.start', data=dict(context=dict(cwd=str(self.repo))))
+        denied = [start,
+                  dict(type='permission.requested', data=dict(requestId='r1', permissionRequest=dict(
+                       kind='shell', commands=[dict(identifier='ls')]))),
+                  dict(type='permission.completed', data=dict(requestId='r1',
+                       result=dict(kind='denied-interactively-by-user')))]
+        for store, records in [
+                ('claude', [dict(type='user', message=None)]),
+                ('claude', [user(['loose text'])]),
+                ('claude', [user([dict(type='text', text=None)])]),
+                ('claude', [tool(command=None), user([dict(type='tool_result', tool_use_id='t1',
+                    content="The user doesn't want to proceed with this tool use.")])]),
+                ('claude', [dict(type='system', cwd=5)]),
+                ('codex', [dict(type='session_meta', payload=None)]),
+                ('codex', [dict(type='session_meta', payload=dict(cwd=str(self.repo), source=None))]),
+                ('copilot', [dict(type='session.start', data=None)]),
+                ('copilot', [start, dict(type='permission.requested', data=dict(
+                    requestId='r1', permissionRequest=dict(kind=None)))]),
+                ('copilot', [*denied, dict(type='user.message', data=dict(content=5))])]:
+            with self.subTest(store=store, records=records):
+                self.write([tool(), INTERRUPT], 'a')
+                self.write(records, 'b', store=store, cwd=False if records[0].get('cwd') else None)
+                self.write([tool(), INTERRUPT], 'c')
+                self.assertIn('- interrupt · Bash · 2 sessions · 2 times', self.report())
+
+    def test_StoreTests_lone_surrogate_prints(self):
+        self.write([tool(), INTERRUPT, user('bad \ud800 text')])
+        self.assertIn('- claude · interrupt · Bash: bad ? text', self.report())
+
 
 if __name__ == '__main__':
     unittest.main()
