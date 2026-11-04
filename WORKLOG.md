@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-04 · corrections-bad-records · `corrections.py` skips a malformed transcript instead of losing the whole report · Opus 5.5
+- One catch per transcript across Claude, Codex and Copilot keeps the report alive and the readable transcripts counted; a lone surrogate now prints as `?`. Closes correction-mining C2-1.
+- Commits: 90b326c e771ae9 24e45af ed8dbbf
+- jflow: 4 sessions · 0 fix rounds · 4 rows · review clean · net code +5 · tests +30
+
 ## 2026-11-02 · correction-mining · a stdlib script lists repeated denials, interrupts and redirects from Claude, Codex and Copilot transcripts · GPT-6.1 Sol
 - `checkup/scripts/corrections.py` prints repeated denials and interrupts and the redirect turns to stdout only; `checkup` reports the top 5 repeats and `retro` cites one in its *Recurring* test.
 - Two review cycles found 2 P1 (an unmatched quote in a denied command crashed the report; 15 of 48 mutants survived the writer's sweep); both fixed, 1 P2 deferred to `TODO.md`, 5 P3 stay in `review.md`.
@@ -146,13 +151,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@416076a3ef59
 - Why: a rule shipped today silently skipped today's runs, and the date gates confused the user.
-
-## 2026-10-18 · guard-keys · writers and reviewers test every key a guard matches on · GPT-6.1 Sol
-- The test, review and execute references now say: one case per guard key, a reviewer who finds one untested key lists and mutates all of them, and execute regains its acceptance-seam and scope wording. A trial row sits in `SKILL-IMPACT.md`.
-- Review found 3 P3s (Verify greps one phrase per rule, rule placement, conditional reviewer trigger), all deferred.
-- Commits: e478a17
-- Review: ship as-is (cycle 1, 0 open) @ b98bb26
-- Run: 1 tickets · 1 sessions · 1 review cycles · 0 deviations · 0 findings overturned
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@e478a17
-- Why: three growth-ratchets findings were one untested guard key each, and the cap was met by unwrapping.

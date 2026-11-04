@@ -1,5 +1,5 @@
 # corrections-bad-records
-Status: ready
+Status: done
 Base: f51994c
 Review: decide after prove
 
