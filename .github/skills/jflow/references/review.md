@@ -9,6 +9,9 @@ Review is required when the change touches authentication or access control, sec
 migrations, concurrency, a contract other code depends on, or input from another user or the
 network. The human can ask for it on any change.
 
+While `jflow` is on trial, review runs on every change as a safety net. End each defect with
+`prove missed it` or `prove saw it`, because that comparison is what the trial measures.
+
 ## Find defects
 
 Read `spec.md`, then `git diff <Base>..HEAD`, and read the code around it. Leave `notes.md` until

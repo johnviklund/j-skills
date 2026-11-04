@@ -66,8 +66,10 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
    live model or real data. Sol caught 1 of 3 real defects, plus five false BROKEN rows, mostly
    from having no human at the spec. Of the two misses, one showed only with a live model and one
    had no row. Terra could not write the drivers, so Sol takes the seat unless rows are ready commands.
-5. Run the next three work-repo tasks on `jflow`: two with an Opus builder, one with a Sol builder.
-   Log sessions, fix rounds, usage, the human's minutes and bugs found within a week of shipping.
+5. Run the next three work-repo tasks on `jflow` on the real app, with review on all three as a
+   safety net, since step 4 missed its bar: two with an Opus builder, one with a Sol builder. Log
+   sessions, fix rounds, usage, the human's minutes, each defect review found that prove missed, and
+   bugs found within a week of shipping.
 
 **Verdict.** The recent work-repo median is 6.5 sessions a run. `jflow` wins at a median of 3 or
 fewer, with the replay catching at least two thirds of the real defects, and no shipped bug that
