@@ -57,7 +57,9 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
 
 1. Done 2026-11-04. `evals.run reviewer`, 11 known defects on 10 past misses: Astra 10, Sol 9, Sol
    with a traced-failing-input rule 10, with 0, 1 and 0 false alarms. Astra did not beat Sol, so Sol
-   takes the seat with the rule. The exam is diff-only, so the first real reviews test the run half.
+   takes the seat with the rule. `references/review.md` alone scored 10 with 2 false alarms; a
+   stricter reachability bar scored 8 with 1, so the bar stayed out. The exam is diff-only, so the
+   first real reviews test the run half.
 2. Done 2026-11-04. GPT-6.1 Terra is in the Codex and work Copilot pickers, Astra is not in Copilot.
 3. Done 2026-11-04. `.github/skills/jflow/`, first tried on the `corrections-bad-records` run.
 4. Replay two past work-repo runs through prove alone, and count the real defects it catches.
