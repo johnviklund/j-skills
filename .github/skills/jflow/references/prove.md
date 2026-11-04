@@ -10,7 +10,7 @@ spec's own commits. A change the human did not confirm is BLOCKED, and proof sto
 ## Run every row
 
 Run each row exactly as written, at `HEAD`, on the real surface, using the repo's `verify-*` skill
-for driven flows. Compare what you observe with the pass signal, and give each row one verdict:
+for driven flows. Run only what a row names: the full suites run once, at `jflow done`. Compare what you observe with the pass signal, and give each row one verdict:
 
 - **PROVED**: observed the pass signal.
 - **BROKEN**: ran, and saw something else.
@@ -28,7 +28,7 @@ One number up from the last receipt. Evidence is the command and the output that
 screenshot path. Done when every row has a verdict and evidence, and no row is skipped.
 
 ```markdown
-# prove-N @ <sha> · <model> · <effort>
+# prove-N @ <sha> · <model and effort from the card, or unknown>
 | # | Verdict | Evidence |
 |---|---|---|
 | 1 | PROVED | `<command>` → <observed> |

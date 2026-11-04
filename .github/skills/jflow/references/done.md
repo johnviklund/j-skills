@@ -4,7 +4,8 @@ Runs in the builder session after the last proof.
 
 1. Confirm the newest prove receipt is for `HEAD` and every row is PROVED, or the human accepted the
    rest; when review was required, the newest review has no defects or the human accepted them.
-2. Show the human the **Human checks** and the Maybes, and wait for their answer.
+2. Show the human any **Human checks**, Maybes and costs you flagged in `notes.md`, and wait for
+   their answer. With none, go on.
 3. Run the repo's own verification commands from `AGENTS.md`.
 4. Set `Status: done` in `spec.md`. When the repo keeps a `WORKLOG.md`, add this entry at its top:
 
