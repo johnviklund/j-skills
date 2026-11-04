@@ -25,7 +25,10 @@ split.
 
 ## 3. Draft the Proof table
 
-Every goal gets at least one row. Each row must be able to fail, by one of:
+Keep the table to about ten rows: one for each goal, plus the failures most likely to hurt a user,
+such as losing data, showing wrong data as correct, or a break partway through. Rows say what to
+observe, not how the code does it, because a longer table costs more to prove than the review it
+replaces. Each row must be able to fail, by one of:
 
 - a script, test or query with a pass or fail result;
 - a flow driven with the repo's `verify-*` skill, ending in a state someone can observe;

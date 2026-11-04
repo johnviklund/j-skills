@@ -14,7 +14,8 @@ for driven flows. Run only what a row names: the full suites run once, at `jflow
 
 - **PROVED**: observed the pass signal.
 - **BROKEN**: ran, and saw something else.
-- **BLOCKED**: could not run: a missing credential, service or tool. No code change repairs it.
+- **BLOCKED**: could not run: a missing credential, service or tool that no work in this folder can
+  repair. Writing a driver for a row is part of your job, so an unwritten driver is never BLOCKED.
 - **UNREACHABLE**: the row's starting state is one the app never creates. The code never runs, which
   is a different thing from wrong code.
 

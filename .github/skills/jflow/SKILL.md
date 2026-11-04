@@ -24,7 +24,7 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 |---|---|---|---|
 | `jflow spec <slug>` | Opus 5.5 · high | fresh, with the human | [references/spec.md](references/spec.md) |
 | `jflow build <slug>` | Opus 5.5 · high | fresh; the **builder session**, kept for every fix | [references/build.md](references/build.md) |
-| `jflow prove <slug>` | GPT-6.1 Terra · medium | fresh for each proof | [references/prove.md](references/prove.md) |
+| `jflow prove <slug>` | GPT-6.1 Sol · high; GPT-6.1 Terra · medium when every row is a ready command | fresh for each proof | [references/prove.md](references/prove.md) |
 | `jflow review <slug>` | GPT-6.1 Sol · high | fresh for each review, read-only | [references/review.md](references/review.md) |
 | `jflow done <slug>` | same model, builder session | the builder session | [references/done.md](references/done.md) |
 
@@ -32,8 +32,8 @@ Picker IDs: `claude-opus-5.5`, `claude-sonnet-5.5`, `gpt-6.1-terra`, `gpt-6.1-so
 seat, edit this table.
 
 **Independence.** Prove and review run on a different vendor from the builder, because two
-sessions of one vendor share blind spots. With an OpenAI builder, prove moves to Sonnet 5.5 · medium
-and review to Opus 5.5 · high. A session on the wrong vendor says so in its first line and in its
+sessions of one vendor share blind spots. With an OpenAI builder, prove moves to Sonnet 5.5 · high
+and review to Opus 5.5 · high. Measured 2026-11-04: Terra ran ready-made checks well but gave up when it had to write a driver. A session on the wrong vendor says so in its first line and in its
 receipt, then carries on.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
@@ -88,6 +88,9 @@ Session: <fresh | builder session>
 
 The session running `jflow prove` or `jflow review` gives the builder the receipt path in the
 message: `Fix .jflow/<slug>/receipts/prove-2.md, then print the card.`
+
+In Codex, run prove with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
+Codex 0.166, a local test client hangs in the default sandbox.
 
 Commit each step's files before the card. Every step runs in any CLI, as a plain message in a
 session the human starts. Where the builder session cannot be resumed, a new session on the

@@ -24,7 +24,7 @@ not write, catches most of what review catches, for less. Review becomes a short
 |---|---|---|---|
 | `jflow spec <slug>` | Opus 5.5, with the human | Grill the what, never the how | `spec.md`, about one page |
 | `jflow build <slug>` | Opus 5.5 | One session builds it all; no plan phase, no tickets | Commits and a few lines of judgement calls |
-| `jflow prove <slug>` | GPT-6.1 Terra, medium | Fresh context runs the Proof table on the real app | PROVED, BROKEN, BLOCKED or UNREACHABLE per row, with receipts |
+| `jflow prove <slug>` | GPT-6.1 Sol, high; Terra, medium, for ready commands | Fresh context runs the Proof table on the real app | PROVED, BROKEN, BLOCKED or UNREACHABLE per row, with receipts |
 | `jflow review <slug>` | GPT-6.1 Sol, high | Read-only pass, only when risk asks for it | Defects with a failing input shown by a run or traced, plus a list of maybes |
 
 - **Spec:** problem, goals, non-goals, constraints with "ask first" boundaries, Proof table. A line
@@ -62,7 +62,10 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
    first real reviews test the run half.
 2. Done 2026-11-04. GPT-6.1 Terra is in the Codex and work Copilot pickers, Astra is not in Copilot.
 3. Done 2026-11-04. `.github/skills/jflow/`, first tried on the `corrections-bad-records` run.
-4. Replay two past work-repo runs through prove alone, and count the real defects it catches.
+4. Done 2026-11-04, bar not met. Two past work-repo runs, blind specs, proved on a machine with no
+   live model or real data. Sol caught 1 of 3 real defects, plus five false BROKEN rows, mostly
+   from having no human at the spec. Of the two misses, one showed only with a live model and one
+   had no row. Terra could not write the drivers, so Sol takes the seat unless rows are ready commands.
 5. Run the next three work-repo tasks on `jflow`: two with an Opus builder, one with a Sol builder.
    Log sessions, fix rounds, usage, the human's minutes and bugs found within a week of shipping.
 
