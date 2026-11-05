@@ -1,8 +1,8 @@
 # Trigger cases for jflow. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/jflow/tests/triggers.tsv
 jflow	jflow spec export-csv
 jflow	jflow build export-csv
-jflow	jflow prove export-csv
-jflow	/jflow review export-csv
+jflow	jflow check export-csv
+jflow	/jflow check export-csv
 !jflow	Write a spec for a CSV export feature.
 !jflow	Can you prove this function always terminates?
 !jflow	workflow brainstorm export-csv

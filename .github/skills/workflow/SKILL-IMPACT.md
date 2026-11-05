@@ -11,6 +11,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-11-05 | jflow | prove and review merged into `check`, review triggers removed; builder writes one test per row or bug and cuts its own diff; three checks at most. Judge: sessions per run, defects found, tests per net code | two runs at 7 sessions; one session found both known defects on a replay; 9 of 23 new tests were redundant | 3 runs | trialing |
 | 2026-11-05 | jflow | one driver and receipt-only commits; check what rows need before running them; rerun only BLOCKED rows when nothing changed; full suites only at done; exact receipt templates; read the reference before `.jflow/`; done shows all open items and an unmerged branch. Judge: evidence lines, re-proves after BLOCKED, `notes.md` read early | a private-repo run: 7 sessions, 84% of added lines were evidence | 3 runs | trialing |
 | 2026-11-04 | jflow | new skill: spec, build, prove, optional review, with a Proof table run on the base commit. Judge: `ROADMAP.md` verdict, median sessions, replay catch rate, shipped bugs | v4 goal, 2026-11-04 | 3 runs | trialing |
 | 2026-11-03 | workflow | pre-push to a URL or path target excludes only the sha that target's ref holds (nothing for a new ref), not every remote. Judge: a commit held only by another remote is scanned when pushed by URL | reviewer exam 2026-11-03: both instruction arms flagged it on the prepush clean twin | 3 runs | trialing |

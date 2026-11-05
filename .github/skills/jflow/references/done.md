@@ -1,10 +1,9 @@
 # jflow done
 
-Runs in the builder session after the last proof.
+Runs in the builder session after the last check.
 
-1. Confirm no code changed since the newest prove receipt's sha and every row is PROVED, or the
-   human accepted the rest; when review was required, the same holds for the newest review, with no
-   defects left or the human accepting them.
+1. Confirm no code changed since the newest check receipt's sha, every row is PROVED and no defect
+   is open, or the human accepted the rest.
 2. Show the human any **Human checks**, Maybes, and everything left open in `notes.md` or this
    session: a cost, a risk left in place, a doc left out of date. Wait for their answer. With none,
    go on.
@@ -15,7 +14,7 @@ Runs in the builder session after the last proof.
    ## <date> · <slug> · <what shipped, one line> · <builder model>
    - <what changed and why, one line>
    - Commits: <shas>
-   - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · review <clean | skipped | n defects, m missed by prove> · net code <±n> · tests <±n>
+   - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · check <clean | n defects> · net code <±n> · tests <±n>
    ```
 
 5. When the human corrected you during this run, invoke `memory.remember` for that correction.

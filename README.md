@@ -201,9 +201,9 @@ judged.
 - `jflow spec <slug>` asks about what to build, never how, and writes a one-page spec. Its Proof
   table says what a pass looks like, and every row must be able to fail.
 - `jflow build <slug>` runs one session that builds the whole change and keeps every later fix.
-- `jflow prove <slug>` runs in a fresh session on the other vendor. It runs the table on the real
-  thing and gives each row a verdict.
-- `jflow review <slug>` runs only for risky changes, and reports only defects with a failing input.
+- `jflow check <slug>` runs in a fresh session on the other vendor. It runs the table on the real
+  thing, gives each row a verdict, then looks for what the table never asked, and reports only
+  defects with a failing input.
 - `jflow done <slug>` runs the final checks, records the run and pushes.
 
 Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to

@@ -27,8 +27,7 @@ split.
 
 Keep the table to about ten rows: one for each goal, plus the failures most likely to hurt a user,
 such as losing data, showing wrong data as correct, or a break partway through. Rows say what to
-observe, not how the code does it, because a longer table costs more to prove than the review it
-replaces. Leave the repo's build, test and lint commands out of it: `jflow done` runs them. Each row
+observe, not how the code does it, because every row costs a proof on every check. Leave the repo's build, test and lint commands out of it: `jflow done` runs them. Each row
 must be able to fail, by one of:
 
 - a script, test or query with a pass or fail result;
@@ -41,7 +40,7 @@ approval. They never count as proof. Prefer a stronger answer key
 when one exists: the old system or saved good output beats a fresh description of what is right.
 
 When a row needs a surface the agent cannot drive, say what is missing. A repo with a user surface
-and no `verify-*` skill gets `verify.create` first, because prove has nothing to drive it with.
+and no `verify-*` skill gets `verify.create` first, because check has nothing to drive it with.
 
 ## 4. Run the table on the base commit
 
@@ -62,7 +61,6 @@ from this exact template, commit it, and print the card. Done when the spec is c
 # <slug>
 Status: ready
 Base: <sha>
-Review: required, <trigger> | decide after prove
 
 ## Problem
 <who meets it, what they see, the evidence>
@@ -85,5 +83,3 @@ Review: required, <trigger> | decide after prove
 ## Human checks
 - <what only the human can judge or do | none>
 ```
-
-Set `Review: required` when the goals touch a trigger in `references/review.md`.
