@@ -77,14 +77,17 @@ checks at most. At the cap, stop and give the human what is open.
 
 ## The closing card
 
-Every step ends with this as the turn's last output. A turn waiting for the human's answer ends on
-the question.
+Every step ends with this as the turn's last output, fence included: one line of text, then the
+message alone in its own code block, so the human can copy it. A turn waiting for the human's answer
+ends on the question.
+
+````markdown
+Model: <model · effort>. Session: <fresh | builder session>.
 
 ```text
-Next: <exact message to send>
-Model: <model · effort>
-Session: <fresh | builder session>
+<exact message to send>
 ```
+````
 
 The session running `jflow check` gives the builder the receipt path in the message:
 `Fix .jflow/<slug>/receipts/check-2.md, then print the card.`
