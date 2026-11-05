@@ -20,7 +20,7 @@ your findings are drafted, so the builder's framing does not set yours.
 Report a defect only with a concrete failing input: the input, what the code does with it, and what
 it should do instead. Run it when you can, in a scratch copy, so the output is the evidence. When
 you cannot run it, trace it through the code and say it is traced. Run only what a suspected defect
-needs: the full suites run once, at `jflow done`.
+needs.
 
 Leave out everything else: style, structure, a missing test or surviving mutant on its own,
 duplication, and risks that need a future change to matter. A defect that asks for new code names
@@ -29,8 +29,9 @@ the path a user or caller reaches that state by. Anything you suspect but cannot
 
 ## Write `receipts/review-N.md`
 
-One number up from the last receipt. Done when every defect has its input and evidence. Commit it
-and print the card from the hub's table.
+One number up from the last receipt. Use this template exactly, with no added sections: a limit on
+the review goes in Maybes. Done when every defect has its input and evidence. Commit it and print
+the card from the hub's table.
 
 ```markdown
 # review-N @ <sha> · <model and effort from the card, or unknown>

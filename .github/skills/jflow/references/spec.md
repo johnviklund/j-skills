@@ -28,14 +28,16 @@ split.
 Keep the table to about ten rows: one for each goal, plus the failures most likely to hurt a user,
 such as losing data, showing wrong data as correct, or a break partway through. Rows say what to
 observe, not how the code does it, because a longer table costs more to prove than the review it
-replaces. Each row must be able to fail, by one of:
+replaces. Leave the repo's build, test and lint commands out of it: `jflow done` runs them. Each row
+must be able to fail, by one of:
 
 - a script, test or query with a pass or fail result;
 - a flow driven with the repo's `verify-*` skill, ending in a state someone can observe;
 - a measurement with a threshold.
 
-Read the claim where the user meets it. A fully mocked test proves no goal. Taste, such as how a
-layout feels, goes under **Human checks** and never counts as proof. Prefer a stronger answer key
+Read the claim where the user meets it. A fully mocked test proves no goal. **Human checks** hold
+what only a person can judge or do: taste, a trial with an outside tool, a doc that needs their
+approval. They never count as proof. Prefer a stronger answer key
 when one exists: the old system or saved good output beats a fresh description of what is right.
 
 When a row needs a surface the agent cannot drive, say what is missing. A repo with a user surface
@@ -81,7 +83,7 @@ Review: required, <trigger> | decide after prove
 | 1 | <goal it proves> | <page, CLI, API, row> | <command or flow> | <what is observed> | new | red |
 
 ## Human checks
-- <taste only | none>
+- <what only the human can judge or do | none>
 ```
 
 Set `Review: required` when the goals touch a trigger in `references/review.md`.

@@ -16,7 +16,8 @@ current branch.
 `spec.md` is the answer key and stays as it is. If a goal or row is wrong or cannot be met, stop and
 tell the human: only `jflow spec` changes it.
 
-Write `notes.md` as you decide: a few lines on each judgement call a reader would question.
+Write `notes.md` as you decide: a few lines on each judgement call a reader would question, and on
+anything you leave open.
 
 Run each Proof row you can yourself, and the repo's test suite. Done when they pass, the tree is
 clean and everything is committed. Print the card for `jflow prove`.

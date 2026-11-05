@@ -7,10 +7,18 @@ product code, and clean up anything you start.
 Check the key first: `git log --oneline <Base>..HEAD -- .jflow/<slug>/spec.md` must show only the
 spec's own commits. A change the human did not confirm is BLOCKED, and proof stops there.
 
+## Check what the rows need
+
+Before running anything, list every credential, input and service the rows name, and check each
+one. When the human can supply what is missing, ask here and wait: one missing value otherwise costs
+a whole extra proof. Otherwise carry on, and that row is BLOCKED.
+
 ## Run every row
 
 Run each row exactly as written, at `HEAD`, on the real surface, using the repo's `verify-*` skill
-for driven flows. Run only what a row names: the full suites run once, at `jflow done`. Compare what you observe with the pass signal, and give each row one verdict:
+for driven flows. Run only what a row names. A row that needs a driver uses
+`.jflow/<slug>/drive.py`: reuse and extend it, so no proof writes it twice. Compare what you observe
+with the pass signal, and give each row one verdict:
 
 - **PROVED**: observed the pass signal.
 - **BROKEN**: ran, and saw something else.
@@ -19,14 +27,17 @@ for driven flows. Run only what a row names: the full suites run once, at `jflow
 - **UNREACHABLE**: the row's starting state is one the app never creates. The code never runs, which
   is a different thing from wrong code.
 
-A verdict rests on what you saw this session. When a row cannot be run, it is BLOCKED, even if a
+A verdict rests on what you saw this session, with one exception: when neither code nor `spec.md`
+changed since the last receipt, rerun only its BLOCKED rows and carry its other verdicts over, with
+`carried from prove-N` as their evidence. When a row cannot be run, it is BLOCKED, even if a
 weaker check would pass. Try once more to break each PROVED row at its nearest edge: empty, repeated,
 reloaded. A break there is BROKEN only if it contradicts a goal; otherwise it goes in Maybes.
 
 ## Write `receipts/prove-N.md`
 
 One number up from the last receipt. Evidence is the command and the output that matters, or a
-screenshot path. Done when every row has a verdict and evidence, and no row is skipped.
+screenshot path. Use this template exactly, with no added sections: a limit on the proof goes in
+Maybes. Done when every row has a verdict and evidence, and no row is skipped.
 
 ```markdown
 # prove-N @ <sha> · <model and effort from the card, or unknown>
