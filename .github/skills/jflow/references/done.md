@@ -17,10 +17,23 @@ Runs in the builder session after the last check.
    - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · check <clean | n defects> · net code <±n> · tests <±n>
    ```
 
-5. When the human corrected you during this run, invoke `memory.remember` for that correction.
+   With no `WORKLOG.md`, add the `jflow:` line to `notes.md`, because `retro` and `memory.compact`
+   read a run's numbers from one or the other.
+5. Keep the repo's lists true, for each of `TODO.md` and `ROADMAP.md` that exists. Search it for the
+   slug and for what shipped, and read only the matches and their headings.
+   - An item or step this change finished moves to `TODO_ARCHIVE.md` or `ROADMAP_ARCHIVE.md`, word
+     for word, plus `— done <date> · <slug>`. Create that file with a one-line header if it is
+     missing.
+   - A step it finished only part of stays, reworded to what remains.
+   - An open item the human kept at step 2 becomes one line in `TODO.md`.
+
+   Ask the human about a match you are unsure of. Done when neither file lists this change as open
+   work.
+6. When the human corrected you during this run, invoke `memory.remember` for that correction.
    Nothing else becomes a lesson.
-6. Commit. Push the current branch; when the repo has no pre-push secret scan, first run
-   `gitleaks git --log-opts="@{u}..HEAD" --redact -v --no-banner` and stop on any finding.
+7. Commit. Push the current branch; when the repo has no pre-push secret scan, first run
+   `gitleaks git --log-opts="<Base>..HEAD" --redact -v --no-banner` and stop on any finding. It uses
+   `Base` because this is usually the branch's first push, so it has no upstream.
 
 Done when the push succeeded. Close with one line: what shipped, the proof count, and, on any branch
 but the default, that the change is not on the default branch yet.

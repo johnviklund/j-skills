@@ -204,7 +204,8 @@ judged.
 - `jflow check <slug>` runs in a fresh session on the other vendor. It runs the table on the real
   thing, gives each row a verdict, then looks for what the table never asked, and reports only
   defects with a failing input.
-- `jflow done <slug>` runs the final checks, records the run and pushes.
+- `jflow done <slug>` runs the final checks, records the run, updates `TODO.md` and `ROADMAP.md`,
+  and pushes.
 
 Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
 see that again. The record is `.jflow/<slug>/`.
@@ -244,7 +245,7 @@ Use it after a session that felt slow.
   transcripts on your machine. Nothing is written to a file.
 - It suggests fixes, ranked by how much time they would save.
 - Each fix you approve goes to the skill or file that owns it.
-- Run `retro` for the current session, `retro <slug>` for a workflow run, or `retro <session id>`.
+- Run `retro` for the current session, `retro <slug>` for a workflow or jflow run, or `retro <session id>`.
 
 ### memory.remember
 

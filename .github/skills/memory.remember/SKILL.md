@@ -253,5 +253,5 @@ Everything else routes to its owner in the same pass (do not stage it in memory)
 - Do not put operational rules in `SOUL.md`; keep identity there and operations in `AGENTS.md`.
 - Do not treat memory as a changelog; write only the durable part that should survive. The
   session-level "what was built/changed" log is `WORKLOG.md` (owned by the `workflow` skill), not memory.
-- Never delete, empty, or rename anything under `.workflow/` — run folders are the repo's history; the `workflow` skill's wrap step archives them.
+- Never delete, empty, or rename anything under `.workflow/` or `.jflow/` — run folders are the repo's history; the `workflow` skill's wrap step archives `.workflow/` runs.
 - When a shared skill itself changes (this one, `memory.compact`, or any other skill in `j-skills`), update that skill's own docs as part of the same remember pass.

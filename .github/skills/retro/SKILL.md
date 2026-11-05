@@ -1,7 +1,7 @@
 ---
 name: retro
 description: >
-  Retrospective on one coding session or workflow run: finds where the agent lost time or built
+  Retrospective on one coding session or a workflow or jflow run: finds where the agent lost time or built
   more than the work needed, and proposes the few environment fixes worth making (at most three),
   each with its measured cost and routed to the file or skill that owns it. Run only on an
   explicit "retro" or "/retro" message, optionally with a run slug or session id; never on casual
@@ -18,8 +18,8 @@ A retro returns **at most three fixes**, often fewer. Every proposed rule is one
 later agent reads, so a retro that proposes a fix for every friction point adds sediment instead
 of removing waste. The human should be able to approve the whole list without weighing each item.
 
-**Invocation:** `retro` (the current session) · `retro <slug>` (a `.workflow/<slug>/` run) ·
-`retro <session id>`.
+**Invocation:** `retro` (the current session) · `retro <slug>` (a `.workflow/<slug>/` or
+`.jflow/<slug>/` run) · `retro <session id>`.
 
 ## Steps
 
@@ -35,6 +35,10 @@ of removing waste. The human should be able to approve the whole list without we
    - **Run slug:** `.workflow/<slug>/` — `plan.md` (`## Deviations`, `Writer:` lines), `review.md`
      (cycles, `## Resolved`, findings marked wrong), `learnings.md`, `wrap.md`; the slug's
      `WORKLOG.md` entry (`Run:` numbers); then the transcripts for the run's dates and cwd.
+   - **jflow slug:** `.jflow/<slug>/` — `spec.md` (Proof rows), `notes.md` (judgement calls, what
+     was left open), `receipts/check-*.md` (each BROKEN row or defect cost a fix round; BLOCKED rows
+     and Maybes show what a check could not reach); the slug's `WORKLOG.md` entry or the `jflow:`
+     line in `notes.md`; then the transcripts for the run's dates and cwd.
    - **Transcripts:** the session store when the CLI offers one; otherwise
      `~/.copilot/session-state/<id>/events.jsonl`, `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`,
      `~/.claude/projects/<cwd-slug>/*.jsonl`. Grep large transcripts for tool errors and human

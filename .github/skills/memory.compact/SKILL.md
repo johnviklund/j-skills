@@ -5,7 +5,7 @@ description: >
   MEMORY.md): merge pages that make the same claim, split legacy inline
   MEMORY.md entries into pages, and identify stale, superseded, archive-only,
   doctrine-misfiled, and skill-promotion-candidate pages (Occurrences 3+),
-  producing a proposed index and page set. Reads done .workflow/<slug>/ runs
+  producing a proposed index and page set. Reads done .workflow and .jflow runs
   and existing skill frontmatter as context. Run manually when memory feels
   bloated or keeps re-explaining the same principle. Recommends a cross-family
   critic for major passes. Never overwrites MEMORY.md, memory/, DESIGN.md, or
@@ -52,6 +52,8 @@ Read all of these before starting analysis:
   Also read every line of `learnings.md` from the 10 most recent done runs, including headerless
   files, `[drop]` and `routed → none` lines, wherever the mark appears. Compare runs with each other
   so a lesson missing from memory can be found.
+  `.jflow/*/` folders with `Status: done` have no `learnings.md`: read `notes.md` and the Defects
+  and Maybes in `receipts/check-*.md` the same way, and count them among those 10 runs.
 - **CE artifact directories** where the repo uses that convention (read-only context):
   `docs/brainstorms/`, `docs/plans/`, `docs/solutions/`.
 - **`AGENTS.md`** — check for pages already promoted.
@@ -221,7 +223,7 @@ Print:
 ## Rules
 
 - Run records and CE artifacts are **read-only input**. `/compact` may flag pages as contradicted
-  by them, but never modifies, tags, or archives anything under `.workflow/` or `docs/`.
+  by them, but never modifies, tags, or archives anything under `.workflow/`, `.jflow/` or `docs/`.
 - Tombstone or archive, don't silently delete. Superseded pages stay in the archive with enough
   context to search; a page with evidence is never deleted, only moved.
 - The compacted memory should end **under the ~40-page soft ceiling**; if it can't without losing
