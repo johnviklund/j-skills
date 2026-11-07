@@ -6,7 +6,8 @@ in order. Read `notes.md` only after your findings are drafted, so the builder's
 shape what you see.
 
 Check the key first: `git log --oneline <Base>..HEAD -- .jflow/<slug>/spec.md` must show only the
-spec's own commits. A change the human did not confirm is BLOCKED, and the check stops there.
+spec's own commits, including any `jflow accept` commit that touches only `## Accepted`. A change
+the human did not confirm is BLOCKED, and the check stops there.
 
 Before running anything, list every credential, input and service the rows name, and check each
 one. When the human can supply what is missing, ask here and wait: one missing value otherwise costs
@@ -15,7 +16,8 @@ a whole extra check. Otherwise carry on, and that row is BLOCKED.
 ## 1. Prove
 
 Run each row exactly as written, at `HEAD`, on the real surface, using the repo's `verify-*` skill
-for driven flows. Run only what a row names. A row that needs a driver uses
+for driven flows. With a `Gate:` in the spec and no `Live done:` line in `notes.md`, run nothing from
+the gate on: that is a human's yes away, and you are here to clear it. Run only what a row names. A row that needs a driver uses
 `.jflow/<slug>/drive.py`: reuse and extend it, so no check writes it twice. Compare what you observe
 with the pass signal, and give each row one verdict:
 
@@ -25,9 +27,14 @@ with the pass signal, and give each row one verdict:
   repair. Writing a driver for a row is part of your job, so an unwritten driver is never BLOCKED.
 - **UNREACHABLE**: the row's starting state is one the app never creates. The code never runs, which
   is a different thing from wrong code.
+- **WAITING**: Kind `live`, and the gate is not passed yet.
+- **ACCEPTED**: listed under `## Accepted`, and you saw the miss that line describes. A row listed
+  there that now passes is PROVED, and any other result is BROKEN.
 
 A verdict rests on what you saw this session, with one exception: when neither code nor `spec.md`
-changed since the last receipt, rerun only its BLOCKED rows and carry its other verdicts over, with
+changed since the last receipt, `## Accepted` aside, rerun only its BLOCKED and WAITING rows, plus
+every `keep` row once `Live done:` is new, since live steps change what those rows stand on. Carry
+its other verdicts over, with
 `carried from check-N` as their evidence. When a row cannot be run, it is BLOCKED, even if a weaker
 check would pass.
 
@@ -73,4 +80,4 @@ defect has its input and evidence.
 Commit the receipt, then print the card from the hub's table. BROKEN rows and defects go to the
 builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Tell the human
 what is blocked and what would unblock it. For UNREACHABLE, ask whether to delete the code or say
-what reaches it.
+what reaches it. With only WAITING rows left, say the change is clear to pass the gate.

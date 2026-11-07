@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated: 2026-11-05. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
+Updated: 2026-11-07. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
 `memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
 `design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
@@ -62,8 +62,9 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
    live model or real data. Sol caught 1 of 3 real defects, plus five false BROKEN rows, mostly
    from having no human at the spec. Of the two misses, one showed only with a live model and one
    had no row. Terra could not write the drivers, so Sol takes the seat unless rows are ready commands.
-5. Run the next three work-repo tasks on `jflow` on the real app, with review on all three as a
-   safety net, since step 4 missed its bar: two with an Opus builder, one with a Sol builder. Log
+5. Done 2026-11-07, except the Sol builder, which moved to step 8. Three work-repo tasks ran on
+   `jflow` on the real app, all with Opus builders. Planned as two with an Opus builder and one with
+   a Sol builder, with review on all three as a safety net, since step 4 missed its bar. Log
    sessions, fix rounds, usage, the human's minutes, each defect found, and bugs found within a
    week of shipping. Task 1 and one private-repo run took 7 sessions each. Prove alone had by then
    caught 2 of 8 known defects, counting the replay, and the 4 that review added would have shown
@@ -75,12 +76,31 @@ something that blocks work. Build `jflow` in plain sessions, not through `workfl
    session found 2 lines, so it stayed out, and the builder now cuts its own diff. Planted bugs
    showed 9 of 23 new tests caught nothing the others missed, and new tests per line of net code ran
    1.6 and 1.9 on `jflow` against a work-repo `workflow` median of 1.1, so tests now follow the rows.
+7. Done 2026-11-07, after two runs on 2026-11-06. A check on a real-data cutover found a market page
+   showing global numbers on all but one of its topics, which the builder had noted and left. That
+   code was outside the diff, and the builder's own proof passed. The same check ran after the
+   delete, so it could not prove a guard whose starting state was gone, and that row shipped on the
+   builder's run. Three changes followed. A spec names a gate, the first live step that cannot be
+   undone or that removes a row's starting state, and a check clears it first. `## Accepted` records
+   what the human accepts, with the bar left as written, in place of editing the key. A row about a
+   conclusion names the numbers that would disprove it.
+8. Open. Run the next three runs under step 7, one with a Sol builder and Opus at check. Log the same
+   numbers as step 5.
 
-**Verdict.** The recent work-repo median is 6.5 sessions a run. `jflow` wins at a median of 3 or
-fewer, with `jflow check` catching at least two thirds of the real defects, and no shipped bug that
-loses data or shows wrong data as correct. A win removes `workflow` and the scripts only it uses,
-and that release is v4. A class of bug check misses gets one targeted row, not a phase. A loss
-removes `jflow` and lifts the freeze.
+**Verdict.** The recent work-repo median is 6.5 sessions a run. The original bar was a `jflow`
+median of 3 or fewer. Eight runs gave a median of 6, so that goal was missed. The human decided on
+2026-11-07 not to apply the loss rule: three sessions needs no fixes and no reopened spec, while
+`jflow` cut commits to about a third, cut tests per line of code and caught a wrong-data bug that
+review would probably have missed. The new bar is a median of 4 or fewer on the three runs of step
+8. Today's runs would miss it too, so it was not set to fit them.
+
+Decide once step 8 is in, and no earlier than 2026-11-14, when the one-week bug window of the last
+runs ends. `jflow` wins with that median, with `jflow check` catching at least two thirds of the
+real defects, and no shipped bug that loses data or shows wrong data as correct. A win ports what
+outlives `workflow` to `jflow`: the next-step, worktree and hook scripts, because the conductor and
+the unattended path need them. It then removes `workflow` and the scripts only it uses, and that
+release is v4. A class of bug check misses gets one targeted row, not a phase. A loss removes
+`jflow` and lifts the freeze.
 
 ## Goal: v3, runs an outside conductor can drive unattended
 

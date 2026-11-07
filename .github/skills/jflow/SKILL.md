@@ -58,6 +58,16 @@ was 5,769 of the 6,850 lines one run added.
 `spec.md` is the answer key. Only `jflow spec`, with the human's confirmation, changes it, and
 every row then runs again.
 
+**Accepted.** When the human accepts a missed bar, an unproved row or a defect in so many words,
+the session they said it to adds one line under `## Accepted` at the end of `spec.md`, in its own
+commit named `jflow accept <slug>`, and no row runs again. The bar stays as written, so the record
+shows what was missed. An accepted item is no longer open.
+
+```markdown
+## Accepted
+- Row 3 · 254 of 300 against a bar of 255 · "<the human's words>" · <date> · <sha it applies to>
+```
+
 ## What is next
 
 Bare `jflow <slug>` reads the run folder and prints the card for the first row that holds.
@@ -67,13 +77,16 @@ Bare `jflow <slug>` reads the run folder and prints the card for the first row t
 | no `spec.md`, or `Status: drafting` | `jflow spec` |
 | `Status: ready`, no commit since `Base` | `jflow build` |
 | code changed since the newest check receipt's sha, or no receipt yet | `jflow check` |
-| newest check receipt has BROKEN rows or defects | back to the builder session with that receipt |
-| newest check receipt has BLOCKED or UNREACHABLE | the human decides, per `references/check.md` |
+| newest check receipt has BROKEN rows or defects still open | back to the builder session with that receipt |
+| newest check receipt has BLOCKED or UNREACHABLE rows still open | the human decides, per `references/check.md` |
+| newest check receipt has WAITING rows, and `notes.md` has no `Live done:` line | the builder session runs the live steps, per `references/build.md` |
+| newest check receipt has WAITING rows | `jflow check` |
 | otherwise | `jflow done` |
 | `Status: done` | nothing; say so |
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
-checks at most. At the cap, stop and give the human what is open.
+checks at most, and a check that only reruns BLOCKED or WAITING rows does not count, since no fix
+went in. At the cap, stop and give the human what is open.
 
 ## The closing card
 

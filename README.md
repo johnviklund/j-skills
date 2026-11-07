@@ -207,6 +207,11 @@ judged.
 - `jflow done <slug>` runs the final checks, records the run, updates `TODO.md` and `ROADMAP.md`,
   and pushes.
 
+When a change writes to real data, the spec names a **gate**: the first live step that cannot be
+undone. The checker clears the change before that step and checks again after it. When you accept a
+missed bar or an unproved row, the session records your words under `## Accepted` in the spec, and
+the bar stays as written.
+
 Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
 see that again. The record is `.jflow/<slug>/`.
 

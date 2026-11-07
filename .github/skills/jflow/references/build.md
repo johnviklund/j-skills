@@ -25,8 +25,17 @@ more as someone who wants it shorter, and delete what no goal or row needs: a br
 nothing creates, a helper with one caller, a test that fails only when another one does. Measured
 2026-11-05: 9 of one run's 23 new tests caught no planted bug the others missed.
 
+With a `Gate:` in the spec, stop short of the gate: the checker needs the state that step removes,
+and a bug found before it still has a way back. Rows of Kind `live` wait.
+
 Done when the rows still pass, the tree is clean and everything is committed. Print one line with
 the code and test lines added, then the card for `jflow check`.
+
+## Live steps
+
+The hub's table sends you here once a check has left only WAITING rows. Run the steps from the gate
+on, each **Ask first** item with the human's yes. Add `Live done: <date>` and what happened to
+`notes.md`. Done when every step has run and that line is committed. Print the card for `jflow check`.
 
 ## Fix
 

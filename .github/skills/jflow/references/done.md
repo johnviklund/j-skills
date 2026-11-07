@@ -2,8 +2,9 @@
 
 Runs in the builder session after the last check.
 
-1. Confirm no code changed since the newest check receipt's sha, every row is PROVED and no defect
-   is open, or the human accepted the rest.
+1. Confirm no code changed since the newest check receipt's sha, and every row is PROVED or under
+   `## Accepted` with no defect open. What the human accepts now gets its `## Accepted` line first,
+   per the hub, so an unproved row stays visible in the record.
 2. Show the human any **Human checks**, Maybes, and everything left open in `notes.md` or this
    session: a cost, a risk left in place, a doc left out of date. Wait for their answer. With none,
    go on.
@@ -14,7 +15,7 @@ Runs in the builder session after the last check.
    ## <date> · <slug> · <what shipped, one line> · <builder model>
    - <what changed and why, one line>
    - Commits: <shas>
-   - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · check <clean | n defects> · net code <±n> · tests <±n>
+   - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · <n> accepted · check <clean | n defects> · net code <±n> · tests <±n>
    ```
 
    With no `WORKLOG.md`, add the `jflow:` line to `notes.md`, because `retro` and `memory.compact`

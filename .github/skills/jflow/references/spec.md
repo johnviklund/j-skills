@@ -39,6 +39,17 @@ what only a person can judge or do: taste, a trial with an outside tool, a doc t
 approval. They never count as proof. Prefer a stronger answer key
 when one exists: the old system or saved good output beats a fresh description of what is right.
 
+A row about a conclusion, such as a cause in a report, names the numbers that would disprove it:
+"written down" proves a file exists and says nothing about whether the claim holds. Measured
+2026-11-06: one such row passed while a fresh run contradicted its claim.
+
+**Live steps.** When the change writes to real data or spends real money, find the **gate**: the
+first live step that cannot be undone, or that removes a row's starting state. Name it under
+Constraints. Everything before the gate gets checked first, because after it a bug has no way back
+and a row's starting state may be gone. A row that only a step from the gate on can satisfy gets
+Kind `live`; every other row must be provable before the gate. Measured 2026-11-06: a check run
+after the live steps could not prove a guard, because the gap it refuses no longer existed.
+
 When a row needs a surface the agent cannot drive, say what is missing. A repo with a user surface
 and no `verify-*` skill gets `verify.create` first, because check has nothing to drive it with.
 
@@ -46,7 +57,7 @@ and no `verify-*` skill gets `verify.create` first, because check has nothing to
 
 Run every row at `HEAD` before anything is built, and record `Base`:
 
-- a `new` row must be `red`. One that passes proves nothing, so rewrite it.
+- a `new` or `live` row must be `red`. One that passes proves nothing, so rewrite it.
 - a `keep` row guards behaviour that exists today, and must be `green`.
 
 A surface that does not exist yet counts as `red`. Keep any throwaway files out of the commit.
@@ -74,6 +85,7 @@ Base: <sha>
 ## Constraints
 - Must not break: <…>
 - Ask first: <… | nothing>
+- Gate: <the first live step that cannot be undone or removes a row's starting state | none>
 
 ## Proof
 | # | Claim | Surface | Check | Pass signal | Kind | Base |
