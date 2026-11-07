@@ -50,6 +50,7 @@ Tracked in git. A separate root from `.workflow/`, so no other skill's state or 
   notes.md            the builder's judgement calls and anything left open, a few lines
   drive.py            the checker's driver, when a row needs one: one file, reused by later checks
   receipts/check-N.md one per check, numbered from 1
+  run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
 ```
 
 Commit only these files. Raw output goes to a temp folder: measured 2026-11-05, committed evidence
@@ -108,7 +109,13 @@ The session running `jflow check` gives the builder the receipt path in the mess
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.
 
-Commit each step's files before the card. Leave pushing and the repo's full build, test and lint
+Before the commit, record the step:
+`python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
+`<skill>` is this skill's absolute folder and the model is your own, from the card. The steps are
+`spec`, `build`, `check`, `fix`, `live`, `accept` and `done`. The script reads the receipt and git
+itself, so nobody counts a number by hand.
+
+Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's full build, test and lint
 commands to `jflow done`, even when the repo's own instructions ask for them at every step: they
 belong to the finished change, not to each receipt.
 

@@ -9,13 +9,14 @@ Runs in the builder session after the last check.
    session: a cost, a risk left in place, a doc left out of date. Wait for their answer. With none,
    go on.
 3. Run the repo's own verification commands from `AGENTS.md`.
-4. Set `Status: done` in `spec.md`. When the repo keeps a `WORKLOG.md`, add this entry at its top:
+4. Set `Status: done` in `spec.md`, then record the step as `done`. The script prints the run's
+   `jflow:` line; copy it unchanged. When the repo keeps a `WORKLOG.md`, add this entry at its top:
 
    ```markdown
    ## <date> · <slug> · <what shipped, one line> · <builder model>
    - <what changed and why, one line>
    - Commits: <shas>
-   - jflow: <sessions> sessions · <fix rounds> fix rounds · <rows> rows · <n> accepted · check <clean | n defects> · net code <±n> · tests <±n>
+   - <the jflow: line the script printed>
    ```
 
    With no `WORKLOG.md`, add the `jflow:` line to `notes.md`, because `retro` and `memory.compact`

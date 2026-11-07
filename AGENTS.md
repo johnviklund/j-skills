@@ -18,7 +18,7 @@ unittest suites cover the scripts. Run them from the repo root as the baseline a
 reporting any step done, and paste the result:
 
 ```sh
-python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests
+python3 -m unittest discover -s .github/skills/workflow/scripts/tests && python3 -m unittest discover -s .github/skills/checkup/scripts/tests && python3 -m unittest discover -s .github/skills/jflow/scripts/tests
 ```
 
 Healthy output: each suite ends with `OK`, and the command exits 0.

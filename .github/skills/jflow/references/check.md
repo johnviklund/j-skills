@@ -77,7 +77,8 @@ defect has its input and evidence.
 
 ## Route
 
-Commit the receipt, then print the card from the hub's table. BROKEN rows and defects go to the
+Record the step as `check`, commit the receipt and `run.jsonl`, then print the card from the hub's
+table. BROKEN rows and defects go to the
 builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Tell the human
 what is blocked and what would unblock it. For UNREACHABLE, ask whether to delete the code or say
 what reaches it. With only WAITING rows left, say the change is clear to pass the gate.

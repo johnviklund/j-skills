@@ -35,11 +35,12 @@ the code and test lines added, then the card for `jflow check`.
 
 The hub's table sends you here once a check has left only WAITING rows. Run the steps from the gate
 on, each **Ask first** item with the human's yes. Add `Live done: <date>` and what happened to
-`notes.md`. Done when every step has run and that line is committed. Print the card for `jflow check`.
+`notes.md`, and record the step as `live`. Done when every step has run and that line is committed.
+Print the card for `jflow check`.
 
 ## Fix
 
 A receipt comes back with BROKEN rows or defects. Fix the cause, in one design when several
 items share it, and rerun the row or the failing input. Reporting a wrong finding is part of the
 job: when the input does not fail, answer with the command and its output and leave the code as it
-is. Commit, then print the card for the next check.
+is. Record the step as `fix`, commit, then print the card for the next check.
