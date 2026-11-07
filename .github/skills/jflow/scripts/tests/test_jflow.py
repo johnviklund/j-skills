@@ -21,7 +21,7 @@ Base: {base}
 - none
 """
 
-RECEIPT = """# check-{n} @ abc · GPT-6.1 Sol · high
+RECEIPT = """# check-{n} @ {sha} · GPT-6.1 Sol · high
 | # | Verdict | Evidence |
 |---|---|---|
 | 1 | {v1} | `cmd` -> ok |
@@ -68,8 +68,8 @@ class RunRecord(unittest.TestCase):
         self.assertEqual(out.returncode, 0, out.stderr)
         return out.stdout.strip()
 
-    def receipt(self, n, v1, defects):
-        (self.run_dir / "receipts" / f"check-{n}.md").write_text(RECEIPT.format(n=n, v1=v1, defects=defects))
+    def receipt(self, n, v1, defects, sha="abc"):
+        (self.run_dir / "receipts" / f"check-{n}.md").write_text(RECEIPT.format(n=n, v1=v1, defects=defects, sha=sha))
 
     def test_full_run_counts_sessions_rounds_checks_and_lines(self):
         self.jflow("record", "demo", "spec", "--model", "opus", "--effort", "high")
@@ -108,6 +108,48 @@ class RunRecord(unittest.TestCase):
         (self.repo / "later.py").write_text("x = 1\ny = 2\n")
         self.commit("later work")
         self.assertEqual(json.loads(self.jflow("summary", "demo", "--json"))["net_code"], 1)
+
+    def test_unrecorded_steps_and_fixes_come_from_git(self):
+        (self.repo / "app.py").write_text("a = 2\n")
+        self.commit("build, not recorded")
+        self.receipt(1, "BROKEN", "- app.py: input -> crash -> ok. Evidence: run, boom", self.git("rev-parse", "HEAD"))
+        self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
+        self.commit("check-1")
+        (self.repo / "app.py").write_text("a = 3\n")
+        self.commit("fix, not recorded")
+        self.receipt(2, "PROVED", "- none", self.git("rev-parse", "HEAD"))
+        self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
+        self.commit("check-2")
+        s = json.loads(self.jflow("summary", "demo", "--json"))
+        self.assertEqual((s["sessions"], s["fix_rounds"], s["checks"]), (4, 1, 2))
+
+    def test_build_is_a_fresh_session_whatever_the_flag_says(self):
+        build = json.loads(self.jflow("record", "demo", "build", "--model", "sol", "--effort", "high",
+                                      "--session", "builder"))
+        self.assertEqual(build["session"], "fresh")
+        restart = json.loads(self.jflow("record", "demo", "fix", "--model", "sol", "--effort", "high",
+                                        "--session", "fresh"))
+        self.assertEqual(restart["session"], "fresh")
+
+    def test_line_printed_at_done_matches_the_summary_after_the_done_commit(self):
+        self.jflow("record", "demo", "spec", "--model", "opus", "--effort", "high")
+        (self.repo / "app.py").write_text("a = 1\nb = 2\n")
+        self.commit("build")
+        spec = self.run_dir / "spec.md"
+        spec.write_text(spec.read_text().replace("Status: ready", "Status: done"))
+        printed = self.jflow("record", "demo", "done", "--model", "opus", "--effort", "high")
+        (self.repo / "WORKLOG.md").write_text("# log\n- " + printed + "\n")
+        self.commit("done")
+        self.assertEqual(self.jflow("summary", "demo"), printed)
+
+    def test_recording_a_check_again_replaces_its_line(self):
+        self.receipt(1, "BLOCKED", "- none")
+        self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
+        self.receipt(1, "PROVED", "- none")
+        self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
+        checks = [r for r in map(json.loads, (self.run_dir / "run.jsonl").read_text().splitlines())
+                  if r["step"] == "check"]
+        self.assertEqual([c["rows"] for c in checks], [{"PROVED": 2}])
 
     def test_check_without_receipt_fails(self):
         out = subprocess.run([sys.executable, str(SCRIPT), "record", "demo", "check", "--model", "m",

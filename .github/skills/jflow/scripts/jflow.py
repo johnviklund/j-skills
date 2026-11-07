@@ -36,6 +36,14 @@ def section(text, heading):
     return [l for l in lines if not re.match(r"- <?none\b", l, re.I)]
 
 
+def changed(repo, a, b):
+    """True when code outside .jflow/ changed between two commits; None when one is unknown."""
+    try:
+        return bool(git(repo, "diff", "--name-only", f"{a}..{b}", "--", ".", ":(exclude).jflow"))
+    except subprocess.CalledProcessError:
+        return None
+
+
 def check_fields(run):
     receipts = receipts_of(run)
     if not receipts:
@@ -52,7 +60,8 @@ def receipt_fields(path):
     rows = {}
     for verdict in re.findall(r"^\|\s*\d+\s*\|\s*([A-Z]+)\s*\|", text, re.M):
         rows[verdict] = rows.get(verdict, 0) + 1
-    return {"n": int(re.sub(r"\D", "", path.stem)), "rows": rows,
+    sha = re.search(r"^# check-\d+ @ ([0-9a-f]{7,40})\b", text, re.M)
+    return {"n": int(re.sub(r"\D", "", path.stem)), "sha": sha.group(1) if sha else None, "rows": rows,
             # A defect carried over from an earlier check was counted there.
             "defects": len([d for d in section(text, "Defects") if "carried from" not in d.lower()]),
             "maybes": len(section(text, "Maybes"))}
@@ -72,9 +81,10 @@ def summary(repo, run):
     if not base:
         raise SystemExit("summary: spec.md has no Base line")
     spec_path = str(run / "spec.md")
-    # A finished run ends at the commit that first set Status: done; later commits belong to other work.
+    # A finished run ends just before the commit that set Status: done: what done measured, before its
+    # own WORKLOG and TODO edits. Later commits belong to other work.
     done_commits = git(repo, "log", "--format=%H", "-S", "Status: done", "--", spec_path).splitlines()
-    end = done_commits[-1] if done_commits else "HEAD"
+    end = done_commits[-1] + "^" if done_commits else "HEAD"
     code = tests = docs = other = 0
     for line in git(repo, "diff", "--numstat", f"{base.group(1)}..{end}", "--", ".", ":(exclude).jflow").splitlines():
         added, deleted, path = line.split("\t", 2)
@@ -91,13 +101,20 @@ def summary(repo, run):
             other += delta
     proof = re.search(r"^## Proof\s*$(.*?)(?=^## |\Z)", spec, re.M | re.S)
     started = git(repo, "log", "--reverse", "--format=%cI", "--", spec_path).splitlines()
-    ended = dt.datetime.fromisoformat(git(repo, "log", "-1", "--format=%cI", end)) if done_commits \
+    ended = dt.datetime.fromisoformat(git(repo, "log", "-1", "--format=%cI", done_commits[-1])) if done_commits \
         else dt.datetime.now(dt.timezone.utc)
     hours = round((ended - dt.datetime.fromisoformat(started[0])).total_seconds() / 3600, 1) if started else None
     # Receipts are the truth for checks, so runs from before run.jsonl still count.
     checks = [receipt_fields(p) for p in receipts_of(run)]
-    return {"sessions": sum(1 for r in records if r.get("session") == "fresh") or None,
-            "checks": len(checks), "fix_rounds": sum(1 for r in records if r.get("step") == "fix"),
+    # Git counts what an agent can forget to record: a fix round is code changed after a check.
+    shas = [c["sha"] for c in checks] + [end]
+    fixes = sum(1 for a, b in zip(shas, shas[1:]) if a and changed(repo, a, b))
+    steps = [r for r in records if r.get("step") in STEPS]
+    # Spec, build and each check are fresh sessions; records add a re-spec or a builder that restarted.
+    sessions = (max(1, sum(r["step"] == "spec" for r in steps)) + bool(checks or code or tests or docs or other)
+                + len(checks) + sum(r["step"] in BUILDER_STEPS and r.get("session") == "fresh" for r in steps))
+    return {"sessions": sessions if steps else None,
+            "checks": len(checks), "fix_rounds": max(fixes, sum(r["step"] == "fix" for r in steps)),
             "rows": len(re.findall(r"^\|\s*\d+\s*\|", proof.group(1), re.M)) if proof else 0,
             "accepted": len(section(spec, "Accepted")), "defects": sum(c["defects"] for c in checks),
             "first_check_clean": (checks[0]["defects"] == 0 and set(checks[0]["rows"]) <= {"PROVED", "WAITING", "ACCEPTED"}) if checks else None,
@@ -120,7 +137,7 @@ def main(argv=None):
     rec.add_argument("step", choices=STEPS)
     rec.add_argument("--model", required=True)
     rec.add_argument("--effort", required=True)
-    rec.add_argument("--session", choices=("fresh", "builder"))
+    rec.add_argument("--session", choices=("fresh", "builder"), help="fresh: a builder step in a new session")
     summ = sub.add_parser("summary")
     summ.add_argument("slug")
     summ.add_argument("--json", action="store_true")
@@ -140,7 +157,7 @@ def main(argv=None):
     skill = Path(__file__).resolve().parents[1] / "SKILL.md"
     entry = {"v": 1, "step": a.step, "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
              "sha": git(repo, "rev-parse", "HEAD"), "model": a.model, "effort": a.effort,
-             "session": a.session or ("builder" if a.step in BUILDER_STEPS else "fresh"),
+             "session": (a.session or "builder") if a.step in BUILDER_STEPS else "fresh",
              "skill": "jflow@" + hashlib.sha256(skill.read_bytes()).hexdigest()[:12]}
     if a.step == "check":
         entry.update(check_fields(run))
@@ -148,8 +165,10 @@ def main(argv=None):
         entry["n"] = 1 + sum(1 for r in read_records(run) if r.get("step") == "fix")
     if a.step == "done":
         entry["summary"] = summary(repo, run)
-    with open(run / "run.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    # Recording a check again, after its receipt changed, replaces that check's line.
+    kept = [r for r in read_records(run) if not (a.step == "check" and r.get("step") == "check"
+                                                  and r.get("n") == entry["n"])]
+    (run / "run.jsonl").write_text("".join(json.dumps(r) + "\n" for r in kept + [entry]), encoding="utf-8")
     print(line(entry["summary"]) if a.step == "done" else json.dumps(entry))
     return 0
 

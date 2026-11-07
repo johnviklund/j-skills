@@ -113,7 +113,7 @@ Before the commit, record the step:
 `python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
 `<skill>` is this skill's absolute folder and the model is your own, from the card. The steps are
 `spec`, `build`, `check`, `fix`, `live`, `accept` and `done`. The script reads the receipt and git
-itself, so nobody counts a number by hand.
+itself, so nobody counts a number by hand. Record a check again if its receipt changes afterwards.
 
 Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's full build, test and lint
 commands to `jflow done`, even when the repo's own instructions ask for them at every step: they
@@ -121,4 +121,4 @@ belong to the finished change, not to each receipt.
 
 Every step runs in any CLI, as a plain message in a session the human starts. Where the builder
 session cannot be resumed, a new session on the builder's model takes the branch, `spec.md`,
-`notes.md` and the open receipt, and says so in `notes.md`.
+`notes.md` and the open receipt, says so in `notes.md`, and records its steps with `--session fresh`.
