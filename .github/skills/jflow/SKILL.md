@@ -48,7 +48,7 @@ Tracked in git. A separate root from `.workflow/`, so no other skill's state or 
 .jflow/<slug>/
   spec.md             the spec and Proof table, written by spec and read-only afterwards
   notes.md            the builder's judgement calls and anything left open, a few lines
-  drive.py            the checker's driver, when a row needs one: one file, reused by later checks
+  drive.py            the checker's one driver when a row needs it, reused by later checks, deleted at done
   receipts/check-N.md one per check, numbered from 1
   run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
 ```
