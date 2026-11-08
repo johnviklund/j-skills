@@ -1,5 +1,5 @@
 # receipt-evidence-cap
-Status: ready
+Status: done
 Base: 01f9bba82091e79c5d6eccf05af1dfa29f7b410e
 Issue: roadmap item 0.3 in https://github.com/johnviklund/hq/blob/main/docs/jflow-standalone-and-hq-roadmap.md
 

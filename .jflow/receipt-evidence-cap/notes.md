@@ -4,9 +4,8 @@
   Check therefore uses Opus 5.5 · high in a fresh session.
 - Numbered defect bullets keep the parser's bullet format and give BROKEN rows a short reference.
   The 240-character defect cap covers everything after `Evidence:`, including run or traced.
-- The change is text only, as Proof row 6 requires. Proof checks use temporary fixtures;
-  no script or test changes are committed. Trial results and the skill-impact entry wait for done.
-- The next three trial runs still need the human checks for evidence length and receipt size.
+- The change is text only, as Proof row 6 requires. Builder checks use temporary fixtures;
+  the checker committed the parser driver. The skill-impact entry tracks the next three trial runs.
 - All six Proof rows pass in builder checks. Rows 1–3 fail against Base; rows 4–6 stay green.
   The template fixture parses PROVED, BROKEN and BLOCKED once each, one defect, zero maybes and its sha.
 - Baseline and final suites each pass: workflow 137 tests, checkup 41, jflow 8, all OK.
@@ -15,3 +14,6 @@
   its capped command and output line; rows with defects still cite their numbers.
   The reported Base command returns 1. A temporary receipt with that evidence parses one BROKEN
   row and zero defects, and its Evidence cell fits the cap.
+- On 2026-11-08 the human approved closing with both follow-ups in `TODO.md`: measure the next
+  three trial runs for evidence caps and receipts under 3 KB, and leave escaped-pipe counting
+  unspecified. Check 2 proves all six rows with no open defect.

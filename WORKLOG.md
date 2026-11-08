@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-08 · receipt-evidence-cap · jflow caps receipt evidence at 240 characters · GPT-6.1 Sol
+- Evidence keeps the command and decisive output line within 240 characters; defect references avoid repetition.
+- Commits: 2cd2359 3ad0bd2 458473c 03e783e a2e921d
+- jflow: 4 sessions · 1 fix rounds · 6 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +6
+
 ## 2026-11-04 · corrections-bad-records · `corrections.py` skips a malformed transcript instead of losing the whole report · Opus 5.5
 - One catch per transcript across Claude, Codex and Copilot keeps the report alive and the readable transcripts counted; a lone surrogate now prints as `?`. Closes correction-mining C2-1.
 - Commits: 90b326c e771ae9 24e45af ed8dbbf
@@ -140,14 +145,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@1da975d
 - Why: review's only security check was one clause, so a run that added a trust boundary got no systematic question about it.
-
-## 2026-10-22 · retire-date-gates · check-run applies one rule set to every run not yet done · GPT-6.1 Sol
-- `check-run.py` no longer picks rules by `Created:` date: the four `*_SINCE` gates, `LEGACY_TEST_RATIO`, `deviated()` and the behaviour minimum are gone. Done runs keep header, sha and layout checks only; parked runs are checked like live ones, except a drafting brief.
-- The docs that said "earlier plans keep their rules" now state the universal rules.
-- Review cycle 1 found two P1s (done runs lost their sha walk, parked drafts failed section checks), both fixed with red tests first. Two P3s deferred.
-- Commits: fc99027 281f4a9 fbb1fdc 2aac08b
-- Review: ship as-is (cycle 2, 0 open) @ dbccc12
-- Run: 2 tickets · 2 sessions · 2 review cycles · 3 deviations · 0 findings overturned · net code -9 · tests +59
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@416076a3ef59
-- Why: a rule shipped today silently skipped today's runs, and the date gates confused the user.
