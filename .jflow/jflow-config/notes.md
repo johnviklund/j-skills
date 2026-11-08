@@ -24,3 +24,10 @@
   No verdict or evidence result changed. Duplicate prose was pruned to keep the size budget.
 - After the fix: 137 workflow, 41 checkup and 13 jflow tests OK; all 13 jflow tests pass on Python 3.9.
   Total script growth is 80 net lines; the skill is 49,962 bytes without `__pycache__`.
+- Fix check-2 defect 1: generic `sk-` detection requires 20 payload characters instead of one,
+  so a short name such as `sk-ui` remains valid. The specific key prefixes and 40-character rule stay.
+  The regression table first failed on `sk-ui`, then passed after the code fix. A generic `sk-`
+  token with 20 payload characters is also checked in config and record; removing its detection fails.
+- Python 3.9 runs the exact reported `record sk-ui spec --model m --effort high` input and summary
+  with exit 0. All 13 jflow tests pass there. The skill is 49,975 bytes; script growth stays 80 lines.
+- Final repo verification after fix 2: 137 workflow, 41 checkup and 13 jflow tests OK; diff check clean.

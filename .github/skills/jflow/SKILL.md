@@ -10,9 +10,8 @@ description: >
 
 # jflow
 
-**Spec, build, check, ship.** A fresh agent proves the change on the real thing against an answer
-key the builder did not write, then attacks what that key never asked. That evidence, not a
-discussion of the diff, decides whether the work is done.
+**Spec, build, check, ship.** A fresh checker proves the change on the real thing against a spec
+the builder did not write, then attacks cases outside it. Evidence decides whether work is done.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the first
 message. A question carries one decision, lettered options and a ➡️ recommended option first.
@@ -52,7 +51,7 @@ starts blind to part of that folder. Its completion criterion ends the step.
 
 ## The run: `.jflow/<slug>/`
 
-Tracked in git. A separate root from `.workflow/`, so no other skill's state or hook reads it.
+Tracked in git, separately from `.workflow/`.
 
 ```text
 .jflow/<slug>/
