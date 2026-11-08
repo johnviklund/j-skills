@@ -11,3 +11,7 @@
   The template fixture parses PROVED, BROKEN and BLOCKED once each, one defect, zero maybes and its sha.
 - Baseline and final suites each pass: workflow 137 tests, checkup 41, jflow 8, all OK.
   Skill validation passes; Copilot lists jflow as enabled.
+- Check 1, defect 1: a BROKEN row can have no defect to cite. The rule and template now keep
+  its capped command and output line; rows with defects still cite their numbers.
+  The reported Base command returns 1. A temporary receipt with that evidence parses one BROKEN
+  row and zero defects, and its Evidence cell fits the cap.

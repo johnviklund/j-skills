@@ -59,8 +59,9 @@ the human; nobody fixes those. No defects is a valid result.
 
 One number up from the last receipt. Use this template exactly, with no added sections: a limit on
 the check goes in Maybes. Each Evidence cell holds at most 240 characters: the command plus the one
-output line that decides the verdict. A BROKEN row cites its defect number instead of repeating
-the evidence. Number defects; each defect's `Evidence:` part also holds at most 240 characters.
+output line that decides the verdict. A BROKEN row with a defect cites its number instead of
+repeating the evidence; without a defect, it uses the capped command and output line.
+Number defects; each defect's `Evidence:` part also holds at most 240 characters.
 Quote a command that reruns as written, so a reader can get the rest; raw output stays in the temp
 folder. Done when every row has a verdict and evidence, every defect has its input and evidence,
 and both evidence caps hold.
@@ -71,6 +72,7 @@ and both evidence caps hold.
 |---|---|---|
 | 1 | PROVED | `<command>` → <decisive output line; at most 240 characters for the whole cell> |
 | 2 | BROKEN | defect 1 |
+| 3 | BROKEN | `<command>` → <decisive output line; no defect, at most 240 characters for the whole cell> |
 
 ## Defects
 - 1. <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line; at most 240 characters after Evidence:>
