@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-08 · drive-py-at-done · jflow deletes a run's drive.py at done · Claude Opus 5.5
+- Done step 6 removes the checker's one-off driver with `git rm`; a reusable verb becomes one `TODO.md` line for `verify.maintain`, and a receipt's driver reruns from the receipt's own commit.
+- Commits: 61860aa 04beb5f 1ddb4aa 651c81f c193232
+- jflow: 4 sessions · 1 fix rounds · 8 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +10
+
 ## 2026-11-08 · receipt-evidence-cap · jflow caps receipt evidence at 240 characters · GPT-6.1 Sol
 - Evidence keeps the command and decisive output line within 240 characters; defect references avoid repetition.
 - Commits: 2cd2359 3ad0bd2 458473c 03e783e a2e921d
@@ -134,14 +139,3 @@ oldest when appending would exceed that.
 - Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@e712b74ba5ce
 - Why: 7 of 16 per-ticket ratio hits were false and absorbed by waivers while nothing judged growth at run level.
-
-## 2026-10-22 · threat-model-review · briefs name trust boundaries and review runs a threat pass on each · GPT-6.1 Sol
-- A brief that touches outside input, credentials, writes, shell or permissions gets an optional `## Trust boundaries` section. Review answers six fixed questions per boundary in a `Threats:` line, rated on the existing severity bar. A run with no trigger writes `Threats: none`.
-- `check-run.py` needed no change; one test pins that the section is optional. A trial row sits in `SKILL-IMPACT.md`.
-- Review found 3 P3s (completion line, `Threats:` line shape, unwrapped lines), all deferred.
-- Commits: b4866b1 2460066
-- Review: ship as-is (cycle 1, 0 open) @ 5e5abe1
-- Run: 2 tickets · 1 sessions · 1 review cycles · 0 deviations · 0 findings overturned · net code +0 · tests +7
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@1da975d
-- Why: review's only security check was one clause, so a run that added a trust boundary got no systematic question about it.

@@ -1,5 +1,5 @@
 # drive-py-at-done
-Status: ready
+Status: done
 Base: c45e466975b1056b34122816d4e8b7da55e8afa2
 Issue: roadmap item 0.4 in https://github.com/johnviklund/hq/blob/main/docs/jflow-standalone-and-hq-roadmap.md
 
