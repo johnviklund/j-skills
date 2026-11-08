@@ -11,6 +11,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-11-08 | jflow | Record secret checks attach to `--model` and `--effort` parsing. Run slugs and repo paths are exempt; config checks stay. Judge: check 5 records the versioned task name and both fields still reject key-like values without echo or a log change | jflow-config check-4 defect 1; human approved option A and check 5 | 3 runs | trialing |
 | 2026-11-08 | jflow | Generic `sk-` payloads need a digit or no inner hyphen as well as 20 characters. The regression covers the reported hyphenated name and both rejected key forms. Judge: check 4 accepts the name and preserves secret refusal | jflow-config check-3 defect 1; human approved one more fix and check 4 | 3 runs | trialing |
 | 2026-11-08 | jflow | Generic `sk-` detection requires 20 payload characters, preserving short names such as `sk-ui`. Specific key prefixes and the 40-character rule stay. Judge: short task names record successfully while key-like values are refused | jflow-config check-2 defect 1 | 3 runs | trialing |
 | 2026-11-08 | jflow | Secret checks match key prefixes at boundaries and exempt repo paths from record argument scanning. Summary and seat keep their existing argument handling. Judge: the next three runs accept task slugs and long repo paths while refusing key-like record values | jflow-config check-1 defect 1 | 3 runs | trialing |

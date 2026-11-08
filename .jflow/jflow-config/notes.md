@@ -45,3 +45,11 @@
 - Human approval for fix 4 and check 5 (option A, 2026-11-08): stop scanning the run slug for
   secrets, as `--repo` already is, and keep scanning `--model` and `--effort`. A test covers
   `sk-onboarding-checklist-v2`. This permits a fifth check despite the normal three-check cap.
+- Fix check-4 defect 1 implements that approval: the parser validates only record's `--model`
+  and `--effort` values for secrets. Run slugs and repo paths are identifiers outside the scan.
+  Config secret detection is unchanged. The versioned-name regression failed before the fix.
+- Both fields reject key-like values, including `--option=value`, with no echo or log change in a
+  real run. Removing either validator fails the test. Python 3.9 records and summarizes the reported
+  name, both other names in check-4, and the long underscore name from check-3.
+- Verification after fix 4: 137 workflow, 41 checkup and 13 jflow tests OK; all 13 also pass on
+  Python 3.9. Script growth is 83 net lines; the skill is 49,905 bytes. Diff and skill checks pass.

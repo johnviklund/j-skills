@@ -42,7 +42,7 @@ Its check card uses `--builder-vendor V`.
 **Locked rules.** Seats print fixed `rules`; config may repeat them as true.
 `public_paid_needs_human` requires a human for public or paid actions; `checker_read_only`
 forbids product edits by checkers. Both declare session policy. `no_secrets` rejects key-like
-config values and recorded arguments without echoing them.
+config values and record's `--model` and `--effort` values without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
 

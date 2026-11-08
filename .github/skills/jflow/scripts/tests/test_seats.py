@@ -81,6 +81,7 @@ class Seats(unittest.TestCase):
                       "ghp_" + "b" * 20, "AKIA" + "C" * 16,
                       "aB3dE6gH9jK2mN5pQ8sT1vW4yZ7cF0iL3oR6uX9z"):
             self.config(".jflow/config.json", seats={"build": dict(model=value, vendor="v", effort="high", fallback=None)})
-            for args in (("seat", "build"), ("record", "demo", "spec", "--model", value, "--effort", "high")):
+            for args in (("seat", "build"), ("record", "demo", "spec", "--model", value, "--effort", "high"),
+                         ("record", "demo", "spec", "--model", "m", "--effort", value)):
                 self.assertNotIn(value, self.run_cli(*args, ok=False).stderr)
             self.assertEqual(log.read_text(), "unchanged\n")

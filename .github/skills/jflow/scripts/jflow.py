@@ -40,6 +40,12 @@ def secret(value):
         r"(?<![\w-])(?:sk-ant-|sk-(?=[\w-]*\d|\w+(?![\w-]))[A-Za-z0-9_-]{20,}|gh[pousr]_|AKIA)|[A-Za-z0-9_+/=]{40,}", value))
 
 
+def record_value(value):
+    if secret(value):
+        raise SystemExit("secret-like argument refused")
+    return value
+
+
 def seats(repo, explicit):
     config = {}
     external = explicit or os.environ.get("JFLOW_CONFIG")
@@ -190,17 +196,13 @@ def line(s):
 
 
 def main(argv=None):
-    args = argv if argv is not None else sys.argv[1:]
-    values = [v for i, v in enumerate(args) if not v.startswith("--repo=") and (not i or args[i - 1] != "--repo")]
-    if args and args[0] == "record" and secret(values):
-        raise SystemExit("secret-like argument refused")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
     rec = sub.add_parser("record")
     rec.add_argument("slug")
     rec.add_argument("step", choices=STEPS)
-    rec.add_argument("--model", required=True)
-    rec.add_argument("--effort", required=True)
+    rec.add_argument("--model", required=True, type=record_value)
+    rec.add_argument("--effort", required=True, type=record_value)
     rec.add_argument("--session", choices=("fresh", "builder"), help="fresh: a builder step in a new session")
     summ = sub.add_parser("summary")
     summ.add_argument("slug")
