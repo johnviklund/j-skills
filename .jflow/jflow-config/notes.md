@@ -42,3 +42,6 @@
 - All 13 jflow tests pass on Python 3.9; the exact reported record command and summary exit 0.
   Pruned duplicate card/record prose. Script growth is 81 net lines; the skill is 49,886 bytes.
 - Final repo verification after fix 3: 137 workflow, 41 checkup and 13 jflow tests OK; diff check clean.
+- Human approval for fix 4 and check 5 (option A, 2026-11-08): stop scanning the run slug for
+  secrets, as `--repo` already is, and keep scanning `--model` and `--effort`. A test covers
+  `sk-onboarding-checklist-v2`. This permits a fifth check despite the normal three-check cap.
