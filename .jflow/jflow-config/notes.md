@@ -31,3 +31,14 @@
 - Python 3.9 runs the exact reported `record sk-ui spec --model m --effort high` input and summary
   with exit 0. All 13 jflow tests pass there. The skill is 49,975 bytes; script growth stays 80 lines.
 - Final repo verification after fix 2: 137 workflow, 41 checkup and 13 jflow tests OK; diff check clean.
+- Human approval for fix 3 and check 4: "The human approved one more fix and a fourth check
+  (option A): make the generic sk- rule stop refusing hyphenated names such as
+  sk-onboarding-checklist, for example by needing a digit or no inner hyphen, while real keys
+  are still refused." This permits a fourth check despite the normal three-check cap.
+- Fix check-3 defect 1: generic `sk-` payloads still need 20 characters, plus either a digit or
+  no inner hyphen. The reported name now records successfully. Specific key and bare-token rules stay.
+  The regression first failed on the old code. Removing the new condition, either branch, or the
+  no-hyphen endpoint makes a relevant test fail. Config and record reject both generic key forms.
+- All 13 jflow tests pass on Python 3.9; the exact reported record command and summary exit 0.
+  Pruned duplicate card/record prose. Script growth is 81 net lines; the skill is 49,886 bytes.
+- Final repo verification after fix 3: 137 workflow, 41 checkup and 13 jflow tests OK; diff check clean.

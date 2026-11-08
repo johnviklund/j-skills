@@ -158,11 +158,12 @@ class RunRecord(unittest.TestCase):
         self.assertFalse((self.run_dir / "run.jsonl").exists())
 
     def test_task_slug_and_long_repo_paths_are_not_secrets(self):
-        for slug in ("task-list", "sk-ui"):
+        slugs = ("task-list", "sk-ui", "sk-onboarding-checklist")
+        for slug in slugs:
             task = self.run_dir.with_name(slug)
             task.mkdir()
             (task / "spec.md").write_text((self.run_dir / "spec.md").read_text())
-        for slug, path in (("task-list", self.repo), ("sk-ui", self.repo), ("demo", self.repo / ("projects/" * 8))):
+        for slug, path in [(s, self.repo) for s in slugs] + [("demo", self.repo / ("projects/" * 8))]:
             with self.subTest(slug=slug):
                 path.mkdir(parents=True, exist_ok=True)
                 self.repo = path

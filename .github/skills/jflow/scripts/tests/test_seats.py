@@ -77,7 +77,8 @@ class Seats(unittest.TestCase):
         (run / "spec.md").write_text("Status: ready\n")
         log = run / "run.jsonl"
         log.write_text("unchanged\n")
-        for value in ("sk-ant-" + "a" * 20, "sk-" + "a" * 20, "ghp_" + "b" * 20, "AKIA" + "C" * 16,
+        for value in ("sk-ant-" + "a" * 20, "sk-" + "a" * 20, "sk-" + "a" * 10 + "-" + "1" * 10,
+                      "ghp_" + "b" * 20, "AKIA" + "C" * 16,
                       "aB3dE6gH9jK2mN5pQ8sT1vW4yZ7cF0iL3oR6uX9z"):
             self.config(".jflow/config.json", seats={"build": dict(model=value, vendor="v", effort="high", fallback=None)})
             for args in (("seat", "build"), ("record", "demo", "spec", "--model", value, "--effort", "high")):

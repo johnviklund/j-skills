@@ -35,8 +35,9 @@ def secret(value):
         return any(secret(k) or secret(v) for k, v in value.items())
     if isinstance(value, (list, tuple)):
         return any(secret(v) for v in value)
-    # Generic sk- needs 20 payload characters to avoid short names; bare tokens need 40.
-    return isinstance(value, str) and bool(re.search(r"(?<![\w-])(?:sk-ant-|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_|AKIA)|[A-Za-z0-9_+/=]{40,}", value))
+    # Generic sk- needs 20 characters and a digit or no inner hyphen; bare tokens need 40.
+    return isinstance(value, str) and bool(re.search(
+        r"(?<![\w-])(?:sk-ant-|sk-(?=[\w-]*\d|\w+(?![\w-]))[A-Za-z0-9_-]{20,}|gh[pousr]_|AKIA)|[A-Za-z0-9_+/=]{40,}", value))
 
 
 def seats(repo, explicit):

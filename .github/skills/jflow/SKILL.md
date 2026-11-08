@@ -99,9 +99,8 @@ went in. At the cap, stop and give the human what is open.
 
 ## The closing card
 
-Every step ends with this as the turn's last output, fence included: one line of text, then the
-message alone in its own code block, so the human can copy it. A turn waiting for the human's answer
-ends on the question.
+End each step with this exact card, message alone in its code block. When waiting for the human,
+end on the question.
 
 ````markdown
 Model: <model · effort>. Session: <fresh | builder session>.
@@ -119,9 +118,8 @@ Codex 0.166, a local test client hangs in the default sandbox.
 
 Before the commit, record the step:
 `python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
-`<skill>` is this skill's absolute folder and the model is your own, from the card. The steps are
-`spec`, `build`, `check`, `fix`, `live`, `accept` and `done`. The script reads the receipt and git
-itself, so nobody counts a number by hand. Record a check again if its receipt changes afterwards.
+`<skill>` is this skill's absolute folder and the model is your own. Use the step from `flow.json`.
+The script reads git and receipts. Record a check again if its receipt changes.
 
 Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's full build, test and lint
 commands to `jflow done`, even when the repo's own instructions ask for them at every step: they
