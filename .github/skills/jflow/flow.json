@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "steps": {
+    "spec": {"role": "builder", "session": "fresh", "skill": "jflow", "seat": "spec"},
+    "build": {"role": "builder", "session": "fresh", "skill": "jflow", "seat": "build"},
+    "check": {"role": "checker", "session": "fresh", "skill": "jflow", "seat": "check"},
+    "fix": {"role": "builder", "session": "builder", "skill": "jflow", "seat": "build"},
+    "live": {"role": "builder", "session": "builder", "skill": "jflow", "seat": "build"},
+    "accept": {"role": "builder", "session": "builder", "skill": "jflow", "seat": "build"},
+    "done": {"role": "builder", "session": "builder", "skill": "jflow", "seat": "done"}
+  }
+}

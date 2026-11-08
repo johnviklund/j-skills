@@ -3,6 +3,7 @@
 
   jflow.py record <slug> <step> --model M --effort E [--session fresh|builder] [--repo DIR]
   jflow.py summary <slug> [--repo DIR] [--json]
+  jflow.py seat <step> [--repo DIR] [--config FILE] [--builder-vendor V]
 
 Standard library only, Python 3.8+. Readers ignore keys and steps they do not know, so drivers
 such as a conductor may append their own lines, for example a step "decision".
@@ -11,18 +12,77 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-STEPS = ("spec", "build", "check", "fix", "live", "accept", "done")
+SKILL = Path(__file__).resolve().parents[1]
+FLOW = json.loads((SKILL / "flow.json").read_text(encoding="utf-8"))
+STEPS = tuple(FLOW["steps"])
+RULES = dict.fromkeys(("public_paid_needs_human", "checker_read_only", "no_secrets"), True)
 BUILDER_STEPS = ("fix", "live", "accept", "done")
 SLUG = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 DOC_EXT = re.compile(r"\.(md|mdx|txt|rst|adoc)$", re.I)
 CODE_EXT = re.compile(r"\.(py|js|mjs|cjs|ts|tsx|jsx|go|rs|java|kt|swift|rb|php|cs|c|h|cc|cpp|hpp|sh|bash|zsh|sql|"
                       r"css|scss|html|vue|svelte|lua|dart|scala|ex|exs|clj|pl|r|m)$", re.I)
 TEST_PATH = re.compile(r"(^|/)(tests?|__tests__|spec)/|(^|/)test_[^/]*$|_test\.[^/]+$|\.(test|spec)\.[^/]+$")
+
+
+def secret(value):
+    if isinstance(value, dict):
+        return any(secret(k) or secret(v) for k, v in value.items())
+    if isinstance(value, (list, tuple)):
+        return any(secret(v) for v in value)
+    # Known key prefixes, or 40 uninterrupted token characters, are never seat identifiers.
+    return isinstance(value, str) and bool(re.search(r"sk-ant-|sk-[A-Za-z0-9]|gh[pousr]_|AKIA|[A-Za-z0-9_+/=]{40,}", value))
+
+
+def seats(repo, explicit):
+    config = {}
+    external = explicit or os.environ.get("JFLOW_CONFIG")
+    paths = [SKILL / "config.json", repo / ".jflow/config.json"] + ([Path(external)] if external else [])
+    for path in paths:
+        if path == repo / ".jflow/config.json" and not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if secret(data):
+                raise ValueError("secret-like value refused")
+            if not isinstance(data, dict) or type(data.get("schema_version")) is not int or data["schema_version"] != 1:
+                raise ValueError("schema_version must be 1")
+            if set(data) - {"schema_version", "seats", "rules", "different_vendors", "other_vendor"}:
+                raise ValueError("unknown config field")
+            rules = data.get("rules", {})
+            if not isinstance(rules, dict):
+                raise ValueError("rules must be an object")
+            for rule, enabled in rules.items():
+                if rule not in RULES or enabled is not True:
+                    raise ValueError("locked rule " + (rule if rule in RULES else "unknown"))
+            if "different_vendors" in data and type(data["different_vendors"]) is not bool:
+                raise ValueError("different_vendors must be boolean")
+            entries = data.get("seats", {})
+            if not isinstance(entries, dict) or set(entries) - set(STEPS):
+                raise ValueError("seats must name flow steps")
+            for entry in list(entries.values()) + ([data["other_vendor"]] if "other_vendor" in data else []):
+                pending = [entry]
+                while pending:
+                    seat = pending.pop()
+                    if not isinstance(seat, dict) or set(seat) != {"model", "vendor", "effort", "fallback"}:
+                        raise ValueError("each seat needs model, vendor, effort and fallback")
+                    if any(not isinstance(seat[k], str) or not seat[k].strip() for k in ("model", "vendor", "effort")):
+                        raise ValueError("seat model, vendor and effort must be nonempty strings")
+                    if seat["fallback"] is not None:
+                        pending.append(seat["fallback"])
+            config.setdefault("seats", {}).update(entries)
+            config.update({k: v for k, v in data.items() if k != "seats"})
+        except (OSError, ValueError, RecursionError):
+            # JSON decoder messages can quote a credential; only our fixed validation messages are safe.
+            error = sys.exc_info()[1]
+            message = str(error) if type(error) is ValueError else "cannot read valid config JSON"
+            raise SystemExit(f"{path}: {message}")
+    return config
 
 
 def git(repo, *args):
@@ -130,6 +190,8 @@ def line(s):
 
 
 def main(argv=None):
+    if secret(argv if argv is not None else sys.argv[1:]):
+        raise SystemExit("secret-like argument refused")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
     rec = sub.add_parser("record")
@@ -141,9 +203,26 @@ def main(argv=None):
     summ = sub.add_parser("summary")
     summ.add_argument("slug")
     summ.add_argument("--json", action="store_true")
-    for p in (rec, summ):
+    seat = sub.add_parser("seat")
+    seat.add_argument("step")
+    seat.add_argument("--config")
+    seat.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")
+    for p in (rec, summ, seat):
         p.add_argument("--repo", default=".")
     a = parser.parse_args(argv)
+    if a.cmd == "seat":
+        if a.step not in STEPS:
+            raise SystemExit("unknown flow step")
+        config = seats(Path(git(a.repo, "rev-parse", "--show-toplevel")), a.config)
+        meta = FLOW["steps"][a.step]
+        chosen = config["seats"].get(a.step, config["seats"][meta["seat"]])
+        builder = a.builder_vendor or config["seats"]["build"]["vendor"]
+        if a.step == "check" and config["different_vendors"] and chosen["vendor"] == builder:
+            chosen = config["other_vendor"]
+            if chosen["vendor"] == builder:
+                raise SystemExit("other_vendor must differ from the builder vendor")
+        print(json.dumps(dict(chosen, **meta, step=a.step, rules=RULES)))
+        return 0
     if not SLUG.match(a.slug):
         raise SystemExit(f"bad slug: {a.slug}")
     repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))

@@ -20,20 +20,34 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 
 ## Steps and seats
 
-| Command | Model · effort | Session | Reference |
-|---|---|---|---|
-| `jflow spec <slug>` | Opus 5.5 · high | fresh, with the human | [references/spec.md](references/spec.md) |
-| `jflow build <slug>` | Opus 5.5 · high | fresh; the **builder session**, kept for every fix | [references/build.md](references/build.md) |
-| `jflow check <slug>` | GPT-6.1 Sol · high | fresh for each check | [references/check.md](references/check.md) |
-| `jflow done <slug>` | same model, builder session | the builder session | [references/done.md](references/done.md) |
+| Command | Reference |
+|---|---|
+| `jflow spec <slug>` | [references/spec.md](references/spec.md) |
+| `jflow build <slug>` | [references/build.md](references/build.md) |
+| `jflow check <slug>` | [references/check.md](references/check.md) |
+| `jflow done <slug>` | [references/done.md](references/done.md) |
 
-Picker IDs: `claude-opus-5.5`, `gpt-6.1-sol`. To change a
-seat, edit this table.
+Run `python3 <skill>/scripts/jflow.py seat <step>` for the model, vendor, effort, fallback,
+role and session, including the closing card. Run it in the work repo, or pass `--repo DIR`.
+[flow.json](flow.json) defines the steps; [config.json](config.json) holds default seats.
+An unavailable model uses only its named fallback; null means stop.
 
-**Independence.** Check runs on a different vendor from the builder, because two sessions of one
-vendor share blind spots. With an OpenAI builder, check moves to Opus 5.5 · high. A session on the
-wrong vendor says so in its first line and in its receipt, then carries on. Measured 2026-11-04:
-Terra gave up when it had to write a driver, so this seat stays on Sol.
+**Config.** Merge complete seats from defaults, the repo's `.jflow/config.json`, then
+`--config FILE` or `$JFLOW_CONFIG`. The flag replaces the env file. Each file has
+`"schema_version": 1` and `"seats"` keyed by step. Omitted seats keep the lower layer; overrides
+supply `model`, `vendor`, `effort` and `fallback`. Fallback is null or another complete seat.
+Fix, live and accept inherit build. Bad config fails before printing a seat.
+
+**Independence.** Top-level `different_vendors` defaults to true. When build and check share a
+vendor, `seat check` returns top-level `other_vendor`, a complete seat on another vendor.
+Set `different_vendors` to false to disable this default. A wrong-vendor session says so in its
+first line and notes, then carries on. Pass `--builder-vendor V` to `seat check` for the card
+when the actual builder differs from config.
+
+**Locked rules.** Every seat prints `rules`, fixed in the script. Config may repeat them as true
+under `rules`; any other value fails. `public_paid_needs_human` requires a human for public or
+paid actions. `checker_read_only` forbids product edits by checkers. These two declare session
+policy. `no_secrets` refuses key-like config values and record arguments without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
 
@@ -90,6 +104,8 @@ checks at most, and a check that only reruns BLOCKED or WAITING rows does not co
 went in. At the cap, stop and give the human what is open.
 
 ## The closing card
+
+Read the next step with `jflow.py seat` and copy its model, effort and session into the card.
 
 Every step ends with this as the turn's last output, fence included: one line of text, then the
 message alone in its own code block, so the human can copy it. A turn waiting for the human's answer
