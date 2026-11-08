@@ -16,3 +16,11 @@
   on Python 3.9. Record/summary JSON keys match; the required prose grep finds no seat values.
   Script growth is 79 net lines; the skill is 49,932 bytes, excluding `__pycache__`.
   Removing either the config secret guard or the field-type guard fails its corresponding test.
+- Fix check-1 defect 1: match key prefixes at a boundary and scan record arguments before parsing,
+  excluding `--repo DIR` and `--repo=DIR`. Summary and seat arguments are not recorded.
+  One regression table isolates `task-list` and a long repo path across record, summary and seat.
+  It fails on the original code and when either fix is removed; secret rejection still passes.
+- The receipt's private path was replaced with a synthetic path that reproduces the same refusal.
+  No verdict or evidence result changed. Duplicate prose was pruned to keep the size budget.
+- After the fix: 137 workflow, 41 checkup and 13 jflow tests OK; all 13 jflow tests pass on Python 3.9.
+  Total script growth is 80 net lines; the skill is 49,962 bytes without `__pycache__`.

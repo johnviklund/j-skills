@@ -12,8 +12,7 @@ description: >
 
 **Spec, build, check, ship.** A fresh agent proves the change on the real thing against an answer
 key the builder did not write, then attacks what that key never asked. That evidence, not a
-discussion of the diff, decides whether the work is done. The human decides what to build, the
-builder decides how, and the checker decides whether it works.
+discussion of the diff, decides whether the work is done.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the first
 message. A question carries one decision, lettered options and a ➡️ recommended option first.
@@ -27,27 +26,24 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 | `jflow check <slug>` | [references/check.md](references/check.md) |
 | `jflow done <slug>` | [references/done.md](references/done.md) |
 
-Run `python3 <skill>/scripts/jflow.py seat <step>` for the model, vendor, effort, fallback,
-role and session, including the closing card. Run it in the work repo, or pass `--repo DIR`.
-[flow.json](flow.json) defines the steps; [config.json](config.json) holds default seats.
-An unavailable model uses only its named fallback; null means stop.
+Run `python3 <skill>/scripts/jflow.py seat <step>` and copy its assignment into each card.
+[flow.json](flow.json) lists steps; [config.json](config.json) holds defaults.
+Use only named fallbacks; null means stop.
 
-**Config.** Merge complete seats from defaults, the repo's `.jflow/config.json`, then
-`--config FILE` or `$JFLOW_CONFIG`. The flag replaces the env file. Each file has
-`"schema_version": 1` and `"seats"` keyed by step. Omitted seats keep the lower layer; overrides
-supply `model`, `vendor`, `effort` and `fallback`. Fallback is null or another complete seat.
-Fix, live and accept inherit build. Bad config fails before printing a seat.
+**Config.** Merge defaults, `.jflow/config.json`, then `--config FILE` or `$JFLOW_CONFIG`,
+seat by seat. The flag replaces the env file. Files have `"schema_version": 1` and `"seats"`
+keyed by step. Overrides supply `model`, `vendor`, `effort` and `fallback`, null or a complete
+seat. Fix, live and accept inherit build.
 
-**Independence.** Top-level `different_vendors` defaults to true. When build and check share a
-vendor, `seat check` returns top-level `other_vendor`, a complete seat on another vendor.
-Set `different_vendors` to false to disable this default. A wrong-vendor session says so in its
-first line and notes, then carries on. Pass `--builder-vendor V` to `seat check` for the card
-when the actual builder differs from config.
+**Independence.** Top-level `different_vendors` defaults true; matching build/check vendors
+select `other_vendor`, a complete seat on another vendor. False disables this default.
+A wrong-vendor session says so in its first line and notes, then continues.
+Its check card uses `--builder-vendor V`.
 
-**Locked rules.** Every seat prints `rules`, fixed in the script. Config may repeat them as true
-under `rules`; any other value fails. `public_paid_needs_human` requires a human for public or
-paid actions. `checker_read_only` forbids product edits by checkers. These two declare session
-policy. `no_secrets` refuses key-like config values and record arguments without echoing them.
+**Locked rules.** Seats print fixed `rules`; config may repeat them as true.
+`public_paid_needs_human` requires a human for public or paid actions; `checker_read_only`
+forbids product edits by checkers. Both declare session policy. `no_secrets` rejects key-like
+config values and recorded arguments without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
 
@@ -67,8 +63,7 @@ Tracked in git. A separate root from `.workflow/`, so no other skill's state or 
   run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
 ```
 
-Commit only these files. Raw output goes to a temp folder: measured 2026-11-05, committed evidence
-was 5,769 of the 6,850 lines one run added.
+Commit only these files. Raw output goes to a temp folder.
 
 `spec.md` is the answer key. Only `jflow spec`, with the human's confirmation, changes it, and
 every row then runs again.
@@ -104,8 +99,6 @@ checks at most, and a check that only reruns BLOCKED or WAITING rows does not co
 went in. At the cap, stop and give the human what is open.
 
 ## The closing card
-
-Read the next step with `jflow.py seat` and copy its model, effort and session into the card.
 
 Every step ends with this as the turn's last output, fence included: one line of text, then the
 message alone in its own code block, so the human can copy it. A turn waiting for the human's answer

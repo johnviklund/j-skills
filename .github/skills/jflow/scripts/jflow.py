@@ -35,8 +35,8 @@ def secret(value):
         return any(secret(k) or secret(v) for k, v in value.items())
     if isinstance(value, (list, tuple)):
         return any(secret(v) for v in value)
-    # Known key prefixes, or 40 uninterrupted token characters, are never seat identifiers.
-    return isinstance(value, str) and bool(re.search(r"sk-ant-|sk-[A-Za-z0-9]|gh[pousr]_|AKIA|[A-Za-z0-9_+/=]{40,}", value))
+    # Key prefixes and 40-character tokens are not seat identifiers.
+    return isinstance(value, str) and bool(re.search(r"(?<![\w-])(?:sk-ant-|sk-[A-Za-z0-9]|gh[pousr]_|AKIA)|[A-Za-z0-9_+/=]{40,}", value))
 
 
 def seats(repo, explicit):
@@ -77,9 +77,8 @@ def seats(repo, explicit):
                         pending.append(seat["fallback"])
             config.setdefault("seats", {}).update(entries)
             config.update({k: v for k, v in data.items() if k != "seats"})
-        except (OSError, ValueError, RecursionError):
-            # JSON decoder messages can quote a credential; only our fixed validation messages are safe.
-            error = sys.exc_info()[1]
+        except (OSError, ValueError, RecursionError) as error:
+            # Decoder errors may contain secrets.
             message = str(error) if type(error) is ValueError else "cannot read valid config JSON"
             raise SystemExit(f"{path}: {message}")
     return config
@@ -190,7 +189,9 @@ def line(s):
 
 
 def main(argv=None):
-    if secret(argv if argv is not None else sys.argv[1:]):
+    args = argv if argv is not None else sys.argv[1:]
+    values = [v for i, v in enumerate(args) if not v.startswith("--repo=") and (not i or args[i - 1] != "--repo")]
+    if args and args[0] == "record" and secret(values):
         raise SystemExit("secret-like argument refused")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -233,7 +234,7 @@ def main(argv=None):
         s = summary(repo, run)
         print(json.dumps(s) if a.json else line(s))
         return 0
-    skill = Path(__file__).resolve().parents[1] / "SKILL.md"
+    skill = SKILL / "SKILL.md"
     entry = {"v": 1, "step": a.step, "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
              "sha": git(repo, "rev-parse", "HEAD"), "model": a.model, "effort": a.effort,
              "session": (a.session or "builder") if a.step in BUILDER_STEPS else "fresh",
