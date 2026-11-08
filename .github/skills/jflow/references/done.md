@@ -37,9 +37,10 @@ Runs in the builder session after the last check.
    an attack never does. Move no code. For each verb the human kept at step 2, add one `TODO.md`
    line that names the verb, the commit that holds the script, and `verify.maintain` as the command
    that adds it to the repo's `control` CLI. After the deletion, a receipt's quoted `drive.py`
-   command reruns at that receipt's sha:
-   `git show <sha>:.jflow/<slug>/drive.py > <temp folder>/drive.py`, then the quoted command on
-   that copy.
+   command reruns on the driver committed with that receipt. The receipt's header sha names the
+   code it tested, and a first check commits its driver later, so take the receipt's own commit:
+   `git show $(git log -1 --format=%H -- <receipt>):.jflow/<slug>/drive.py > <temp folder>/drive.py`,
+   then run the quoted command on that copy.
 7. When the human corrected you during this run, invoke `memory.remember` for that correction.
    Nothing else becomes a lesson.
 8. Commit. Push the current branch; when the repo has no pre-push secret scan, first run
