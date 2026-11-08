@@ -1,5 +1,5 @@
 # jflow-config
-Status: ready
+Status: done
 Base: bc5d3cb
 
 ## Problem

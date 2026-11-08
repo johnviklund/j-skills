@@ -215,6 +215,11 @@ the bar stays as written.
 Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
 see that again. The record is `.jflow/<slug>/`.
 
+Seats come from JSON. Run `python3 .github/skills/jflow/scripts/jflow.py seat build` to see the
+resolved assignment. Defaults live in [jflow/config.json](.github/skills/jflow/config.json).
+The repo's `.jflow/config.json` overrides complete seats; `--config FILE` or `$JFLOW_CONFIG`
+overrides that. See the [jflow skill](.github/skills/jflow/SKILL.md) for the schema and vendor rule.
+
 ### workflow
 
 Use it for any coding task bigger than a quick fix.

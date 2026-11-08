@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated: 2026-11-07. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
+Updated: 2026-11-08. This repo holds the `j-skills` skills (`workflow`, `checkup`, `evals`,
 `memory.remember`, `memory.compact`, `agent-docs`, `plain`, `retro`, `understand`, `verify`,
 `design`).
 Undecided intake lives in `TODO.md`; what shipped lives in `WORKLOG.md` and git.
@@ -20,11 +20,11 @@ not write, then attacking what that key never asked, catches what review catches
 
 **The skill.** `jflow`, in `.github/skills/jflow/`, with a hub of at most ~8 KB.
 
-| Step | Seat model | Job | Output |
+| Step | Seat | Job | Output |
 |---|---|---|---|
-| `jflow spec <slug>` | Opus 5.5, with the human | Grill the what, never the how | `spec.md`, about one page |
-| `jflow build <slug>` | Opus 5.5 | One session builds it all; no plan phase, no tickets | Commits and a few lines of judgement calls |
-| `jflow check <slug>` | GPT-6.1 Sol, high | Fresh context runs the Proof table on the real app, then attacks what it never asked | PROVED, BROKEN, BLOCKED or UNREACHABLE per row, plus defects with a failing input, in one receipt |
+| `jflow spec <slug>` | From config, with the human | Grill the what, never the how | `spec.md`, about one page |
+| `jflow build <slug>` | From config | One session builds it all; no plan phase, no tickets | Commits and a few lines of judgement calls |
+| `jflow check <slug>` | From config | Fresh context runs the Proof table on the real app, then attacks what it never asked | PROVED, BROKEN, BLOCKED or UNREACHABLE per row, plus defects with a failing input, in one receipt |
 
 - **Spec:** problem, goals, non-goals, constraints with "ask first" boundaries, Proof table. A line
   belongs only if the human would object to the builder choosing differently. Facts are looked up,
@@ -36,11 +36,11 @@ not write, then attacking what that key never asked, catches what review catches
 - **Fixes:** BROKEN rows and defects go back to the same builder session together, three checks at
   most. If that session is gone, a new one gets the branch and the open items.
 - **Defects** need a failing input. Maybes go to the human and nobody fixes them.
-- **Writer and checker** stay on different vendors. With an OpenAI builder, check moves to Opus 5.5.
+- **Writer and checker** default to different vendors; JSON config supplies seats and this policy.
 - **Record:** `.jflow/<slug>/` holds the spec and receipts, outside the `.workflow/` run hook, plus
   a worklog entry of about five lines. Lessons only when the human corrected the agent.
 - **Any CLI:** every step is a plain message and a fresh session works anywhere. The skill keeps
-  its own small seat table and calls no `workflow` script.
+  `flow.json` and layered seat config and calls no `workflow` script.
 
 **Not in the path:** plan phase, tickets, patch plans, mutation findings, guard-failing findings,
 test-ratio gates, `decisions.md`, per-phase learnings. Mutation and formal checks stay tools a spec

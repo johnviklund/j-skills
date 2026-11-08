@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-08 · jflow-config · JSON seats and flow metadata for jflow · GPT-6.1 Sol
+- Seat lookup merges defaults, repo and explicit config, applies the vendor default and prints locked rules. Config and record model/effort values reject key-like data.
+- Commits: e08114c f376c4b 1a8708a 832708f 1f0389c
+- jflow: 7 sessions · 4 fix rounds · 10 rows · 0 accepted · check 4 defects · net code +83 · tests +101 · docs +11
+
 ## 2026-11-08 · drive-py-at-done · jflow deletes a run's drive.py at done · Claude Opus 5.5
 - Done step 6 removes the checker's one-off driver with `git rm`; a reusable verb becomes one `TODO.md` line for `verify.maintain`, and a receipt's driver reruns from the receipt's own commit.
 - Commits: 61860aa 04beb5f 1ddb4aa 651c81f c193232
@@ -129,13 +134,3 @@ oldest when appending would exceed that.
 - Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@b222ba534b11, checkup@a9b74b6e2ae5
 - Why: checkup ended in a summary with no way to act on it, and a copied action had no tested path.
-
-## 2026-10-23 · run-ratio-and-retire · check-run judges test growth once per run · GPT-6.1 Sol
-- `check-run.py` errors when tests net exceed 1.5× code added across the whole run, checked once every ticket is done; `Ratio waived: run — <reason>` turns it into a warning. The per-ticket ratio is now a warning. `checkup` reports test growth next to code growth and points at `workflow improve` when tests outgrow code.
-- Replaying the new gate over P1's 26 runs flags one (`live-run-guardrails`). Review cycle 1 found the gate skipped plans whose done status carries a note after the sha (6 such plans in work-repo); fixed with a red test first. Three P3s deferred.
-- Commits: 577a33a b8c24ce 40f9e4f
-- Review: ship as-is (cycle 2, 0 open) @ 52e7b3b
-- Run: 3 tickets · 2 sessions · 2 review cycles · 2 deviations · 0 findings overturned · net code +16 · tests +1
-- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@e712b74ba5ce
-- Why: 7 of 16 per-ticket ratio hits were false and absorbed by waivers while nothing judged growth at run level.

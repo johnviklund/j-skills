@@ -53,3 +53,17 @@
   name, both other names in check-4, and the long underscore name from check-3.
 - Verification after fix 4: 137 workflow, 41 checkup and 13 jflow tests OK; all 13 also pass on
   Python 3.9. Script growth is 83 net lines; the skill is 49,905 bytes. Diff and skill checks pass.
+
+- Closing preparation: all 10 rows are PROVED at the last check, with no code change since it.
+  The driver contains fixture checks already covered by unit tests, so no reusable control verb remains.
+  The done commit removes it and closes the corresponding TODO confirmation.
+- Publication hygiene: a private path in an unpushed receipt revision was replaced with its synthetic
+  equivalent before publication. Code is unchanged in every rewritten revision; embedded commit
+  references were updated and resolve. The unsanitized history remains only in a local backup ref.
+- memory.remember routed the human's field-scoping correction to its existing owners: jflow's
+  locked-rule instructions, parser validators and tests. No duplicate memory page was added.
+- Closing decision: the human chose "A. Keep existing behavior and finish" for check-5's
+  parser-error Maybe. Unsupported flags and invalid session values may echo on stderr; nothing
+  is recorded. The model/effort validators stay. This is a kept limitation, not an open defect.
+- Final verification: 137 workflow tests OK, 41 checkup tests OK, 13 jflow tests OK. The code is
+  unchanged since the proved commit; the completed full-suite run is reused for these closing docs.

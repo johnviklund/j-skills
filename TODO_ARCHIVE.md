@@ -1,5 +1,7 @@
 # TODO archive
 
+- `drive-py-at-done`: On the next run that reaches `done` with a `drive.py`, confirm the done commit deletes it and any reusable verb is one `TODO.md` line. — done 2026-11-08 · jflow-config
+
 - `check-run.py`: `check_worklog` reads only a repo-root `WORKLOG.md`; this repo's worklog is `.github/skills/workflow/WORKLOG.md`, so a done run errors "no entry" (seen at run-sizing wrap). — archived 2026-10-18 · 9974505 (growth-ratchets T2 moved the worklog to the root)
 - growth-ratchets C1-2 (P2, 2026-10-18) — the execute doc dropped two rules to stay at net zero lines; restore them and measure doc growth in words. — archived 2026-10-18 · e478a17 (guard-keys T1)
 - `check-run.py`: retire the date gates (`SLOP_SINCE`, `SIZING_SINCE`, `LEAN_SINCE`, `GROWTH_SINCE`) and their legacy branches; check only runs not yet done (2026-10-18). — archived 2026-10-18 · moved to workflow ROADMAP.md step 2 (`retire-date-gates`)
