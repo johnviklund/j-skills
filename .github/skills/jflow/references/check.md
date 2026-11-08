@@ -58,18 +58,22 @@ the human; nobody fixes those. No defects is a valid result.
 ## Write `receipts/check-N.md`
 
 One number up from the last receipt. Use this template exactly, with no added sections: a limit on
-the check goes in Maybes. Evidence is the command and the output that matters, quoted here, because
-a temp path is gone after this session. Done when every row has a verdict and evidence, and every
-defect has its input and evidence.
+the check goes in Maybes. Each Evidence cell holds at most 240 characters: the command plus the one
+output line that decides the verdict. A BROKEN row cites its defect number instead of repeating
+the evidence. Number defects; each defect's `Evidence:` part also holds at most 240 characters.
+Quote a command that reruns as written, so a reader can get the rest; raw output stays in the temp
+folder. Done when every row has a verdict and evidence, every defect has its input and evidence,
+and both evidence caps hold.
 
 ```markdown
 # check-N @ <sha> · <model and effort from the card, or unknown>
 | # | Verdict | Evidence |
 |---|---|---|
-| 1 | PROVED | `<command>` → <observed> |
+| 1 | PROVED | `<command>` → <decisive output line; at most 240 characters for the whole cell> |
+| 2 | BROKEN | defect 1 |
 
 ## Defects
-- <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: run | traced, <output>
+- 1. <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line; at most 240 characters after Evidence:>
 
 ## Maybes
 - <none, or for the human only>
