@@ -220,7 +220,7 @@ class RunRecord(unittest.TestCase):
                 if expected == "fix":
                     self.assertEqual(n["command"], "Fix .jflow/demo/receipts/check-1.md, then print the card.")
                     card = self.jflow("next", "demo").splitlines()
-                    self.assertEqual(card, ["Model: claude-opus-5.5 · medium. Session: builder session.", "",
+                    self.assertEqual(card, ["Model: claude-opus-5-5 · medium. Session: builder session.", "",
                                             "```text", n["command"], "```"])
         self.assertIsNone(self.next()["command"])
         self.assertEqual(json.loads(self.jflow("next", "nothing-yet", "--json"))["step"], "spec")

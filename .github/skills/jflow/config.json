@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "seats": {
-    "spec": {"model": "claude-opus-5.5", "vendor": "anthropic", "effort": "medium", "fallback": null},
-    "build": {"model": "claude-opus-5.5", "vendor": "anthropic", "effort": "medium", "fallback": null},
-    "done": {"model": "claude-opus-5.5", "vendor": "anthropic", "effort": "medium", "fallback": null},
+    "spec": {"model": "claude-opus-5-5", "vendor": "anthropic", "effort": "medium", "fallback": null},
+    "build": {"model": "claude-opus-5-5", "vendor": "anthropic", "effort": "medium", "fallback": null},
+    "done": {"model": "claude-opus-5-5", "vendor": "anthropic", "effort": "medium", "fallback": null},
     "check": {
       "model": "gpt-6.1-sol", "vendor": "openai", "effort": "high",
       "fallback": {"model": "gpt-6-astra", "vendor": "openai", "effort": "high", "fallback": null}
     }
   },
   "different_vendors": true,
-  "other_vendor": {"model": "claude-opus-5.5", "vendor": "anthropic", "effort": "high", "fallback": null}
+  "other_vendor": {"model": "claude-opus-5-5", "vendor": "anthropic", "effort": "high", "fallback": null}
 }
