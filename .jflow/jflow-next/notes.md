@@ -1,5 +1,9 @@
 # jflow-next notes
 
+Checks allowed: 4
+
+- The human allows one more fix-and-check round after check-3, on 2026-11-09.
+
 - A human stop returns `step: "human"`, as row 2's pass signal lists it, with `model`, `command`
   and `session` null. No seat belongs to a human.
 - The cap applies before `fix`, and before `check` only when code changed since the newest receipt.
