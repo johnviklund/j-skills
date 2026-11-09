@@ -18,3 +18,5 @@
   whole-line `- none`, `- none.` or `- <none ...>`. That bullet's test case replaced the plain Maybes
   case, which keeps test growth at the script's net +27. The spec's `slow on big repos` Maybe stays
   covered by the `Yes: done` case.
+
+Yes: done · "option A" · 2026-11-09
