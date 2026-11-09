@@ -75,7 +75,11 @@ shows what was missed. An accepted item is no longer open.
 ```markdown
 ## Accepted
 - Row 3 · 254 of 300 against a bar of 255 · "<the human's words>" · <date> · <sha it applies to>
+- Defect 2 · <the miss> · "<the human's words>" · <date> · <sha it applies to>
 ```
+
+`next` closes an item only when its line starts with `Row N` or `Defect N` and ends with the
+newest receipt's sha.
 
 ## The next step
 

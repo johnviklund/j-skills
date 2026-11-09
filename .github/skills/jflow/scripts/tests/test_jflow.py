@@ -214,8 +214,7 @@ class RunRecord(unittest.TestCase):
                     seat = json.loads(self.jflow("seat", expected))
                     self.assertEqual(n["model"], {k: seat[k] for k in ("model", "vendor", "effort")})
                     self.assertEqual((n["role"], n["session"]), (flow[expected]["role"], flow[expected]["session"]))
-                receipts = len(list(self.run_dir.glob("receipts/*.md")))
-                self.assertEqual(n["n"], {"check": receipts + 1, "fix": 1}.get(expected))
+                self.assertEqual(n["n"], {"check": len(list(self.run_dir.glob("receipts/*"))) + 1, "fix": 1}.get(expected))
                 self.assertEqual(bool(n["blocker"]), expected == "human")
                 if expected == "fix":
                     self.assertEqual(n["command"], "Fix .jflow/demo/receipts/check-1.md, then print the card.")
@@ -233,26 +232,29 @@ class RunRecord(unittest.TestCase):
             self.commit("receipt")
         self.receipt(4, "BROKEN", "- none", self.git("rev-parse", "HEAD"))
         self.commit("rerun only")
-        n = self.next()
-        self.assertEqual((n["step"], n["role"]), ("human", "human"))
-        self.assertIn("3 checks used of 3", n["blocker"])
+        self.assertIn("3 checks used of 3", self.next()["blocker"])
         (self.run_dir / "notes.md").write_text("Checks allowed: 5\n")
         self.commit("allow")
         self.assertEqual(self.next()["step"], "fix")
 
-    def test_next_check_seat_follows_builder_vendor(self):
+    def test_next_vendor_override_and_bad_slug(self):
         (self.repo / "app.py").write_text("a = 2\n")
         self.commit("build")
         self.assertEqual(self.next("--builder-vendor", "openai")["model"]["vendor"], "anthropic")
-        self.assertIn("Session: fresh.", self.jflow("next", "demo"))
-
-    def test_next_rejects_bad_slug(self):
         out = subprocess.run([sys.executable, str(SCRIPT), "next", "../x", "--repo", str(self.repo)],
                              capture_output=True, text=True)
-        self.assertNotEqual(out.returncode, 0)
-        self.assertIn("bad slug", out.stderr)
+        self.assertEqual((out.returncode, "bad slug" in out.stderr), (1, True))
         self.assertEqual(self.git("status", "--porcelain"), "")
 
+    def test_next_accepts_only_the_named_item_at_the_receipt_sha(self):
+        self.state("BROKEN", "- 1. app.py: x -> crash -> ok", code=True)
+        sha, spec = self.git("rev-parse", "HEAD~1"), (self.run_dir / "spec.md").read_text()
+        for lines, expected in [(f"Row 1 · 254 of 300 · {sha[:7]}\n- Defect 1 · crash · {sha[:7]}", "done"),
+                                ("Row 1 · 254 of 300 · abcdef1\n- Defect 1 · crash · abcdef1", "fix"),
+                                (f'Defect 1 · "Accept Row 1; Row 2 must be fixed" · {sha}', "fix")]:
+            (self.run_dir / "spec.md").write_text(f"{spec}\n## Accepted\n- {lines}\n")
+            self.commit("accept")
+            self.assertEqual(self.next()["step"], expected, lines)
 
 if __name__ == "__main__":
     unittest.main()

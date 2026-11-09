@@ -230,11 +230,14 @@ def next_step(repo, run, a):
         why = "code changed since the newest receipt" if newest else "no check receipt yet"
     else:
         text = receipts_of(run)[-1].read_text(encoding="utf-8")
-        accepted = " ".join(section(spec, "Accepted"))
+        # An acceptance names its item first and the receipt sha it applies to last.
+        accepted = {m.group(1, 2) for m in (re.match(r"- (Row|Defect) (\d+) ·.*· ([0-9a-f]{7,40})\s*$", l)
+                                            for l in section(spec, "Accepted"))
+                    if m and newest["sha"] and (m.group(3).startswith(newest["sha"]) or newest["sha"].startswith(m.group(3)))}
         rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
-                if not re.search(rf"\bRow {r}\b", accepted)]
+                if ("Row", r) not in accepted]
         defects = [d for d in section(text, "Defects")
-                   if not re.search(r"\bDefect %s\b" % (re.findall(r"\d+", d) or ["?"])[0], accepted)]
+                   if ("Defect", (re.findall(r"\d+", d) or ["?"])[0]) not in accepted]
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
         if any(v == "BROKEN" for _, v in rows) or defects:
