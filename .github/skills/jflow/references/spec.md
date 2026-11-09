@@ -65,8 +65,8 @@ A surface that does not exist yet counts as `red`. Keep any throwaway files out 
 ## 5. Play it back and write
 
 Show the human the spec in chat and wait for an explicit yes. Then write `spec.md`, about one page,
-from this exact template, commit it, and print the card. Done when the spec is committed with
-`Status: ready`, and every row has a `Base` result.
+from this exact template, commit it, then run `jflow.py next <slug>` and print its card. Done when
+the spec is committed with `Status: ready`, and every row has a `Base` result.
 
 ```markdown
 # <slug>

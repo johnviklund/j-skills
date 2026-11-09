@@ -171,6 +171,88 @@ class RunRecord(unittest.TestCase):
                 self.assertIn("jflow:", self.jflow("summary", slug))
                 self.assertEqual(json.loads(self.jflow("seat", "build"))["role"], "builder")
 
+    def next(self, *args):
+        return json.loads(self.jflow("next", "demo", "--json", *args))
+
+    def state(self, v1, defects="- none", code=False):
+        if code:
+            (self.repo / "app.py").write_text(self.git("rev-parse", "HEAD") + "\n")
+            self.commit("code")
+        self.receipt(1, v1, defects, self.git("rev-parse", "HEAD"))
+        self.commit("receipt")
+
+    def test_next_follows_every_state(self):
+        spec = self.run_dir / "spec.md"
+        flow = json.loads((SCRIPT.parents[1] / "flow.json").read_text())["steps"]
+        notes = self.run_dir / "notes.md"
+        steps = [
+            (lambda: None, "build"),
+            (lambda: spec.write_text(spec.read_text().replace("ready", "drafting")), "spec"),
+            (lambda: spec.write_text(spec.read_text().replace("drafting", "ready")), "build"),
+            (lambda: self.state("PROVED", code=True) or (self.run_dir / "receipts/check-1.md").unlink(), "check"),
+            (lambda: self.state("BROKEN"), "fix"),
+            (lambda: self.state("PROVED", "- 1. app.py: x -> crash -> ok"), "fix"),
+            (lambda: self.state("BLOCKED"), "human"),
+            (lambda: self.state("UNREACHABLE"), "human"),
+            (lambda: self.state("WAITING"), "live"),
+            (lambda: notes.write_text("Live done: 2026-11-09\n"), "check"),
+            (lambda: self.state("PROVED"), "done"),
+            (lambda: notes.write_text("only .jflow changed\n"), "done"),
+            (lambda: (self.repo / "app.py").write_text("a = 9\n"), "check"),
+            (lambda: spec.write_text(spec.read_text().replace("ready", "done")), None),
+        ]
+        for change, expected in steps:
+            change()
+            self.git("add", "-A")
+            self.git("commit", "-qm", "state", "--allow-empty")
+            with self.subTest(expected=expected):
+                n = self.next()
+                self.assertEqual(set(n), {"schema_version", "slug", "step", "n", "role", "model", "command",
+                                          "session", "blocker", "why"})
+                self.assertEqual(n["step"], expected)
+                if expected in flow:
+                    seat = json.loads(self.jflow("seat", expected))
+                    self.assertEqual(n["model"], {k: seat[k] for k in ("model", "vendor", "effort")})
+                    self.assertEqual((n["role"], n["session"]), (flow[expected]["role"], flow[expected]["session"]))
+                receipts = len(list(self.run_dir.glob("receipts/*.md")))
+                self.assertEqual(n["n"], {"check": receipts + 1, "fix": 1}.get(expected))
+                self.assertEqual(bool(n["blocker"]), expected == "human")
+                if expected == "fix":
+                    self.assertEqual(n["command"], "Fix .jflow/demo/receipts/check-1.md, then print the card.")
+                    card = self.jflow("next", "demo").splitlines()
+                    self.assertEqual(card, ["Model: claude-opus-5.5 · medium. Session: builder session.", "",
+                                            "```text", n["command"], "```"])
+        self.assertIsNone(self.next()["command"])
+        self.assertEqual(json.loads(self.jflow("next", "nothing-yet", "--json"))["step"], "spec")
+
+    def test_next_stops_at_the_check_cap(self):
+        for k in range(1, 4):
+            (self.repo / "app.py").write_text(f"a = {k + 1}\n")
+            self.commit("code")
+            self.receipt(k, "BROKEN", "- none", self.git("rev-parse", "HEAD"))
+            self.commit("receipt")
+        self.receipt(4, "BROKEN", "- none", self.git("rev-parse", "HEAD"))
+        self.commit("rerun only")
+        n = self.next()
+        self.assertEqual((n["step"], n["role"]), ("human", "human"))
+        self.assertIn("3 checks used of 3", n["blocker"])
+        (self.run_dir / "notes.md").write_text("Checks allowed: 5\n")
+        self.commit("allow")
+        self.assertEqual(self.next()["step"], "fix")
+
+    def test_next_check_seat_follows_builder_vendor(self):
+        (self.repo / "app.py").write_text("a = 2\n")
+        self.commit("build")
+        self.assertEqual(self.next("--builder-vendor", "openai")["model"]["vendor"], "anthropic")
+        self.assertIn("Session: fresh.", self.jflow("next", "demo"))
+
+    def test_next_rejects_bad_slug(self):
+        out = subprocess.run([sys.executable, str(SCRIPT), "next", "../x", "--repo", str(self.repo)],
+                             capture_output=True, text=True)
+        self.assertNotEqual(out.returncode, 0)
+        self.assertIn("bad slug", out.stderr)
+        self.assertEqual(self.git("status", "--porcelain"), "")
+
 
 if __name__ == "__main__":
     unittest.main()

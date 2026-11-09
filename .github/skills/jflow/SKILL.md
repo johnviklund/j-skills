@@ -77,30 +77,23 @@ shows what was missed. An accepted item is no longer open.
 - Row 3 · 254 of 300 against a bar of 255 · "<the human's words>" · <date> · <sha it applies to>
 ```
 
-## What is next
+## The next step
 
-Bare `jflow <slug>` reads the run folder and prints the card for the first row that holds.
-
-| State | Next |
-|---|---|
-| no `spec.md`, or `Status: drafting` | `jflow spec` |
-| `Status: ready`, no commit since `Base` | `jflow build` |
-| code changed since the newest check receipt's sha, or no receipt yet | `jflow check` |
-| newest check receipt has BROKEN rows or defects still open | back to the builder session with that receipt |
-| newest check receipt has BLOCKED or UNREACHABLE rows still open | the human decides, per `references/check.md` |
-| newest check receipt has WAITING rows, and `notes.md` has no `Live done:` line | the builder session runs the live steps, per `references/build.md` |
-| newest check receipt has WAITING rows | `jflow check` |
-| otherwise | `jflow done` |
-| `Status: done` | nothing; say so |
+`python3 <skill>/scripts/jflow.py next <slug>` reads the run folder and git and prints the closing
+card for the next step. With `--json` it prints the same decision for a driver: `step`, `n`, `role`,
+`model`, `command`, `session`, `blocker` and `why`. Bare `jflow <slug>` prints that card. A stop for
+the human has `role: "human"` and a `blocker`; tell the human what it says. Pass `--builder-vendor V`
+as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
 checks at most, and a check that only reruns BLOCKED or WAITING rows does not count, since no fix
-went in. At the cap, stop and give the human what is open.
+went in. At the cap, stop and give the human what is open. A `Checks allowed: N` line in
+`notes.md` raises the cap to N, when the human allows more.
 
 ## The closing card
 
-End each step with this exact card, message alone in its code block. When waiting for the human,
-end on the question.
+End each step, after its commit, by running `jflow.py next <slug>` and printing its card as it
+stands. When waiting for the human, end on the question. The card has this shape:
 
 ````markdown
 Model: <model · effort>. Session: <fresh | builder session>.
@@ -109,9 +102,6 @@ Model: <model · effort>. Session: <fresh | builder session>.
 <exact message to send>
 ```
 ````
-
-The session running `jflow check` gives the builder the receipt path in the message:
-`Fix .jflow/<slug>/receipts/check-2.md, then print the card.`
 
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.

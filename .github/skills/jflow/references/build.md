@@ -29,18 +29,18 @@ With a `Gate:` in the spec, stop short of the gate: the checker needs the state 
 and a bug found before it still has a way back. Rows of Kind `live` wait.
 
 Done when the rows still pass, the tree is clean and everything is committed. Print one line with
-the code and test lines added, then the card for `jflow check`.
+the code and test lines added, then run `jflow.py next <slug>` and print its card.
 
 ## Live steps
 
-The hub's table sends you here once a check has left only WAITING rows. Run the steps from the gate
+`jflow.py next` sends you here once a check has left only WAITING rows. Run the steps from the gate
 on, each **Ask first** item with the human's yes. Add `Live done: <date>` and what happened to
 `notes.md`, and record the step as `live`. Done when every step has run and that line is committed.
-Print the card for `jflow check`.
+Run `jflow.py next <slug>` and print its card.
 
 ## Fix
 
 A receipt comes back with BROKEN rows or defects. Fix the cause, in one design when several
 items share it, and rerun the row or the failing input. Reporting a wrong finding is part of the
 job: when the input does not fail, answer with the command and its output and leave the code as it
-is. Record the step as `fix`, commit, then print the card for the next check.
+is. Record the step as `fix`, commit, then run `jflow.py next <slug>` and print its card.

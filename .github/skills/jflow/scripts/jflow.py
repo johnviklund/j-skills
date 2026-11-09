@@ -4,6 +4,7 @@
   jflow.py record <slug> <step> --model M --effort E [--session fresh|builder] [--repo DIR]
   jflow.py summary <slug> [--repo DIR] [--json]
   jflow.py seat <step> [--repo DIR] [--config FILE] [--builder-vendor V]
+  jflow.py next <slug> [--repo DIR] [--config FILE] [--builder-vendor V] [--json]
 
 Standard library only, Python 3.8+. Readers ignore keys and steps they do not know, so drivers
 such as a conductor may append their own lines, for example a step "decision".
@@ -89,6 +90,18 @@ def seats(repo, explicit):
             message = str(error) if type(error) is ValueError else "cannot read valid config JSON"
             raise SystemExit(f"{path}: {message}")
     return config
+
+
+def seat_for(repo, step, a):
+    config = seats(repo, a.config)
+    meta = FLOW["steps"][step]
+    chosen = config["seats"].get(step, config["seats"][meta["seat"]])
+    builder = a.builder_vendor or config["seats"]["build"]["vendor"]
+    if step == "check" and config["different_vendors"] and chosen["vendor"] == builder:
+        chosen = config["other_vendor"]
+        if chosen["vendor"] == builder:
+            raise SystemExit("other_vendor must differ from the builder vendor")
+    return dict(chosen, **meta, step=step, rules=RULES)
 
 
 def git(repo, *args):
@@ -195,6 +208,78 @@ def line(s):
             f" · {check} · net code {s['net_code']:+d} · tests {s['tests']:+d} · docs {s['docs']:+d}")
 
 
+def next_step(repo, run, a):
+    """The hub's state table: the first state that holds decides the next step."""
+    slug = run.name
+    spec = (run / "spec.md").read_text(encoding="utf-8") if (run / "spec.md").exists() else ""
+    status = re.search(r"^Status:\s*(\w+)", spec, re.M)
+    status = status.group(1) if status else None
+    base = re.search(r"^Base:\s*(\S+)", spec, re.M)
+    notes = (run / "notes.md").read_text(encoding="utf-8") if (run / "notes.md").exists() else ""
+    receipts = [receipt_fields(p) for p in receipts_of(run)]
+    newest = receipts[-1] if receipts else None
+    step, blocker, n = None, None, None
+    if status == "done":
+        why = "spec.md says Status: done"
+    elif status != "ready" or not base:
+        step, why = "spec", "no spec.md, or it is not ready"
+    elif not receipts and changed(repo, base.group(1), "HEAD") is False:
+        step, why = "build", "no code commit since Base"
+    elif not newest or changed(repo, newest["sha"], "HEAD") is not False:
+        step, n = "check", len(receipts) + 1
+        why = "code changed since the newest receipt" if newest else "no check receipt yet"
+    else:
+        text = receipts_of(run)[-1].read_text(encoding="utf-8")
+        accepted = " ".join(section(spec, "Accepted"))
+        rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
+                if not re.search(rf"\bRow {r}\b", accepted)]
+        defects = [d for d in section(text, "Defects")
+                   if not re.search(r"\bDefect %s\b" % (re.findall(r"\d+", d) or ["?"])[0], accepted)]
+        stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
+        name = f"check-{newest['n']}"
+        if any(v == "BROKEN" for _, v in rows) or defects:
+            step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
+        elif stuck:
+            blocker = f"{name}: {', '.join(stuck)}; decide per references/check.md"
+            why = f"{name} has rows no fix can reach"
+        elif any(v == "WAITING" for _, v in rows) and not re.search(r"^Live done:", notes, re.M):
+            step, why = "live", f"{name} has WAITING rows and notes.md has no Live done: line"
+        elif any(v == "WAITING" for _, v in rows):
+            step, n, why = "check", len(receipts) + 1, "live steps done; WAITING rows need a check"
+        else:
+            step, why = "done", f"{name} has every row proved"
+    # Cap: a check counts when code changed since the receipt before it, or Base.
+    shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
+    counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
+    allowed = re.search(r"^Checks allowed:\s*(\d+)", notes, re.M)
+    allowed = int(allowed.group(1)) if allowed else 3
+    if counted >= allowed and (step == "fix" or step == "check" and newest
+                               and changed(repo, newest["sha"], "HEAD") is not False):
+        blocker = f"{counted} checks used of {allowed} and {step} is next; add Checks allowed: N to notes.md, or stop"
+        why, step, n = f"check cap reached before {step}", None, None
+    if blocker:
+        step = "human"
+    meta = FLOW["steps"].get(step, {})
+    seat = seat_for(repo, step, a) if meta else None
+    command = {"spec": f"jflow spec {slug}", "build": f"jflow build {slug}", "check": f"jflow check {slug}",
+               "fix": f"Fix .jflow/{slug}/receipts/check-{n}.md, then print the card.",
+               "live": f"Run the live steps of jflow build {slug}, then print the card.",
+               "done": f"jflow done {slug}"}.get(step)
+    return {"schema_version": 1, "slug": slug, "step": step, "n": n, "role": "human" if blocker else meta.get("role"),
+            "model": {k: seat[k] for k in ("model", "vendor", "effort")} if seat else None,
+            "command": command, "session": meta.get("session"), "blocker": blocker, "why": why}
+
+
+def card(n):
+    if n["blocker"]:
+        return f"The human decides: {n['blocker']}."
+    if not n["step"]:
+        return f"Nothing next: {n['why']}."
+    session = "builder session" if n["session"] == "builder" else n["session"]
+    return (f"Model: {n['model']['model']} · {n['model']['effort']}. Session: {session}.\n\n"
+            f"```text\n{n['command']}\n```")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -209,28 +294,28 @@ def main(argv=None):
     summ.add_argument("--json", action="store_true")
     seat = sub.add_parser("seat")
     seat.add_argument("step")
-    seat.add_argument("--config")
-    seat.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")
-    for p in (rec, summ, seat):
+    nxt = sub.add_parser("next")
+    nxt.add_argument("slug")
+    nxt.add_argument("--json", action="store_true")
+    for p in (seat, nxt):
+        p.add_argument("--config")
+        p.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")
+    for p in (rec, summ, seat, nxt):
         p.add_argument("--repo", default=".")
     a = parser.parse_args(argv)
     if a.cmd == "seat":
         if a.step not in STEPS:
             raise SystemExit("unknown flow step")
-        config = seats(Path(git(a.repo, "rev-parse", "--show-toplevel")), a.config)
-        meta = FLOW["steps"][a.step]
-        chosen = config["seats"].get(a.step, config["seats"][meta["seat"]])
-        builder = a.builder_vendor or config["seats"]["build"]["vendor"]
-        if a.step == "check" and config["different_vendors"] and chosen["vendor"] == builder:
-            chosen = config["other_vendor"]
-            if chosen["vendor"] == builder:
-                raise SystemExit("other_vendor must differ from the builder vendor")
-        print(json.dumps(dict(chosen, **meta, step=a.step, rules=RULES)))
+        print(json.dumps(seat_for(Path(git(a.repo, "rev-parse", "--show-toplevel")), a.step, a)))
         return 0
     if not SLUG.match(a.slug):
         raise SystemExit(f"bad slug: {a.slug}")
     repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))
     run = repo / ".jflow" / a.slug
+    if a.cmd == "next":
+        n = next_step(repo, run, a)
+        print(json.dumps(n) if a.json else card(n))
+        return 0
     if not (run / "spec.md").exists():
         raise SystemExit(f"no {run / 'spec.md'}")
     if a.cmd == "summary":
