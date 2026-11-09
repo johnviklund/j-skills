@@ -252,17 +252,39 @@ def attack():
         receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 0 of 300 |'))
         f.commit('describe different miss')
         print('Attack accepted-old-row: latest row BROKEN at new code, old acceptance; next=' + f.next()['step'] + '; expected=fix')
-        assert f.next()['step'] == 'done'
+        assert f.next()['step'] == 'fix'
     with tempfile.TemporaryDirectory(prefix='jflow-attack-') as temp:
         f = Fixture(Path(temp))
-        f.code()
+        sha = f.code()
         f.receipt(1, 'BROKEN')
         receipt = f.folder / 'receipts/check-1.md'
         receipt.write_text(receipt.read_text().replace('| 2 | PROVED |', '| 2 | BROKEN |'))
-        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n- Row 1 · missed threshold · "Accept Row 1; Row 2 must be fixed" · 2026-11-09 · ' + git(f.repo, 'rev-parse', 'HEAD') + '\n')
+        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n- Row 1 · missed threshold · "Accept Row 1; Row 2 must be fixed" · 2026-11-09 · ' + sha + '\n')
         f.commit('accept row one only')
         print('Attack quoted-row-reference: only Row 1 accepted, Row 2 BROKEN; next=' + f.next()['step'] + '; expected=fix')
-        assert f.next()['step'] == 'done'
+        assert f.next()['step'] == 'fix'
+    with tempfile.TemporaryDirectory(prefix='jflow-attack-') as temp:
+        f = Fixture(Path(temp))
+        f.spec.write_text(f.spec.read_text().replace('| new | red |', '| keep | green |', 1)
+                          .replace('| 2 | output | CLI | result | correct result | new | red |',
+                                   '| 2 | live data | CLI | update | data updated | live | red |'))
+        sha = f.code()
+        f.receipt(1, 'BROKEN', sha=sha)
+        receipt = f.folder / 'receipts/check-1.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 254 of 300 |')
+                           .replace('| 2 | PROVED |', '| 2 | WAITING |'))
+        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n- Row 1 · 254 of 300 against a bar of 255 · "accept 254" · 2026-11-09 · ' + sha + '\n')
+        f.commit('accept current miss before live steps')
+        assert f.next()['step'] == 'live'
+        (f.folder / 'notes.md').write_text('Live done: live data updated\n')
+        f.commit('live data updated without code change')
+        assert f.next()['step'] == 'check'
+        f.receipt(2, 'BROKEN', sha=sha)
+        receipt = f.folder / 'receipts/check-2.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 0 of 300 after live data update |'))
+        f.commit('different miss at unchanged code')
+        print('Attack accepted-new-miss-same-sha: after live data update, Row 1 BROKEN at 0 of 300; next=' + f.next()['step'] + '; expected=fix')
+        assert f.next()['step'] == 'fix'
 
 
 if __name__ == '__main__':
