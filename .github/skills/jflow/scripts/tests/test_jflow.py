@@ -277,7 +277,7 @@ class RunRecord(unittest.TestCase):
             ([gate], ("WAITING", "none"), "", ("human", None), gate[8:-1]),
             ([gate], ("WAITING", "none"), "Yes: gate · \"go\" · 2026-11-09\n", ("live", "builder"), None),
             (checks, ("PROVED", "none"), "", ("human", None), "Human checks: try it on the laptop"),
-            ([], ("PROVED", "slow on big repos"), "", ("human", None), "Maybes: slow on big repos"),
+            ([], ("PROVED", "None of the Windows flows ran."), "", ("human", None), "Maybes: None of the Windows"),
             (checks, ("PROVED", "slow on big repos"), "Yes: done · \"ok\" · 2026-11-09\n", ("done", "builder"), None)]
         for lines, receipt, text, expected, named in cases:
             self.git("reset", "-q", "--hard", start)

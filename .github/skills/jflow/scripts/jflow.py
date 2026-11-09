@@ -112,7 +112,7 @@ def section(text, heading):
     """Bullet lines under '## heading', minus a placeholder such as '- none' or '- <none ...>'."""
     match = re.search(rf"^## {heading}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
     lines = [l for l in (match.group(1).splitlines() if match else []) if l.startswith("- ")]
-    return [l for l in lines if not re.match(r"- <?none\b", l, re.I)]
+    return [l for l in lines if not re.match(r"- (none\.?|<none\b[^>]*>)\s*$", l, re.I)]
 
 
 def changed(repo, a, b):
