@@ -1,5 +1,5 @@
 # jflow-next
-Status: ready
+Status: done
 Base: ecdfea7
 
 ## Problem

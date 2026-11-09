@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-09 · jflow-next · `jflow.py next` decides a run's next step · Claude Opus 5.5
+- `next <slug>` reads the run folder and git and prints the closing card, or with `--json` the step, seat, role, session and any blocker for the human, so a driver needs no prose table; it applies the check cap and `Checks allowed: N`, and an acceptance closes only the item and check it names. Also fixes `summary` ending a run at Base when its spec quotes `Status: done`.
+- Commits: ecac1d8 38b1e04 f6fb039 046bb7e 7acdd9b
+- jflow: 7 sessions · 4 fix rounds · 11 rows · 0 accepted · check 5 defects · net code +111 · tests +95 · docs -5
+
 ## 2026-11-08 · jflow-config · JSON seats and flow metadata for jflow · GPT-6.1 Sol
 - Seat lookup merges defaults, repo and explicit config, applies the vendor default and prints locked rules. Config and record model/effort values reject key-like data.
 - Commits: e08114c f376c4b 1a8708a 832708f 1f0389c
@@ -124,13 +129,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@b2bdc7fb117d, memory.remember@4416cf26dc14, memory.compact@6af004059efe
 - Why: a lesson repeated across runs never got a page, and AGENTS.md took rules whose removal would cost nothing.
-
-## 2026-10-25 · checkup-next-actions · checkup reports questions, three action cards and a fixed ending · GPT-6.1 Sol
-- Checkup's report format moved to `references/report.md`: numbered questions, at most three cards with a fresh-session prompt, the line `Safe fixes: none applied.`. Model lines come from ROUTING.md; unknown facts become questions with evidence paths.
-- Proven on a synthetic fixture, not the live repo: the ending, card shape and question clauses passed. The model lines failed four paid attempts and the fresh-session proof never ran; a script for the model lines is in TODO.md.
-- Commits: bc2a0e2 51a1e53 ee4c44e bfa6d38 b68c1ad
-- Review: ship to wrap, two approved P1 deferrals (cycle 1, 2 open P1) @ 659d054
-- Run: 5 tickets · 4 sessions · 1 review cycles · 6 deviations · 0 findings overturned · net code +0 · tests +0
-- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@b222ba534b11, checkup@a9b74b6e2ae5
-- Why: checkup ended in a summary with no way to act on it, and a copied action had no tested path.
