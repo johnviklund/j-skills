@@ -11,13 +11,14 @@ Checks allowed: 4
   `done` and `live` are never capped.
 - A check counts toward the cap when code changed since the receipt before it, or since `Base` for
   check-1. An unknown sha counts, as `changed()` already treats it in `summary`.
-- `## Accepted` closes an item only when the line starts with `Row N ·` or `Defect N ·` and was
-  committed in or after the commit that created the newest receipt; an uncommitted line counts as
-  newer. A later receipt that still fails the item saw the acceptance, so the miss is new.
-  check-1 defects 1 and 2 came from matching the number anywhere in the prose. check-2's defect
-  came from my first fix keying on the receipt sha, which two receipts can share after live steps.
-  Creation, not last touch, orders the receipt, so re-editing a receipt keeps its acceptance.
-- The line's trailing sha stays in the template for the record; `next` no longer reads it.
+- `## Accepted` closes an item when the line starts with `Row N ·` or `Defect N ·`, ends with the
+  sha of the check the verdict came from, and was committed in or after the commit that created
+  that check's receipt. An uncommitted line counts as newer. A verdict whose evidence says
+  `carried from check-N` came from check-N, followed back through earlier carries. Each of the
+  five failing inputs from checks 1 to 3 breaks one of these parts: prose matching, an older
+  acceptance, a new miss at the same sha, a carried miss, and an acceptance of other code. The
+  test has one case for each, and fails with any one part removed.
+- Creation, not last touch, orders the receipt, so re-editing a receipt keeps its acceptance.
 - Defects marked `carried from check-N` stay open for `next`, unlike in `record`'s count, because a
   carried defect is still unfixed.
 - `next` also takes `--config`, shared with `seat`, so both resolve the same seat.

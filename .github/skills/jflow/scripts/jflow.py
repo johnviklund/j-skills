@@ -229,20 +229,38 @@ def next_step(repo, run, a):
         step, n = "check", len(receipts) + 1
         why = "code changed since the newest receipt" if newest else "no check receipt yet"
     else:
-        text = receipts_of(run)[-1].read_text(encoding="utf-8")
-        # An acceptance answers the receipt before it: a later receipt that still fails saw it.
-        receipt_commit = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts_of(run)[-1]))
-        accepted = set()
+        paths = {f["n"]: p for f, p in zip(receipts, receipts_of(run))}
+        acceptances = []
         for l in section(spec, "Accepted"):
-            m = re.match(r"- (Row|Defect) (\d+) ·", l)
-            added = git(repo, "log", "-1", "--format=%H", "-S", l, "--", str(run / "spec.md"))
-            if m and receipt_commit and (not added or subprocess.run(
-                    ["git", "-C", str(repo), "merge-base", "--is-ancestor", receipt_commit, added]).returncode == 0):
-                accepted.add(m.group(1, 2))
-        rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
-                if ("Row", r) not in accepted]
-        defects = [d for d in section(text, "Defects")
-                   if ("Defect", (re.findall(r"\d+", d) or ["?"])[0]) not in accepted]
+            m = re.match(r"- (Row|Defect) (\d+) ·.*· ([0-9a-f]{7,40})\s*$", l)
+            if m:
+                added = git(repo, "log", "-1", "--format=%H", "-S", l, "--", str(run / "spec.md"))
+                acceptances.append((m.group(1, 2), m.group(3), added))
+
+        def closed(k, key):
+            # A carried verdict comes from the check it cites. An acceptance closes it when it names
+            # that check's code sha and was committed in or after the commit that created its receipt.
+            carried = re.search(r"carried from check-(\d+)", items(k)[key], re.I)
+            if carried and int(carried.group(1)) < k and key in items(int(carried.group(1))):
+                return closed(int(carried.group(1)), key)
+            sha = receipt_fields(paths[k])["sha"] or "-"
+            created = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(paths[k]))
+            return bool(created) and any(item == key and (named.startswith(sha) or sha.startswith(named)) and (
+                not added or subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", created, added]
+                                            ).returncode == 0) for item, named, added in acceptances)
+
+        def items(k):
+            """Each row's and defect's receipt line in check-k, keyed ("Row", "3") or ("Defect", "1")."""
+            text = paths[k].read_text(encoding="utf-8") if k in paths else ""
+            lines = {("Row", m.group(1)): m.group(0) for m in re.finditer(r"^\|\s*(\d+)\s*\|.*$", text, re.M)}
+            lines.update({("Defect", (re.findall(r"\d+", d) or ["?"])[0]): d for d in section(text, "Defects")})
+            return lines
+
+        last = newest["n"]
+        rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|",
+                                                   paths[last].read_text(encoding="utf-8"), re.M)
+                if not closed(last, ("Row", r))]
+        defects = [key for key in items(last) if key[0] == "Defect" and not closed(last, key)]
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
         if any(v == "BROKEN" for _, v in rows) or defects:
