@@ -218,13 +218,29 @@ def next_step(repo, run, a):
     notes = (run / "notes.md").read_text(encoding="utf-8") if (run / "notes.md").exists() else ""
     receipts = [receipt_fields(p) for p in receipts_of(run)]
     newest = receipts[-1] if receipts else None
-    step, blocker, n = None, None, None
+    step, blocker, n, session = None, None, None, None
+
+    def constraint(name):
+        """The spec's '- Gate: ...' or '- Ask first: ...' value; '' for none or nothing."""
+        value = re.search(rf"^- {name}:[ \t]*(.*?)\.?[ \t]*$", spec, re.M)
+        value = value.group(1) if value else ""
+        return "" if value.lower() in ("", "none", "nothing") else value
+
+    def yes(point):
+        return re.search(rf"^Yes: {point}\b", notes, re.M)
+
     if status == "done":
         why = "spec.md says Status: done"
     elif status != "ready" or not base:
         step, why = "spec", "no spec.md, or it is not ready"
     elif not receipts and changed(repo, base.group(1), "HEAD") is False:
-        step, why = "build", "no code commit since Base"
+        ask = constraint("Ask first")
+        if ask and re.search(r"^## Approach", notes, re.M) and not yes("approach"):
+            blocker = f"approve the approach in notes.md for Ask first: {ask}; a yes is a Yes: approach line in notes.md"
+            why = "build posted its approach"
+        else:
+            step, why = "build", "no code commit since Base"
+            session = "builder" if ask and yes("approach") else None
     elif not newest or changed(repo, newest["sha"], "HEAD") is not False:
         step, n = "check", len(receipts) + 1
         why = "code changed since the newest receipt" if newest else "no check receipt yet"
@@ -269,11 +285,22 @@ def next_step(repo, run, a):
             blocker = f"{name}: {', '.join(stuck)}; decide per references/check.md"
             why = f"{name} has rows no fix can reach"
         elif any(v == "WAITING" for _, v in rows) and not re.search(r"^Live done:", notes, re.M):
-            step, why = "live", f"{name} has WAITING rows and notes.md has no Live done: line"
+            if constraint("Gate") and not yes("gate"):
+                blocker = f"run the live gate, {constraint('Gate')}, or not; a yes is a Yes: gate line in notes.md"
+                why = f"{name} leaves only WAITING rows before the gate"
+            else:
+                step, why = "live", f"{name} has WAITING rows and notes.md has no Live done: line"
         elif any(v == "WAITING" for _, v in rows):
             step, n, why = "check", len(receipts) + 1, "live steps done; WAITING rows need a check"
         else:
-            step, why = "done", f"{name} has every row proved"
+            waits = [f"{h}: {'; '.join(l[2:] for l in ls)}" for h, ls in (
+                ("Human checks", section(spec, "Human checks")),
+                ("Maybes", section(paths[last].read_text(encoding="utf-8"), "Maybes"))) if ls]
+            if waits and not yes("done"):
+                blocker = f"answer before done, {'. '.join(waits)}; a yes is a Yes: done line in notes.md"
+                why = f"{name} has every row proved and waits on the human"
+            else:
+                step, why = "done", f"{name} has every row proved"
     # Cap: a check counts when code changed since the receipt before it, or Base.
     shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
     counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
@@ -293,7 +320,7 @@ def next_step(repo, run, a):
                "done": f"jflow done {slug}"}.get(step)
     return {"schema_version": 1, "slug": slug, "step": step, "n": n, "role": "human" if blocker else meta.get("role"),
             "model": {k: seat[k] for k in ("model", "vendor", "effort")} if seat else None,
-            "command": command, "session": meta.get("session"), "blocker": blocker, "why": why}
+            "command": command, "session": session or meta.get("session"), "blocker": blocker, "why": why}
 
 
 def card(n):

@@ -267,5 +267,32 @@ class RunRecord(unittest.TestCase):
                 self.commit("check-2")
             self.assertEqual(self.next()["step"], expected, (lines, check2))
 
+    def test_next_stops_at_each_wait_point_until_its_yes(self):
+        spec, notes, path, start = self.run_dir / "spec.md", self.run_dir / "notes.md", self.run_dir / "receipts/check-1.md", self.git("rev-parse", "HEAD")
+        gate, ask, checks = "- Gate: publish the release to npm.", "- Ask first: the config.json shape", ["## Human checks", "- try it on the laptop"]
+        cases = [  # spec lines, receipt row 1 and maybe, notes: expected step and session, text the blocker names
+            ([ask], None, "", ("build", "fresh"), None),
+            ([ask], None, "## Approach\nYes: gate\nYes: done\n- the human said Yes: approach\n", ("human", None), ask[14:]),
+            ([ask], None, "## Approach\nYes: approach · \"go\" · 2026-11-09\n", ("build", "builder"), None),
+            ([gate], ("WAITING", "none"), "", ("human", None), gate[8:-1]),
+            ([gate], ("WAITING", "none"), "Yes: gate · \"go\" · 2026-11-09\n", ("live", "builder"), None),
+            (checks, ("PROVED", "none"), "", ("human", None), "Human checks: try it on the laptop"),
+            ([], ("PROVED", "slow on big repos"), "", ("human", None), "Maybes: slow on big repos"),
+            (checks, ("PROVED", "slow on big repos"), "Yes: done · \"ok\" · 2026-11-09\n", ("done", "builder"), None)]
+        for lines, receipt, text, expected, named in cases:
+            self.git("reset", "-q", "--hard", start)
+            (self.run_dir / "receipts").mkdir(exist_ok=True)
+            spec.write_text(spec.read_text().replace("## Human checks\n- none", "") + "\n".join(lines) + "\n")
+            notes.write_text(text)
+            if receipt:
+                self.state(receipt[0], code=True)
+                path.write_text(path.read_text().replace("- <none>", f"- {receipt[1]}"))
+            self.commit("state")
+            self.assertEqual(((n := self.next())["step"], n["session"]), expected, (lines, receipt, text))
+            if named:
+                self.assertIn(named, n["blocker"])
+                self.assertEqual((n["role"], n["model"], n["command"], self.jflow("next", "demo")[:19]),
+                                 ("human", None, None, "The human decides: "))
+
 if __name__ == "__main__":
     unittest.main()
