@@ -1,8 +1,14 @@
 # jflow-next notes
 
-Checks allowed: 4
+Checks allowed: 5
 
 - The human allows one more fix-and-check round after check-3, on 2026-11-09.
+- At done, `summary` gave net code, tests and docs of +0: it found the done commit with
+  `git log -S "Status: done"`, which also matched this spec's Goal 2 and row 2 text, and so ended
+  the run at Base. The bug predates this run. The human chose option A on 2026-11-09: fix it here
+  with `-G "^Status: done"`, which matches only the status line, and allow a fifth check.
+  The test fixture spec now quotes `Status: done`. Three summary tests fail without the fix.
+  `summary` for jflow-config, drive-py-at-done and receipt-evidence-cap is unchanged.
 
 - A human stop returns `step: "human"`, as row 2's pass signal lists it, with `model`, `command`
   and `session` null. No seat belongs to a human.

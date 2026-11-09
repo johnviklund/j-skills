@@ -162,7 +162,7 @@ def summary(repo, run):
     spec_path = str(run / "spec.md")
     # A finished run ends just before the commit that set Status: done: what done measured, before its
     # own WORKLOG and TODO edits. Later commits belong to other work.
-    done_commits = git(repo, "log", "--format=%H", "-S", "Status: done", "--", spec_path).splitlines()
+    done_commits = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", spec_path).splitlines()
     end = done_commits[-1] + "^" if done_commits else "HEAD"
     code = tests = docs = other = 0
     for line in git(repo, "diff", "--numstat", f"{base.group(1)}..{end}", "--", ".", ":(exclude).jflow").splitlines():

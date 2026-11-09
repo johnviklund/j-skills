@@ -10,6 +10,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "jflow.py"
 SPEC = """# demo
 Status: ready
 Base: {base}
+A run with `Status: done` stops.
 
 ## Proof
 | # | Claim | Surface | Check | Pass signal | Kind | Base |
