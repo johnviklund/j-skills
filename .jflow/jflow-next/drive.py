@@ -329,8 +329,32 @@ def acceptance_edges():
     assert not failures, failures
 
 
+def carry_chain():
+    with tempfile.TemporaryDirectory(prefix='jflow-carry-') as temp:
+        f = Fixture(Path(temp))
+        sha = f.code()
+        f.receipt(1, 'BROKEN', '- 1. code.py: caller sends x; observed crash', sha)
+        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n'
+                          '- Row 1 · threshold miss · "accept it" · 2026-11-09 · ' + sha + '\n'
+                          '- Defect 1 · crash · "accept it" · 2026-11-09 · ' + sha + '\n')
+        f.commit('accept row and defect')
+        assert f.next()['step'] == 'done'
+        for number in (2, 3):
+            carried = 'carried from check-%d' % (number - 1)
+            f.receipt(number, 'BROKEN', '- 1. code.py: caller sends x; ' + carried, sha)
+            receipt = f.folder / ('receipts/check-%d.md' % number)
+            receipt.write_text(receipt.read_text().replace('| BROKEN | observed |',
+                                                          '| BROKEN | ' + carried + ' |'))
+            f.commit('carry row and defect')
+            assert f.next()['step'] == 'done'
+        print('Attack carried-chain: accepted row and defect survive two carried receipts; next=done; expected=done')
+        f.receipt(4, 'BROKEN', '- 1. code.py: caller sends y; observed new crash', sha)
+        assert f.next()['step'] == 'fix'
+        print('Attack fresh-after-chain: new row and defect at unchanged code stay open; next=fix; expected=fix')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack', 'acceptance_edges'))
+    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack', 'acceptance_edges', 'carry_chain'))
     args = parser.parse_args()
     globals()[args.action]()
