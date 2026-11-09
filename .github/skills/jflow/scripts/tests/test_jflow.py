@@ -246,14 +246,20 @@ class RunRecord(unittest.TestCase):
         self.assertEqual((out.returncode, "bad slug" in out.stderr), (1, True))
         self.assertEqual(self.git("status", "--porcelain"), "")
 
-    def test_next_accepts_only_the_named_item_at_the_receipt_sha(self):
+    def test_next_accepts_only_the_named_item_after_the_newest_receipt(self):
         self.state("BROKEN", "- 1. app.py: x -> crash -> ok", code=True)
         sha, spec = self.git("rev-parse", "HEAD~1"), (self.run_dir / "spec.md").read_text()
-        for lines, expected in [(f"Row 1 · 254 of 300 · {sha[:7]}\n- Defect 1 · crash · {sha[:7]}", "done"),
-                                ("Row 1 · 254 of 300 · abcdef1\n- Defect 1 · crash · abcdef1", "fix"),
-                                (f'Defect 1 · "Accept Row 1; Row 2 must be fixed" · {sha}', "fix")]:
+        for lines, rerun, expected in [(f"Row 1 · 254 of 300 · {sha}\n- Defect 1 · crash · {sha}", False, "done"),
+                                       (f'Defect 1 · "Accept Row 1; Row 2 must be fixed" · {sha}', False, "fix"),
+                                       (f"Row 1 · 254 of 300 · {sha}\n- Defect 1 · crash · {sha}", True, "fix")]:
             (self.run_dir / "spec.md").write_text(f"{spec}\n## Accepted\n- {lines}\n")
             self.commit("accept")
+            with open(self.run_dir / "receipts/check-1.md", "a") as receipt:
+                receipt.write("\nedited after the acceptance\n")
+            self.commit("edit receipt")
+            if rerun:
+                self.receipt(2, "BROKEN", "- 1. app.py: y -> crash -> ok", sha)
+                self.commit("same code, new miss")
             self.assertEqual(self.next()["step"], expected, lines)
 
 if __name__ == "__main__":

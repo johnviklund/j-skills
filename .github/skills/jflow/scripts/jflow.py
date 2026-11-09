@@ -230,10 +230,15 @@ def next_step(repo, run, a):
         why = "code changed since the newest receipt" if newest else "no check receipt yet"
     else:
         text = receipts_of(run)[-1].read_text(encoding="utf-8")
-        # An acceptance names its item first and the receipt sha it applies to last.
-        accepted = {m.group(1, 2) for m in (re.match(r"- (Row|Defect) (\d+) ·.*· ([0-9a-f]{7,40})\s*$", l)
-                                            for l in section(spec, "Accepted"))
-                    if m and newest["sha"] and (m.group(3).startswith(newest["sha"]) or newest["sha"].startswith(m.group(3)))}
+        # An acceptance answers the receipt before it: a later receipt that still fails saw it.
+        receipt_commit = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts_of(run)[-1]))
+        accepted = set()
+        for l in section(spec, "Accepted"):
+            m = re.match(r"- (Row|Defect) (\d+) ·", l)
+            added = git(repo, "log", "-1", "--format=%H", "-S", l, "--", str(run / "spec.md"))
+            if m and receipt_commit and (not added or subprocess.run(
+                    ["git", "-C", str(repo), "merge-base", "--is-ancestor", receipt_commit, added]).returncode == 0):
+                accepted.add(m.group(1, 2))
         rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
                 if ("Row", r) not in accepted]
         defects = [d for d in section(text, "Defects")

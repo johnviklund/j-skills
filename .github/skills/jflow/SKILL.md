@@ -78,8 +78,8 @@ shows what was missed. An accepted item is no longer open.
 - Defect 2 · <the miss> · "<the human's words>" · <date> · <sha it applies to>
 ```
 
-`next` closes an item only when its line starts with `Row N` or `Defect N` and ends with the
-newest receipt's sha.
+`next` closes an item only when its line starts with `Row N` or `Defect N` and was committed
+after the newest receipt. A later receipt that still fails the item saw the acceptance.
 
 ## The next step
 
