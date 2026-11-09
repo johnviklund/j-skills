@@ -155,14 +155,21 @@ def budget():
 
 
 def attack():
-    for maybe in ("none", "None of the Windows flows were exercised.",
+    for maybe in ("none", "None.", "<none>", "<none, or for the human only>",
+                  "None of the Windows flows were exercised.",
+                  "none, except Windows is untested", "None: Windows is untested",
                   "The Windows flows were not exercised."):
         with tempfile.TemporaryDirectory() as directory:
             r = Repo(directory)
             r.built()
             r.receipt(maybe=maybe)
             value = json.loads(call([sys.executable, SCRIPT, "next", "demo", "--repo", r.path, "--json"]))
+            placeholder = maybe in ("none", "None.", "<none>", "<none, or for the human only>")
+            assert value["step"] == ("done" if placeholder else "human"), value
+            if not placeholder:
+                assert maybe in value["blocker"], value
             print(f"Maybes '- {maybe}' -> {value['step']}; blocker={value['blocker']}")
+    print("attack: PASS; 4 placeholders -> done; 4 real warnings -> human with warning")
 
 
 if __name__ == "__main__":
