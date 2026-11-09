@@ -1,5 +1,5 @@
 # wait-points
-Status: ready
+Status: done
 Base: 43121e6
 
 ## Problem

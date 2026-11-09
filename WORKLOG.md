@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-09 · wait-points · `jflow.py next` stops at the approach, the live gate and before done · Claude Opus 5.5
+- `next` now stops for the human at an approach posted for an Ask first item, at the live `Gate:`, and before done when there are Human checks or Maybes, until `notes.md` has `Yes: approach`, `Yes: gate` or `Yes: done`; a conductor reading only the JSON can no longer run past them. Also stops `section` dropping a real line that starts with "None".
+- Commits: f329eaa 4121af0 2f8aaa8
+- jflow: 4 sessions · 1 fix rounds · 9 rows · 0 accepted · check 1 defects · net code +27 · tests +27 · docs +9
+
 ## 2026-11-09 · jflow-next · `jflow.py next` decides a run's next step · Claude Opus 5.5
 - `next <slug>` reads the run folder and git and prints the closing card, or with `--json` the step, seat, role, session and any blocker for the human, so a driver needs no prose table; it applies the check cap and `Checks allowed: N`, and an acceptance closes only the item and check it names. Also fixes `summary` ending a run at Base when its spec quotes `Status: done`.
 - Commits: ecac1d8 38b1e04 f6fb039 046bb7e 7acdd9b
