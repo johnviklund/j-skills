@@ -287,8 +287,50 @@ def attack():
         assert f.next()['step'] == 'fix'
 
 
+def acceptance_edges():
+    failures = []
+    with tempfile.TemporaryDirectory(prefix='jflow-acceptance-') as temp:
+        f = Fixture(Path(temp))
+        sha = f.code()
+        f.receipt(1, 'BROKEN', sha=sha)
+        receipt = f.folder / 'receipts/check-1.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 254 of 300 |')
+                           .replace('| 2 | PROVED |', '| 2 | BLOCKED |'))
+        f.commit('row two needs a service')
+        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n- Row 1 · 254 of 300 against a bar of 255 · "accept 254" · 2026-11-09 · ' + sha + '\n')
+        f.commit('accept row one while row two is blocked')
+        assert f.next()['step'] == 'human'
+        f.receipt(2, 'BROKEN', sha=sha)
+        receipt = f.folder / 'receipts/check-2.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | carried from check-1 |'))
+        f.commit('rerun only blocked row two after service returns')
+        actual = f.next()['step']
+        print('Attack accepted-carried-row: check-2 carries accepted Row 1, proves Row 2; next=' + actual + '; expected=done')
+        if actual != 'done':
+            failures.append('accepted-carried-row')
+    with tempfile.TemporaryDirectory(prefix='jflow-acceptance-') as temp:
+        f = Fixture(Path(temp))
+        old = f.code()
+        f.receipt(1, 'BROKEN', sha=old)
+        receipt = f.folder / 'receipts/check-1.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 254 of 300 |'))
+        f.commit('describe old miss')
+        f.code()
+        f.receipt(2, 'BROKEN')
+        receipt = f.folder / 'receipts/check-2.md'
+        receipt.write_text(receipt.read_text().replace('| BROKEN | observed |', '| BROKEN | 0 of 300 |'))
+        f.commit('describe new miss')
+        f.spec.write_text(f.spec.read_text() + '\n## Accepted\n- Row 1 · 254 of 300 against a bar of 255 · "accept the old 254 result" · 2026-11-09 · ' + old + '\n')
+        f.commit('accept only the old code result')
+        actual = f.next()['step']
+        print('Attack acceptance-other-sha: acceptance names old code, newest Row 1 BROKEN at 0 of 300; next=' + actual + '; expected=fix')
+        if actual != 'fix':
+            failures.append('acceptance-other-sha')
+    assert not failures, failures
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack'))
+    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack', 'acceptance_edges'))
     args = parser.parse_args()
     globals()[args.action]()
