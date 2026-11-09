@@ -353,8 +353,31 @@ def carry_chain():
         print('Attack fresh-after-chain: new row and defect at unchanged code stay open; next=fix; expected=fix')
 
 
+def summary_boundaries():
+    with tempfile.TemporaryDirectory(prefix='jflow-summary-') as temp:
+        f = Fixture(Path(temp))
+        f.spec.write_text(f.spec.read_text() + '\nA run with `Status: done` stops.\n')
+        f.commit('spec describes done without changing status')
+        f.cli('record', 'demo', 'spec', '--model', 'fixture', '--effort', 'high')
+        (f.repo / 'code.py').write_text('value = 1\nextra = 2\n')
+        f.commit('build')
+        before = json.loads(f.cli('summary', 'demo', '--json'))
+        assert before['net_code'] == 1, before
+        f.spec.write_text(f.spec.read_text().replace('Status: ready', 'Status: done'))
+        printed = f.cli('record', 'demo', 'done', '--model', 'fixture', '--effort', 'high')
+        (f.repo / 'WORKLOG.md').write_text('# Run\n' + printed)
+        f.commit('done and its worklog')
+        assert f.cli('summary', 'demo') == printed
+        (f.repo / 'later.py').write_text('later = 1\nother = 2\n')
+        f.commit('later work')
+        after = json.loads(f.cli('summary', 'demo', '--json'))
+        assert (after['net_code'], after['docs']) == (1, 0), after
+        assert f.cli('summary', 'demo') == printed
+        print('Attack summary-boundaries: inline done prose keeps +1 code; done output stays identical after worklog and later code')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack', 'acceptance_edges', 'carry_chain'))
+    parser.add_argument('action', choices=('states', 'cap', 'history', 'compat', 'docs', 'budget', 'attack', 'acceptance_edges', 'carry_chain', 'summary_boundaries'))
     args = parser.parse_args()
     globals()[args.action]()
