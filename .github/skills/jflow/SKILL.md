@@ -95,6 +95,12 @@ checks at most, and a check that only reruns BLOCKED or WAITING rows does not co
 went in. At the cap, stop and give the human what is open. A `Checks allowed: N` line in
 `notes.md` raises the cap to N, when the human allows more.
 
+**Wait points.** `next` also stops for the human at three points, each cleared by its own line in
+`notes.md`: `Yes: approach` for an approach posted for an **Ask first** item, `Yes: gate` before the
+live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes. The session the
+human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
+with `Yes: <point>` counts, and it clears that point and no other.
+
 ## The closing card
 
 End each step, after its commit, by running `jflow.py next <slug>` and printing its card as it

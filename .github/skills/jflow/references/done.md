@@ -7,7 +7,8 @@ Runs in the builder session after the last check.
    per the hub, so an unproved row stays visible in the record.
 2. Show the human any **Human checks**, Maybes, and everything left open in `notes.md` or this
    session: a cost, a risk left in place, a doc left out of date. Show also any `control` verb
-   candidate from `drive.py`, per step 6. Wait for their answer. With none, go on.
+   candidate from `drive.py`, per step 6. Wait for their answer. With none, go on. A `Yes: done`
+   line in `notes.md` is that answer for the Human checks and Maybes, so do not wait again for them.
 3. Run the repo's own verification commands from `AGENTS.md`.
 4. Set `Status: done` in `spec.md`, then record the step as `done`. The script prints the run's
    `jflow:` line; copy it unchanged. When the repo keeps a `WORKLOG.md`, add this entry at its top:

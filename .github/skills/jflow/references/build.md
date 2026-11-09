@@ -6,8 +6,9 @@ behind the code, so fixes stay with you.
 ## Build
 
 Read `spec.md` and `AGENTS.md`, then the code. Plan in your head, not in a file. Go straight to the
-work, except for an **Ask first** item: post your approach in about ten lines and wait for the
-human's yes.
+work, except for an **Ask first** item: write your approach in about ten lines under `## Approach`
+in `notes.md`, commit only that, and stop. `next` waits for a `Yes: approach` line, then sends
+`build` back to this session.
 
 Every added line serves a goal or a Proof row. Check proves the change once; tests keep it proved.
 Write one test for each Proof row that can run without the live surface, as one table of cases when
@@ -33,8 +34,9 @@ the code and test lines added, then run `jflow.py next <slug>` and print its car
 
 ## Live steps
 
-`jflow.py next` sends you here once a check has left only WAITING rows. Run the steps from the gate
-on, each **Ask first** item with the human's yes. Add `Live done: <date>` and what happened to
+`jflow.py next` sends you here once a check has left only WAITING rows and, with a `Gate:`, the
+human has added `Yes: gate` to `notes.md`. Run the steps from the gate on, each **Ask first** item
+with the human's yes. Add `Live done: <date>` and what happened to
 `notes.md`, and record the step as `live`. Done when every step has run and that line is committed.
 Run `jflow.py next <slug>` and print its card.
 
