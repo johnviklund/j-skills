@@ -70,3 +70,12 @@
   Historical validation cases and Base output comparisons still pass.
 
 Yes: done · "option A but I run \"done\" in the build session" · 2026-11-10
+
+## Done
+
+- Check-3 proves all ten rows with no defects; no code changed after its tested SHA.
+- The existing Yes: done covers the three Maybes. TODO keeps the non-template citation and
+  leading-zero ID limits; the builder-vendor flag remains documented usage.
+- The escaped-pipe decision moves to TODO_ARCHIVE: validation counts both backslash and pipe.
+- The driver only plants faults and compares Base output. It supplies no reusable control verb.
+- Final repository verification exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 28 tests OK.

@@ -1,5 +1,5 @@
 # jflow-validate
-Status: ready
+Status: done
 Base: d53d8d1
 
 ## Problem
