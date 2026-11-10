@@ -68,3 +68,5 @@
 - Python 3.9 passes all 28 jflow tests offline.
 - Final baseline command exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 28 tests OK.
   Historical validation cases and Base output comparisons still pass.
+
+Yes: done · "option A but I run \"done\" in the build session" · 2026-11-10
