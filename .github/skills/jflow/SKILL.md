@@ -117,6 +117,7 @@ Model: <model · effort>. Session: <fresh | builder session>.
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.
 
+`record` validates the spec, check and accept steps; fix reported problems before recording.
 Before the commit, record the step:
 `python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
 `<skill>` is this skill's absolute folder and the model is your own. Use the step from `flow.json`.

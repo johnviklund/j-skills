@@ -12,6 +12,18 @@ Status: ready
 Base: {base}
 A run with `Status: done` stops.
 
+## Problem
+A fixture run.
+
+## Goals
+1. Prove the run.
+
+## Non-goals
+- none
+
+## Constraints
+- Gate: none.
+
 ## Proof
 | # | Claim | Surface | Check | Pass signal | Kind | Base |
 |---|---|---|---|---|---|---|
@@ -69,7 +81,8 @@ class RunRecord(unittest.TestCase):
         self.assertEqual(out.returncode, 0, out.stderr)
         return out.stdout.strip()
 
-    def receipt(self, n, v1, defects, sha="abc"):
+    def receipt(self, n, v1, defects, sha=None):
+        sha = sha or self.git("rev-parse", "HEAD")
         (self.run_dir / "receipts" / f"check-{n}.md").write_text(RECEIPT.format(n=n, v1=v1, defects=defects, sha=sha))
 
     def test_full_run_counts_sessions_rounds_checks_and_lines(self):
@@ -80,13 +93,13 @@ class RunRecord(unittest.TestCase):
         (self.repo / "README.md").write_text("# demo\n")
         self.commit("build")
         self.jflow("record", "demo", "build", "--model", "opus", "--effort", "high")
-        self.receipt(1, "BROKEN", "- app.py: input -> crash -> ok. Evidence: run, boom")
+        self.receipt(1, "BROKEN", "- 1. app.py: input -> crash -> ok. Evidence: run, boom")
         check = json.loads(self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high"))
         self.assertEqual((check["n"], check["rows"], check["defects"], check["maybes"]),
                          (1, {"BROKEN": 1, "PROVED": 1}, 1, 0))
         fix = json.loads(self.jflow("record", "demo", "fix", "--model", "opus", "--effort", "high"))
         self.assertEqual((fix["n"], fix["session"]), (1, "builder"))
-        self.receipt(2, "PROVED", "- app.py, carried from check-1: input -> crash -> ok. Evidence: run, boom")
+        self.receipt(2, "PROVED", "- 1. app.py, carried from check-1: input -> crash -> ok. Evidence: run, boom")
         self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
         done = self.jflow("record", "demo", "done", "--model", "opus", "--effort", "high")
         self.assertEqual(done, "jflow: 4 sessions · 1 fix rounds · 2 rows · 0 accepted · check 1 defects"
@@ -113,7 +126,7 @@ class RunRecord(unittest.TestCase):
     def test_unrecorded_steps_and_fixes_come_from_git(self):
         (self.repo / "app.py").write_text("a = 2\n")
         self.commit("build, not recorded")
-        self.receipt(1, "BROKEN", "- app.py: input -> crash -> ok. Evidence: run, boom", self.git("rev-parse", "HEAD"))
+        self.receipt(1, "BROKEN", "- 1. app.py: input -> crash -> ok. Evidence: run, boom", self.git("rev-parse", "HEAD"))
         self.jflow("record", "demo", "check", "--model", "sol", "--effort", "high")
         self.commit("check-1")
         (self.repo / "app.py").write_text("a = 3\n")
@@ -282,7 +295,7 @@ class RunRecord(unittest.TestCase):
         for lines, receipt, text, expected, named in cases:
             self.git("reset", "-q", "--hard", start)
             (self.run_dir / "receipts").mkdir(exist_ok=True)
-            spec.write_text(spec.read_text().replace("## Human checks\n- none", "") + "\n".join(lines) + "\n")
+            spec.write_text(spec.read_text().replace("## Human checks\n- none", "").replace("- Gate: none.\n", "") + "\n".join(lines) + "\n")
             notes.write_text(text)
             if receipt:
                 self.state(receipt[0], code=True)

@@ -11,6 +11,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-11-10 | jflow | `validate` checks spec, newest receipt and Accepted-line shape; `record` refuses malformed output before writing. Judge: the next three runs record valid artifacts without silent parser skips | jflow-validate, Proof rows 1–10 | 3 runs | trialing |
 | 2026-11-09 | jflow | Default Claude seats name `claude-opus-5-5`, the ID Claude Code accepts; Claude Code 2.1.321 returns 404 for `claude-opus-5.5`, so a headless build stopped on its first try. Judge: the next three runs start their Claude seats from the default config | conductor-drives-jflow build, row 11 live run | 3 runs | trialing |
 | 2026-11-08 | jflow | Record secret checks attach to `--model` and `--effort` parsing. Run slugs and repo paths are exempt; config checks stay. Judge: check 5 records the versioned task name and both fields still reject key-like values without echo or a log change | jflow-config check-4 defect 1; human approved option A and check 5 | 3 runs | trialing |
 | 2026-11-08 | jflow | Generic `sk-` payloads need a digit or no inner hyphen as well as 20 characters. The regression covers the reported hyphenated name and both rejected key forms. Judge: check 4 accepts the name and preserves secret refusal | jflow-config check-3 defect 1; human approved one more fix and check 4 | 3 runs | trialing |
