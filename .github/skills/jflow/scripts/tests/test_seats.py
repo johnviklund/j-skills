@@ -37,7 +37,7 @@ class Seats(unittest.TestCase):
         for step, meta in flow.items():
             with self.subTest(step=step):
                 seat = json.loads(self.run_cli("seat", step).stdout)
-                expected = ("gpt-6.1-sol", "high") if step == "check" else ("claude-opus-5.5", "medium")
+                expected = ("gpt-6.1-sol", "high") if step == "check" else ("claude-opus-5-5", "medium")
                 self.assertEqual((seat["model"], seat["effort"]), expected)
                 self.assertEqual(seat["fallback"]["model"] if seat["fallback"] else None,
                                  "gpt-6-astra" if step == "check" else None)
@@ -48,7 +48,7 @@ class Seats(unittest.TestCase):
         defaults = json.loads((SKILL / "config.json").read_text())
         sol = defaults["seats"]["check"]
         self.config(".jflow/config.json", seats={"build": sol})
-        self.assertEqual(json.loads(self.run_cli("seat", "check").stdout)["model"], "claude-opus-5.5")
+        self.assertEqual(json.loads(self.run_cli("seat", "check").stdout)["model"], "claude-opus-5-5")
         self.config(".jflow/config.json", seats={"build": sol}, different_vendors=False)
         self.assertEqual(json.loads(self.run_cli("seat", "check").stdout)["model"], sol["model"])
         self.assertEqual(json.loads(self.run_cli("seat", "build").stdout)["model"], sol["model"])
@@ -57,7 +57,7 @@ class Seats(unittest.TestCase):
         self.assertEqual(json.loads(self.run_cli("seat", "check").stdout)["model"], astra["model"])
         flag = self.config("flag.json", seats={"check": sol})
         self.assertEqual(json.loads(self.run_cli("seat", "check", "--config", flag).stdout)["model"], sol["model"])
-        self.assertEqual(json.loads(self.run_cli("seat", "spec").stdout)["model"], "claude-opus-5.5")
+        self.assertEqual(json.loads(self.run_cli("seat", "spec").stdout)["model"], "claude-opus-5-5")
 
     def test_bad_config_and_locked_rules(self):
         path = self.repo / ".jflow/config.json"

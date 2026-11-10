@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""jflow run record: one JSON line per step in .jflow/<slug>/run.jsonl, and the run's summary.
+"""Record, validate and summarize jflow runs.
 
   jflow.py record <slug> <step> --model M --effort E [--session fresh|builder] [--repo DIR]
   jflow.py summary <slug> [--repo DIR] [--json]
+  jflow.py validate <slug> <spec|check|accept> [--repo DIR]
   jflow.py seat <step> [--repo DIR] [--config FILE] [--builder-vendor V]
   jflow.py next <slug> [--repo DIR] [--config FILE] [--builder-vendor V] [--json]
 
-Standard library only, Python 3.8+. Readers ignore keys and steps they do not know, so drivers
-such as a conductor may append their own lines, for example a step "decision".
+Standard library, Python 3.9+. Readers ignore unknown keys and steps.
 """
 import argparse
 import datetime as dt
@@ -109,14 +109,14 @@ def git(repo, *args):
 
 
 def section(text, heading):
-    """Bullet lines under '## heading', minus a placeholder such as '- none' or '- <none ...>'."""
+    """Section bullets excluding none placeholders."""
     match = re.search(rf"^## {heading}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
     lines = [l for l in (match.group(1).splitlines() if match else []) if l.startswith("- ")]
     return [l for l in lines if not re.match(r"- (none\.?|<none\b[^>]*>)\s*$", l, re.I)]
 
 
 def changed(repo, a, b):
-    """True when code outside .jflow/ changed between two commits; None when one is unknown."""
+    """Code changed outside .jflow/, or None for unknown commits."""
     try:
         return bool(git(repo, "diff", "--name-only", f"{a}..{b}", "--", ".", ":(exclude).jflow"))
     except subprocess.CalledProcessError:
@@ -153,6 +153,106 @@ def read_records(run):
     return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
+def validate(repo, run, step):
+    errors, path = [], run / "spec.md"
+
+    def need(ok, n, message):
+        if not ok:
+            errors.append(f"{path.relative_to(repo)}:{n}: {message}")
+
+    def read():
+        try:
+            return path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            need(False, 1, "cannot read file")
+            return ""
+
+    def sha(value, n=1):
+        need(re.fullmatch(r"[0-9a-f]{7,40}", value) and subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--verify", value + "^{commit}"],
+            capture_output=True).returncode == 0, n, "unknown commit sha")
+
+    def body(text, heading):
+        active = False
+        for n, line in enumerate(text.splitlines(), 1):
+            if line.startswith("## "):
+                active = line.strip() == "## " + heading
+            elif active and line.strip():
+                yield n, line
+
+    def table(lines, header):
+        rows, seen = {}, False
+        for n, line in lines:
+            if not line.startswith("|"):
+                continue
+            cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip())[1:-1]]
+            if not seen:
+                need(cells == header.split("|"), n, "expected columns " + header)
+                seen = True
+            elif all(re.fullmatch(r":?-+:?", c) for c in cells):
+                continue
+            elif len(cells) != len(header.split("|")) or not cells[0].isdigit():
+                need(False, n, "bad table row")
+            else:
+                need(cells[0] not in rows, n, "duplicate row " + cells[0])
+                rows[cells[0]] = (n, cells)
+        need(rows, 1, "missing table rows")
+        return rows
+
+    spec = read()
+    rows = table(body(spec, "Proof"), "#|Claim|Surface|Check|Pass signal|Kind|Base")
+    if step == "spec":
+        need(re.search(r"^Status: (ready|done)[ \t]*$", spec, re.M), 1, "invalid Status")
+        base = re.search(r"^Base: (\S+)[ \t]*$", spec, re.M)
+        sha(base[1] if base else "")
+        for heading in ("Problem", "Goals", "Non-goals", "Constraints", "Proof", "Human checks"):
+            need(re.search(rf"^## {heading}[ \t]*$", spec, re.M), 1, "missing section " + heading)
+        need(any(re.fullmatch(r"- Gate: .+", l) for _, l in body(spec, "Constraints")), 1, "missing Gate line")
+        for n, cells in rows.values():
+            kind, base = cells[-2:]
+            need(kind in ("new", "keep", "live") and base == ("green" if kind == "keep" else "red"),
+                 n, "invalid Kind or Base")
+    elif step == "accept":
+        for n, line in body(spec, "Accepted"):
+            m = re.fullmatch(r'- (Row|Defect) (\d+) · .+ · ".+" · \d{4}-\d{2}-\d{2} · (\S+)', line)
+            need(m, n, "invalid Accepted line")
+            if m:
+                sha(m[3], n)
+                need(m[1] != "Row" or m[2] in rows, n, "Accepted names unknown row " + m[2])
+    else:
+        receipts = receipts_of(run)
+        path = receipts[-1] if receipts else run / "receipts/check-N.md"
+        text = read()
+        m = re.match(r"# check-(\d+) @ (\S+) · .+", text)
+        need(m and path.stem == "check-" + m[1], 1, "missing receipt or bad header " + path.stem)
+        if m:
+            sha(m[2])
+        need(re.findall(r"^## (.+)$", text, re.M) == ["Defects", "Maybes"],
+             1, "missing or extra section: Defects, Maybes")
+        defects = set()
+        for n, line in body(text, "Defects"):
+            if re.fullmatch(r"- (none\.?|<none[^>]*>)", line, re.I):
+                continue
+            m = re.match(r"- (\d+)\. .+? Evidence: (.+)$", line)
+            need(m and len(m[2]) <= 240, n, "invalid defect or Evidence >240")
+            if m:
+                defects.add(m[1])
+        verdicts = table(enumerate(text.split("\n## ", 1)[0].splitlines(), 1), "#|Verdict|Evidence")
+        for key in rows.keys() - verdicts.keys():
+            need(False, 1, "missing row " + key)
+        accepted = {m[1] for _, l in body(spec, "Accepted") if (m := re.fullmatch(r"- Row (\d+) ·.*· [0-9a-f]{7,40}", l))}
+        for key, (n, cells) in verdicts.items():
+            _, verdict, evidence = cells
+            need(key in rows and verdict in ("PROVED", "BROKEN", "BLOCKED", "UNREACHABLE", "WAITING", "ACCEPTED"),
+                 n, "unknown row or verdict " + key)
+            need(0 < len(evidence) <= 240, n, "Evidence empty or over 240")
+            if verdict == "BROKEN" and re.fullmatch(r"(?i)defect \d+(,\s*defect \d+)*", evidence):
+                for d in re.findall(r"\d+", evidence):
+                    need(d in defects, n, f"unknown defect {d}")
+            need(verdict != "ACCEPTED" or key in accepted, n, "row " + key + " not under Accepted")
+    return errors
+
+
 def summary(repo, run):
     records = read_records(run)
     spec = (run / "spec.md").read_text(encoding="utf-8")
@@ -160,8 +260,7 @@ def summary(repo, run):
     if not base:
         raise SystemExit("summary: spec.md has no Base line")
     spec_path = str(run / "spec.md")
-    # A finished run ends just before the commit that set Status: done: what done measured, before its
-    # own WORKLOG and TODO edits. Later commits belong to other work.
+    # Exclude the done commit's WORKLOG/TODO edits and later work from finished runs.
     done_commits = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", spec_path).splitlines()
     end = done_commits[-1] + "^" if done_commits else "HEAD"
     code = tests = docs = other = 0
@@ -183,13 +282,13 @@ def summary(repo, run):
     ended = dt.datetime.fromisoformat(git(repo, "log", "-1", "--format=%cI", done_commits[-1])) if done_commits \
         else dt.datetime.now(dt.timezone.utc)
     hours = round((ended - dt.datetime.fromisoformat(started[0])).total_seconds() / 3600, 1) if started else None
-    # Receipts are the truth for checks, so runs from before run.jsonl still count.
+    # Count checks predating run.jsonl too.
     checks = [receipt_fields(p) for p in receipts_of(run)]
-    # Git counts what an agent can forget to record: a fix round is code changed after a check.
+    # Git also counts unrecorded fixes.
     shas = [c["sha"] for c in checks] + [end]
     fixes = sum(1 for a, b in zip(shas, shas[1:]) if a and changed(repo, a, b))
     steps = [r for r in records if r.get("step") in STEPS]
-    # Spec, build and each check are fresh sessions; records add a re-spec or a builder that restarted.
+    # Include re-specs and fresh builder restarts.
     sessions = (max(1, sum(r["step"] == "spec" for r in steps)) + bool(checks or code or tests or docs or other)
                 + len(checks) + sum(r["step"] in BUILDER_STEPS and r.get("session") == "fresh" for r in steps))
     return {"sessions": sessions if steps else None,
@@ -209,7 +308,6 @@ def line(s):
 
 
 def next_step(repo, run, a):
-    """The hub's state table: the first state that holds decides the next step."""
     slug = run.name
     spec = (run / "spec.md").read_text(encoding="utf-8") if (run / "spec.md").exists() else ""
     status = re.search(r"^Status:\s*(\w+)", spec, re.M)
@@ -254,8 +352,7 @@ def next_step(repo, run, a):
                 acceptances.append((m.group(1, 2), m.group(3), added))
 
         def closed(k, key):
-            # A carried verdict comes from the check it cites. An acceptance closes it when it names
-            # that check's code sha and was committed in or after the commit that created its receipt.
+            # Acceptances name the source check's sha and follow its receipt commit.
             carried = re.search(r"carried from check-(\d+)", items(k)[key], re.I)
             if carried and int(carried.group(1)) < k and key in items(int(carried.group(1))):
                 return closed(int(carried.group(1)), key)
@@ -266,7 +363,7 @@ def next_step(repo, run, a):
                                             ).returncode == 0) for item, named, added in acceptances)
 
         def items(k):
-            """Each row's and defect's receipt line in check-k, keyed ("Row", "3") or ("Defect", "1")."""
+            """Receipt lines keyed ("Row", "3") or ("Defect", "1")."""
             text = paths[k].read_text(encoding="utf-8") if k in paths else ""
             lines = {("Row", m.group(1)): m.group(0) for m in re.finditer(r"^\|\s*(\d+)\s*\|.*$", text, re.M)}
             lines.update({("Defect", (re.findall(r"\d+", d) or ["?"])[0]): d for d in section(text, "Defects")})
@@ -345,6 +442,9 @@ def main(argv=None):
     summ = sub.add_parser("summary")
     summ.add_argument("slug")
     summ.add_argument("--json", action="store_true")
+    val = sub.add_parser("validate")
+    val.add_argument("slug")
+    val.add_argument("step", choices=("spec", "check", "accept"))
     seat = sub.add_parser("seat")
     seat.add_argument("step")
     nxt = sub.add_parser("next")
@@ -353,7 +453,7 @@ def main(argv=None):
     for p in (seat, nxt):
         p.add_argument("--config")
         p.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")
-    for p in (rec, summ, seat, nxt):
+    for p in (rec, summ, seat, nxt, val):
         p.add_argument("--repo", default=".")
     a = parser.parse_args(argv)
     if a.cmd == "seat":
@@ -369,6 +469,12 @@ def main(argv=None):
         n = next_step(repo, run, a)
         print(json.dumps(n) if a.json else card(n))
         return 0
+    if a.cmd == "validate" or a.cmd == "record" and a.step in ("spec", "check", "accept"):
+        errors = validate(repo, run, a.step)
+        if errors:
+            print("\n".join(errors), file=sys.stderr)
+        if errors or a.cmd == "validate":
+            return int(bool(errors))
     if not (run / "spec.md").exists():
         raise SystemExit(f"no {run / 'spec.md'}")
     if a.cmd == "summary":
@@ -386,7 +492,7 @@ def main(argv=None):
         entry["n"] = 1 + sum(1 for r in read_records(run) if r.get("step") == "fix")
     if a.step == "done":
         entry["summary"] = summary(repo, run)
-    # Recording a check again, after its receipt changed, replaces that check's line.
+    # Re-recording replaces the check's line.
     kept = [r for r in read_records(run) if not (a.step == "check" and r.get("step") == "check"
                                                   and r.get("n") == entry["n"])]
     (run / "run.jsonl").write_text("".join(json.dumps(r) + "\n" for r in kept + [entry]), encoding="utf-8")
