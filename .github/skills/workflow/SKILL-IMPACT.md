@@ -11,6 +11,7 @@ Reverted and rejected changes are logged too, so they are not re-proposed. Outco
 
 | Date | Skill | Change | From | Trial until | Outcome |
 |---|---|---|---|---|---|
+| 2026-11-10 | jflow | Validate every number in a BROKEN row's comma-separated defect citation list while allowing quoted commands. Judge: the next three checks reject lists containing an unknown defect | jflow-validate check-2 defect 1 | 3 checks | trialing |
 | 2026-11-10 | jflow | Check defect references only for BROKEN rows whose entire Evidence cell cites `defect N`; quoted commands can mention defects without a matching Defects entry. Judge: the next three checks record template-valid command evidence | jflow-validate check-1 defect 1 | 3 checks | trialing |
 | 2026-11-10 | jflow | `validate` checks spec, newest receipt and Accepted-line shape; `record` refuses malformed output before writing. Judge: the next three runs record valid artifacts without silent parser skips | jflow-validate, Proof rows 1–10 | 3 runs | trialing |
 | 2026-11-09 | jflow | Default Claude seats name `claude-opus-5-5`, the ID Claude Code accepts; Claude Code 2.1.321 returns 404 for `claude-opus-5.5`, so a headless build stopped on its first try. Judge: the next three runs start their Claude seats from the default config | conductor-drives-jflow build, row 11 live run | 3 runs | trialing |

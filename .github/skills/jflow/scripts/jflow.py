@@ -224,17 +224,17 @@ def validate(repo, run, step):
         path = receipts[-1] if receipts else run / "receipts/check-N.md"
         text = read()
         m = re.match(r"# check-(\d+) @ (\S+) · .+", text)
-        need(m and path.stem == "check-" + m[1], 1, "missing receipt or mismatched header " + path.stem)
+        need(m and path.stem == "check-" + m[1], 1, "missing receipt or bad header " + path.stem)
         if m:
             sha(m[2])
-        headings = re.findall(r"^## (.+)$", text, re.M)
-        need(headings == ["Defects", "Maybes"], 1, "missing or extra section: Defects, Maybes required")
+        need(re.findall(r"^## (.+)$", text, re.M) == ["Defects", "Maybes"],
+             1, "missing or extra section: Defects, Maybes")
         defects = set()
         for n, line in body(text, "Defects"):
             if re.fullmatch(r"- (none\.?|<none[^>]*>)", line, re.I):
                 continue
             m = re.match(r"- (\d+)\. .+? Evidence: (.+)$", line)
-            need(m and len(m[2]) <= 240, n, "invalid defect or Evidence exceeds 240 characters")
+            need(m and len(m[2]) <= 240, n, "invalid defect or Evidence >240")
             if m:
                 defects.add(m[1])
         verdicts = table(enumerate(text.split("\n## ", 1)[0].splitlines(), 1), "#|Verdict|Evidence")
@@ -245,9 +245,10 @@ def validate(repo, run, step):
             _, verdict, evidence = cells
             need(key in rows and verdict in ("PROVED", "BROKEN", "BLOCKED", "UNREACHABLE", "WAITING", "ACCEPTED"),
                  n, "unknown row or verdict " + key)
-            need(0 < len(evidence) <= 240, n, "Evidence empty or exceeds 240 characters")
-            if verdict == "BROKEN" and (m := re.fullmatch(r"(?i)defect (\d+)", evidence)):
-                need(m[1] in defects, n, f"unknown defect {m[1]}")
+            need(0 < len(evidence) <= 240, n, "Evidence empty or over 240")
+            if verdict == "BROKEN" and re.fullmatch(r"(?i)defect \d+(,\s*defect \d+)*", evidence):
+                for d in re.findall(r"\d+", evidence):
+                    need(d in defects, n, f"unknown defect {d}")
             need(verdict != "ACCEPTED" or key in accepted, n, "row " + key + " not under Accepted")
     return errors
 

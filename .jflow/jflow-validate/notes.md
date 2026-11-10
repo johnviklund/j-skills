@@ -50,3 +50,21 @@
 - Python 3.9 passes all 27 jflow tests offline.
 - Final baseline command exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 27 tests OK.
   The jflow suite includes the 21 unchanged historical cases and Base output comparisons.
+
+## Fix 2
+
+- Reproduced check-2 defect 1: `defect 1, defect 9` on a BROKEN row passes with defect 9 absent.
+  BROKEN evidence now recognizes a whole comma-separated citation list and checks every number.
+  Whitespace after commas is optional. Quoted commands and non-BROKEN evidence remain valid.
+- The seven-case regression fails on the old code. It covers no defects, a missing first or last
+  citation, comma spacing, all cited defects present, a PROVED list, and a quoted list in a command.
+  Validate and record run; rejected records leave the log unchanged. Existing assertions stay unchanged.
+- The checker input in a scratch wait-points check-1 now prints `unknown defect 9` and exits 1
+  for validate and record. Its log remains byte-identical; the current check-2 receipt validates.
+- The skill totals 49,996 bytes. One single-use variable is inlined and four diagnostics are shorter.
+  No comments or docstrings are removed, and the size cap stays unchanged.
+- Mutation control passes all seven cases. Checking only the first citation, only the last citation,
+  or accepting only a single citation each makes the regression fail.
+- Python 3.9 passes all 28 jflow tests offline.
+- Final baseline command exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 28 tests OK.
+  Historical validation cases and Base output comparisons still pass.

@@ -146,6 +146,33 @@ class Validation(unittest.TestCase):
                 self.assertEqual(result.returncode, code, result.stderr)
                 self.assertEqual(log.read_bytes() == before, bool(code))
 
+    def test_broken_citation_lists_check_each_defect(self):
+        defect = '- 1. app.py: input -> bad -> good. Evidence: run, bad'
+        both = defect + '\n' + defect.replace('- 1.', '- 9.')
+        quote = '`grep -c "defect 1, defect 9" receipts/check-1.md` → 2'
+        cases = [('BROKEN', 'defect 1, defect 9', '- none', 1),
+                 ('BROKEN', 'defect 1, defect 9', defect, 1),
+                 ('BROKEN', 'defect 9, defect 1', defect, 1),
+                 ('BROKEN', 'defect 1,defect 9', defect, 1),
+                 ('BROKEN', 'defect 1, defect 9', both, 0),
+                 ('PROVED', 'defect 1, defect 9', '- none', 0),
+                 ('BROKEN', quote, '- none', 0)]
+        log = self.run_dir / 'run.jsonl'
+        for verdict, evidence, defects, code in cases:
+            with self.subTest(verdict=verdict, evidence=evidence, defects=defects):
+                self.receipt(1, verdict, defects)
+                path = self.run_dir / 'receipts/check-1.md'
+                path.write_text(path.read_text().replace('`cmd` -> ok', evidence, 1))
+                log.write_text('{"step": "decision"}\n')
+                before = log.read_bytes()
+                if code:
+                    self.assert_bad('check', 'unknown defect 9')
+                else:
+                    self.assert_clean('check')
+                result = self.cli('check', 'record')
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertEqual(log.read_bytes() == before, bool(code))
+
     def test_record_guards_leave_log_unchanged_and_other_steps_write(self):
         log = self.run_dir / 'run.jsonl'
         sentinel = '{"step": "decision"}\n'
