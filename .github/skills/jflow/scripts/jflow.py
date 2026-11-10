@@ -246,8 +246,8 @@ def validate(repo, run, step):
             need(key in rows and verdict in ("PROVED", "BROKEN", "BLOCKED", "UNREACHABLE", "WAITING", "ACCEPTED"),
                  n, "unknown row or verdict " + key)
             need(0 < len(evidence) <= 240, n, "Evidence empty or exceeds 240 characters")
-            for defect in re.findall(r"\bdefect (\d+)\b", evidence, re.I):
-                need(defect in defects, n, "unknown defect " + defect)
+            if verdict == "BROKEN" and (m := re.fullmatch(r"(?i)defect (\d+)", evidence)):
+                need(m[1] in defects, n, f"unknown defect {m[1]}")
             need(verdict != "ACCEPTED" or key in accepted, n, "row " + key + " not under Accepted")
     return errors
 

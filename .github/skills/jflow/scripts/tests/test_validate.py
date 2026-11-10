@@ -89,7 +89,7 @@ class Validation(unittest.TestCase):
                  ('`cmd` -> ok', 'x' * 241, '240'),
                  ('Evidence: run, bad', 'Evidence: ' + 'x' * 241, '240'),
                  ('Evidence: run, bad', 'Evidence: ' + 'x' * 241 + ' Evidence: x', '240'),
-                 ('`cmd` -> ok', 'defect 2', 'unknown defect 2'),
+                 ('| 1 | PROVED | `cmd` -> ok |', '| 1 | BROKEN | defect 2 |', 'unknown defect 2'),
                  ('| 1 | PROVED', '| 1 | ACCEPTED', 'Accepted'),
                  ('## Maybes', '## Extra\n\n## Maybes', 'extra section'),
                  ('| 2 | PROVED', '| 1 | PROVED', 'duplicate'),
@@ -123,6 +123,28 @@ class Validation(unittest.TestCase):
         self.assert_clean('accept')
         self.receipt(1, 'ACCEPTED', '- none')
         self.assert_clean('check')
+
+    def test_only_broken_direct_citations_require_a_defect(self):
+        quote = '`grep -c "defect 1" receipts/check-1.md` → 2'
+        defect = '- 1. app.py: input -> bad -> good. Evidence: run, bad'
+        cases = [('PROVED', quote, '- none', 0), ('BROKEN', quote, '- none', 0),
+                 ('PROVED', 'defect 1', '- none', 0), ('BROKEN', 'defect 1', '- none', 1),
+                 ('BROKEN', 'Defect 1', '- none', 1), ('BROKEN', 'defect 1', defect, 0)]
+        log = self.run_dir / 'run.jsonl'
+        for verdict, evidence, defects, code in cases:
+            with self.subTest(verdict=verdict, evidence=evidence, defects=defects):
+                self.receipt(1, verdict, defects)
+                path = self.run_dir / 'receipts/check-1.md'
+                path.write_text(path.read_text().replace('`cmd` -> ok', evidence, 1))
+                log.write_text('{"step": "decision"}\n')
+                before = log.read_bytes()
+                if code:
+                    self.assert_bad('check', 'unknown defect 1')
+                else:
+                    self.assert_clean('check')
+                result = self.cli('check', 'record')
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertEqual(log.read_bytes() == before, bool(code))
 
     def test_record_guards_leave_log_unchanged_and_other_steps_write(self):
         log = self.run_dir / 'run.jsonl'

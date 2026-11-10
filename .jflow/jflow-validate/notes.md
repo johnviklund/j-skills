@@ -31,3 +31,22 @@
 - Final baseline command exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 26 tests OK.
 - Python 3.9 runs all 26 jflow tests offline and ends OK.
 - Skill files excluding tests total 49,986 bytes. The documentation grep returns one validation line.
+
+## Fix 1
+
+- Reproduced check-1 defect 1: quoting `defect 1` in a PROVED row's command makes validate and
+  record fail with `unknown defect 1`. Both commands now allow that evidence unchanged.
+- Only a BROKEN row whose entire Evidence cell is a case-insensitive `defect N` citation checks
+  N against the receipt's Defects list. Quoted commands remain evidence, including in BROKEN rows.
+- The six-case regression fails on the old code. It covers quoted commands, a PROVED mention,
+  missing and known direct citations, and uppercase `Defect`. Both validate and record run;
+  rejected records leave the log unchanged.
+- The missing-defect fixture now uses a BROKEN citation. Existing assertions remain unchanged.
+- The skill totals 49,998 bytes. This fix changes two code lines and shortens no comments.
+- The exact quoted-command input in a scratch wait-points check-2 now passes validate and record.
+  The current check-1 receipt also validates unchanged.
+- Mutation control passes; removing the verdict condition, whole-cell match, case-insensitive
+  matching or defect membership check makes the regression fail.
+- Python 3.9 passes all 27 jflow tests offline.
+- Final baseline command exits 0: workflow 137 tests OK, checkup 41 tests OK, jflow 27 tests OK.
+  The jflow suite includes the 21 unchanged historical cases and Base output comparisons.
