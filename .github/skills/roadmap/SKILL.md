@@ -1,12 +1,12 @@
 ---
 name: roadmap
 description: >
-  Keeps a repo's roadmap readable and fresh, and turns ideas into roadmap items that start from the
-  problem, not the solution. "roadmap item IDEA" grills the why and writes one item; "roadmap tidy"
-  finds stale, overlapping and conflicting items and asks before changing anything; bare "roadmap"
-  shows Next up. Items sit in fixed groups under a short ordered Next up list, in a format that
-  jflow spec reads. Run only on an explicit "roadmap", "roadmap item IDEA" or "roadmap tidy"
-  message; never on casual mentions of roadmaps, plans or ideas.
+  The "roadmap", "roadmap item IDEA" and "roadmap tidy" commands; load this skill to run any of
+  them. Keeps a repo's roadmap readable and fresh: "roadmap item IDEA" grills the why and writes
+  one problem-first item, "roadmap tidy" finds stale, overlapping and conflicting items and asks
+  before changing anything, bare "roadmap" shows Next up. Items sit in fixed groups under a short
+  ordered Next up list, in a format that jflow spec reads. Run only on one of those explicit
+  messages; never on general questions about roadmaps, plans or ideas.
 ---
 
 # roadmap
