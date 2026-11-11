@@ -71,7 +71,9 @@ evidence: a count, a measurement, a quote, a commit. A solution idea goes in `Op
 "do nothing". `Solved when` names something observable; jflow spec makes it the first Proof row.
 
 **Status** is `open`, `started`, `blocked: <why>` or `done <YYYY-MM-DD> <sha>`. A done item moves
-to `<NAME>_ARCHIVE.md` beside the roadmap, newest first, so the roadmap holds only open work.
+to `<NAME>_ARCHIVE.md` beside the roadmap, under one `## Done` heading, newest first, so the
+roadmap holds only open work. The heading keeps item headings one level below it, which markdown
+linters require.
 
 **Groups** are fixed, so items never drift into new ones. Each item sits in the one group of its
 main outcome, and empty groups are left out:
