@@ -15,7 +15,8 @@ Ask in rounds: every question whose prerequisites are settled, numbered, each wi
 recommended answer worded so "yes" accepts it. Then wait. Ask the why first: who has the problem,
 what they see, the evidence, why now. Then what good looks like, what must stay, what is out of
 scope, and which `PRODUCT.md` outcome it serves. A roadmap item's fields, `Serves` included,
-answer their own questions. Never ask those again; start from its `Open for spec`.
+answer their own questions, and its chosen option is settled with its limits, such as a cutoff.
+Never reopen them; start from its `Open for spec`.
 
 Paths, functions, libraries and test layout belong to the builder unless they are a real
 constraint. Ask about a how only when it is costly to undo: a schema, a public contract, a data
@@ -53,7 +54,7 @@ Kind `live`; every other row must be provable before the gate. Measured 2026-11-
 after the live steps could not prove a guard, because the gap it refuses no longer existed.
 
 When a row needs a surface the agent cannot drive, say what is missing. A repo with a user surface
-and no `verify-*` skill gets `verify.create` first, because check has nothing to drive it with.
+and no `verify-*` skill gets `verify.create` first.
 
 ## 4. Run the table on the base commit
 
@@ -67,7 +68,7 @@ A surface that does not exist yet counts as `red`. Keep any throwaway files out 
 ## 5. Play it back and write
 
 Show the human the spec in chat and wait for an explicit yes. Then write `spec.md`, about one page,
-from this exact template, commit it, then run `jflow.py next <slug>` and print its card. Done when
+from this exact template, and commit it. Done when
 the spec is committed with `Status: ready`, and every row has a `Base` result.
 
 ```markdown

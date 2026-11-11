@@ -20,3 +20,14 @@
   counts. Malformed Markdown only; I judged that enough.
 - To keep the skill under its 50,000-byte size test I removed the five usage lines from
   jflow.py's docstring; `jflow.py COMMAND -h` prints the same, and the docstring now says so.
+- Fix for check-2 defects 2 and 3, one cause: the regex fence strip did not follow Markdown. A line
+  scanner now reads PRODUCT.md. A fence opens on 3+ backticks or tildes indented 0-3 spaces. It
+  closes only on the same mark, at least as long, alone on its line; unclosed, it runs to the end. A
+  `###` heading counts when indented 0-3 spaces. The test table gained five cases, and
+  `drive.py attack` now gives the right result for all seven inputs.
+- Fix for check-2 defect 1: spec.md now says the item's chosen option is settled with its limits,
+  such as a cutoff. On rerun, `drive.py 1` gave 2 of 2 sessions that start from `Open for spec`
+  and do not reopen the 8 KiB cutoff.
+- Size test again: now 49,999 bytes. I cut a slogan from SKILL.md, the line saying an accepted item
+  is no longer open (the next paragraph says it), and spec.md's own "run next, print its card" and
+  verify.create reason, both repeated elsewhere.

@@ -203,10 +203,18 @@ def validate(repo, run, step):
             need(re.search(rf"^## {heading}[ \t]*$", spec, re.M), 1, "missing section " + heading)
         need(any(re.fullmatch(r"- Gate: .+", l) for _, l in body(spec, "Constraints")), 1, "missing Gate line")
         if (repo / "PRODUCT.md").exists():
-            head = spec.split("\n## ")[0]  # Serves in the header; no fenced outcomes
+            head = spec.split("\n## ")[0]
             m = re.search(r"^Serves: (.+?)[ \t]*$", head, re.M)
-            p = re.sub(r"^(```|~~~).*?^\1", "", (repo / "PRODUCT.md").read_text("utf-8"), flags=re.M | re.S)
-            need(m and m[1] in re.findall(r"^### (.+?)(?:[ \t]+#+)?[ \t]*$", p, re.M) + ["none"],
+            outcomes, fence = ["none"], ""
+            for l in (repo / "PRODUCT.md").read_text("utf-8").splitlines():
+                f = re.match(r" {0,3}(`{3,}|~{3,})", l)
+                if fence:  # closes on the same mark, as long, alone
+                    fence *= not re.fullmatch(rf" {{0,3}}{fence[0]}{{{len(fence)},}}\s*", l)
+                elif f:
+                    fence = f[1]
+                elif h := re.fullmatch(r" {0,3}### (.+?)(?:[ \t]+#+)?[ \t]*", l):
+                    outcomes.append(h[1])
+            need(m and m[1] in outcomes,
                  head[:m.start()].count("\n") + 1 if m else 1, "Serves names no ### outcome in PRODUCT.md")
         for n, cells in rows.values():
             kind, base = cells[-2:]

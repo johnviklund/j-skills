@@ -11,7 +11,7 @@ description: >
 # jflow
 
 **Spec, build, check, ship.** A fresh checker proves the change on the real thing against a spec
-the builder did not write, then attacks cases outside it. Evidence decides whether work is done.
+the builder did not write, then attacks cases outside it.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the first
 message. A question carries one decision, lettered options and a ➡️ recommended option first.
@@ -56,8 +56,8 @@ Tracked in git.
 ```text
 .jflow/<slug>/
   spec.md             the spec and Proof table, written by spec and read-only afterwards
-  notes.md            the builder's judgement calls and anything left open, a few lines
-  drive.py            the checker's one driver when a row needs it, reused by later checks, deleted at done
+  notes.md            the builder's judgement calls and anything left open
+  drive.py            the checker's driver, reused by later checks, deleted at done
   receipts/check-N.md one per check, numbered from 1
   run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
 ```
@@ -70,7 +70,7 @@ every row then runs again.
 **Accepted.** When the human accepts a missed bar, an unproved row or a defect in so many words,
 the session they said it to adds one line under `## Accepted` at the end of `spec.md`, in its own
 commit named `jflow accept <slug>`, and no row runs again. The bar stays as written, so the record
-shows what was missed. An accepted item is no longer open.
+shows what was missed.
 
 ```markdown
 ## Accepted

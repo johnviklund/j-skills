@@ -208,7 +208,13 @@ class Validation(unittest.TestCase):
                 (product, good, 'Serves: Counts you can trust\n', True), (product, good, 'Serves: none\n', True),
                 (product, example, '', False),  # check-1 defect 1: a quoted example is not the header
                 (fenced, good, 'Serves: Retired outcome\n', False),  # defect 2: fenced heading
-                (product.replace('trust\n', 'trust ###\n'), good, 'Serves: Counts you can trust\n', True)):
+                (product.replace('trust\n', 'trust ###\n'), good, 'Serves: Counts you can trust\n', True),
+                # check-2 defects 2, 3: nested, indented and unclosed fences; an indented heading
+                (product + '````md\n```\n### Retired outcome\n```\n````\n', good, 'Serves: Retired outcome\n', False),
+                (product + '   ```\n### Retired outcome\n   ```\n', good, 'Serves: Retired outcome\n', False),
+                (product + '~~~\n### Retired outcome\n', good, 'Serves: Retired outcome\n', False),
+                (product.replace('###', '   ###'), good, 'Serves: Counts you can trust\n', True),
+                (product.replace('###', '    ###'), good, 'Serves: Counts you can trust\n', False)):
             with self.subTest(product=product_md, serves=serves, example=text is example):
                 (self.repo / 'PRODUCT.md').write_text(product_md)
                 spec.write_text(text.replace('A run with', serves + 'A run with'))
