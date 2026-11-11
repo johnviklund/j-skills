@@ -191,6 +191,14 @@ def attack(raw):
          original.replace('A run with', 'Serves: Retired outcome\nA run with')),
         ('closing-hashes', PRODUCT.replace('### Counts you can trust', '### Counts you can trust ###'),
          original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
+        ('nested-fence', PRODUCT + '\n````markdown\n```text\n### Retired outcome\n```\n````\n',
+         original.replace('A run with', 'Serves: Retired outcome\nA run with')),
+        ('indented-fence', PRODUCT + '\n   ```markdown\n### Retired outcome\n   ```\n',
+         original.replace('A run with', 'Serves: Retired outcome\nA run with')),
+        ('unclosed-fence', PRODUCT + '\n```markdown\n### Retired outcome\n',
+         original.replace('A run with', 'Serves: Retired outcome\nA run with')),
+        ('indented-heading', PRODUCT.replace('### Counts you can trust', '   ### Counts you can trust'),
+         original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
     ]
     for name, product, text in cases:
         (repo / 'PRODUCT.md').write_text(product)
