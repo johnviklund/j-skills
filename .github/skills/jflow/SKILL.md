@@ -35,13 +35,13 @@ keyed by step. Overrides supply `model`, `vendor`, `effort` and `fallback`, null
 seat. Fix, live and accept inherit build.
 
 **Independence.** Top-level `different_vendors` defaults true; matching build/check vendors
-select `other_vendor`, a complete seat on another vendor. False disables this default.
+select `other_vendor`, a complete seat on another vendor. False disables it.
 A wrong-vendor session says so in its first line and notes, then continues.
 Its check card uses `--builder-vendor V`.
 
 **Locked rules.** Seats print fixed `rules`; config may repeat them as true.
 `public_paid_needs_human` requires a human for public or paid actions; `checker_read_only`
-forbids product edits by checkers. Both declare session policy. `no_secrets` rejects key-like
+forbids product edits by checkers. `no_secrets` rejects key-like
 config values and record's `--model` and `--effort` values without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
@@ -51,7 +51,7 @@ starts blind to part of that folder. Its completion criterion ends the step.
 
 ## The run: `.jflow/<slug>/`
 
-Tracked in git, separately from `.workflow/`.
+Tracked in git.
 
 ```text
 .jflow/<slug>/
@@ -62,7 +62,7 @@ Tracked in git, separately from `.workflow/`.
   run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
 ```
 
-Commit only these files. Raw output goes to a temp folder.
+Commit only these files; raw output goes to a temp folder.
 
 `spec.md` is the answer key. Only `jflow spec`, with the human's confirmation, changes it, and
 every row then runs again.
@@ -78,9 +78,8 @@ shows what was missed. An accepted item is no longer open.
 - Defect 2 · <the miss> · "<the human's words>" · <date> · <sha it applies to>
 ```
 
-`next` closes an item when its line starts with `Row N` or `Defect N`, names the sha of the check
-the verdict came from, and was committed in or after that check's receipt. A verdict carried from
-check-N came from check-N. A later check that fails the item again saw the acceptance.
+`next` closes an item whose line names the sha of the check its verdict came from, carried
+verdicts included, and was committed in or after that check's receipt.
 
 ## The next step
 
@@ -91,15 +90,14 @@ the human has `role: "human"` and a `blocker`; tell the human what it says. Pass
 as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
-checks at most, and a check that only reruns BLOCKED or WAITING rows does not count, since no fix
-went in. At the cap, stop and give the human what is open. A `Checks allowed: N` line in
-`notes.md` raises the cap to N, when the human allows more.
+checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
+human what is open. A `Checks allowed: N` line in `notes.md` raises the cap.
 
-**Wait points.** `next` also stops for the human at three points, each cleared by its own line in
+**Wait points.** `next` also stops for the human at three points, each cleared by a line in
 `notes.md`: `Yes: approach` for an approach posted for an **Ask first** item, `Yes: gate` before the
 live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes. The session the
 human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
-with `Yes: <point>` counts, and it clears that point and no other.
+with `Yes: <point>` clears that point, and no other.
 
 ## The closing card
 
@@ -121,12 +119,11 @@ Codex 0.166, a local test client hangs in the default sandbox.
 Before the commit, record the step:
 `python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
 `<skill>` is this skill's absolute folder and the model is your own. Use the step from `flow.json`.
-The script reads git and receipts. Record a check again if its receipt changes.
+Record a check again if its receipt changes.
 
-Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's full build, test and lint
-commands to `jflow done`, even when the repo's own instructions ask for them at every step: they
-belong to the finished change, not to each receipt.
+Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's
+full build, test and lint commands to `jflow done`, even when the repo asks for them every step.
 
 Every step runs in any CLI, as a plain message in a session the human starts. Where the builder
-session cannot be resumed, a new session on the builder's model takes the branch, `spec.md`,
-`notes.md` and the open receipt, says so in `notes.md`, and records its steps with `--session fresh`.
+session cannot be resumed, a new session on the builder's model takes over the branch and run
+folder, says so in `notes.md`, and records its steps with `--session fresh`.

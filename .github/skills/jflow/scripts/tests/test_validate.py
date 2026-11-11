@@ -195,6 +195,22 @@ class Validation(unittest.TestCase):
         self.assertEqual(self.cli('check', 'record').returncode, 0)
         self.assert_clean('check')
 
+    def test_serves_must_name_a_product_outcome(self):
+        spec = self.run_dir / 'spec.md'
+        good = spec.read_text()
+        (self.repo / 'PRODUCT.md').write_text('# p\n## The desired state\n### Counts you can trust\n')
+        log = self.run_dir / 'run.jsonl'
+        for serves, ok in (('', False), ('Serves: Fast\n', False), ('Serves: The desired state\n', False),
+                           ('Serves: Counts you can trust\n', True), ('Serves: none\n', True)):
+            with self.subTest(serves=serves):
+                spec.write_text(good.replace('A run with', serves + 'A run with'))
+                if ok:
+                    self.assert_clean('spec')
+                else:
+                    self.assert_bad('spec', 'Serves')
+                    self.assertEqual(self.cli('spec', 'record').returncode, 1)
+                    self.assertFalse(log.exists())
+
     def test_missing_files_report_problems_without_traceback(self):
         self.assert_bad('check', 'missing receipt')
         (self.run_dir / 'spec.md').unlink()

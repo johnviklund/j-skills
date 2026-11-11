@@ -208,6 +208,10 @@ def validate(repo, run, step):
         for heading in ("Problem", "Goals", "Non-goals", "Constraints", "Proof", "Human checks"):
             need(re.search(rf"^## {heading}[ \t]*$", spec, re.M), 1, "missing section " + heading)
         need(any(re.fullmatch(r"- Gate: .+", l) for _, l in body(spec, "Constraints")), 1, "missing Gate line")
+        if (repo / "PRODUCT.md").exists():
+            m = re.search(r"^Serves: (.+?)[ \t]*$", spec, re.M)
+            need(m and m[1] in re.findall(r"^### (.+?)[ \t]*$", (repo / "PRODUCT.md").read_text("utf-8"), re.M) + ["none"],
+                 spec[:m.start()].count("\n") + 1 if m else 1, "Serves names no ### outcome in PRODUCT.md")
         for n, cells in rows.values():
             kind, base = cells[-2:]
             need(kind in ("new", "keep", "live") and base == ("green" if kind == "keep" else "red"),
