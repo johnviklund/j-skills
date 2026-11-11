@@ -198,12 +198,20 @@ class Validation(unittest.TestCase):
     def test_serves_must_name_a_product_outcome(self):
         spec = self.run_dir / 'spec.md'
         good = spec.read_text()
-        (self.repo / 'PRODUCT.md').write_text('# p\n## The desired state\n### Counts you can trust\n')
+        product = '# p\n## The desired state\n### Counts you can trust\n'
+        fenced = product + '```markdown\n### Retired outcome\n```\n'
+        example = good.replace('A fixture run.', '```text\nServes: Counts you can trust\n```')
         log = self.run_dir / 'run.jsonl'
-        for serves, ok in (('', False), ('Serves: Fast\n', False), ('Serves: The desired state\n', False),
-                           ('Serves: Counts you can trust\n', True), ('Serves: none\n', True)):
-            with self.subTest(serves=serves):
-                spec.write_text(good.replace('A run with', serves + 'A run with'))
+        for product_md, text, serves, ok in (
+                (product, good, '', False), (product, good, 'Serves: Fast\n', False),
+                (product, good, 'Serves: The desired state\n', False),
+                (product, good, 'Serves: Counts you can trust\n', True), (product, good, 'Serves: none\n', True),
+                (product, example, '', False),  # check-1 defect 1: a quoted example is not the header
+                (fenced, good, 'Serves: Retired outcome\n', False),  # defect 2: fenced heading
+                (product.replace('trust\n', 'trust ###\n'), good, 'Serves: Counts you can trust\n', True)):
+            with self.subTest(product=product_md, serves=serves, example=text is example):
+                (self.repo / 'PRODUCT.md').write_text(product_md)
+                spec.write_text(text.replace('A run with', serves + 'A run with'))
                 if ok:
                     self.assert_clean('spec')
                 else:

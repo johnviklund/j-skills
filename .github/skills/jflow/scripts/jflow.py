@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Record, validate and summarize jflow runs.
-
-  jflow.py record <slug> <step> --model M --effort E [--session fresh|builder] [--repo DIR]
-  jflow.py summary <slug> [--repo DIR] [--json]
-  jflow.py validate <slug> <spec|check|accept> [--repo DIR]
-  jflow.py seat <step> [--repo DIR] [--config FILE] [--builder-vendor V]
-  jflow.py next <slug> [--repo DIR] [--config FILE] [--builder-vendor V] [--json]
+"""Record, validate and summarize jflow runs. Usage: jflow.py COMMAND -h.
 
 Standard library, Python 3.9+. Readers ignore unknown keys and steps.
 """
@@ -209,9 +203,11 @@ def validate(repo, run, step):
             need(re.search(rf"^## {heading}[ \t]*$", spec, re.M), 1, "missing section " + heading)
         need(any(re.fullmatch(r"- Gate: .+", l) for _, l in body(spec, "Constraints")), 1, "missing Gate line")
         if (repo / "PRODUCT.md").exists():
-            m = re.search(r"^Serves: (.+?)[ \t]*$", spec, re.M)
-            need(m and m[1] in re.findall(r"^### (.+?)[ \t]*$", (repo / "PRODUCT.md").read_text("utf-8"), re.M) + ["none"],
-                 spec[:m.start()].count("\n") + 1 if m else 1, "Serves names no ### outcome in PRODUCT.md")
+            head = spec.split("\n## ")[0]  # Serves in the header; no fenced outcomes
+            m = re.search(r"^Serves: (.+?)[ \t]*$", head, re.M)
+            p = re.sub(r"^(```|~~~).*?^\1", "", (repo / "PRODUCT.md").read_text("utf-8"), flags=re.M | re.S)
+            need(m and m[1] in re.findall(r"^### (.+?)(?:[ \t]+#+)?[ \t]*$", p, re.M) + ["none"],
+                 head[:m.start()].count("\n") + 1 if m else 1, "Serves names no ### outcome in PRODUCT.md")
         for n, cells in rows.values():
             kind, base = cells[-2:]
             need(kind in ("new", "keep", "live") and base == ("green" if kind == "keep" else "red"),

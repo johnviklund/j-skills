@@ -13,3 +13,10 @@
   installed skill, which updates only after a push, so check runs them against this branch's copy.
 - One new test covers row 3 as a table of five Serves cases. Row 4 is the existing historical-specs
   test and the fixture spec, which has no PRODUCT.md.
+- Fix for check-1 defects 1 and 2, one cause: Serves matched raw text, not Markdown structure.
+  Serves is now read only from the header (before the first `## `), and outcomes are `###`
+  headings outside ``` or ~~~ fences, with optional closing hashes. The fence strip is a regex,
+  not a CommonMark parser: it strips only closed fences, so a heading in an unclosed fence still
+  counts. Malformed Markdown only; I judged that enough.
+- To keep the skill under its 50,000-byte size test I removed the five usage lines from
+  jflow.py's docstring; `jflow.py COMMAND -h` prints the same, and the docstring now says so.
