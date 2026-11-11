@@ -1,0 +1,8 @@
+# Trigger cases for roadmap. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/roadmap/tests/triggers.tsv
+roadmap	roadmap tidy
+roadmap	roadmap item admins cannot see an overview of the important data
+roadmap	roadmap
+roadmap	roadmap tidy docs/ROADMAP.md
+!roadmap	What should a product roadmap for a todo app look like?
+!roadmap	Add a line to ROADMAP.md saying the trial ends on Friday.
+!roadmap	jflow spec export-csv

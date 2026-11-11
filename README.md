@@ -80,6 +80,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | When you need… | Skill | Example message | Result |
 |---|---|---|---|
 | A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| A roadmap that says where to start and why each item matters | [roadmap](#roadmap) | `roadmap item admins cannot see the key numbers` | One item with the problem, its evidence and a way to tell it is solved; `roadmap tidy` finds stale and overlapping items |
 | A code change on the short path, on trial next to `workflow` | [jflow](#jflow) | `jflow spec export-csv` | A one-page spec with a Proof table, then the change, built and proved on the real thing |
 | A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
 | A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
@@ -192,6 +193,23 @@ that needs.
 - When the change turns out to need new data, an API, a schema or logic, it hands over to
   `workflow brainstorm`, bringing the mockups along as evidence.
 - The record is `.design/<slug>/design.md` with its mockups and screens.
+
+### roadmap
+
+Use it to decide what to work on and why, before any spec. A roadmap file has a short ordered
+**Next up** list of at most five items, then every other open item in fixed groups: Features, Bugs,
+Design, Architecture, Tooling and Measurement.
+
+- `roadmap item <idea>` turns an idea into one item. It restates the idea as a problem, looks up
+  the evidence, asks why it matters now and which option to take, with "do nothing" always one of
+  them. You confirm the item before it is written.
+- `roadmap tidy` reads every open item and finds what is stale, overlapping, conflicting, in the
+  wrong group or missing its why. It asks you before changing anything, then moves done items to
+  the archive.
+- `roadmap` shows Next up and the findings of the format check.
+
+Each item's `Solved when` line tells `jflow spec` what its first Proof row should prove. Run
+`python3 .github/skills/roadmap/scripts/roadmap.py check ROADMAP.md` to check a roadmap's format.
 
 ### jflow
 
@@ -346,7 +364,7 @@ Install every skill:
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
 mkdir -p ~/.codex/skills
-for n in agent-docs checkup design evals jflow memory.compact memory.remember plain retro understand verify workflow; do
+for n in agent-docs checkup design evals jflow memory.compact memory.remember plain retro roadmap understand verify workflow; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
 done
 ```
