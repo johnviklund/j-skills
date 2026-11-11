@@ -1,13 +1,14 @@
 ---
 name: bootstrap
 description: >
-  The "bootstrap" and "bootstrap update" commands; load this skill to run either. Writes a repo's
-  steering docs: PRODUCT.md, the short north star of the desired state; DESIGN.md, how it is built
+  The "bootstrap" and "bootstrap update" commands for a repo's steering docs, not for setting up an
+  app or framework; load this skill to run either. Writes the steering docs: PRODUCT.md, the short north star of the desired state; DESIGN.md, how it is built
   and how it looks; ROADMAP.md, the ordered steps toward that state; and TODO.md, the scratchpad.
   "bootstrap [PRD]" creates them from a PRD or splits existing long docs into them; "bootstrap
   update CHANGE" changes the north star or the design on purpose. jflow and roadmap read these
-  docs to stay on course. Run only on an explicit "bootstrap" or "bootstrap update" message; never
-  on "workflow bootstrap" or casual mentions of bootstrapping a project.
+  docs to stay on course. Run only when the message itself starts with "bootstrap". A message that
+  starts with "workflow" belongs to the workflow skill, and a question about bootstrapping an app,
+  framework or project template is not this skill.
 ---
 
 # bootstrap
