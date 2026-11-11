@@ -17,12 +17,22 @@ Problem: Admins cannot see an overview of the important data.
 Solved when: an admin reads this week's totals in one place.
 Budget: about 100 lines
 Run: jflow · app
+Serves: {serves}
 After: {after}
 """
 
 
-def item(slug, status="open", after="none", outcome="an outcome"):
-    return ITEM.format(slug=slug, status=status, after=after, outcome=outcome)
+PRODUCT = """\
+# App
+## The desired state
+### One place for the numbers
+## Principles
+### Fast exports
+"""
+
+
+def item(slug, status="open", after="none", outcome="an outcome", serves="One place for the numbers"):
+    return ITEM.format(slug=slug, status=status, after=after, outcome=outcome, serves=serves)
 
 
 def roadmap_text(next_lines, groups):
@@ -38,6 +48,8 @@ class Run(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.path = os.path.join(self.tmp.name, "ROADMAP.md")
+        self.product = os.path.join(self.tmp.name, "PRODUCT.md")
+        self.write(PRODUCT, self.product)
 
     def write(self, text, path=None):
         with open(path or self.path, "w", encoding="utf-8") as f:
@@ -54,7 +66,7 @@ class CheckTest(Run):
     def test_valid_roadmap_is_silent(self):
         self.write(roadmap_text(
             ["1. export-csv · admins ask weekly", "2. fix-login · blocks two users"],
-            {"Features": [item("export-csv")], "Bugs": [item("fix-login", after="export-csv")]},
+            {"Features": [item("export-csv", serves="Fast exports")], "Bugs": [item("fix-login", after="export-csv")]},
         ))
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual((code, lines), (0, []))
@@ -156,3 +168,32 @@ class NextTest(Run):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProductTest(Run):
+    def test_serves_must_name_a_product_heading(self):
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a", serves="World peace"), item("b", serves="Fast exports")]}))
+        code, lines = self.run_cmd("check", self.path)
+        out = "\n".join(lines)
+        self.assertEqual(code, 1)
+        self.assertIn("Serves 'World peace' is not a heading in PRODUCT.md", out)
+        self.assertIn("outcome 'One place for the numbers' has no open item", out)
+
+    def test_missing_serves_is_an_error_when_product_exists(self):
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("Serves: One place for the numbers\n", "")]}))
+        code, lines = self.run_cmd("check", self.path)
+        self.assertEqual(code, 1)
+        self.assertIn("missing 'Serves:'", "\n".join(lines))
+
+    def test_without_product_serves_is_optional(self):
+        os.remove(self.product)
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("Serves: One place for the numbers\n", "")]}))
+        code, lines = self.run_cmd("check", self.path)
+        self.assertEqual(code, 0)
+        self.assertEqual(lines, ["stale: no PRODUCT.md beside the roadmap: the bootstrap skill writes one"])
+
+    def test_product_flag_overrides_the_default(self):
+        other = os.path.join(self.tmp.name, "north.md")
+        self.write("# X\n## The desired state\n### Speed\n", other)
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a", serves="Speed")]}))
+        self.assertEqual(self.run_cmd("check", self.path, "--product", other), (0, []))

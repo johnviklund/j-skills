@@ -12,7 +12,10 @@ description: >
 # roadmap
 
 A roadmap answers two questions for a person who has just switched in: **where do I start**, and
-**why is each item worth doing**. Every item starts from a **problem** with evidence. An agent
+**why is each item worth doing**. Every item starts from a **problem** with evidence, and names
+the outcome in `PRODUCT.md` it moves. `PRODUCT.md` is the north star: the desired state, short and
+readable. `DESIGN.md` says how the product is built. The roadmap only orders the steps toward that
+state, so it points at both files and restates neither. An agent
 handed a solution grills the how, while one handed a problem questions whether this is the right
 fix, so the why is settled here, before `jflow spec` picks the item up.
 
@@ -53,12 +56,14 @@ Solved when: <what someone could observe once it is done>
 Out of scope: <what an eager agent would add>
 Budget: <size, in the units this roadmap uses>
 Run: <jflow | plain> · <repo>
+Serves: <an outcome heading in PRODUCT.md>
 After: <slugs this waits for | none>
 Open for spec: <decisions left for jflow spec | none>
 ```
 
-**Fields.** `Status`, `Problem`, `Solved when`, `Budget` and `Run` are required; the rest are
-optional, in this order. A field runs on over lines indented by two spaces. A slug is kebab-case
+**Fields.** `Status`, `Problem`, `Solved when`, `Budget` and `Run` are required, and so is
+`Serves` whenever a `PRODUCT.md` sits beside the roadmap; the rest are optional, in this order.
+A field runs on over lines indented by two spaces. A slug is kebab-case
 and is also the jflow run's slug, which is how the script sees a run's progress.
 
 **Problem holds no solution.** It names who meets the problem, what they see, what it costs and the
@@ -83,19 +88,25 @@ main outcome, and empty groups are left out:
 **Next up** holds at most five items, in the order to start them. The first is startable today:
 everything in its `After` is done. Every other open item waits in its group.
 
+**Serves** names a heading in `PRODUCT.md`, normally one of the `###` outcomes under its
+`## The desired state` section. An item that moves no outcome is off course, and an outcome that
+no open item moves is a gap; `check` reports both. A repo with no `PRODUCT.md` gets one from the
+`bootstrap` skill.
+
 The same item text works as a ticket body: the heading becomes the title.
 
 ## The script
 
 ```sh
-python3 <skill>/scripts/roadmap.py check FILE [--repo PATH ...]
+python3 <skill>/scripts/roadmap.py check FILE [--repo PATH ...] [--product PATH]
 python3 <skill>/scripts/roadmap.py next FILE
 ```
 
 `<skill>` is this skill's absolute folder; Python 3.9 or later, standard library only. `check`
 prints `error:` lines for format problems and exits 1, and `stale:` lines for freshness findings,
 which leave the exit at 0. Pass `--repo PATH` for each local repo that an item's `Run` names, so the
-script can see its jflow runs.
+script can see its jflow runs. `--product PATH` names the north star when it is not `PRODUCT.md`
+beside the roadmap.
 
 ## Changing the file
 

@@ -1,0 +1,7 @@
+# Trigger cases for bootstrap. Run: python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/bootstrap/tests/triggers.tsv
+bootstrap	bootstrap PRD.md
+bootstrap	bootstrap
+bootstrap	bootstrap update add an outcome for offline use
+!bootstrap	workflow bootstrap PRD.md
+!bootstrap	How do I bootstrap a new Vite React app?
+!bootstrap	roadmap tidy

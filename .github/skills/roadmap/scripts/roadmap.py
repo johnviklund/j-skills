@@ -2,13 +2,16 @@
 """Mechanical checks for a roadmap file in the `roadmap` skill's format.
 
 Usage:
-    roadmap.py check FILE [--repo PATH ...]
+    roadmap.py check FILE [--repo PATH ...] [--product PATH]
     roadmap.py next FILE
 
 `check` prints one line per finding and exits 1 when any `error:` line was printed, 0 otherwise.
 `error:` lines are format problems a script reading the file would trip on. `stale:` lines are
 freshness findings for `roadmap tidy` to raise with the human; they do not fail the check.
 `--repo PATH` names a repo whose `.jflow/SLUG/` run folders show which items started or finished.
+`--product PATH` names the north-star file; it defaults to PRODUCT.md beside FILE. When it exists,
+every item's `Serves:` must name one of its headings, and each `###` outcome under its
+`## The desired state` section should have at least one open item.
 
 `next` prints the Next up list with each item's status.
 
@@ -21,7 +24,8 @@ import sys
 
 GROUPS = ("Features", "Bugs", "Design", "Architecture", "Tooling", "Measurement")
 REQUIRED = ("Status", "Problem", "Solved when", "Budget", "Run")
-OPTIONAL = ("Why now", "Options", "Out of scope", "After", "Open for spec")
+OPTIONAL = ("Serves", "Why now", "Options", "Out of scope", "After", "Open for spec")
+OUTCOMES = "The desired state"  # the PRODUCT.md section whose ### headings are the outcomes
 # Next up answers "where do I start". Past five lines it turns into a second backlog.
 NEXT_MAX = 5
 
@@ -158,6 +162,45 @@ def run_status(repo, slug):
     return "done" if re.search(r"^Status: done\b", head, re.M) else "started"
 
 
+def product_headings(path):
+    """(every heading, the outcomes under OUTCOMES) of PRODUCT.md, lower-cased; None when it is missing."""
+    if not os.path.exists(path):
+        return None
+    headings, outcomes, in_outcomes = set(), [], False
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            m = re.match(r"^(#{1,6}) (.+?)\s*$", line)
+            if not m:
+                continue
+            level, text = len(m.group(1)), m.group(2)
+            headings.add(text.lower())
+            if level <= 2:
+                in_outcomes = level == 2 and text == OUTCOMES
+            elif level == 3 and in_outcomes:
+                outcomes.append(text)
+    return headings, outcomes
+
+
+def check_product(rm, path):
+    found = product_headings(path)
+    if found is None:
+        rm.stale.append(f"no {os.path.basename(path)} beside the roadmap: the bootstrap skill writes one")
+        return
+    headings, outcomes = found
+    served = set()
+    for slug, item in rm.items.items():
+        serves = item["fields"].get("Serves")
+        if not serves:
+            rm.errors.append(f"line {item['line']} {slug}: missing 'Serves:', the PRODUCT.md outcome it moves")
+        elif serves.lower() not in headings:
+            rm.errors.append(f"line {item['line']} {slug}: Serves '{serves}' is not a heading in PRODUCT.md")
+        elif not done(item):
+            served.add(serves.lower())
+    for outcome in outcomes:
+        if outcome.lower() not in served:
+            rm.stale.append(f"PRODUCT.md outcome '{outcome}' has no open item")
+
+
 def check_repos(rm, repos):
     for repo in repos:
         if not os.path.isdir(repo):
@@ -187,6 +230,7 @@ def main(argv=None):
     c = sub.add_parser("check")
     c.add_argument("file")
     c.add_argument("--repo", action="append", default=[])
+    c.add_argument("--product")
     nx = sub.add_parser("next")
     nx.add_argument("file")
     args = ap.parse_args(argv)
@@ -204,6 +248,7 @@ def main(argv=None):
     check_items(rm, archive_slugs(args.file))
     check_next(rm)
     check_repos(rm, args.repo)
+    check_product(rm, args.product or os.path.join(os.path.dirname(os.path.abspath(args.file)), "PRODUCT.md"))
     for line in rm.errors:
         print(f"error: {line}")
     for line in rm.stale:

@@ -80,6 +80,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | When you need… | Skill | Example message | Result |
 |---|---|---|---|
 | A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| Steering docs for a repo: the north star, the design and the roadmap | [bootstrap](#bootstrap) | `bootstrap PRD.md` | `PRODUCT.md`, `DESIGN.md`, `ROADMAP.md` and `TODO.md`, each holding one thing |
 | A roadmap that says where to start and why each item matters | [roadmap](#roadmap) | `roadmap item admins cannot see the key numbers` | One item with the problem, its evidence and a way to tell it is solved; `roadmap tidy` finds stale and overlapping items |
 | A code change on the short path, on trial next to `workflow` | [jflow](#jflow) | `jflow spec export-csv` | A one-page spec with a Proof table, then the change, built and proved on the real thing |
 | A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
@@ -194,6 +195,20 @@ that needs.
   `workflow brainstorm`, bringing the mockups along as evidence.
 - The record is `.design/<slug>/design.md` with its mockups and screens.
 
+### bootstrap
+
+Use it once per repo, and again when the direction changes. It writes four steering docs, each
+holding one thing:
+
+- `PRODUCT.md`, the north star: the desired state as a few outcomes, in about one page.
+- `DESIGN.md`: how it is built and how it looks.
+- `ROADMAP.md`: the order of the steps, in the `roadmap` format.
+- `TODO.md`: ideas not yet decided.
+
+`bootstrap PRD.md` creates them from a PRD, or splits a repo's existing long docs into them.
+`bootstrap update <change>` changes the north star or the design on purpose, after you approve the
+exact lines. `jflow` and `roadmap` read these docs so work stays on course.
+
 ### roadmap
 
 Use it to decide what to work on and why, before any spec. A roadmap file has a short ordered
@@ -207,6 +222,9 @@ Design, Architecture, Tooling and Measurement.
   wrong group or missing its why. It asks you before changing anything, then moves done items to
   the archive.
 - `roadmap` shows Next up and the findings of the format check.
+
+Each item names the `PRODUCT.md` outcome it moves on a `Serves:` line. The check flags an item that
+names no outcome, and an outcome that no open item moves.
 
 Each item's `Solved when` line tells `jflow spec` what its first Proof row should prove. Run
 `python3 .github/skills/roadmap/scripts/roadmap.py check ROADMAP.md` to check a roadmap's format.
@@ -364,7 +382,7 @@ Install every skill:
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
 mkdir -p ~/.codex/skills
-for n in agent-docs checkup design evals jflow memory.compact memory.remember plain retro roadmap understand verify workflow; do
+for n in agent-docs bootstrap checkup design evals jflow memory.compact memory.remember plain retro roadmap understand verify workflow; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
 done
 ```

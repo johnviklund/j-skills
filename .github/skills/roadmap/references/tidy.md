@@ -11,7 +11,8 @@ reports errors on most lines: that is the starting point for a conversion, below
 
 ## 2. Review every open item
 
-Read each open item, and verify at least one fact in it against git, the code or a run. Look for:
+Read `PRODUCT.md` and `DESIGN.md` first. Then read each open item, and verify at least one fact
+in it against git, the code or a run. Look for:
 
 - **Stale:** the problem no longer holds, or the item names a branch, file, skill or item that has
   changed. Quote the commit or line that shows it.
@@ -19,6 +20,10 @@ Read each open item, and verify at least one fact in it against git, the code or
 - **Conflict:** two items that pull in opposite directions, or an item that contradicts a decision
   recorded in the repo.
 - **No why:** a `Problem` that names a solution, or holds no evidence.
+- **Off course:** an item whose `Serves` outcome it does not really move, or that works against a
+  principle or non-goal in `PRODUCT.md`, or against a decision in `DESIGN.md`.
+- **Gap:** an outcome in `PRODUCT.md` that no open item moves. Propose an item, or ask whether the
+  outcome still holds.
 - **Wrong group**, by the table in `SKILL.md`.
 - **Next up:** whether the order still holds, and whether the first item can start today.
 
