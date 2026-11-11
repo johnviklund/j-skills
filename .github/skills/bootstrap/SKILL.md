@@ -37,7 +37,8 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 1. **Ground.** Find the source: the named PRD, a `PRD.md` at the root, or the repo's existing docs
    when they are long or mixed, such as a plan that holds vision, design and roadmap together. With
    no source, ask; a north star written from nothing is invented. Read the source in full, then
-   `AGENTS.md`, `README.md` and any existing steering doc. Done when every paragraph of the source
+   `AGENTS.md`, `README.md`, any decision log and any existing steering doc. A `README.md` whose
+   purpose differs from the source is a sign of drift: raise it in step 2. Done when every paragraph of the source
    has a home in the table above, or is marked history.
 2. **Ask about identity, in one round.** Ask only what the source leaves open about the desired
    state: who it is for, which outcomes matter, what is the first implementation rather than the
@@ -51,7 +52,10 @@ message. A question carries one decision, lettered options and a ➡️ recommen
    pull the product off course, drawn from the source's own tensions, one at a time, each with the
    strongest case for and against and the principle it presses on. Fold the human's answers in.
 5. **Write.** After an explicit yes: run the `roadmap` skill's `check` until it prints no `error:`
-   line. Add the pointer block below to `AGENTS.md`, creating the file if missing. Retire the
+   line. Add the pointer block below to `AGENTS.md`, creating the file if missing. Bring
+   `README.md` in line: its purpose matches `PRODUCT.md`, and it points to the steering docs instead
+   of restating them. A repo with a decision log keeps it as the home for decisions, and the source's
+   decisions move into it as dated entries. Retire the
    source: a PRD moves to `docs/archive/PRD-<date>.md`; a long doc that was split becomes a
    one-paragraph pointer, or is deleted when the human says so. Commit in one commit, or open a PR
    when the repo's `main` takes changes only through PRs.
@@ -67,8 +71,8 @@ a decision reversed. `roadmap item` sends an idea here when it moves no outcome.
 
 1. Read `PRODUCT.md`, `DESIGN.md` and `ROADMAP.md`, and state the change as a redline: the exact
    lines before and after.
-2. List what it touches: roadmap items whose `Serves` changes or goes off course, and decisions in
-   `DESIGN.md` that no longer hold.
+2. List what it touches: roadmap items whose `Serves` changes or goes off course, decisions in
+   `DESIGN.md` that no longer hold, and lines in `README.md` that no longer match.
 3. Wait for an explicit yes on the redline, apply it, run the `roadmap` check, and commit the docs
    together. Done when the redline is committed and the check prints no `error:` line.
 
