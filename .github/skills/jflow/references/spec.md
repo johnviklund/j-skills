@@ -5,9 +5,9 @@ human would object to the builder choosing differently.
 
 ## 1. Ground
 
-Read `AGENTS.md`, `PRODUCT.md`, `DESIGN.md`, the code near the change, and the roadmap item or
-issue the human names. Look for `.agents/skills/verify-*/`. Look up every fact the repo, a command
-or a run can answer, and leave only decisions for the human.
+Read `AGENTS.md`, `PRODUCT.md`, `DESIGN.md`, the code near the change, and the issue the human
+names or else the roadmap item with this slug. Look for `.agents/skills/verify-*/`. Look up every
+fact the repo or a run can answer; leave the human only decisions.
 
 ## 2. Grill the what
 
