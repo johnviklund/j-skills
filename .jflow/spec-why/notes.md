@@ -1,5 +1,8 @@
 # spec-why notes
 
+Checks allowed: 4
+- The human allows fixing both check-3 defects and a fourth check: "option A" · 2026-11-12.
+
 - `Serves: none` passes validate even with a PRODUCT.md. The spec template offers `none`, and a
   chore may move no outcome. Only a missing line or an unknown name fails.
 - Serves must match a `###` heading exactly. A `##` heading such as "The desired state" fails.
