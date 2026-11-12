@@ -29,6 +29,8 @@ in it against git, the code or a run. Look for:
 - **Gap:** an outcome in `PRODUCT.md` that no open item moves. Propose an item, or ask whether the
   outcome still holds.
 - **Wrong group**, by the table in `SKILL.md`.
+- **Hard to read:** fields as plain lines, which render as one paragraph, or a field longer than
+  two sentences. Converting the layout is a fact; shortening a field changes what it says.
 - **Next up:** whether the order still holds, whether each line says why it goes before the next,
   and whether the first item can start today.
 

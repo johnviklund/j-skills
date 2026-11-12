@@ -1,6 +1,7 @@
 import contextlib
 import io
 import os
+import re
 import sys
 import tempfile
 import textwrap
@@ -11,15 +12,16 @@ import roadmap  # noqa: E402
 
 ITEM = """\
 ### {slug} · {outcome}
-Status: {status}
-Problem: Admins cannot see an overview of the important data.
+
+- **Status:** {status}
+- **Problem:** Admins cannot see an overview of the important data.
   They export three CSVs by hand every Monday.
-Impact: ~1 hour a week back for each of 4 admins
-Solved when: an admin reads this week's totals in one place.
-Budget: about 100 lines
-Run: jflow · app
-Serves: {serves}
-After: {after}
+- **Impact:** ~1 hour a week back for each of 4 admins
+- **Solved when:** an admin reads this week's totals in one place.
+- **Budget:** about 100 lines
+- **Run:** jflow · app
+- **Serves:** {serves}
+- **After:** {after}
 """
 
 
@@ -73,14 +75,14 @@ class CheckTest(Run):
         self.assertEqual((code, lines), (0, []))
 
     def test_missing_required_field_is_an_error(self):
-        text = roadmap_text(["1. a · why"], {"Features": [item("a")]}).replace("Solved when: an admin reads this week's totals in one place.\n", "")
+        text = roadmap_text(["1. a · why"], {"Features": [item("a")]}).replace("- **Solved when:** an admin reads this week's totals in one place.\n", "")
         self.write(text)
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 1)
         self.assertIn("missing 'Solved when:'", "\n".join(lines))
 
     def test_missing_impact_is_an_error(self):
-        text = roadmap_text(["1. a · why"], {"Features": [item("a")]}).replace("Impact: ~1 hour a week back for each of 4 admins\n", "")
+        text = roadmap_text(["1. a · why"], {"Features": [item("a")]}).replace("- **Impact:** ~1 hour a week back for each of 4 admins\n", "")
         self.write(text)
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 1)
@@ -88,11 +90,19 @@ class CheckTest(Run):
 
     def test_options_parses_but_is_stale(self):
         text = roadmap_text(["1. a · why"], {"Features": [item("a")]})
-        text = text.replace("Run: jflow · app\n", "Run: jflow · app\nOptions: ➡️ a) a dashboard · b) do nothing\n")
+        text = text.replace("- **Run:** jflow · app\n", "- **Run:** jflow · app\n- **Options:** ➡️ a) a dashboard · b) do nothing\n")
         self.write(text)
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 0)
         self.assertIn("'Options:' picks a fix before jflow spec", "\n".join(lines))
+
+    def test_plain_fields_parse_but_are_stale(self):
+        text = roadmap_text(["1. a · why"], {"Features": [item("a")]})
+        text = re.sub(r"^- \*\*([A-Za-z ]+):\*\* ", r"\1: ", text, flags=re.M)
+        self.write(text)
+        code, lines = self.run_cmd("check", self.path)
+        self.assertEqual(code, 0)
+        self.assertIn("1 items write fields as plain lines", "\n".join(lines))
 
     def test_unknown_section_and_duplicate_slug(self):
         text = roadmap_text(["1. a · why"], {"Features": [item("a")], "Bugs": [item("a")]})
@@ -106,7 +116,7 @@ class CheckTest(Run):
 
     def test_bad_status_and_unknown_field(self):
         text = roadmap_text(["1. a · why"], {"Features": [item("a", status="maybe")]})
-        text = text.replace("Run: jflow · app\n", "Run: jflow · app\nOwner: me\n")
+        text = text.replace("- **Run:** jflow · app\n", "- **Run:** jflow · app\n- **Owner:** me\n")
         self.write(text)
         code, lines = self.run_cmd("check", self.path)
         out = "\n".join(lines)
@@ -196,14 +206,14 @@ class ProductTest(Run):
         self.assertIn("outcome 'One place for the numbers' has no open item", out)
 
     def test_missing_serves_is_an_error_when_product_exists(self):
-        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("Serves: One place for the numbers\n", "")]}))
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("- **Serves:** One place for the numbers\n", "")]}))
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 1)
         self.assertIn("missing 'Serves:'", "\n".join(lines))
 
     def test_without_product_serves_is_optional(self):
         os.remove(self.product)
-        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("Serves: One place for the numbers\n", "")]}))
+        self.write(roadmap_text(["1. a · why"], {"Features": [item("a").replace("- **Serves:** One place for the numbers\n", "")]}))
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 0)
         self.assertEqual(lines, ["stale: no PRODUCT.md beside the roadmap: the bootstrap skill writes one"])

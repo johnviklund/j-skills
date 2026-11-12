@@ -48,18 +48,26 @@ Updated: <YYYY-MM-DD>
 
 ## Features
 ### <slug> · <the outcome, a few words>
-Status: open
-Problem: <who meets it, what they see, what it costs them, the evidence>
-Impact: <what gets better once it is solved, and by how much, in the unit similar items use>
-Why now: <what waiting costs, or what it blocks>
-Solved when: <what someone could observe once it is done>
-Out of scope: <what an eager agent would add>
-Budget: <the most this is worth spending, in the units this roadmap uses>
-Run: <jflow | plain> · <repo>
-Serves: <an outcome heading in PRODUCT.md>
-After: <slugs this waits for | none>
-Open for spec: <questions for jflow spec, fix ideas among them | none>
+
+- **Status:** open
+- **Problem:** <who meets it, what they see, what it costs them, the evidence>
+- **Impact:** <what gets better once it is solved, and by how much, in the unit similar items use>
+- **Why now:** <what waiting costs, or what it blocks>
+- **Solved when:** <what someone could observe once it is done>
+- **Out of scope:** <what an eager agent would add>
+- **Budget:** <the most this is worth spending, in the units this roadmap uses>
+- **Run:** <jflow | plain> · <repo>
+- **Serves:** <an outcome heading in PRODUCT.md>
+- **After:** <slugs this waits for | none>
+- **Open for spec:** <questions for jflow spec, fix ideas among them | none>
 ```
+
+**Write for a reader.** Each field is a list line with a bold label, so a rendered roadmap shows
+one field per line instead of one long paragraph. Keep a field to one or two sentences; a
+`Problem` that needs more links to the issue, note or measurement that holds it. A blank line
+separates an item's heading from its fields and from the next item. Older roadmaps write fields as
+plain `Field: value` lines: `check` still reads them and reports them as stale, and `tidy`
+converts them.
 
 **Fields.** `Status`, `Problem`, `Impact`, `Solved when`, `Budget` and `Run` are required, and so is
 `Serves` whenever a `PRODUCT.md` sits beside the roadmap; the rest are optional, in this order.

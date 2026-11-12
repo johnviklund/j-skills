@@ -35,7 +35,10 @@ NEXT_MAX = 5
 SLUG = r"[a-z0-9][a-z0-9.-]*"
 ITEM_RE = re.compile(rf"^### ({SLUG}) · (\S.*)$")
 NEXT_RE = re.compile(rf"^\d+\. ({SLUG}) · (\S.*)$")
-FIELD_RE = re.compile(r"^([A-Z][a-z]*(?: [a-z]+)*): (.*)$")
+# A field is a list line with a bold label: "- **Problem:** text". The plain "Problem: text" of older
+# roadmaps still parses, but it renders as one paragraph, so `check` reports it as stale.
+FIELD_RE = re.compile(r"^- \*\*([A-Z][a-z]*(?: [a-z]+)*):\*\* (.*)$")
+PLAIN_FIELD_RE = re.compile(r"^([A-Z][a-z]*(?: [a-z]+)*): (.*)$")
 STATUS_RE = re.compile(r"^(open|started|blocked: \S.*|done \d{4}-\d{2}-\d{2} [0-9a-f]{7,40})$")
 SECTION_RE = re.compile(r"^## (.+?)\s*$")
 
@@ -46,6 +49,7 @@ class Roadmap:
         self.items = {}  # slug -> dict(line, group, fields)
         self.errors = []
         self.stale = []
+        self.plain = []  # slugs whose fields are plain lines
 
 
 def parse(text):
@@ -93,13 +97,20 @@ def parse(text):
             item["fields"][last_field] += " " + line.strip()
             continue
         m = FIELD_RE.match(line)
+        if not m:
+            m = PLAIN_FIELD_RE.match(line)
+            if m and m.group(1) in REQUIRED + OPTIONAL + LEGACY and slug not in rm.plain:
+                rm.plain.append(slug)
         if m and m.group(1) in REQUIRED + OPTIONAL + LEGACY:
             last_field = m.group(1)
             item["fields"][last_field] = m.group(2).strip()
         else:
-            rm.errors.append(f"line {n}: unknown item line; fields: {', '.join(REQUIRED + OPTIONAL)}")
+            rm.errors.append(f"line {n}: unknown item line; fields read '- **Field:** value', fields: {', '.join(REQUIRED + OPTIONAL)}")
     if not seen_next:
         rm.errors.append("no '## Next up' section")
+    if rm.plain:
+        rm.stale.append(f"{len(rm.plain)} items write fields as plain lines, which render as one paragraph; "
+                        f"write '- **Field:** value' (first: {rm.plain[0]})")
     return rm
 
 

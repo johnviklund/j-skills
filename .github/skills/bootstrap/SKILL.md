@@ -19,15 +19,19 @@ has one home, because when the same sentence sits in two docs, one of them is wr
 
 | Doc | Holds | Size |
 |---|---|---|
-| `PRODUCT.md` | The **north star**: what it is, who it is for, the desired state as a few outcomes, how we know it works, principles, what we will not build, open decisions | About one page, at most ~80 lines |
+| `PRODUCT.md` | The **north star**: what it is, who it is for and what they need, the desired state as outcomes, how we know it works, principles, what we will not build, open decisions | Read in five minutes: about 80 to 200 lines |
 | `DESIGN.md` | How it is built and how it looks: the parts and how they fit, key decisions with their reasons, data and storage, the UI system when there is a UI | As long as it needs, by heading |
 | `ROADMAP.md` | The order of the steps toward the desired state, in the `roadmap` skill's format; every item `Serves` an outcome in `PRODUCT.md` | Open items only |
 | `TODO.md` | Ideas not yet decided, one short line each | Small; never a roadmap |
 
-`PRODUCT.md` describes where the repo is going, in words a person reads in two minutes. It holds no
-file paths, commands, field names or implementation history; those are `DESIGN.md`'s, the code's or
-git's. Each outcome is a `###` heading under `## The desired state`, because roadmap items name
-these headings and the `roadmap` check matches them.
+`PRODUCT.md` describes where the repo is going, in words a person reads in five minutes. **It
+keeps what, and drops how.** Everything about the users stays: who they are, what they do today,
+what they need, and what each outcome lets them do, with the examples and requirements in their
+words. File paths, commands, field names, technology choices and implementation history go to
+`DESIGN.md`, the code or git. A long source is split by that line, never cut to a length: a short
+`PRODUCT.md` that lost what users need is worse than a long one. Each outcome is a `###` heading
+under `## The desired state`, because roadmap items name these headings and the `roadmap` check
+matches them.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the first
 message. A question carries one decision, lettered options and a ➡️ recommended option first.
@@ -37,7 +41,8 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 1. **Ground.** Find the source: the named PRD, a `PRD.md` at the root, or the repo's existing docs
    when they are long or mixed, such as a plan that holds vision, design and roadmap together. With
    no source, ask; a north star written from nothing is invented. Read the source in full, then
-   `AGENTS.md`, `README.md`, any decision log and any existing steering doc. A `README.md` whose
+   `AGENTS.md`, `README.md`, any decision log and any existing steering doc. A source an earlier
+   bootstrap retired is read from git, at the commit before it was split. A `README.md` whose
    purpose differs from the source is a sign of drift: raise it in step 2. Done when every paragraph of the source
    has a home in the table above, or is marked history.
 2. **Ask about identity, in one round.** Ask only what the source leaves open about the desired
@@ -46,9 +51,11 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 3. **Draft** the four docs from the templates below, in the working tree, uncommitted. Every claim
    traces to the source or to a human answer; a claim with no source becomes a question, never a
    line. A roadmap conversion follows the `roadmap` skill's `tidy` reference, and each item gets
-   `Serves`. Keep existing docs' content by moving it, never by rewriting what it says.
-4. **Play back.** Show `PRODUCT.md` in chat in full, and the headings of the other docs with one
-   line each on what moved where. Then test the direction: give three tempting moves that would
+   `Serves`. Keep existing docs' content by moving it, never by rewriting what it says or
+   summarizing it away.
+4. **Play back.** Show `PRODUCT.md` in chat in full. Then a **source map**: every heading of the
+   source with where its content went, as `PRODUCT.md`, `DESIGN.md`, `ROADMAP.md`, the archive or
+   dropped. Anything dropped needs the human's yes. Then test the direction: give three tempting moves that would
    pull the product off course, drawn from the source's own tensions, one at a time, each with the
    strongest case for and against and the principle it presses on. Fold the human's answers in.
 5. **Write.** After an explicit yes: run the `roadmap` skill's `check` until it prints no `error:`
@@ -83,12 +90,18 @@ a decision reversed. `roadmap item` sends an idea here when it moves no outcome.
 ```markdown
 # <Name>
 
-<One paragraph: what it is and who it is for.>
+<One paragraph: what it is, who it is for, and why it exists.>
+
+## Who it is for
+
+- **<User>:** <what they do today, what gets in their way, what they need>
 
 ## The desired state
 
 ### <Outcome, a few words>
 <Two to four sentences: what is true for the user when this is reached.>
+
+- <What a user can do then, as an example or a requirement in their words>
 
 ## How we know it works
 - <A measure someone could read, with its direction: fewer, faster, none>
