@@ -203,6 +203,14 @@ def attack(raw):
          original.replace('A run with', 'Serves: Retired outcome\nA run with')),
         ('tab-heading', PRODUCT.replace('### Counts you can trust', '###\tCounts you can trust'),
          original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
+        ('comment-with-fence', PRODUCT + '\n<!-- old example\n```markdown\n### Retired outcome\n```\n-->\n',
+         original.replace('A run with', 'Serves: Retired outcome\nA run with')),
+        ('fence-with-comment', PRODUCT + '\n```markdown\n<!-- old example\n```\n### Later outcome\n',
+         original.replace('A run with', 'Serves: Later outcome\nA run with')),
+        ('comment-followed-heading', PRODUCT + '\n   <!-- old example\n### Retired outcome\n   -->\n### Later outcome\n',
+         original.replace('A run with', 'Serves: Later outcome\nA run with')),
+        ('tab-closing-hashes', PRODUCT.replace('### Counts you can trust', '###\tCounts you can trust\t###'),
+         original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
     ]
     for name, product, text in cases:
         (repo / 'PRODUCT.md').write_text(product)
