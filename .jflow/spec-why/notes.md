@@ -1,5 +1,7 @@
 # spec-why notes
 
+Yes: done · "Approved" · 2026-11-12
+
 Checks allowed: 4
 - The human allows fixing both check-3 defects and a fourth check: "option A" · 2026-11-12.
 
