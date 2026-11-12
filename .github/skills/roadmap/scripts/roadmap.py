@@ -23,8 +23,11 @@ import re
 import sys
 
 GROUPS = ("Features", "Bugs", "Design", "Architecture", "Tooling", "Measurement")
-REQUIRED = ("Status", "Problem", "Solved when", "Budget", "Run")
-OPTIONAL = ("Serves", "Why now", "Options", "Out of scope", "After", "Open for spec")
+REQUIRED = ("Status", "Problem", "Impact", "Solved when", "Budget", "Run")
+OPTIONAL = ("Serves", "Why now", "Out of scope", "After", "Open for spec")
+# Older items chose a fix here, before jflow spec grilled the problem. It still parses, so an old
+# roadmap passes `check`, and `roadmap tidy` turns it into `Open for spec` questions.
+LEGACY = ("Options",)
 OUTCOMES = "The desired state"  # the PRODUCT.md section whose ### headings are the outcomes
 # Next up answers "where do I start". Past five lines it turns into a second backlog.
 NEXT_MAX = 5
@@ -90,7 +93,7 @@ def parse(text):
             item["fields"][last_field] += " " + line.strip()
             continue
         m = FIELD_RE.match(line)
-        if m and m.group(1) in REQUIRED + OPTIONAL:
+        if m and m.group(1) in REQUIRED + OPTIONAL + LEGACY:
             last_field = m.group(1)
             item["fields"][last_field] = m.group(2).strip()
         else:
@@ -130,6 +133,8 @@ def check_items(rm, archived):
         for dep in after(item):
             if dep not in rm.items and dep not in archived:
                 rm.errors.append(f"{where}: After names '{dep}', which is in neither the roadmap nor its archive")
+        if "Options" in item["fields"]:
+            rm.stale.append(f"{where}: 'Options:' picks a fix before jflow spec; make its ideas 'Open for spec' questions")
         if done(item):
             rm.stale.append(f"{where}: done, move it to the archive")
 

@@ -14,6 +14,7 @@ ITEM = """\
 Status: {status}
 Problem: Admins cannot see an overview of the important data.
   They export three CSVs by hand every Monday.
+Impact: ~1 hour a week back for each of 4 admins
 Solved when: an admin reads this week's totals in one place.
 Budget: about 100 lines
 Run: jflow · app
@@ -77,6 +78,21 @@ class CheckTest(Run):
         code, lines = self.run_cmd("check", self.path)
         self.assertEqual(code, 1)
         self.assertIn("missing 'Solved when:'", "\n".join(lines))
+
+    def test_missing_impact_is_an_error(self):
+        text = roadmap_text(["1. a · why"], {"Features": [item("a")]}).replace("Impact: ~1 hour a week back for each of 4 admins\n", "")
+        self.write(text)
+        code, lines = self.run_cmd("check", self.path)
+        self.assertEqual(code, 1)
+        self.assertIn("missing 'Impact:'", "\n".join(lines))
+
+    def test_options_parses_but_is_stale(self):
+        text = roadmap_text(["1. a · why"], {"Features": [item("a")]})
+        text = text.replace("Run: jflow · app\n", "Run: jflow · app\nOptions: ➡️ a) a dashboard · b) do nothing\n")
+        self.write(text)
+        code, lines = self.run_cmd("check", self.path)
+        self.assertEqual(code, 0)
+        self.assertIn("'Options:' picks a fix before jflow spec", "\n".join(lines))
 
     def test_unknown_section_and_duplicate_slug(self):
         text = roadmap_text(["1. a · why"], {"Features": [item("a")], "Bugs": [item("a")]})

@@ -19,16 +19,23 @@ in it against git, the code or a run. Look for:
 - **Overlap:** two items that solve the same problem.
 - **Conflict:** two items that pull in opposite directions, or an item that contradicts a decision
   recorded in the repo.
-- **No why:** a `Problem` that names a solution, or holds no evidence.
+- **No why:** a `Problem` that names a solution, or holds no evidence; an `Impact` with no size,
+  or in a unit the items beside it do not use.
+- **Fix chosen early:** an `Options` line, or a `Problem` or `Solved when` that only one fix can
+  meet. Turn each idea into an `Open for spec` question.
+- **Rank:** items in a group out of priority order, by `Impact` for `Budget`, then `Why now`.
 - **Off course:** an item whose `Serves` outcome it does not really move, or that works against a
   principle or non-goal in `PRODUCT.md`, or against a decision in `DESIGN.md`.
 - **Gap:** an outcome in `PRODUCT.md` that no open item moves. Propose an item, or ask whether the
   outcome still holds.
 - **Wrong group**, by the table in `SKILL.md`.
-- **Next up:** whether the order still holds, and whether the first item can start today.
+- **Next up:** whether the order still holds, whether each line says why it goes before the next,
+  and whether the first item can start today.
 
 **Converting a roadmap** that is not yet in the format: each item takes its fields from the text
-that already exists, quoted or condensed. A required field with no source becomes a question.
+that already exists, quoted or condensed. A required field with no source becomes a question;
+an `Impact` the repo can measure is measured first. A list of fixes becomes `Open for spec`
+questions.
 Prose that is not an item, such as a plan or a decision, stays in its own document, and the
 roadmap's preamble links to it.
 
@@ -42,7 +49,7 @@ evidence. Then ask, in rounds of at most five questions:
 - **Facts first, as one question:** status from a done run with its sha, format fixes, done items
   moving to the archive.
 - **One question per change in meaning:** merge, drop, rewrite a `Problem`, move to another group,
-  reorder Next up. Recommend an answer for each.
+  reorder a group or Next up. Recommend an answer for each.
 
 A conversion with many items asks group by group. Done when every change has an answer.
 

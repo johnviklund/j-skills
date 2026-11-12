@@ -44,31 +44,41 @@ own document and the preamble links to it.
 Updated: <YYYY-MM-DD>
 
 ## Next up
-1. <slug> · <why it is next, one line>
+1. <slug> · <why it goes before the next line, one line>
 
 ## Features
 ### <slug> · <the outcome, a few words>
 Status: open
 Problem: <who meets it, what they see, what it costs them, the evidence>
-Why now: <what changes if we wait>
-Options: ➡️ a) <chosen> · b) <other> · c) do nothing. <why a wins>
+Impact: <what gets better once it is solved, and by how much, in the unit similar items use>
+Why now: <what waiting costs, or what it blocks>
 Solved when: <what someone could observe once it is done>
 Out of scope: <what an eager agent would add>
-Budget: <size, in the units this roadmap uses>
+Budget: <the most this is worth spending, in the units this roadmap uses>
 Run: <jflow | plain> · <repo>
 Serves: <an outcome heading in PRODUCT.md>
 After: <slugs this waits for | none>
-Open for spec: <decisions left for jflow spec | none>
+Open for spec: <questions for jflow spec, fix ideas among them | none>
 ```
 
-**Fields.** `Status`, `Problem`, `Solved when`, `Budget` and `Run` are required, and so is
+**Fields.** `Status`, `Problem`, `Impact`, `Solved when`, `Budget` and `Run` are required, and so is
 `Serves` whenever a `PRODUCT.md` sits beside the roadmap; the rest are optional, in this order.
 A field runs on over lines indented by two spaces. A slug is kebab-case
 and is also the jflow run's slug, which is how the script sees a run's progress.
 
-**Problem holds no solution.** It names who meets the problem, what they see, what it costs and the
-evidence: a count, a measurement, a quote, a commit. A solution idea goes in `Options`, next to
-"do nothing". `Solved when` names something observable; jflow spec makes it the first Proof row.
+**The item holds the problem, not the fix.** `Problem` names who meets the problem, what they see,
+what it costs and the evidence: a count, a measurement, a quote, a commit. Choosing the fix is
+jflow spec's job, after it has grilled the problem, so an idea for a fix goes in `Open for spec` as
+a question, unranked ("would a nightly re-sync be enough?"). `Solved when` names something
+observable; jflow spec makes it the first Proof row. `Budget` is the most the item is worth, not an
+estimate of a fix nobody has chosen.
+
+**Impact and Why now are what you rank by.** `Impact` says what gets better and by how much: "p95
+load of the overview 6 s → under 1 s, every user, every visit". Items that move the same thing use
+the same unit, such as seconds of p95, hours a week or wrong rows a month, so a reader can compare
+them; an estimate starts with `~` and says what it rests on. `Why now` says what waiting costs,
+such as a deadline, a cost that grows, or an item that is blocked until this one is done. An item
+whose waiting costs nothing says so, and waits.
 
 **Status** is `open`, `started`, `blocked: <why>` or `done <YYYY-MM-DD> <sha>`. A done item moves
 to `<NAME>_ARCHIVE.md` beside the roadmap, under one `## Done` heading, newest first, so the
@@ -87,8 +97,12 @@ main outcome, and empty groups are left out:
 | Tooling | Skills, scripts, CI and how the work gets done |
 | Measurement | Evals, metrics and the data collected to judge work |
 
-**Next up** holds at most five items, in the order to start them. The first is startable today:
-everything in its `After` is done. Every other open item waits in its group.
+**Order is priority.** Within a group, items sit highest priority first: the most `Impact` for
+the `Budget`, then the costliest wait. So the top of Architecture answers "which change does most
+for performance". **Next up** holds at most five items, in the order to start them, across groups.
+Each line says why it goes before the line below it: more impact, a costlier wait, or that it
+unblocks it. The first is startable today: everything in its `After` is done. Every other open item
+waits in its group.
 
 **Serves** names a heading in `PRODUCT.md`, normally one of the `###` outcomes under its
 `## The desired state` section. An item that moves no outcome is off course, and an outcome that

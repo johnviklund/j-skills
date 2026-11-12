@@ -14,9 +14,9 @@ or a run can answer, and leave only decisions for the human.
 Ask in rounds: every question whose prerequisites are settled, numbered, each with your
 recommended answer worded so "yes" accepts it. Then wait. Ask the why first: who has the problem,
 what they see, the evidence, why now. Then what good looks like, what must stay, what is out of
-scope, and which `PRODUCT.md` outcome it serves. A roadmap item's fields, `Serves` included,
-answer their own questions, and its chosen option is settled with its limits, such as a cutoff.
-Never reopen them; start from its `Open for spec`.
+scope, and which `PRODUCT.md` outcome it serves. A roadmap item's fields answer their own
+questions: never reopen them; start from its `Open for spec`. Once the why is settled, pick the fix:
+its ideas (or old `Options`), yours and "do nothing", with limits such as a cutoff.
 
 Paths, functions, libraries and test layout belong to the builder unless they are a real
 constraint. Ask about a how only when it is costly to undo: a schema, a public contract, a data
