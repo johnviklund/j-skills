@@ -199,6 +199,10 @@ def attack(raw):
          original.replace('A run with', 'Serves: Retired outcome\nA run with')),
         ('indented-heading', PRODUCT.replace('### Counts you can trust', '   ### Counts you can trust'),
          original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
+        ('commented-outcome', PRODUCT + '\n<!-- Retired outcome kept for reference\n### Retired outcome\n-->\n',
+         original.replace('A run with', 'Serves: Retired outcome\nA run with')),
+        ('tab-heading', PRODUCT.replace('### Counts you can trust', '###\tCounts you can trust'),
+         original.replace('A run with', 'Serves: Counts you can trust\nA run with')),
     ]
     for name, product, text in cases:
         (repo / 'PRODUCT.md').write_text(product)
