@@ -40,7 +40,7 @@ and lint commands, so leave them out. Each row must be able to fail, by one of:
 Read the claim where the user meets it. A fully mocked test proves no goal. **Human checks** hold
 what only a person can judge or do: taste, a trial with an outside tool, a doc that needs their
 approval. They never count as proof. Prefer a stronger answer key when one exists: the old system
-or saved good output beats a fresh description of what is right.
+or saved good output beats a fresh description.
 
 A row about a conclusion, such as a cause in a report, names the numbers that would disprove it:
 "written down" proves only that a file exists. Measured 2026-11-06: one such row passed while a

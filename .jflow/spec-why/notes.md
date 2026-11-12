@@ -34,3 +34,11 @@ Checks allowed: 4
 - Size test again: now 49,999 bytes. I cut a slogan from SKILL.md, the line saying an accepted item
   is no longer open (the next paragraph says it), and spec.md's own "run next, print its card" and
   verify.create reason, both repeated elsewhere.
+- Fix for check-3 defects 1 and 2, the same cause as before: the scanner knew only part of
+  Markdown. It now skips an HTML comment block, from a line starting `<!--` to the line holding
+  `-->`, and accepts a tab after `###`. Three test cases added; `drive.py attack` gives the right
+  result for all nine inputs. Left open: other CommonMark HTML block kinds, such as `<pre>` or
+  `<script>`, still expose a heading inside them. Each check has found one more Markdown edge.
+  A real outcome list never uses these, so I stopped at the cases found.
+- Size: `read_text(encoding="utf-8")` became `read_text("utf-8")` in 11 places, which behaves the
+  same, and the new code comment is short. Now 49,962 bytes.

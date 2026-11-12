@@ -214,7 +214,11 @@ class Validation(unittest.TestCase):
                 (product + '   ```\n### Retired outcome\n   ```\n', good, 'Serves: Retired outcome\n', False),
                 (product + '~~~\n### Retired outcome\n', good, 'Serves: Retired outcome\n', False),
                 (product.replace('###', '   ###'), good, 'Serves: Counts you can trust\n', True),
-                (product.replace('###', '    ###'), good, 'Serves: Counts you can trust\n', False)):
+                (product.replace('###', '    ###'), good, 'Serves: Counts you can trust\n', False),
+                # check-3: a comment block hides a heading; a tab may follow the hashes
+                (product + '<!-- old\n### Retired outcome\n-->\n', good, 'Serves: Retired outcome\n', False),
+                (product + '<!-- x -->\n### Later\n', good, 'Serves: Later\n', True),
+                (product.replace('### ', '###\t'), good, 'Serves: Counts you can trust\n', True)):
             with self.subTest(product=product_md, serves=serves, example=text is example):
                 (self.repo / 'PRODUCT.md').write_text(product_md)
                 spec.write_text(text.replace('A run with', serves + 'A run with'))

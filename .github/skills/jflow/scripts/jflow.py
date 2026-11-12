@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
-FLOW = json.loads((SKILL / "flow.json").read_text(encoding="utf-8"))
+FLOW = json.loads((SKILL / "flow.json").read_text("utf-8"))
 STEPS = tuple(FLOW["steps"])
 RULES = dict.fromkeys(("public_paid_needs_human", "checker_read_only", "no_secrets"), True)
 BUILDER_STEPS = ("fix", "live", "accept", "done")
@@ -49,7 +49,7 @@ def seats(repo, explicit):
         if path == repo / ".jflow/config.json" and not path.exists():
             continue
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
+            data = json.loads(path.read_text("utf-8"))
             if secret(data):
                 raise ValueError("secret-like value refused")
             if not isinstance(data, dict) or type(data.get("schema_version")) is not int or data["schema_version"] != 1:
@@ -129,7 +129,7 @@ def receipts_of(run):
 
 
 def receipt_fields(path):
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text("utf-8")
     rows = {}
     for verdict in re.findall(r"^\|\s*\d+\s*\|\s*([A-Z]+)\s*\|", text, re.M):
         rows[verdict] = rows.get(verdict, 0) + 1
@@ -144,7 +144,7 @@ def read_records(run):
     path = run / "run.jsonl"
     if not path.exists():
         return []
-    return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return [json.loads(l) for l in path.read_text("utf-8").splitlines() if l.strip()]
 
 
 def validate(repo, run, step):
@@ -156,7 +156,7 @@ def validate(repo, run, step):
 
     def read():
         try:
-            return path.read_text(encoding="utf-8")
+            return path.read_text("utf-8")
         except (OSError, UnicodeError):
             need(False, 1, "cannot read file")
             return ""
@@ -207,12 +207,12 @@ def validate(repo, run, step):
             m = re.search(r"^Serves: (.+?)[ \t]*$", head, re.M)
             outcomes, fence = ["none"], ""
             for l in (repo / "PRODUCT.md").read_text("utf-8").splitlines():
-                f = re.match(r" {0,3}(`{3,}|~{3,})", l)
-                if fence:  # closes on the same mark, as long, alone
-                    fence *= not re.fullmatch(rf" {{0,3}}{fence[0]}{{{len(fence)},}}\s*", l)
+                f = re.match(r" {0,3}(`{3,}|~{3,}|<!--)", l)
+                if fence:  # CommonMark comments and fences
+                    fence *= not ("-->" in l if fence == "<!--" else re.fullmatch(rf" {{0,3}}{fence[0]}{{{len(fence)},}}\s*", l))
                 elif f:
-                    fence = f[1]
-                elif h := re.fullmatch(r" {0,3}### (.+?)(?:[ \t]+#+)?[ \t]*", l):
+                    fence = "" if f[1] == "<!--" and "-->" in l else f[1]
+                elif h := re.fullmatch(r" {0,3}###[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*", l):
                     outcomes.append(h[1])
             need(m and m[1] in outcomes,
                  head[:m.start()].count("\n") + 1 if m else 1, "Serves names no ### outcome in PRODUCT.md")
@@ -263,7 +263,7 @@ def validate(repo, run, step):
 
 def summary(repo, run):
     records = read_records(run)
-    spec = (run / "spec.md").read_text(encoding="utf-8")
+    spec = (run / "spec.md").read_text("utf-8")
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
     if not base:
         raise SystemExit("summary: spec.md has no Base line")
@@ -317,11 +317,11 @@ def line(s):
 
 def next_step(repo, run, a):
     slug = run.name
-    spec = (run / "spec.md").read_text(encoding="utf-8") if (run / "spec.md").exists() else ""
+    spec = (run / "spec.md").read_text("utf-8") if (run / "spec.md").exists() else ""
     status = re.search(r"^Status:\s*(\w+)", spec, re.M)
     status = status.group(1) if status else None
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
-    notes = (run / "notes.md").read_text(encoding="utf-8") if (run / "notes.md").exists() else ""
+    notes = (run / "notes.md").read_text("utf-8") if (run / "notes.md").exists() else ""
     receipts = [receipt_fields(p) for p in receipts_of(run)]
     newest = receipts[-1] if receipts else None
     step, blocker, n, session = None, None, None, None
@@ -372,14 +372,14 @@ def next_step(repo, run, a):
 
         def items(k):
             """Receipt lines keyed ("Row", "3") or ("Defect", "1")."""
-            text = paths[k].read_text(encoding="utf-8") if k in paths else ""
+            text = paths[k].read_text("utf-8") if k in paths else ""
             lines = {("Row", m.group(1)): m.group(0) for m in re.finditer(r"^\|\s*(\d+)\s*\|.*$", text, re.M)}
             lines.update({("Defect", (re.findall(r"\d+", d) or ["?"])[0]): d for d in section(text, "Defects")})
             return lines
 
         last = newest["n"]
         rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|",
-                                                   paths[last].read_text(encoding="utf-8"), re.M)
+                                                   paths[last].read_text("utf-8"), re.M)
                 if not closed(last, ("Row", r))]
         defects = [key for key in items(last) if key[0] == "Defect" and not closed(last, key)]
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
@@ -400,7 +400,7 @@ def next_step(repo, run, a):
         else:
             waits = [f"{h}: {'; '.join(l[2:] for l in ls)}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")),
-                ("Maybes", section(paths[last].read_text(encoding="utf-8"), "Maybes"))) if ls]
+                ("Maybes", section(paths[last].read_text("utf-8"), "Maybes"))) if ls]
             if waits and not yes("done"):
                 blocker = f"answer before done, {'. '.join(waits)}; a yes is a Yes: done line in notes.md"
                 why = f"{name} has every row proved and waits on the human"
