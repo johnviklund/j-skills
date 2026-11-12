@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-12 · spec-why · jflow spec starts from the why and names the PRODUCT.md outcome it serves · Claude Opus 5.5
+- spec reads PRODUCT.md, DESIGN.md and the roadmap item, asks the why first and never reopens what the item settled, and makes its Solved when Proof row 1; specs carry `Serves:`, which `validate` checks against PRODUCT.md's `###` outcomes; done reports row 1 and asks before editing PRODUCT.md or DESIGN.md. Workflow's brainstorm was the only step that asked why.
+- Commits: 1361409 e9539bd 9b436c4 6171cae
+- jflow: 6 sessions · 3 fix rounds · 5 rows · 0 accepted · check 7 defects · net code +8 · tests +34 · docs +1
+
 ## 2026-11-10 · jflow-validate · jflow rejects malformed run artifacts · GPT-6.1 Sol
 - `validate` checks specs, newest receipts and Accepted lines; `record` refuses malformed output before changing the run log.
 - Commits: 17afb7a 4d109e8 df19d36

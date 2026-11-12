@@ -44,3 +44,5 @@ Checks allowed: 4
   A real outcome list never uses these, so I stopped at the cases found.
 - Size: `read_text(encoding="utf-8")` became `read_text("utf-8")` in 11 places, which behaves the
   same, and the new code comment is short. Now 49,962 bytes.
+- Done, 2026-11-12, the human's answers "1a 2a 3a": edit hq DESIGN.md's "Code owns" row for Serves;
+  drop the other HTML block kinds; add the size-limit decision to TODO.md.

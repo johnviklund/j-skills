@@ -1,5 +1,5 @@
 # spec-why
-Status: ready
+Status: done
 Base: d6fad8b
 Serves: Every change proved (hq PRODUCT.md)
 
