@@ -25,9 +25,9 @@ Runs in the builder session after the last check.
    read it.
 5. Keep the repo's lists true, for each of `TODO.md` and `ROADMAP.md` that exists. Search it for the
    slug and for what shipped, and read only the matches and their headings.
-   - An item or step this change finished moves to `TODO_ARCHIVE.md` or `ROADMAP_ARCHIVE.md`, word
-     for word, plus `— done <date> · <slug>`. The archive sits next to its list at the repo root,
-     never in `.jflow/`. Create it with a one-line header if it is missing.
+   - A `ROADMAP.md` with `## Next up` follows the `roadmap` skill's done-item rules and `check`.
+   - Any other finished item moves word for word to `TODO_ARCHIVE.md` or `ROADMAP_ARCHIVE.md`
+     beside its list, plus `— done <date> · <slug>`; create it if missing.
    - A step it finished only part of stays, reworded to what remains.
    - An open item the human kept at step 2 becomes one line in `TODO.md`.
 

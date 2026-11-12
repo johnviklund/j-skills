@@ -89,8 +89,8 @@ such as a deadline, a cost that grows, or an item that is blocked until this one
 whose waiting costs nothing says so, and waits.
 
 **Status** is `open`, `started`, `blocked: <why>` or `done <YYYY-MM-DD> <sha>`. A done item moves
-to `<NAME>_ARCHIVE.md` beside the roadmap, under one `## Done` heading, newest first, so the
-roadmap holds only open work. The heading keeps item headings one level below it, which markdown
+to `<NAME>_ARCHIVE.md` beside the roadmap, under one `## Done` heading, newest first, and leaves
+Next up, so the roadmap holds only open work. The `<sha>` is the change's last commit before this roadmap edit. The heading keeps item headings one level below it, which markdown
 linters require.
 
 **Groups** are fixed, so items never drift into new ones. Each item sits in the one group of its
