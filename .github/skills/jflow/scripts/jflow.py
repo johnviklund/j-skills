@@ -442,8 +442,8 @@ def next_step(repo, run, a):
     # Cap: a check counts when code changed since the receipt before it, or Base.
     shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
     counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
-    allowed = re.search(r"^Checks allowed:\s*(\d+)", notes, re.M)
-    allowed = int(allowed.group(1)) if allowed else 3
+    allowed = re.findall(r"^Checks allowed:\s*(\d+)", notes, re.M)  # the last line raises it
+    allowed = int(allowed[-1]) if allowed else 3
     if counted >= allowed and (step == "fix" or step == "check" and newest
                                and changed(repo, newest["sha"], "HEAD") is not False):
         # Closing: the newest receipt has fewer BROKEN rows and defects than the one before it.

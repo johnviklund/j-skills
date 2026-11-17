@@ -258,8 +258,12 @@ class RunRecord(unittest.TestCase):
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
         self.assertIn("➡️ A. One more check", self.next()["blocker"])
-        (self.run_dir / "notes.md").write_text("Checks allowed: 5\n")
+        (self.run_dir / "notes.md").write_text("Checks allowed: 3\n")
         self.commit("allow")
+        self.assertIn("3 checks used of 3", self.next()["blocker"])
+        with (self.run_dir / "notes.md").open("a") as notes:
+            notes.write("Checks allowed: 5\n")
+        self.commit("allow more")
         self.assertEqual(self.next()["step"], "fix")
 
     def test_next_vendor_override_and_bad_slug(self):

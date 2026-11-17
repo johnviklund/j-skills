@@ -30,3 +30,7 @@
 Checks allowed: 5
 
 - Check 4 ran in a fresh OpenAI session. The last fix also ran on OpenAI.
+
+## Fix after check-4
+- Defect 1: `next` reads the last `Checks allowed:` line, so appending one, as the cap card says,
+  raises the cap. SKILL.md says the last line counts.

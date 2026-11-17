@@ -92,7 +92,7 @@ as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
 checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
-human what is open. A `Checks allowed: N` line in `notes.md` raises the cap.
+human what is open. A `Checks allowed: N` line in `notes.md` raises the cap; the last such line counts.
 
 **Wait points.** `next` also stops for the human at three points, each cleared by a line in
 `notes.md`: `Yes: approach` for an approach posted for an **Ask first** item, `Yes: gate` before the
