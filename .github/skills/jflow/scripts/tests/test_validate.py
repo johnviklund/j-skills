@@ -132,6 +132,31 @@ class Validation(unittest.TestCase):
         self.assertEqual(len(path.read_bytes()), 3001)
         self.assert_bad('check', 'over 3,000 bytes')
 
+    def test_input_in_a_rename_or_merge_counts_and_unreadable_prior_is_reported(self):
+        self.receipt(1, 'PROVED', '- none')
+        first = self.run_dir / 'receipts/check-1.md'
+        first.write_bytes(first.read_text().encode('utf-16'))
+        self.receipt(2, 'PROVED', '- none')
+        self.assert_bad('check', 'cannot read check-1')
+        self.receipt(1, 'PROVED', '- none')
+        self.git('add', str(first))
+        self.git('commit', '-qm', 'check-1')
+        self.git('mv', 'app.py', '.jflow/demo/app.py')
+        self.git('commit', '-qm', 'move code into the run folder')
+        self.assert_clean('check')
+        self.git('reset', '-q', '--hard', 'HEAD~1')
+        self.git('checkout', '-qb', 'side')
+        (self.repo / '.jflow/other').mkdir()
+        (self.repo / '.jflow/other/x.md').write_text('x\n')
+        self.git('add', '.jflow/other')
+        self.git('commit', '-qm', 'side')
+        self.git('checkout', '-q', '-')
+        self.git('merge', '-q', '--no-ff', '--no-commit', 'side')
+        (self.run_dir / 'notes.md').write_text('Yes: done\n')
+        self.git('add', str(self.run_dir / 'notes.md'))
+        self.git('commit', '-qm', 'merge with notes')
+        self.assert_clean('check')
+
     def test_accepted_faults_and_valid_accepted_row(self):
         path = self.run_dir / 'spec.md'
         good = path.read_text()

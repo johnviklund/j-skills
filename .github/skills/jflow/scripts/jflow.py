@@ -239,13 +239,16 @@ def validate(repo, run, step):
         if len(receipts) > 1:
             # New input: code outside .jflow/, or this run's notes.md or spec.md, committed since the
             # previous receipt's commit, or since its header sha when it was never committed.
-            prev = (git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts[-2]))
-                    or receipt_fields(receipts[-2])["sha"])
-            rel = run.relative_to(repo).as_posix()
+            rel, files = run.relative_to(repo).as_posix(), []
             try:
-                files = git(repo, "log", "--format=", "--name-only", "-z", f"{prev}..HEAD").split("\0")
+                prev = (git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts[-2]))
+                        or receipt_fields(receipts[-2])["sha"])
+                # A tree diff sees merge commits and both sides of a rename.
+                files = git(repo, "diff", "--name-only", "--no-renames", "-z", f"{prev}", "HEAD").split("\0")
+            except (OSError, UnicodeError):
+                need(False, 1, f"cannot read {receipts[-2].stem}")
             except subprocess.CalledProcessError:
-                files = []
+                pass
             need(any(f and not f.startswith(".jflow/") or f in (rel + "/notes.md", rel + "/spec.md")
                      for f in files), 1,
                  f"no new input since {receipts[-2].stem}: commit code, notes.md or spec.md first")

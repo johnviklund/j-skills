@@ -16,3 +16,9 @@
   check-1, which defect 1 says must be refused. With the human's yes, its fixture now commits
   check-1, then a `notes.md` line, before check-2. No assertion changed.
 - Row 1 stays BLOCKED until five runs finish after done.
+
+## Fix after check-2
+- Defects 1 and 2: input now comes from a tree diff between the previous receipt's commit and
+  `HEAD`, with renames off. `git log --name-only` skipped merge commits and gave only a rename's
+  destination.
+- Defect 3: an unreadable previous receipt is reported as "cannot read check-N", with no traceback.
