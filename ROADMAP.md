@@ -9,10 +9,10 @@ workflow goes once what other skills still need from it has moved. Start a `jflo
 sessions or changed lines.
 
 ## Next up
-1. jflow-size-room · one session, and every jflow change waits for it, blocked-rows first
-2. blocked-rows · the costliest wait: each run with a paid or live row pays about 4 extra sessions
-3. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
-4. jflow-next-properties · waits for delete-workflow; the conductor trusts `next` at every step
+1. jflow-size-room · one session, and every jflow change waits for it, check-scope first
+2. check-scope · the costliest wait: check outlasts build in half the runs and stops the human most
+3. jflow-next-properties · the conductor trusts `next` at every step, and unattended runs need it tested
+4. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
 5. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
 ## Features
@@ -38,12 +38,12 @@ sessions or changed lines.
 
 - **Status:** open
 - **Problem:** The size test in `jflow/scripts/tests/test_validate.py` caps jflow at 50,000 bytes,
-  and jflow measured 49,997 on 2026-11-17. Three changes already wait for room: the `spec-why`
-  deferral in `TODO.md` and two blocked-rows ideas of about 72 words.
+  and jflow measured 49,995 on 2026-11-17. Three changes already wait for room: the `spec-why`
+  deferral in `TODO.md` and two check-scope ideas of about 72 words.
 - **Impact:** every jflow change can land without first cutting other text to fit.
-- **Why now:** blocked-rows waits for it.
-- **Solved when:** a jflow change that adds about 75 words passes the size test with no cut
-  elsewhere, and the limit's reason is written beside it.
+- **Why now:** check-scope waits for it.
+- **Solved when:** a jflow change that adds about 150 words, check-scope's budget, passes the size
+  test with no cut elsewhere, and the limit's reason is written beside it.
 - **Out of scope:** rewriting jflow for style.
 - **Budget:** one session
 - **Run:** plain · j-skills
@@ -51,26 +51,50 @@ sessions or changed lines.
 - **Open for spec:** raise the limit, move text into more reference files, or cut text no run has
   used?
 
-### blocked-rows · a check proves rows instead of waiting on them
+### check-scope · check proves and reports, and leaves decisions to others
 
 - **Status:** open
-- **Problem:** In three recent runs, 12 checks found no defect and ended with rows still BLOCKED or
-  WAITING on a paid call, an approval or a live value. One work-repo run took 15 checks, 23 sessions
-  and 5 cap raises. Its keep row failed for reasons outside the change in 11 checks, and one row
-  that grades a model's judgement was proved only on paid live checks, about $2.28.
-- **Impact:** ~4 fewer sessions on each run with a paid or live row, from 12 checks over those 3
-  runs; each cap raise is also one stop for the human, 5 in that run.
-- **Why now:** every work-repo run pays it, and an unattended conductor run stops at each cap raise.
-- **Solved when:** over the next three runs that have a paid or live row, no check ends with zero
-  defects and only BLOCKED or WAITING rows changed.
+- **Problem:** Check took longer than build and fix together in 13 of 28 runs, 2,217 against 1,490
+  minutes in all, and wrote 381 Maybes in 111 checks, 3.4 a check, each a stop for the human before
+  done. Check also decides instead of proving: one work-repo run had 5 cap raises, and in the three
+  worst runs 12 checks found no defect and only moved BLOCKED or WAITING rows while the checker
+  planned how to unblock them. Sol and Opus checkers both write 3.4 Maybes a check, so check's rules
+  cause it, not the model.
+- **Impact:** ~4 fewer sessions a run in the three worst runs, from those 12 checks, and fewer stops
+  for the human than 3.4 Maybes a check.
+- **Why now:** every run pays it, and an unattended conductor run stops at each cap raise and Maybe.
+- **Solved when:** over the next five runs, the median falls below today's 3.5 checks a run, Maybes
+  average under half of 3.4 a check, no check reruns rows when nothing was supplied since the last
+  one, and every receipt stays under 3 KB.
 - **Out of scope:** paid-call budgets and approval rules themselves.
-- **Budget:** about 100 words of jflow text and one session to measure
+- **Budget:** about 150 words of jflow text and one session to measure
 - **Run:** jflow · j-skills
 - **After:** jflow-size-room
-- **Open for spec:** should a row that grades a model's judgement run on a fixed labelled case set
-  the builder can run free, with labelling a Human check before build when no set exists? Should a
-  keep row never need a paid call or approval, and read values from their live source? Should
-  check list what each row needs before it runs any row?
+- **Open for spec:** Which jobs leave check: unblock plans, cap-raise questions, Maybes that propose
+  a fix? Does any decision check makes need a stronger model, or does it go to the builder or the
+  human? Should a row that grades a model's judgement run on a fixed labelled case set the builder
+  can run free? Should a keep row never need a paid call or approval, and read live values? Should
+  check list what each row needs before it runs any? When fix rounds keep finding new defects, is
+  the cause a spec that left behaviour open, a check that attacks without end, or fixes that break
+  what passed?
+
+### jflow-next-properties · jflow's next-step rules are tested on generated run folders
+
+- **Status:** open
+- **Problem:** The conductor trusts `jflow.py next` to pick every step and every stop for the human,
+  and that logic keeps breaking in small ways. On 9 Nov the jflow-next and wait-points runs needed
+  five fixes to it, each found by a full check session and not by the 14 tests.
+- **Impact:** ~1 to 2 fewer fix rounds on each change to `next`, from those five fixes; a wrong
+  `next` in a conductor run skips a stop or loops, and nobody is watching.
+- **Why now:** the conductor's first unattended runs rely on it.
+- **Solved when:** one command generates random run folders and fails if `next` skips a wait point,
+  counts a rerun of only BLOCKED or WAITING rows toward the cap, or lets an Accepted or `Yes:` line
+  clear anything other than what it names; it fails on at least one of the five past bugs.
+- **Out of scope:** TLA+, Lean or any model of the flow outside the test file.
+- **Budget:** about 120 lines of tests, no change to `jflow.py` unless a test finds a bug
+- **Run:** jflow · j-skills
+- **After:** none
+- **Open for spec:** is Hypothesis worth a test dependency, or does a seeded random generator do?
 
 ### delete-workflow · delete workflow and the scripts only it uses
 
@@ -91,41 +115,6 @@ sessions or changed lines.
 - **After:** none
 - **Open for spec:** where do the hooks and `SKILL-IMPACT.md` live next: jflow, checkup or the repo
   root? Do the `ROUTING.md` readers switch to jflow's `config.json`, or does `ROUTING.md` go?
-
-### jflow-next-properties · jflow's next-step rules are tested on generated run folders
-
-- **Status:** open
-- **Problem:** The conductor trusts `jflow.py next` to pick every step and every stop for the human,
-  and that logic keeps breaking in small ways. On 9 Nov the jflow-next and wait-points runs needed
-  five fixes to it, each found by a full check session and not by the 14 tests.
-- **Impact:** ~1 to 2 fewer fix rounds on each change to `next`, from those five fixes; a wrong
-  `next` in a conductor run skips a stop or loops, and nobody is watching.
-- **Why now:** the conductor's first unattended runs rely on it.
-- **Solved when:** one command generates random run folders and fails if `next` skips a wait point,
-  counts a rerun of only BLOCKED or WAITING rows toward the cap, or lets an Accepted or `Yes:` line
-  clear anything other than what it names; it fails on at least one of the five past bugs.
-- **Out of scope:** TLA+, Lean or any model of the flow outside the test file.
-- **Budget:** about 120 lines of tests, no change to `jflow.py` unless a test finds a bug
-- **Run:** jflow · j-skills
-- **After:** delete-workflow
-- **Open for spec:** is Hypothesis worth a test dependency, or does a seeded random generator do?
-
-### checks-converge · fix rounds end instead of finding new defects each check
-
-- **Status:** open
-- **Problem:** A private-repo run that changed only skill text took 7 checks and 5 fix rounds, and
-  each check from the second on found 2 to 5 new defects, 22 in all. It closed with 3 findings
-  accepted. The 23-session work-repo run still found a new defect in checks 14 and 15.
-- **Impact:** ~3 sessions on a run like that one, if it had closed at the 3-check cap; one run so
-  far.
-- **Why now:** one run shows it, so it waits for a second before anyone spends on it.
-- **Solved when:** no run goes past its third check while each check still finds new defects,
-  without a human choosing to continue.
-- **Budget:** one jflow run
-- **Run:** jflow · j-skills
-- **After:** blocked-rows
-- **Open for spec:** is this a spec that left the behaviour open, a check that attacks without end,
-  or fixes that break what passed?
 
 ## Measurement
 
