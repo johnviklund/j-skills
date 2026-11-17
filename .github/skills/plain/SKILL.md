@@ -124,6 +124,16 @@ must stay word for word, and cite markers such as `[1]` are not prose and stay a
 29. **No chatbot phrases.** "I hope this helps!", "Let me know if...", "Of course!", "Certainly!",
     "Great question!", "You're absolutely right!" go. Answer directly.
 
+### Questions
+
+30. **Every option carries its weight.** Give each option its benefit, its cost and your
+    confidence as high, medium or low, a few words each with the number behind them, so the reader
+    can choose without redoing your reading. The recommended option goes first.
+31. **Ask only what you cannot settle.** When every option is worth taking, take them all and say
+    so. When an answer is cheap to undo and your confidence is high, act and report it. Cheap to
+    undo means no push, no paid call, no live step and no change to a spec or a steering doc. A
+    skill's own wait points still stop for the human.
+
 ### Self-audit
 
 After writing, ask: "What makes this obviously AI-generated?" Fix what you find, then check
