@@ -9,11 +9,10 @@ workflow goes once what other skills still need from it has moved. Start every i
 Budgets count sessions or changed lines.
 
 ## Next up
-1. jflow-size-room · one session, and every jflow change waits for it, check-scope first
-2. check-scope · the costliest wait: check outlasts build in half the runs and stops the human most
-3. jflow-next-properties · the conductor trusts `next` at every step, and unattended runs need it tested
-4. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
-5. escaped-defects · the first conductor run opens a bug window that should land in its run folder
+1. check-scope · the costliest wait: check outlasts build in half the runs and stops the human most
+2. jflow-next-properties · the conductor trusts `next` at every step, and unattended runs need it tested
+3. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
+4. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
 ## Features
 
@@ -33,23 +32,6 @@ Budgets count sessions or changed lines.
 - **Open for spec:** is the recording a required Proof row for UI changes, and from when?
 
 ## Tooling
-
-### jflow-size-room · a jflow change fits under the size test
-
-- **Status:** open
-- **Problem:** The size test in `jflow/scripts/tests/test_validate.py` caps jflow at 50,000 bytes,
-  and jflow measured 49,995 on 2026-11-17. Three changes already wait for room: the `spec-why`
-  deferral in `TODO.md` and two check-scope ideas of about 72 words.
-- **Impact:** every jflow change can land without first cutting other text to fit.
-- **Why now:** check-scope waits for it.
-- **Solved when:** a jflow change that adds about 150 words, check-scope's budget, passes the size
-  test with no cut elsewhere, and the limit's reason is written beside it.
-- **Out of scope:** rewriting jflow for style.
-- **Budget:** one session
-- **Run:** jflow · j-skills
-- **After:** none
-- **Open for spec:** raise the limit, move text into more reference files, or cut text no run has
-  used?
 
 ### check-scope · check proves and reports, and leaves decisions to others
 

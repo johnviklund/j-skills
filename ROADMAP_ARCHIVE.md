@@ -2,6 +2,27 @@
 
 Completed steps, moved from `ROADMAP.md` at wrap.
 
+## Done
+
+### jflow-size-room · a jflow change fits under the size test
+
+- **Status:** done 2026-11-17 18fdf49
+- **Problem:** The size test in `jflow/scripts/tests/test_validate.py` caps jflow at 50,000 bytes,
+  and jflow measured 49,995 on 2026-11-17. Three changes already wait for room: the `spec-why`
+  deferral in `TODO.md` and two check-scope ideas of about 72 words.
+- **Impact:** every jflow change can land without first cutting other text to fit.
+- **Why now:** check-scope waits for it.
+- **Solved when:** a jflow change that adds about 150 words, check-scope's budget, passes the size
+  test with no cut elsewhere, and the limit's reason is written beside it.
+- **Out of scope:** rewriting jflow for style.
+- **Budget:** one session
+- **Run:** jflow · j-skills
+- **After:** none
+- **Open for spec:** raise the limit, move text into more reference files, or cut text no run has
+  used?
+
+## Earlier completed steps
+
 | 2 | Retire the date gates (`SLOP_SINCE`, `SIZING_SINCE`, `LEAN_SINCE`, `GROWTH_SINCE`) and their legacy branches (`LEGACY_TEST_RATIO`, any-mention deviation skip); check only runs not yet done, so a rule change needs no start date | `retire-date-gates` | Done 2026-10-22: one rule set for every run not yet done; done runs keep header, sha and layout checks; see `.workflow/retire-date-gates/wrap.md` |
 | 3 | Decide from step 1's evidence which comes next: a simplify pass before review, real retiring at wrap, or a run-level ratio gate (growth-ratchets D4) | `run-ratio-and-retire` | Done 2026-10-23: check-run judges tests net against code added once per run (error above 1.5×, `Ratio waived: run`); the per-ticket ratio is a warning; checkup reports test growth. Simplify pass is next, after the 2026-10-21 `workflow improve` trial; see `.workflow/run-ratio-and-retire/wrap.md` |
 | 1 | `next-step.py SLUG --json` prints a run's next step as JSON; the closing card, `workflow next` and `workflow status` print its output | `next-step` | Done 2026-10-30: `next-step.py` decides every phase's card and `workflow next`/`status` print it; keyed ROUTING tables, `Fixes:` on patch tickets; 4 review cycles; see `.workflow/next-step/wrap.md` |
