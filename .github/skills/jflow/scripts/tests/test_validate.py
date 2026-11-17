@@ -157,6 +157,20 @@ class Validation(unittest.TestCase):
         self.git('commit', '-qm', 'merge with notes')
         self.assert_clean('check')
 
+    def test_new_input_accepts_a_git_path_with_a_non_utf8_byte(self):
+        self.receipt(1, 'PROVED', '- none')
+        self.commit('check-1')
+        self.receipt(2, 'PROVED', '- none')
+        notes = self.run_dir / 'notes.md'
+        notes.write_text('New input\n')
+        self.git('add', str(notes))
+        # Stage the raw Git path without relying on the filesystem to accept it.
+        blob = self.git('rev-parse', 'HEAD:app.py').encode('ascii')
+        subprocess.run(['git', 'update-index', '-z', '--index-info'], cwd=self.repo,
+                       input=b'100644 ' + blob + b'\tscratch-\xff.py\0', check=True)
+        self.git('commit', '-qm', 'notes and a raw Git path')
+        self.assert_clean('check')
+
     def test_accepted_faults_and_valid_accepted_row(self):
         path = self.run_dir / 'spec.md'
         good = path.read_text()

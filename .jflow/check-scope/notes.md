@@ -22,3 +22,9 @@
   `HEAD`, with renames off. `git log --name-only` skipped merge commits and gave only a rename's
   destination.
 - Defect 3: an unreadable previous receipt is reported as "cannot read check-N", with no traceback.
+
+## Fix after check-3
+- The OpenAI checker session took over the fix from the Anthropic builder session.
+- `validate` compares Git paths as bytes. A filename with a non-UTF-8 byte no longer hides new input.
+
+Checks allowed: 4

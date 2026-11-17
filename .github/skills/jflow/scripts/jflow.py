@@ -237,19 +237,21 @@ def validate(repo, run, step):
             sha(m[2])
         need(not path.exists() or path.stat().st_size <= 3000, 1, "receipt over 3,000 bytes")
         if len(receipts) > 1:
-            # New input: code outside .jflow/, or this run's notes.md or spec.md, committed since the
-            # previous receipt's commit, or since its header sha when it was never committed.
-            rel, files = run.relative_to(repo).as_posix(), []
+            # Compare with the prior receipt's commit, or its header SHA if uncommitted.
+            rel, files = os.fsencode(run.relative_to(repo).as_posix()), []
             try:
                 prev = (git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts[-2]))
                         or receipt_fields(receipts[-2])["sha"])
                 # A tree diff sees merge commits and both sides of a rename.
-                files = git(repo, "diff", "--name-only", "--no-renames", "-z", f"{prev}", "HEAD").split("\0")
+                files = subprocess.check_output(
+                    ["git", "-C", str(repo), "diff", "--name-only", "--no-renames", "-z", f"{prev}", "HEAD"],
+                    stderr=subprocess.PIPE,
+                ).split(b"\0")
             except (OSError, UnicodeError):
                 need(False, 1, f"cannot read {receipts[-2].stem}")
             except subprocess.CalledProcessError:
                 pass
-            need(any(f and not f.startswith(".jflow/") or f in (rel + "/notes.md", rel + "/spec.md")
+            need(any(f and (not f.startswith(b".jflow/") or f in (rel + b"/notes.md", rel + b"/spec.md"))
                      for f in files), 1,
                  f"no new input since {receipts[-2].stem}: commit code, notes.md or spec.md first")
         need(re.findall(r"^## (.+)$", text, re.M) == ["Defects", "Maybes"],
