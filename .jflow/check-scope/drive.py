@@ -62,6 +62,24 @@ def historical_runs():
     return int(len(runs) != 9 or failed != ["corrections-bad-records"])
 
 
+def cap_options(repo):
+    notes = RUN / "notes.md"
+    (repo / notes).write_text("Checks allowed: 1\n")
+    code = Path("scratch.py")
+    (repo / code).write_text("# Scratch proof input.\n")
+    git("add", "--", str(code), cwd=repo)
+    commit(repo, notes)
+    command = [sys.executable, SCRIPT, "next", RUN.name]
+    before = subprocess.check_output(command, cwd=repo, text=True)
+    print(next(line for line in before.splitlines() if "One more check" in line))
+    with (repo / notes).open("a") as file:
+        file.write("Checks allowed: 2\n")
+    commit(repo, notes)
+    after = subprocess.check_output(command, cwd=repo, text=True)
+    print("After appending Checks allowed: 2:", after.splitlines()[0])
+    return int("1 checks used of 1" in after)
+
+
 def main(row):
     if row == "8":
         return historical_runs()
@@ -100,6 +118,8 @@ def main(row):
             git("reset", "--quiet", "HEAD^", cwd=repo)
         (repo / SCRIPT).write_bytes(git("show", f"HEAD:{SCRIPT}"))
 
+        if row == "cap-options":
+            return cap_options(repo)
         if row == "4":
             above_limit = validate(repo, 3001)
             at_limit = validate(repo, 3000)
@@ -116,7 +136,7 @@ def main(row):
 
 if __name__ == "__main__":
     cases = ("2", "3", "4", "8", "crlf", "other-receipt", "uncommitted",
-             "merge-input", "renamed-input", "unreadable-prior", "non-utf8-path")
+             "merge-input", "renamed-input", "unreadable-prior", "non-utf8-path", "cap-options")
     if len(sys.argv) != 2 or sys.argv[1] not in cases:
         sys.exit("Usage: drive.py {" + "|".join(cases) + "}")
     sys.exit(main(sys.argv[1]))
