@@ -63,7 +63,7 @@ in 111 checks, each a stop for the human before done.
 ## Write `receipts/check-N.md`
 
 One number up from the last receipt. Use this template exactly, with no added sections: a limit on
-the check goes in Maybes. Each Evidence cell holds at most 240 characters: the command plus the one
+the check goes in the evidence of the row it stops. Each Evidence cell holds at most 240 characters: the command plus the one
 output line that decides the verdict. A BROKEN row with a defect cites its number instead of
 repeating the evidence; without a defect, it uses the capped command and output line.
 Number defects; each defect's `Evidence:` part also holds at most 240 characters.

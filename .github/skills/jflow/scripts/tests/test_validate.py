@@ -106,10 +106,14 @@ class Validation(unittest.TestCase):
 
     def test_second_receipt_needs_new_input_and_at_most_3000_bytes(self):
         self.receipt(1, 'PROVED', '- none')
-        self.commit('check-1')
         self.receipt(2, 'PROVED', '- none')
+        self.assert_bad('check', 'no new input since check-1')  # check-1 never committed
+        self.commit('check-1')
         self.assert_bad('check', 'no new input since check-1')
-        self.commit('check-2 receipt only')
+        other = self.repo / '.jflow/other/receipts/check-1.md'
+        other.parent.mkdir(parents=True)
+        other.write_text('x\n')
+        self.commit('check-2 and another run receipt only')
         self.assert_bad('check', 'no new input since check-1')
         (self.run_dir / 'notes.md').write_text('Yes: done\n')
         self.commit('notes')
@@ -123,6 +127,10 @@ class Validation(unittest.TestCase):
                 self.assert_clean('check')
             else:
                 self.assert_bad('check', 'over 3,000 bytes')
+        crlf = text.replace('\n', '\r\n')
+        path.write_bytes(crlf.replace('PAD', 'x' * (3001 - len(crlf.encode()) + 3)).encode())
+        self.assertEqual(len(path.read_bytes()), 3001)
+        self.assert_bad('check', 'over 3,000 bytes')
 
     def test_accepted_faults_and_valid_accepted_row(self):
         path = self.run_dir / 'spec.md'
