@@ -27,6 +27,6 @@
 - The OpenAI checker session took over the fix from the Anthropic builder session.
 - `validate` compares Git paths as bytes. A filename with a non-UTF-8 byte no longer hides new input.
 
-Checks allowed: 4
+Checks allowed: 5
 
 - Check 4 ran in a fresh OpenAI session. The last fix also ran on OpenAI.
