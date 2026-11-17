@@ -52,3 +52,7 @@ the commit that added its `check-1.md`, and a `check-2.md` built from it.
 ## Human checks
 - After five runs, read the row 1 measurement and judge whether check still catches real defects
   with fewer Maybes.
+
+## Accepted
+- Row 1 · Five post-shipping runs are still needed to measure the four bars · "option A" · 2026-11-17 · b9d49c8ac30b6831fa4d83458a1c4be5632f5726
+- Defect 1 · A numbered list below a bare `Checks allowed:` heading can override the last complete cap line · "option A" · 2026-11-17 · b9d49c8ac30b6831fa4d83458a1c4be5632f5726
