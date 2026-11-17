@@ -104,6 +104,26 @@ class Validation(unittest.TestCase):
             path.write_text(good.replace('| 1 | PROVED', '| 1 | ' + verdict).replace('`cmd` -> ok', 'defect 1'))
             self.assert_clean('check')
 
+    def test_second_receipt_needs_new_input_and_at_most_3000_bytes(self):
+        self.receipt(1, 'PROVED', '- none')
+        self.commit('check-1')
+        self.receipt(2, 'PROVED', '- none')
+        self.assert_bad('check', 'no new input since check-1')
+        self.commit('check-2 receipt only')
+        self.assert_bad('check', 'no new input since check-1')
+        (self.run_dir / 'notes.md').write_text('Yes: done\n')
+        self.commit('notes')
+        self.assert_clean('check')
+        path = self.run_dir / 'receipts/check-2.md'
+        text = path.read_text().replace('## Maybes\n', '## Maybes\n- PAD\n')
+        for size, clean in ((3000, True), (3001, False)):
+            path.write_text(text.replace('PAD', 'x' * (size - len(text.encode()) + 3)))
+            self.assertEqual(len(path.read_bytes()), size)
+            if clean:
+                self.assert_clean('check')
+            else:
+                self.assert_bad('check', 'over 3,000 bytes')
+
     def test_accepted_faults_and_valid_accepted_row(self):
         path = self.run_dir / 'spec.md'
         good = path.read_text()

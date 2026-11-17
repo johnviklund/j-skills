@@ -235,6 +235,14 @@ def validate(repo, run, step):
         need(m and path.stem == "check-" + m[1], 1, "missing receipt or bad header " + path.stem)
         if m:
             sha(m[2])
+        need(len(text.encode("utf-8")) <= 3000, 1, "receipt over 3,000 bytes")
+        if len(receipts) > 1:
+            # New input is any commit since the previous receipt's that is not a receipt or run.jsonl.
+            prev = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts[-2]))
+            rel = run.relative_to(repo).as_posix()
+            files = git(repo, "log", "--format=", "--name-only", f"{prev}..HEAD").split() if prev else ["?"]
+            need(any(not f.startswith(rel + "/receipts/") and f != rel + "/run.jsonl" for f in files), 1,
+                 f"no new input since {receipts[-2].stem}: commit code, notes.md or spec.md first")
         need(re.findall(r"^## (.+)$", text, re.M) == ["Defects", "Maybes"],
              1, "missing or extra section: Defects, Maybes")
         defects = set()

@@ -24,7 +24,8 @@ with the pass signal, and give each row one verdict:
 - **PROVED**: observed the pass signal.
 - **BROKEN**: ran, and saw something else.
 - **BLOCKED**: could not run: a missing credential, service or tool that no work in this folder can
-  repair. Writing a driver for a row is part of your job, so an unwritten driver is never BLOCKED.
+  repair. Its evidence names only what is missing, with no plan to unblock it. Writing a driver for
+  a row is part of your job, so an unwritten driver is never BLOCKED.
 - **UNREACHABLE**: the row's starting state is one the app never creates. The code never runs, which
   is a different thing from wrong code.
 - **WAITING**: Kind `live`, and the gate is not passed yet.
@@ -52,8 +53,12 @@ Run it in a scratch copy when you can, so the output is the evidence. When you c
 through the code and say it is traced. A defect that breaks a row's claim also makes that row BROKEN.
 
 Leave out style, structure, a missing test or surviving mutant on its own, duplication, and risks
-that need a future change to matter. Anything you suspect but cannot show goes in **Maybes**, for
-the human; nobody fixes those. No defects is a valid result.
+that need a future change to matter. No defects is a valid result.
+
+A **Maybe** is only a suspected defect with a named input you could neither run nor trace. It goes
+to the human; nobody fixes it. Four kinds never go there: fix proposals, status notes, repeats of
+a Maybe from an earlier receipt, and reports of what a fix closed. Measured 2026-11-17: 381 Maybes
+in 111 checks, each a stop for the human before done.
 
 ## Write `receipts/check-N.md`
 
@@ -64,7 +69,9 @@ repeating the evidence; without a defect, it uses the capped command and output 
 Number defects; each defect's `Evidence:` part also holds at most 240 characters.
 Quote a command that reruns as written, so a reader can get the rest; raw output stays in the temp
 folder. Done when every row has a verdict and evidence, every defect has its input and evidence,
-and both evidence caps hold.
+both evidence caps hold, and the receipt is at most 3,000 bytes. `validate` refuses a larger
+receipt, and refuses one when nothing but receipts and `run.jsonl` was committed since the
+previous receipt.
 
 ```markdown
 # check-N @ <sha> · <model and effort from the card, or unknown>
@@ -85,6 +92,8 @@ and both evidence caps hold.
 
 Record the step as `check`, commit the receipt and `run.jsonl`, then run `jflow.py next <slug>` and
 print its card. BROKEN rows and defects go to the
-builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Tell the human
-what is blocked and what would unblock it. For UNREACHABLE, ask whether to delete the code or say
-what reaches it. With only WAITING rows left, say the change is clear to pass the gate.
+builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Name what is
+missing for each BLOCKED row and stop there. `next` and the human decide what follows, the check
+cap included: never plan how to unblock a row, and never ask or argue for more checks. For
+UNREACHABLE, the human chooses between deleting the code and saying what reaches it. With only
+WAITING rows left, say the change is clear to pass the gate.

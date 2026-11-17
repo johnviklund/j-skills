@@ -37,6 +37,9 @@ and lint commands, so leave them out. Each row must be able to fail, by one of:
 - a flow driven with the repo's `verify-*` skill, ending in a state someone can observe;
 - a measurement with a threshold.
 
+A row that grades a model's judgement runs on a fixed labelled case set the builder can run
+free. A `keep` row needs no paid call and no approval, and reads its values at check time.
+
 Read the claim where the user meets it. A fully mocked test proves no goal. **Human checks** hold
 what only a person can judge or do: taste, a trial with an outside tool, a doc that needs their
 approval. They never count as proof. Prefer a stronger answer key when one exists: the old system
