@@ -94,6 +94,7 @@ Record the step as `check`, commit the receipt and `run.jsonl`, then run `jflow.
 print its card. BROKEN rows and defects go to the
 builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Name what is
 missing for each BLOCKED row and stop there. `next` and the human decide what follows, the check
-cap included: never plan how to unblock a row, and never ask or argue for more checks. For
+cap included: never plan how to unblock a row, and never ask or argue for more checks: the card's options
+carry the recommendation. For
 UNREACHABLE, the human chooses between deleting the code and saying what reaches it. With only
 WAITING rows left, say the change is clear to pass the gate.

@@ -86,7 +86,8 @@ verdicts included, and was committed in or after that check's receipt.
 `python3 <skill>/scripts/jflow.py next <slug>` reads the run folder and git and prints the closing
 card for the next step. With `--json` it prints the same decision for a driver: `step`, `n`, `role`,
 `model`, `command`, `session`, `blocker` and `why`. Bare `jflow <slug>` prints that card. A stop for
-the human has `role: "human"` and a `blocker`; tell the human what it says. Pass `--builder-vendor V`
+the human has `role: "human"` and a `blocker` that ends on lettered options, the recommended one
+first; print it as it stands. Pass `--builder-vendor V`
 as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three

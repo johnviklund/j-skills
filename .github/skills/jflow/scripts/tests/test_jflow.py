@@ -250,6 +250,14 @@ class RunRecord(unittest.TestCase):
         self.receipt(4, "BROKEN", "- none", self.git("rev-parse", "HEAD"))
         self.commit("rerun only")
         self.assertIn("3 checks used of 3", self.next()["blocker"])
+        card = self.jflow("next", "demo").splitlines()
+        self.assertIn("went from 1 to 1", card[0])
+        self.assertTrue(card[2].startswith("➡️ A. Stop: accept what is open"), card)
+        self.assertTrue(card[3].startswith("B. One more check: add `Checks allowed: 4` to notes.md"), card)
+        (self.run_dir / "receipts/check-3.md").write_text(
+            (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
+        self.commit("closing")
+        self.assertIn("➡️ A. One more check", self.next()["blocker"])
         (self.run_dir / "notes.md").write_text("Checks allowed: 5\n")
         self.commit("allow")
         self.assertEqual(self.next()["step"], "fix")
@@ -309,6 +317,7 @@ class RunRecord(unittest.TestCase):
                 self.assertIn(named, n["blocker"])
                 self.assertEqual((n["role"], n["model"], n["command"], self.jflow("next", "demo")[:19]),
                                  ("human", None, None, "The human decides: "))
+                self.assertIn("\n\n➡️ A. ", self.jflow("next", "demo"))
 
 if __name__ == "__main__":
     unittest.main()
