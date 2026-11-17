@@ -34,3 +34,5 @@ Checks allowed: 5
 ## Fix after check-4
 - Defect 1: `next` reads the last `Checks allowed:` line, so appending one, as the cap card says,
   raises the cap. SKILL.md says the last line counts.
+
+Yes: done · "Yes, ship now and review after five runs." · 2026-11-17
