@@ -4,9 +4,9 @@ Updated: 2026-11-17
 This repo holds the `j-skills` skills. Undecided intake lives in [TODO.md](TODO.md), what shipped
 lives in [WORKLOG.md](WORKLOG.md) and git, and done items and earlier goals sit in
 [ROADMAP_ARCHIVE.md](ROADMAP_ARCHIVE.md). The jflow trial ended on 2026-11-16: jflow stays, and
-workflow goes once what other skills still need from it has moved. Start a `jflow` item with
-`jflow spec <slug>`, and a `plain` item with one session sent `Roadmap item <slug>`. Budgets count
-sessions or changed lines.
+workflow goes once what other skills still need from it has moved. Start every item with
+`jflow spec <slug>`; a `plain` item is small enough for spec, build and check in one session.
+Budgets count sessions or changed lines.
 
 ## Next up
 1. jflow-size-room · one session, and every jflow change waits for it, check-scope first
@@ -46,7 +46,7 @@ sessions or changed lines.
   test with no cut elsewhere, and the limit's reason is written beside it.
 - **Out of scope:** rewriting jflow for style.
 - **Budget:** one session
-- **Run:** plain · j-skills
+- **Run:** jflow · j-skills
 - **After:** none
 - **Open for spec:** raise the limit, move text into more reference files, or cut text no run has
   used?
