@@ -250,8 +250,14 @@ class Validation(unittest.TestCase):
                         self.assertEqual(after, before)
 
     def test_skill_size_and_agent_instruction(self):
-        files = subprocess.check_output(['git', '-C', str(ROOT), 'ls-files', '.github/skills/jflow'], text=True)
-        self.assertLess(sum((ROOT / f).stat().st_size for f in files.splitlines() if '/tests/' not in f), 50000)
+        skill = SCRIPT.parents[1]
+        skill_size = (skill / 'SKILL.md').stat().st_size
+        # Each step's session reads SKILL.md plus one reference: cap that read at 14,000 bytes.
+        # Cap the script separately at 30,000 bytes against implementation bloat.
+        for step in ('spec', 'build', 'check', 'done'):
+            with self.subTest(step=step):
+                self.assertLessEqual(skill_size + (skill / 'references' / f'{step}.md').stat().st_size, 14000)
+        self.assertLessEqual(SCRIPT.stat().st_size, 30000)
         lines = [line for line in (SCRIPT.parents[1] / 'SKILL.md').read_text().splitlines() if 'validate' in line]
         self.assertEqual(len(lines), 1)
         self.assertTrue(all(word in lines[0] for word in ('record', 'spec', 'check', 'accept')))
