@@ -1,5 +1,7 @@
 # TODO archive
 
+- `spec-why`: the jflow skill is at 49,995 of the 50,000 bytes (2026-11-17) its size test allows. Before the next jflow change, decide whether to raise the limit or split the text; `ROADMAP.md` item jflow-size-room. — done 2026-11-17 · jflow-size-room
+
 - `receipt-evidence-cap`: Decide whether an escaped pipe counts as one or two characters toward the evidence cap. Counting stays unspecified at close. — done 2026-11-10 · jflow-validate
 
 - `drive-py-at-done`: On the next run that reaches `done` with a `drive.py`, confirm the done commit deletes it and any reusable verb is one `TODO.md` line. — done 2026-11-08 · jflow-config

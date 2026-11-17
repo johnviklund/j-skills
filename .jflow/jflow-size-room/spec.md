@@ -1,5 +1,5 @@
 # jflow-size-room
-Status: ready
+Status: done
 Base: 8d10090
 Serves: none
 

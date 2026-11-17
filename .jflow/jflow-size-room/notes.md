@@ -9,13 +9,13 @@ The instruction assertions below the guard stay unchanged, as does all jflow pro
 The existing size test covers the new caps; padding checks exercise the Proof rows without adding another test.
 Trigger and model trials do not apply because the skill's instructions and invocation stay unchanged.
 
-## Spec conflict
+## Spec conflict, resolved
 
-Build is incomplete. Proof row 3 conflicts with Goal 1's 14,000-byte cap.
+The original build stopped because Proof row 3 conflicted with Goal 1's 14,000-byte cap.
 At implementation commit `0abe6bd`, the readings after adding 3,000 bytes are 12,060 for build and 12,773 for done.
 Both must pass Goal 1 and therefore cannot meet row 3's required failure.
-Only `jflow spec` can revise this row. Suggested check: pad each reading to 14,001 bytes, one file at a time.
-The spec stays unchanged, and no completed build step is recorded.
+The spec revision in `b2169fd` pads each reading to 14,001 bytes, one file at a time.
+Check 1 in `18fdf49` proves all five corrected rows, with no defects or Maybes. This conflict is closed.
 
 ## Verification
 
@@ -36,3 +36,17 @@ The final suites pass with the same counts and exit 0. `git diff --check` also p
 
 Assignment: checker · claude-opus-5-5 · high · fresh session.
 Check 1 ran in a fresh gpt-6.2-sol session at high effort. The builder and checker both used OpenAI.
+
+## Done
+
+This step resumes the original gpt-6.1-sol builder session at high effort; the assigned seat remains claude-opus-5-5 at medium effort.
+No product code changed after the newest check. Neither PRODUCT.md nor DESIGN.md needs an edit.
+There are no Human checks, Maybes or open implementation items. The driver has no reusable app controls.
+The done commit removes the driver; its source remains in the check receipt's commit, `18fdf49`.
+The finished roadmap item and size deferral are archived.
+The human's correction requires an exact next command and its session in the closing handoff.
+The existing closing-card rule already covers that correction, so its SKILL-IMPACT row records this missed application.
+
+Done verification: workflow 137 tests OK; checkup 41 tests OK; jflow 29 tests OK; roadmap 18 tests OK; exit 0.
+Roadmap check has no errors; its existing missing PRODUCT.md notice remains unchanged.
+The summary counts the required separate roadmap archival commit as one fix round; the implementation did not change after check 1.

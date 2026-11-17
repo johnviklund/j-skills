@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-17 · jflow-size-room · jflow caps each step's reading and the script separately · gpt-6.1-sol
+- The size guard allows 14,000 bytes for SKILL.md plus one step reference and 30,000 bytes for jflow.py, with the reason beside the limits.
+- Commits: 0abe6bd d6c2ab1 b2169fd 18fdf49 026b1a0
+- jflow: 4 sessions · 1 fix rounds · 5 rows · 0 accepted · check clean · net code +0 · tests +6 · docs +4
+
 ## 2026-11-12 · spec-why · jflow spec starts from the why and names the PRODUCT.md outcome it serves · Claude Opus 5.5
 - spec reads PRODUCT.md, DESIGN.md and the roadmap item, asks the why first and never reopens what the item settled, and makes its Solved when Proof row 1; specs carry `Serves:`, which `validate` checks against PRODUCT.md's `###` outcomes; done reports row 1 and asks before editing PRODUCT.md or DESIGN.md. Workflow's brainstorm was the only step that asked why.
 - Commits: 1361409 e9539bd 9b436c4 6171cae
@@ -104,23 +109,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@9638c307782f, checkup@20651cbda779
 - Why: an outside conductor needs fixed rules and a blocker for runs nobody watches.
-
-## 2026-10-30 · next-step · a script decides each run's next step, and the cards print its output · GPT-6.1 Sol
-- `next-step.py` reads a run's files and ROUTING.md (now keyed tables) and prints the closing card or schema-1 JSON; `workflow next` and `status` print it, patch tickets carry `Fixes:`, and checkup copies its model lines from `--key`.
-- Four review cycles found 8 defects (open findings read from the latest cycle only, backticked receipt paths, shifted finding ids, 4 untested guards); all fixed. Four missed P1s went to the private exam set.
-- Commits: 904f083 70fefa2 17c8020 53d959c a354025 e6a8e5d f2bba2b 0762b64 eac69f8 5c5e306 3b72722 0485880
-- Review: ship as-is (cycle 4, 0 open) @ 91a5e68
-- Run: 13 tickets · 7 sessions · 4 review cycles · 0 deviations · 0 findings overturned · net code +272 · tests +408
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@adfa1601a336, checkup@20651cbda779
-- Why: a script, not model judgement, must pick the next step so an outside conductor can drive runs.
-
-## 2026-10-28 · lean-skill-hubs · six large skill hubs now load only the branch a run needs · GPT-6.1 Sol
-- `memory.remember`, `memory.compact`, `workflow`, `checkup`, `understand` and `verify` keep in `SKILL.md` only what every run needs; branch text sits in linked `references/` files (checkup one file per scope word, verify one per command). Hub sizes: workflow 13,238 to 11,499 bytes, checkup 23,975 to 6,058, verify 14,934 to 2,914.
-- A sentence ledger (`.workflow/lean-skill-hubs/scripts/`) accounts for every removed sentence as moved, duplicate or unaccounted; all six end at 0 unaccounted. Installed copies match the repo. Cycle 1 found an untested ledger window (P1) and five stale pointers (P3); both fixed.
-- Commits: 526f6a4 f7a16ad efc114a fb6a5d2 b640a54 6973783 076d68d 778f70f 2f648a8 be06046
-- Review: ship as-is (cycle 2, 0 open) @ 3386bbf
-- Run: 8 tickets · 4 sessions · 2 review cycles · 6 deviations · 0 findings overturned · net code +83 · tests +88
-- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@a7eb94288836, memory.remember@d8c8240e4b0d, memory.compact@2aeb788ce0b3, checkup@233d43b063f1, understand@dee283ef87c6, verify@af376476763a
-- Why: seven skill files were over the ~10 KB budget, so every load paid for text most runs never used.
