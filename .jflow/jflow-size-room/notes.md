@@ -31,3 +31,8 @@ The padding checks ran in a throwaway worktree of implementation commit `0abe6bd
 
 The baseline suites pass: workflow 137 tests, checkup 41, jflow 29, roadmap 18; all end with OK, exit 0.
 The final suites pass with the same counts and exit 0. `git diff --check` also passes.
+
+## Check 1 seat
+
+Assignment: checker · claude-opus-5-5 · high · fresh session.
+Check 1 ran in a fresh gpt-6.2-sol session at high effort. The builder and checker both used OpenAI.
