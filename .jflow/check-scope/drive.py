@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run receipt checks against the historical jflow-size-room receipt."""
 
+import os
 import subprocess
 import sys
 import tempfile
@@ -38,7 +39,7 @@ def validate(repo, receipt_size=None, newline=b"\n", prior_encoding=None):
     )
     outcome = (result.stdout + result.stderr).strip().splitlines()
     label = f"{receipt_size} bytes" if receipt_size is not None else "validate"
-    print(f"{label}: exit {result.returncode}: {' '.join(outcome[-1:])}")
+    print(f"{label}: exit {result.returncode}: {' '.join(outcome[:1])}")
     return result.returncode
 
 
@@ -69,9 +70,13 @@ def main(row):
         first_commit = git("log", "-1", "--format=%H", "--diff-filter=A", "--", str(FIRST_RECEIPT))
         git("clone", "--quiet", str(ROOT), str(repo))
         git("checkout", "--quiet", "--detach", first_commit.decode().strip(), cwd=repo)
-        if row in ("3", "4", "crlf"):
+        if row in ("3", "4", "crlf", "non-utf8-path"):
             with (repo / RUN / "notes.md").open("a") as notes:
                 notes.write("\nScratch proof input.\n")
+            if row == "non-utf8-path":
+                code = Path(os.fsdecode(b"scratch-\xff.py"))
+                (repo / code).write_text("# Scratch proof input.\n")
+                git("add", "--", str(code), cwd=repo)
             commit(repo, RUN / "notes.md")
         if row in ("other-receipt", "merge-input"):
             if row == "merge-input":
@@ -111,7 +116,7 @@ def main(row):
 
 if __name__ == "__main__":
     cases = ("2", "3", "4", "8", "crlf", "other-receipt", "uncommitted",
-             "merge-input", "renamed-input", "unreadable-prior")
+             "merge-input", "renamed-input", "unreadable-prior", "non-utf8-path")
     if len(sys.argv) != 2 or sys.argv[1] not in cases:
         sys.exit("Usage: drive.py {" + "|".join(cases) + "}")
     sys.exit(main(sys.argv[1]))
