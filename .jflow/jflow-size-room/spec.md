@@ -35,7 +35,7 @@ Rows 1, 3 and 4 run the size test in a throwaway worktree of `HEAD` after paddin
 |---|---|---|---|---|---|---|
 | 1 | a jflow change that adds about 150 words, check-scope's budget, passes the size test with no cut elsewhere, and the limit's reason is written beside it | size test | append 1,000 bytes to `SKILL.md`, then separately to `references/check.md` | the test passes both times | new | red |
 | 2 | The limit's reason is written beside it | `test_validate.py` | read the comment within 5 lines of the caps | it says a step's session reads `SKILL.md` plus one reference, and the script is capped separately | new | red |
-| 3 | The cap still stops a step's read from growing | size test | append 3,000 bytes, one file at a time, to `SKILL.md` and each of the four references | the test fails all five times | keep | green |
+| 3 | The cap still stops a step's read from growing | size test | one file at a time, pad `SKILL.md` and each of the four references until a step's reading, `SKILL.md` plus that step's reference, is 14,001 bytes; padding `SKILL.md` measures against the largest reference | the test fails all five times | keep | green |
 | 4 | The script stays capped | size test | append 4,000 bytes of comment to `scripts/jflow.py` | the test fails | keep | green |
 | 5 | No jflow text is cut | git | `git diff 8d10090 -- '.github/skills/jflow/*.md'` | empty | keep | green |
 
