@@ -1,5 +1,5 @@
 # check-reach
-Status: ready
+Status: done
 Base: 94f20b2
 Serves: none
 

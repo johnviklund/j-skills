@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-18 · check-reach · checkers tag defects [use] or [edge]; edge-only receipts stop for the human, not a fix round · claude-opus-5-5
+- In check-scope, 6 of 10 defects used inputs normal work never makes and cost two fix rounds; `next` now offers to accept them, and `validate` refuses unknown or repeated tags and defect numbers.
+- Commits: c86ae51 88c6157 f2ae69e
+- jflow: 5 sessions · 2 fix rounds · 7 rows · 0 accepted · check 5 defects · net code -14 · tests +21 · docs +5
+
 ## 2026-11-18 · check-scope · check proves and reports; validate refuses reruns without input and receipts over 3 KB · claude-opus-5-5
 - Check writes no unblock plans or cap requests, Maybes hold only suspected defects with a named input, and spec rules cover graded and keep rows; check cost the most time and 3.4 Maybes a check.
 - Commits: edf6deb 75643a3 a6b37fe f833813 b9d49c8 a2656fa
@@ -94,13 +99,3 @@ oldest when appending would exceed that.
 - Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@306d1f188783, checkup@20651cbda779
 - Why: stop the tests growing faster than the scripts, with proof that nothing covered was lost.
-
-## 2026-10-30 · model-overrides · a run's routing.md overrides the model and effort for its own cards · GPT-6.1 Sol
-- A headerless `routing.md` in a run folder sets that run's model and effort per key; `next-step.py` shows `(override)` and warns when writer and reviewer share a vendor, `check-run.py` validates the rows, and done runs skip the check.
-- Review cycle 1 found 2 small P2s (done runs broke on a retired key; review and execute still read only `ROUTING.md`), both fixed; 3 P3s stay deferred in `review.md`.
-- Commits: d9a0f8f 4db8014 4b37b24 5d2d876 a4135aa 4d53dcb
-- Review: ship as-is (cycle 2, 0 open) @ 7689d09
-- Run: 2 tickets · 3 sessions · 2 review cycles · 1 deviations · 0 findings overturned · net code +38 · tests +78
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@62d05781d2ed, checkup@20651cbda779
-- Why: the human can try a model on one run without editing the shared mapping.
