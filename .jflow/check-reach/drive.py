@@ -10,7 +10,6 @@ from tempfile import TemporaryDirectory
 ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / ".github/skills/jflow/scripts/jflow.py"
 FIXTURE = "b5b2e13"
-CHECKED_HEAD = "05054ca"
 
 
 def run(repo, *args, check=True):
@@ -47,16 +46,20 @@ def proof(repo, row):
         return
 
     folder = repo / ".jflow/check-scope"
-    allowed = 4 if row == "cap" else 9
+    at_cap = row in {"cap", "over-cap"}
+    allowed = {"cap": 4, "over-cap": 3}.get(row, 9)
     with (folder / "notes.md").open("a", encoding="utf-8") as notes:
         notes.write(f"\nChecks allowed: {allowed}\n")
     receipt = folder / "receipts/check-4.md"
     original = receipt.read_text(encoding="utf-8")
-    if row in {"5", "punctuation"}:
+    if row in {"5", "punctuation", "tab-tag"}:
         statuses = []
-        tags = ("odd", "use", "edge") if row == "5" else ("needs-review",)
+        tags = ("needs-review",) if row == "punctuation" else ("odd", "use", "edge")
         for tag in tags:
-            receipt.write_text(change_defect(original, tag), encoding="utf-8")
+            edited = change_defect(original, tag)
+            if row == "tab-tag":
+                edited = edited.replace(f"- 1. [{tag}] ", f"- 1. [{tag}]\t", 1)
+            receipt.write_text(edited, encoding="utf-8")
             result = cli(repo, "validate", "check-scope", "check")
             if result.returncode:
                 print(result.stderr.strip() or result.stdout.strip())
@@ -64,7 +67,8 @@ def proof(repo, row):
         print(", ".join(statuses))
         return
 
-    tag = {"1": "edge", "2": "use", "3": "edge", "4": None, "cap": "edge", "duplicate": "use"}[row]
+    tag = {"1": "edge", "2": "use", "3": "edge", "4": None,
+           "cap": "edge", "over-cap": "edge", "duplicate": "use"}[row]
     edited = change_defect(original, tag, broken=row == "3")
     if row == "duplicate":
         edited = edited.replace("\n## Maybes", "- 1. [edge] app.py: a second defect. Evidence: run, failed\n\n## Maybes")
@@ -74,12 +78,16 @@ def proof(repo, row):
     if row == "duplicate":
         validated = cli(repo, "validate", "check-scope", "check")
         print(f"validate exits {validated.returncode}")
-    args = () if row == "cap" else ("--json",)
+    args = () if at_cap else ("--json",)
     result = cli(repo, "next", "check-scope", *args)
     print(result.stderr.strip() or result.stdout.strip())
     result.check_returncode()
-    if row == "cap":
-        # Simulate the code commit option B tells the builder to make.
+    if at_cap:
+        increase = re.search(r"^B\. Fix them: add `(Checks allowed: \d+)`", result.stdout, re.M)
+        if increase:
+            with (folder / "notes.md").open("a", encoding="utf-8") as notes:
+                notes.write(f"\n{increase[1]}\n")
+        # Follow option B and simulate the builder's fix.
         path = repo / ".github/skills/jflow/scripts/jflow.py"
         with path.open("a", encoding="utf-8") as script:
             script.write("\n# Simulated fix commit\n")
@@ -91,14 +99,14 @@ def proof(repo, row):
 
 
 def main():
-    cases = ("1", "2", "3", "4", "5", "7", "cap", "punctuation", "duplicate")
+    cases = ("1", "2", "3", "4", "5", "7", "cap", "punctuation", "duplicate", "tab-tag", "over-cap")
     if len(sys.argv) != 2 or sys.argv[1] not in cases:
         raise SystemExit(f"usage: drive.py {{{','.join(cases)}}}")
     row = sys.argv[1]
     with TemporaryDirectory(prefix="jflow-check-reach-") as scratch:
         repo = Path(scratch)
         run(ROOT, "git", "clone", "--shared", "--quiet", "--", str(ROOT), str(repo))
-        run(repo, "git", "checkout", "--detach", CHECKED_HEAD if row == "7" else FIXTURE)
+        run(repo, "git", "checkout", "--detach", "HEAD" if row == "7" else FIXTURE)
         run(repo, "git", "config", "user.name", "Jflow Proof")
         run(repo, "git", "config", "user.email", "jflow-proof@example.invalid")
         proof(repo, row)
