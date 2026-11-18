@@ -252,7 +252,8 @@ class RunRecord(unittest.TestCase):
                 self.assertIn("➡️ A. Accept them", n["blocker"])
         (self.run_dir / "notes.md").write_text("Checks allowed: 0\n")  # a cap set below the checks used
         self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
-        self.assertIn("**B. Fix them**\n\nAdd this line to notes.md:\n```text\nChecks allowed: 2\n```", self.next()["blocker"])
+        self.assertIn("**B. Fix them**\n\nSend this in the builder session:\n```text\nOne more check allowed. Fix ",
+                      self.next()["blocker"])
 
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):
@@ -267,7 +268,7 @@ class RunRecord(unittest.TestCase):
         self.assertIn("went from 1 to 1", card[0])
         self.assertEqual(card[2], "**➡️ A. Stop here** (recommended)", card)
         self.assertIn("**B. One more check**", card)
-        self.assertIn("Checks allowed: 4", card[card.index("**B. One more check**"):])
+        self.assertIn("One more check allowed. Fix .jflow/demo/receipts/check-4.md, then print the card.", card)
         (self.run_dir / "receipts/check-3.md").write_text(
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
@@ -275,7 +276,7 @@ class RunRecord(unittest.TestCase):
         (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
         self.commit("allow")
         self.assertIn("3 checks used of 2", self.next()["blocker"])
-        self.assertIn("\nChecks allowed: 4\n", self.next()["blocker"])
+        self.assertIn("\nOne more check allowed. ", self.next()["blocker"])
         with (self.run_dir / "notes.md").open("a") as notes:
             notes.write("Checks allowed: 5\n")
         self.commit("allow more")
@@ -339,6 +340,9 @@ class RunRecord(unittest.TestCase):
                 self.assertIn("\n\n**➡️ A. ", self.jflow("next", "demo"))
                 # Text to paste sits alone in a code block, never inside a sentence.
                 self.assertEqual([l for l in n["blocker"].splitlines() if "`" in l and l != "```" and l != "```text"], [])
+                # Each option is one message for one session; the human never edits a run file.
+                self.assertNotIn("notes.md:", n["blocker"])
+                self.assertEqual(n["blocker"].count("```text"), n["blocker"].count("Send this in "))
 
 if __name__ == "__main__":
     unittest.main()

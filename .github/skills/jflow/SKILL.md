@@ -100,6 +100,12 @@ live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes.
 human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
 with `Yes: <point>` clears that point, and no other.
 
+**The human never edits run files.** Each option on a stop is one message for one session. The
+session that gets it, or a reply like "A" to the card, commits the line it stands for first:
+`Approach approved` is `Yes: approach`, `Yes to the live gate` is `Yes: gate`, `Human checks hold`
+is `Yes: done`, `One more check allowed` is `Checks allowed: <used + 1>`, `Accept …` adds
+`## Accepted` lines.
+
 ## The closing card
 
 End each step, after its commit, by running `jflow.py next <slug>` and printing its card as it
