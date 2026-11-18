@@ -26,3 +26,11 @@
   hid the `[use]` line. Every old receipt still validates, 9 of 10 as before.
 - Room: `check_fields` is gone. Its no-receipt error was unreachable, because `record check` runs
   `validate` first, which already reports the missing receipt. The script is at 29,985 bytes.
+
+## Fix 2 (check-2)
+- Defect 1: any whitespace after the tag counts, `\]\s`, in both `validate` and `next`, so
+  `[odd]` and a tab is refused and `[edge]` and a tab stops for the human.
+- Defect 2: both cap raises, the edge-only option B and the cap card's "One more check", now name
+  `Checks allowed: <checks counted + 1>`, not the old cap plus one. The cap card had the same flaw
+  before this run. One expression causes both, so one fix covers both. The cap rule itself is
+  unchanged.

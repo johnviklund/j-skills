@@ -96,6 +96,7 @@ class Validation(unittest.TestCase):
                  ('Evidence: run, bad', 'run, bad', 'invalid defect'),
                  ('- 1. app.py', '- 1. [odd] app.py', 'tag'),
                  ('- 1. app.py', '- 1. [needs-review] app.py', 'tag'),
+                 ('- 1. app.py', '- 1. [odd]\tapp.py', 'tag'),
                  ('Evidence: run, bad', 'Evidence: run, bad\n- 1. app.py: x -> y -> z. Evidence: run, bad', 'repeat')]
         for before, after, fault in cases:
             with self.subTest(fault=fault, after=after[:40]):

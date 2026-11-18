@@ -251,7 +251,7 @@ def validate(repo, run, step):
              1, "missing or extra section: Defects, Maybes")
         defects = set()
         for n, line in body(text, "Defects"):
-            m = re.match(r"- (\d+)\. (?:\[([^]]*)\] )?.+? Evidence: (.+)$", line)
+            m = re.match(r"- (\d+)\. (?:\[([^]]*)\]\s)?.+? Evidence: (.+)$", line)
             need(m and m[1] not in defects and len(m[3]) <= 240 and m[2] in (None, "use", "edge") or re.fullmatch(
                 r"- (none\.?|<none[^>]*>)", line, re.I), n, "invalid defect (or repeat), tag or Evidence >240")
             defects.add(m and m[1])
@@ -389,7 +389,7 @@ def next_step(repo, run, a):
         defects = [key for key in items(last) if key[0] == "Defect" and not closed(last, key)]
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
-        edge = [k for k in defects if re.match(r"- \d+\. \[edge\] ", items(last)[k])]
+        edge = [k for k in defects if re.match(r"- \d+\. \[edge\]\s", items(last)[k])]
         if any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
         elif edge:
@@ -439,7 +439,7 @@ def next_step(repo, run, a):
             f"; BROKEN rows and defects went from {open_[0]} to {open_[1]}" if len(open_) == 2 else "")
         run_it = (f"`{fix % n}` in the builder session"
                   if step == "fix" else f"`jflow check {slug}` in a fresh session")
-        options = [f"One more check: add `Checks allowed: {allowed + 1}` to notes.md, then send {run_it}. "
+        options = [f"One more check: add `Checks allowed: {counted + 1}` to notes.md, then send {run_it}. "
                    "If that check finds a new problem, stop.",
                    f"Stop: accept what is open (the builder session adds it under ## Accepted), or rethink the "
                    f"spec with `jflow spec {slug}`."]
@@ -447,7 +447,7 @@ def next_step(repo, run, a):
             options.reverse()
         why, step, n = f"check cap reached before {step}", None, None
     if step == "edge":
-        more = f"add `Checks allowed: {allowed + 1}` to notes.md, then " * (counted >= allowed)
+        more = f"add `Checks allowed: {counted + 1}` to notes.md, then " * (counted >= allowed)
         blocker = f"check-{last}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
         options = [f"Accept them: say so in the builder session, which adds each under ## Accepted; then run "
                    f"`jflow {slug}`.", f"Fix them: {more}send `{fix % last}` in the builder session."]

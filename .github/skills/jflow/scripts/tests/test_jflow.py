@@ -250,8 +250,8 @@ class RunRecord(unittest.TestCase):
             if expected == "human":
                 self.assertIn("defect 1", n["blocker"].splitlines()[0])
                 self.assertIn("➡️ A. Accept them", n["blocker"])
-        (self.run_dir / "notes.md").write_text("Checks allowed: 1\n")
-        self.state("PROVED", "- 1. [edge] app.py: x -> crash -> ok", code=True)
+        (self.run_dir / "notes.md").write_text("Checks allowed: 0\n")  # a cap set below the checks used
+        self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
         self.assertIn("B. Fix them: add `Checks allowed: 2` to notes.md, then send", self.next()["blocker"])
 
     def test_next_stops_at_the_check_cap(self):
@@ -271,9 +271,10 @@ class RunRecord(unittest.TestCase):
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
         self.assertIn("➡️ A. One more check", self.next()["blocker"])
-        (self.run_dir / "notes.md").write_text("Checks allowed: 3\n")
+        (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
         self.commit("allow")
-        self.assertIn("3 checks used of 3", self.next()["blocker"])
+        self.assertIn("3 checks used of 2", self.next()["blocker"])
+        self.assertIn("add `Checks allowed: 4`", self.next()["blocker"])
         with (self.run_dir / "notes.md").open("a") as notes:
             notes.write("Checks allowed: 5\n")
         self.commit("allow more")
