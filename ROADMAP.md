@@ -1,5 +1,5 @@
 # Roadmap
-Updated: 2026-11-17
+Updated: 2026-11-18
 
 This repo holds the `j-skills` skills. Undecided intake lives in [TODO.md](TODO.md), what shipped
 lives in [WORKLOG.md](WORKLOG.md) and git, and done items and earlier goals sit in
@@ -9,10 +9,9 @@ workflow goes once what other skills still need from it has moved. Start every i
 Budgets count sessions or changed lines.
 
 ## Next up
-1. check-scope · the costliest wait: check outlasts build in half the runs and stops the human most
-2. jflow-next-properties · the conductor trusts `next` at every step, and unattended runs need it tested
-3. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
-4. escaped-defects · the first conductor run opens a bug window that should land in its run folder
+1. jflow-next-properties · the conductor trusts `next` at every step, and unattended runs need it tested
+2. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
+3. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
 ## Features
 
@@ -32,33 +31,6 @@ Budgets count sessions or changed lines.
 - **Open for spec:** is the recording a required Proof row for UI changes, and from when?
 
 ## Tooling
-
-### check-scope · check proves and reports, and leaves decisions to others
-
-- **Status:** open
-- **Problem:** Check took longer than build and fix together in 13 of 28 runs, 2,217 against 1,490
-  minutes in all, and wrote 381 Maybes in 111 checks, 3.4 a check, each a stop for the human before
-  done. Check also decides instead of proving: one work-repo run had 5 cap raises, and in the three
-  worst runs 12 checks found no defect and only moved BLOCKED or WAITING rows while the checker
-  planned how to unblock them. Sol and Opus checkers both write 3.4 Maybes a check, so check's rules
-  cause it, not the model.
-- **Impact:** ~4 fewer sessions a run in the three worst runs, from those 12 checks, and fewer stops
-  for the human than 3.4 Maybes a check.
-- **Why now:** every run pays it, and an unattended conductor run stops at each cap raise and Maybe.
-- **Solved when:** over the next five runs, the median falls below today's 3.5 checks a run, Maybes
-  average under half of 3.4 a check, no check reruns rows when nothing was supplied since the last
-  one, and every receipt stays under 3 KB.
-- **Out of scope:** paid-call budgets and approval rules themselves.
-- **Budget:** about 150 words of jflow text and one session to measure
-- **Run:** jflow · j-skills
-- **After:** jflow-size-room
-- **Open for spec:** Which jobs leave check: unblock plans, cap-raise questions, Maybes that propose
-  a fix? Does any decision check makes need a stronger model, or does it go to the builder or the
-  human? Should a row that grades a model's judgement run on a fixed labelled case set the builder
-  can run free? Should a keep row never need a paid call or approval, and read live values? Should
-  check list what each row needs before it runs any? When fix rounds keep finding new defects, is
-  the cause a spec that left behaviour open, a check that attacks without end, or fixes that break
-  what passed?
 
 ### jflow-next-properties · jflow's next-step rules are tested on generated run folders
 
