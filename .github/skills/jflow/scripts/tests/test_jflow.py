@@ -250,6 +250,9 @@ class RunRecord(unittest.TestCase):
             if expected == "human":
                 self.assertIn("defect 1", n["blocker"].splitlines()[0])
                 self.assertIn("➡️ A. Accept them", n["blocker"])
+        (self.run_dir / "notes.md").write_text("Checks allowed: 1\n")
+        self.state("PROVED", "- 1. [edge] app.py: x -> crash -> ok", code=True)
+        self.assertIn("B. Fix them: add `Checks allowed: 2` to notes.md, then send", self.next()["blocker"])
 
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):

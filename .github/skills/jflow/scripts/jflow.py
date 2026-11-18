@@ -117,13 +117,6 @@ def changed(repo, a, b):
         return None
 
 
-def check_fields(run):
-    receipts = receipts_of(run)
-    if not receipts:
-        raise SystemExit("record check: no receipts/check-N.md yet; write the receipt first")
-    return receipt_fields(receipts[-1])
-
-
 def receipts_of(run):
     return sorted(run.glob("receipts/check-*.md"), key=lambda p: int(re.sub(r"\D", "", p.stem) or 0))
 
@@ -258,9 +251,9 @@ def validate(repo, run, step):
              1, "missing or extra section: Defects, Maybes")
         defects = set()
         for n, line in body(text, "Defects"):
-            m = re.match(r"- (\d+)\. (?:\[(\w*)\] )?.+? Evidence: (.+)$", line)
-            need(m and len(m[3]) <= 240 and m[2] in (None, "use", "edge")
-                 or re.fullmatch(r"- (none\.?|<none[^>]*>)", line, re.I), n, "invalid defect, tag or Evidence >240")
+            m = re.match(r"- (\d+)\. (?:\[([^]]*)\] )?.+? Evidence: (.+)$", line)
+            need(m and m[1] not in defects and len(m[3]) <= 240 and m[2] in (None, "use", "edge") or re.fullmatch(
+                r"- (none\.?|<none[^>]*>)", line, re.I), n, "invalid defect (or repeat), tag or Evidence >240")
             defects.add(m and m[1])
         verdicts = table(enumerate(text.split("\n## ", 1)[0].splitlines(), 1), "#|Verdict|Evidence")
         for key in rows.keys() - verdicts.keys():
@@ -400,10 +393,7 @@ def next_step(repo, run, a):
         if any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
         elif edge:
-            blocker = f"{name}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
-            options = [f"Accept them: say so in the builder session, which adds each under ## Accepted; then run "
-                       f"`jflow {slug}`.", f"Fix them: send `{fix % last}` in the builder session."]
-            why = f"{name} has only [edge] defects"
+            step = "edge"
         elif stuck:
             blocker = f"{name}: {', '.join(stuck)}; no fix can reach these rows"
             options = [f"Give the check what each row is missing, as {name} names it: "
@@ -456,6 +446,12 @@ def next_step(repo, run, a):
         if len(open_) < 2 or open_[1] >= open_[0]:
             options.reverse()
         why, step, n = f"check cap reached before {step}", None, None
+    if step == "edge":
+        more = f"add `Checks allowed: {allowed + 1}` to notes.md, then " * (counted >= allowed)
+        blocker = f"check-{last}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
+        options = [f"Accept them: say so in the builder session, which adds each under ## Accepted; then run "
+                   f"`jflow {slug}`.", f"Fix them: {more}send `{fix % last}` in the builder session."]
+        why = f"check-{last} has only [edge] defects"
     if blocker:
         # Every stop for the human ends on lettered options, the recommended one first.
         blocker = "\n".join([f"{blocker}.", ""] + [("➡️ " if i == 0 else "") + f"{'AB'[i]}. {o}"
@@ -533,7 +529,7 @@ def main(argv=None):
              "session": (a.session or "builder") if a.step in BUILDER_STEPS else "fresh",
              "skill": "jflow@" + hashlib.sha256(skill.read_bytes()).hexdigest()[:12]}
     if a.step == "check":
-        entry.update(check_fields(run))
+        entry.update(receipt_fields(receipts_of(run)[-1]))
     if a.step == "fix":
         entry["n"] = 1 + sum(1 for r in read_records(run) if r.get("step") == "fix")
     if a.step == "done":

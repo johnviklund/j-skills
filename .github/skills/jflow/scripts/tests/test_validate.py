@@ -94,7 +94,9 @@ class Validation(unittest.TestCase):
                  ('## Maybes', '## Extra\n\n## Maybes', 'extra section'),
                  ('| 2 | PROVED', '| 1 | PROVED', 'duplicate'),
                  ('Evidence: run, bad', 'run, bad', 'invalid defect'),
-                 ('- 1. app.py', '- 1. [odd] app.py', 'tag')]
+                 ('- 1. app.py', '- 1. [odd] app.py', 'tag'),
+                 ('- 1. app.py', '- 1. [needs-review] app.py', 'tag'),
+                 ('Evidence: run, bad', 'Evidence: run, bad\n- 1. app.py: x -> y -> z. Evidence: run, bad', 'repeat')]
         for before, after, fault in cases:
             with self.subTest(fault=fault, after=after[:40]):
                 path.write_text(good.replace(before, after))
