@@ -1,5 +1,5 @@
 # check-scope
-Status: ready
+Status: done
 Base: 02f4d66
 Serves: none
 

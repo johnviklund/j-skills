@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-18 · check-scope · check proves and reports; validate refuses reruns without input and receipts over 3 KB · claude-opus-5-5
+- Check writes no unblock plans or cap requests, Maybes hold only suspected defects with a named input, and spec rules cover graded and keep rows; check cost the most time and 3.4 Maybes a check.
+- Commits: edf6deb 75643a3 a6b37fe f833813 b9d49c8 a2656fa
+- jflow: 9 sessions · 5 fix rounds · 8 rows · 2 accepted · check 10 defects · net code +48 · tests +83 · docs +13
+
 ## 2026-11-17 · jflow-size-room · jflow caps each step's reading and the script separately · gpt-6.1-sol
 - The size guard allows 14,000 bytes for SKILL.md plus one step reference and 30,000 bytes for jflow.py, with the reason beside the limits.
 - Commits: 0abe6bd d6c2ab1 b2169fd 18fdf49 026b1a0
@@ -99,13 +104,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@62d05781d2ed, checkup@20651cbda779
 - Why: the human can try a model on one run without editing the shared mapping.
-
-## 2026-10-30 · unattended-mode · a run can say it is unattended and its waiting questions reach the conductor as a blocker · GPT-6.1 Sol
-- `Mode: unattended` in a brief, `references/unattended.md` (defaults, always-stop list), checked `decisions.md` tables, a `next-step` blocker for `waiting` rows, and an execute decision keeps a run in its original checkout; workflow is 3.0.0.
-- Three review cycles found 3 defects fixed (UI code lost at an approval stop, resume in the wrong checkout) and left 2 deferred to `TODO.md` (a one-row fixture, an unhandled `ValueError`).
-- Commits: 39fe912 b5b8642 23f4ec6 2e8ad60 056a042 f268f88
-- Review: ship with 2 deferrals approved by the human (cycle 3) @ 91e6d9d
-- Run: 5 tickets · 3 sessions · 3 review cycles · 1 deviations · 0 findings overturned · net code +27 · tests +63
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@9638c307782f, checkup@20651cbda779
-- Why: an outside conductor needs fixed rules and a blocker for runs nobody watches.
