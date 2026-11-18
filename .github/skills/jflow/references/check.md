@@ -52,6 +52,11 @@ it should do instead. Use an input the service, a user or a caller can send, and
 Run it in a scratch copy when you can, so the output is the evidence. When you cannot, trace it
 through the code and say it is traced. A defect that breaks a row's claim also makes that row BROKEN.
 
+Tag each defect by how its input arrives. `[use]`: normal work on this repo makes it. `[edge]`: a
+caller could send it, but normal work does not, such as a CRLF receipt or a non-UTF-8 filename.
+Report every defect either way. When every open defect is `[edge]` and no row is BROKEN, `next`
+asks the human to accept them or send them to fix.
+
 Leave out style, structure, a missing test or surviving mutant on its own, duplication, and risks
 that need a future change to matter. No defects is a valid result.
 
@@ -82,7 +87,7 @@ previous receipt.
 | 3 | BROKEN | `<command>` → <decisive output line; no defect, at most 240 characters for the whole cell> |
 
 ## Defects
-- 1. <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line; at most 240 characters after Evidence:>
+- 1. [use] <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line; at most 240 characters after Evidence:>
 
 ## Maybes
 - <none, or for the human only>

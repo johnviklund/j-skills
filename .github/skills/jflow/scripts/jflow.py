@@ -258,12 +258,10 @@ def validate(repo, run, step):
              1, "missing or extra section: Defects, Maybes")
         defects = set()
         for n, line in body(text, "Defects"):
-            if re.fullmatch(r"- (none\.?|<none[^>]*>)", line, re.I):
-                continue
-            m = re.match(r"- (\d+)\. .+? Evidence: (.+)$", line)
-            need(m and len(m[2]) <= 240, n, "invalid defect or Evidence >240")
-            if m:
-                defects.add(m[1])
+            m = re.match(r"- (\d+)\. (?:\[(\w*)\] )?.+? Evidence: (.+)$", line)
+            need(m and len(m[3]) <= 240 and m[2] in (None, "use", "edge")
+                 or re.fullmatch(r"- (none\.?|<none[^>]*>)", line, re.I), n, "invalid defect, tag or Evidence >240")
+            defects.add(m and m[1])
         verdicts = table(enumerate(text.split("\n## ", 1)[0].splitlines(), 1), "#|Verdict|Evidence")
         for key in rows.keys() - verdicts.keys():
             need(False, 1, "missing row " + key)
@@ -290,20 +288,13 @@ def summary(repo, run):
     # Exclude the done commit's WORKLOG/TODO edits and later work from finished runs.
     done_commits = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", spec_path).splitlines()
     end = done_commits[-1] + "^" if done_commits else "HEAD"
-    code = tests = docs = other = 0
+    lines = dict.fromkeys(("net_code", "tests", "docs", "other"), 0)
     for line in git(repo, "diff", "--numstat", f"{base.group(1)}..{end}", "--", ".", ":(exclude).jflow").splitlines():
         added, deleted, path = line.split("\t", 2)
         if added == "-":
             continue
-        delta = int(added) - int(deleted)
-        if TEST_PATH.search(path):
-            tests += delta
-        elif CODE_EXT.search(path):
-            code += delta
-        elif DOC_EXT.search(path):
-            docs += delta
-        else:
-            other += delta
+        lines["tests" if TEST_PATH.search(path) else "net_code" if CODE_EXT.search(path)
+              else "docs" if DOC_EXT.search(path) else "other"] += int(added) - int(deleted)
     proof = re.search(r"^## Proof\s*$(.*?)(?=^## |\Z)", spec, re.M | re.S)
     started = git(repo, "log", "--reverse", "--format=%cI", "--", spec_path).splitlines()
     ended = dt.datetime.fromisoformat(git(repo, "log", "-1", "--format=%cI", done_commits[-1])) if done_commits \
@@ -316,15 +307,14 @@ def summary(repo, run):
     fixes = sum(1 for a, b in zip(shas, shas[1:]) if a and changed(repo, a, b))
     steps = [r for r in records if r.get("step") in STEPS]
     # Include re-specs and fresh builder restarts.
-    sessions = (max(1, sum(r["step"] == "spec" for r in steps)) + bool(checks or code or tests or docs or other)
+    sessions = (max(1, sum(r["step"] == "spec" for r in steps)) + bool(checks or any(lines.values()))
                 + len(checks) + sum(r["step"] in BUILDER_STEPS and r.get("session") == "fresh" for r in steps))
     return {"sessions": sessions if steps else None,
             "checks": len(checks), "fix_rounds": max(fixes, sum(r["step"] == "fix" for r in steps)),
             "rows": len(re.findall(r"^\|\s*\d+\s*\|", proof.group(1), re.M)) if proof else 0,
             "accepted": len(section(spec, "Accepted")), "defects": sum(c["defects"] for c in checks),
             "first_check_clean": (checks[0]["defects"] == 0 and set(checks[0]["rows"]) <= {"PROVED", "WAITING", "ACCEPTED"}) if checks else None,
-            "net_code": code, "tests": tests, "docs": docs, "other": other,
-            "hours_spec_to_end": hours}
+            **lines, "hours_spec_to_end": hours}
 
 
 def line(s):
@@ -336,14 +326,14 @@ def line(s):
 
 def next_step(repo, run, a):
     slug = run.name
-    spec = (run / "spec.md").read_text("utf-8") if (run / "spec.md").exists() else ""
+    spec, notes = ((run / f).read_text("utf-8") if (run / f).exists() else "" for f in ("spec.md", "notes.md"))
     status = re.search(r"^Status:\s*(\w+)", spec, re.M)
     status = status.group(1) if status else None
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
-    notes = (run / "notes.md").read_text("utf-8") if (run / "notes.md").exists() else ""
     receipts = [receipt_fields(p) for p in receipts_of(run)]
     newest = receipts[-1] if receipts else None
     step, blocker, n, session, options = None, None, None, None, []
+    fix = f"Fix .jflow/{slug}/receipts/check-%s.md, then print the card."
 
     def constraint(name):
         """The spec's '- Gate: ...' or '- Ask first: ...' value; '' for none or nothing."""
@@ -400,14 +390,20 @@ def next_step(repo, run, a):
             return lines
 
         last = newest["n"]
-        rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|",
-                                                   paths[last].read_text("utf-8"), re.M)
+        text = paths[last].read_text("utf-8")
+        rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
                 if not closed(last, ("Row", r))]
         defects = [key for key in items(last) if key[0] == "Defect" and not closed(last, key)]
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
-        if any(v == "BROKEN" for _, v in rows) or defects:
+        edge = [k for k in defects if re.match(r"- \d+\. \[edge\] ", items(last)[k])]
+        if any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
+        elif edge:
+            blocker = f"{name}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
+            options = [f"Accept them: say so in the builder session, which adds each under ## Accepted; then run "
+                       f"`jflow {slug}`.", f"Fix them: send `{fix % last}` in the builder session."]
+            why = f"{name} has only [edge] defects"
         elif stuck:
             blocker = f"{name}: {', '.join(stuck)}; no fix can reach these rows"
             options = [f"Give the check what each row is missing, as {name} names it: "
@@ -430,7 +426,7 @@ def next_step(repo, run, a):
         else:
             waits = [f"{h}: {'; '.join(l[2:] for l in ls)}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")),
-                ("Maybes", section(paths[last].read_text("utf-8"), "Maybes"))) if ls]
+                ("Maybes", section(text, "Maybes"))) if ls]
             if waits and not yes("done"):
                 blocker = f"answer before done, {'. '.join(waits)}"
                 options = [f"Do each Human check and read each Maybe. If they hold, add `Yes: done · \"<your words>\" "
@@ -451,7 +447,7 @@ def next_step(repo, run, a):
                  for t in (p.read_text("utf-8") for p in receipts_of(run)[-2:])]
         blocker = f"{counted} checks used of {allowed} and {step} is next" + (
             f"; BROKEN rows and defects went from {open_[0]} to {open_[1]}" if len(open_) == 2 else "")
-        run_it = (f"`Fix .jflow/{slug}/receipts/check-{n}.md, then print the card.` in the builder session"
+        run_it = (f"`{fix % n}` in the builder session"
                   if step == "fix" else f"`jflow check {slug}` in a fresh session")
         options = [f"One more check: add `Checks allowed: {allowed + 1}` to notes.md, then send {run_it}. "
                    "If that check finds a new problem, stop.",
@@ -468,7 +464,7 @@ def next_step(repo, run, a):
     meta = FLOW["steps"].get(step, {})
     seat = seat_for(repo, step, a) if meta else None
     command = {"spec": f"jflow spec {slug}", "build": f"jflow build {slug}", "check": f"jflow check {slug}",
-               "fix": f"Fix .jflow/{slug}/receipts/check-{n}.md, then print the card.",
+               "fix": fix % n,
                "live": f"Run the live steps of jflow build {slug}, then print the card.",
                "done": f"jflow done {slug}"}.get(step)
     return {"schema_version": 1, "slug": slug, "step": step, "n": n, "role": "human" if blocker else meta.get("role"),
@@ -489,23 +485,17 @@ def card(n):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
-    rec = sub.add_parser("record")
-    rec.add_argument("slug")
+    rec, summ, val, seat, nxt = map(sub.add_parser, ("record", "summary", "validate", "seat", "next"))
+    for p in (rec, summ, val, nxt):
+        p.add_argument("slug")
+    for p in (summ, nxt):
+        p.add_argument("--json", action="store_true")
     rec.add_argument("step", choices=STEPS)
     rec.add_argument("--model", required=True, type=record_value)
     rec.add_argument("--effort", required=True, type=record_value)
     rec.add_argument("--session", choices=("fresh", "builder"), help="fresh: a builder step in a new session")
-    summ = sub.add_parser("summary")
-    summ.add_argument("slug")
-    summ.add_argument("--json", action="store_true")
-    val = sub.add_parser("validate")
-    val.add_argument("slug")
     val.add_argument("step", choices=("spec", "check", "accept"))
-    seat = sub.add_parser("seat")
     seat.add_argument("step")
-    nxt = sub.add_parser("next")
-    nxt.add_argument("slug")
-    nxt.add_argument("--json", action="store_true")
     for p in (seat, nxt):
         p.add_argument("--config")
         p.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")

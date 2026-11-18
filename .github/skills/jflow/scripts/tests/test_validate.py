@@ -93,13 +93,17 @@ class Validation(unittest.TestCase):
                  ('| 1 | PROVED', '| 1 | ACCEPTED', 'Accepted'),
                  ('## Maybes', '## Extra\n\n## Maybes', 'extra section'),
                  ('| 2 | PROVED', '| 1 | PROVED', 'duplicate'),
-                 ('Evidence: run, bad', 'run, bad', 'invalid defect')]
+                 ('Evidence: run, bad', 'run, bad', 'invalid defect'),
+                 ('- 1. app.py', '- 1. [odd] app.py', 'tag')]
         for before, after, fault in cases:
             with self.subTest(fault=fault, after=after[:40]):
                 path.write_text(good.replace(before, after))
                 self.assert_bad('check', fault)
         path.write_text(good.replace('`cmd` -> ok', 'x' * 240).replace('Evidence: run, bad', 'Evidence: ' + 'x' * 240))
         self.assert_clean('check')
+        for tag in ('use', 'edge'):
+            path.write_text(good.replace('- 1. app.py', f'- 1. [{tag}] app.py'))
+            self.assert_clean('check')
         for verdict in ('PROVED', 'BROKEN', 'BLOCKED', 'UNREACHABLE', 'WAITING'):
             path.write_text(good.replace('| 1 | PROVED', '| 1 | ' + verdict).replace('`cmd` -> ok', 'defect 1'))
             self.assert_clean('check')

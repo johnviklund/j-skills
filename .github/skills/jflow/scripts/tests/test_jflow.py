@@ -241,6 +241,16 @@ class RunRecord(unittest.TestCase):
         self.assertIsNone(self.next()["command"])
         self.assertEqual(json.loads(self.jflow("next", "nothing-yet", "--json"))["step"], "spec")
 
+    def test_next_routes_edge_defects_to_the_human(self):
+        for tag, v1, expected in [("[edge] ", "PROVED", "human"), ("[use] ", "PROVED", "fix"),
+                                  ("[edge] ", "BROKEN", "fix"), ("", "PROVED", "fix")]:
+            self.state(v1, f"- 1. {tag}app.py: x -> crash -> ok", code=True)
+            n = self.next()
+            self.assertEqual(n["step"], expected, (tag, v1))
+            if expected == "human":
+                self.assertIn("defect 1", n["blocker"].splitlines()[0])
+                self.assertIn("➡️ A. Accept them", n["blocker"])
+
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):
             (self.repo / "app.py").write_text(f"a = {k + 1}\n")
