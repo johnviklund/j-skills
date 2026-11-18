@@ -49,4 +49,5 @@ Runs in the builder session after the last check.
 
 Done when the push succeeded. Close with one line: what shipped, whether row 1, the item's
 `Solved when`, passed, the proof count, and, on any branch but the default, that the change is not
-on the default branch yet.
+on the default branch yet. Then, when `ROADMAP.md` has a `## Next up` item, run `jflow.py next
+<first item's slug>` and print its card as the closing card, under `Next up in ROADMAP.md: <slug>`.
