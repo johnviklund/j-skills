@@ -34,3 +34,5 @@
   `Checks allowed: <checks counted + 1>`, not the old cap plus one. The cap card had the same flaw
   before this run. One expression causes both, so one fix covers both. The cap rule itself is
   unchanged.
+
+Yes: done · "I approve closing check-reach" · 2026-11-18
