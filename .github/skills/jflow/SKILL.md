@@ -103,15 +103,20 @@ with `Yes: <point>` clears that point, and no other.
 ## The closing card
 
 End each step, after its commit, by running `jflow.py next <slug>` and printing its card as it
-stands. When waiting for the human, end on the question. The card has this shape:
+stands, last in the message. The card is the only next action: add no options, questions or
+prompts of your own beside it. A question asked mid-step ends the message instead, with no card.
+A step ends at its card: never run the step it names yourself, `done` included. Text to paste sits
+alone in its own code block, never inside a sentence. The card has this shape:
 
 ````markdown
-Model: <model · effort>. Session: <fresh | builder session>.
+Next: open a fresh session on <model · effort> and send:
 
 ```text
 <exact message to send>
 ```
 ````
+
+A stop for the human starts `⏸️ You decide:` and ends on its lettered options.
 
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.

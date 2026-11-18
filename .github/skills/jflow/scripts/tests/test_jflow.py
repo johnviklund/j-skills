@@ -236,7 +236,7 @@ class RunRecord(unittest.TestCase):
                 if expected == "fix":
                     self.assertEqual(n["command"], "Fix .jflow/demo/receipts/check-1.md, then print the card.")
                     card = self.jflow("next", "demo").splitlines()
-                    self.assertEqual(card, ["Model: claude-opus-5-5 · medium. Session: builder session.", "",
+                    self.assertEqual(card, ["Next: send this in the builder session (claude-opus-5-5 · medium):", "",
                                             "```text", n["command"], "```"])
         self.assertIsNone(self.next()["command"])
         self.assertEqual(json.loads(self.jflow("next", "nothing-yet", "--json"))["step"], "spec")
@@ -252,7 +252,7 @@ class RunRecord(unittest.TestCase):
                 self.assertIn("➡️ A. Accept them", n["blocker"])
         (self.run_dir / "notes.md").write_text("Checks allowed: 0\n")  # a cap set below the checks used
         self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
-        self.assertIn("B. Fix them: add `Checks allowed: 2` to notes.md, then send", self.next()["blocker"])
+        self.assertIn("**B. Fix them**\n\nAdd this line to notes.md:\n```text\nChecks allowed: 2\n```", self.next()["blocker"])
 
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):
@@ -265,8 +265,9 @@ class RunRecord(unittest.TestCase):
         self.assertIn("3 checks used of 3", self.next()["blocker"])
         card = self.jflow("next", "demo").splitlines()
         self.assertIn("went from 1 to 1", card[0])
-        self.assertTrue(card[2].startswith("➡️ A. Stop: accept what is open"), card)
-        self.assertTrue(card[3].startswith("B. One more check: add `Checks allowed: 4` to notes.md"), card)
+        self.assertEqual(card[2], "**➡️ A. Stop here** (recommended)", card)
+        self.assertIn("**B. One more check**", card)
+        self.assertIn("Checks allowed: 4", card[card.index("**B. One more check**"):])
         (self.run_dir / "receipts/check-3.md").write_text(
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
@@ -274,7 +275,7 @@ class RunRecord(unittest.TestCase):
         (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
         self.commit("allow")
         self.assertIn("3 checks used of 2", self.next()["blocker"])
-        self.assertIn("add `Checks allowed: 4`", self.next()["blocker"])
+        self.assertIn("\nChecks allowed: 4\n", self.next()["blocker"])
         with (self.run_dir / "notes.md").open("a") as notes:
             notes.write("Checks allowed: 5\n")
         self.commit("allow more")
@@ -318,8 +319,8 @@ class RunRecord(unittest.TestCase):
             ([ask], None, "## Approach\nYes: approach · \"go\" · 2026-11-09\n", ("build", "builder"), None),
             ([gate], ("WAITING", "none"), "", ("human", None), gate[8:-1]),
             ([gate], ("WAITING", "none"), "Yes: gate · \"go\" · 2026-11-09\n", ("live", "builder"), None),
-            (checks, ("PROVED", "none"), "", ("human", None), "Human checks: try it on the laptop"),
-            ([], ("PROVED", "None of the Windows flows ran."), "", ("human", None), "Maybes: None of the Windows"),
+            (checks, ("PROVED", "none"), "", ("human", None), "Human check: try it on the laptop"),
+            ([], ("PROVED", "None of the Windows flows ran."), "", ("human", None), "Maybe: None of the Windows"),
             (checks, ("PROVED", "slow on big repos"), "Yes: done · \"ok\" · 2026-11-09\n", ("done", "builder"), None)]
         for lines, receipt, text, expected, named in cases:
             self.git("reset", "-q", "--hard", start)
@@ -333,9 +334,11 @@ class RunRecord(unittest.TestCase):
             self.assertEqual(((n := self.next())["step"], n["session"]), expected, (lines, receipt, text))
             if named:
                 self.assertIn(named, n["blocker"])
-                self.assertEqual((n["role"], n["model"], n["command"], self.jflow("next", "demo")[:19]),
-                                 ("human", None, None, "The human decides: "))
-                self.assertIn("\n\n➡️ A. ", self.jflow("next", "demo"))
+                self.assertEqual((n["role"], n["model"], n["command"], self.jflow("next", "demo")[:15]),
+                                 ("human", None, None, "⏸️ You decide: "))
+                self.assertIn("\n\n**➡️ A. ", self.jflow("next", "demo"))
+                # Text to paste sits alone in a code block, never inside a sentence.
+                self.assertEqual([l for l in n["blocker"].splitlines() if "`" in l and l != "```" and l != "```text"], [])
 
 if __name__ == "__main__":
     unittest.main()

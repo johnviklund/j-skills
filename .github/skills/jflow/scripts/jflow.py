@@ -325,8 +325,10 @@ def next_step(repo, run, a):
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
     receipts = [receipt_fields(p) for p in receipts_of(run)]
     newest = receipts[-1] if receipts else None
-    step, blocker, n, session, options = None, None, None, None, []
+    step, blocker, n, session, options, details = None, None, None, None, [], []
     fix = f"Fix .jflow/{slug}/receipts/check-%s.md, then print the card."
+    yes_line, accept = 'Yes: %s · "<your words>" · <date>', "Tell the builder session; it adds them under ## Accepted."
+    add, B, F = "Add this line to notes.md:", "Send this in the builder session:", "Send this in a fresh session:"
 
     def constraint(name):
         """The spec's '- Gate: ...' or '- Ask first: ...' value; '' for none or nothing."""
@@ -345,9 +347,9 @@ def next_step(repo, run, a):
         ask = constraint("Ask first")
         if ask and re.search(r"^## Approach", notes, re.M) and not yes("approach"):
             blocker = f"approve the approach in notes.md for Ask first: {ask}"
-            options = [f"Read ## Approach in notes.md. If it fits, add `Yes: approach · \"<your words>\" · <date>` "
-                       f"to notes.md, then run `jflow build {slug}` in the builder session.",
-                       "Tell the builder session what to change in the approach; it posts a new one."]
+            options = [("It fits", [("Read ## Approach in notes.md.", None), (add, yes_line % "approach"),
+                                    (B, f"jflow build {slug}")]),
+                       ("Change it", [("Tell the builder session what to change.", None)])]
             why = "build posted its approach"
         else:
             step, why = "build", "no code commit since Base"
@@ -395,33 +397,30 @@ def next_step(repo, run, a):
         elif edge:
             step = "edge"
         elif stuck:
-            blocker = f"{name}: {', '.join(stuck)}; no fix can reach these rows"
-            options = [f"Give the check what each row is missing, as {name} names it: "
-                       + ("for UNREACHABLE, delete the code or say what reaches it; " if "UNREACHABLE" in str(stuck) else "")
-                       + f"then run `jflow check {slug}`.",
-                       f"Accept the rows you will not prove now: say so in the builder session, which adds them "
-                       f"under ## Accepted in spec.md; then run `jflow {slug}`."]
+            blocker, details = f"{name} has rows no fix can reach", stuck
+            options = [("Give the check what is missing", [(f"Supply what each row lacks, as {name} names it." + (
+                " For UNREACHABLE, delete the code or say what reaches it." * ("UNREACHABLE" in str(stuck))), None),
+                (F, f"jflow check {slug}")]), ("Accept these rows unproved", [(accept, None), (B, f"jflow {slug}")])]
             why = f"{name} has rows no fix can reach"
         elif any(v == "WAITING" for _, v in rows) and not re.search(r"^Live done:", notes, re.M):
             if constraint("Gate") and not yes("gate"):
                 blocker = f"run the live gate, {constraint('Gate')}, or not"
-                options = [f"Run it: add `Yes: gate · \"<your words>\" · <date>` to notes.md, then run "
-                           f"`jflow {slug}` for the live steps.",
-                           "Not yet: change nothing; the run waits here and the WAITING rows stay unproved."]
+                options = [("Run it", [(add, yes_line % "gate"),
+                                       (B, f"Run the live steps of jflow build {slug}, then print the card.")]),
+                           ("Not yet", [("Change nothing; the WAITING rows stay unproved.", None)])]
                 why = f"{name} leaves only WAITING rows before the gate"
             else:
                 step, why = "live", f"{name} has WAITING rows and notes.md has no Live done: line"
         elif any(v == "WAITING" for _, v in rows):
             step, n, why = "check", len(receipts) + 1, "live steps done; WAITING rows need a check"
         else:
-            waits = [f"{h}: {'; '.join(l[2:] for l in ls)}" for h, ls in (
+            waits = [f"{h[:-1]}: {l[2:]}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")),
-                ("Maybes", section(text, "Maybes"))) if ls]
+                ("Maybes", section(text, "Maybes"))) for l in ls]
             if waits and not yes("done"):
-                blocker = f"answer before done, {'. '.join(waits)}"
-                options = [f"Do each Human check and read each Maybe. If they hold, add `Yes: done · \"<your words>\" "
-                           f"· <date>` to notes.md, then run `jflow done {slug}` in the builder session.",
-                           f"If one fails, tell the builder session what failed; after its fix, run `jflow check {slug}`."]
+                blocker, details = "answer these before done", waits
+                options = [("They hold", [("Do each one.", None), (add, yes_line % "done"), (B, f"jflow done {slug}")]),
+                           ("One fails", [("Tell the builder session what failed.", None), (F, f"jflow check {slug}")])]
                 why = f"{name} has every row proved and waits on the human"
             else:
                 step, why = "done", f"{name} has every row proved"
@@ -437,25 +436,26 @@ def next_step(repo, run, a):
                  for t in (p.read_text("utf-8") for p in receipts_of(run)[-2:])]
         blocker = f"{counted} checks used of {allowed} and {step} is next" + (
             f"; BROKEN rows and defects went from {open_[0]} to {open_[1]}" if len(open_) == 2 else "")
-        run_it = (f"`{fix % n}` in the builder session"
-                  if step == "fix" else f"`jflow check {slug}` in a fresh session")
-        options = [f"One more check: add `Checks allowed: {counted + 1}` to notes.md, then send {run_it}. "
-                   "If that check finds a new problem, stop.",
-                   f"Stop: accept what is open (the builder session adds it under ## Accepted), or rethink the "
-                   f"spec with `jflow spec {slug}`."]
+        options = [("One more check", [(add, f"Checks allowed: {counted + 1}"),
+                                       (B, fix % n) if step == "fix" else (F, f"jflow check {slug}"),
+                                       ("If that check finds a new problem, stop.", None)]),
+                   ("Stop here", [(accept + " Or rethink the spec; send this in a fresh session:", f"jflow spec {slug}")])]
         if len(open_) < 2 or open_[1] >= open_[0]:
             options.reverse()
         why, step, n = f"check cap reached before {step}", None, None
     if step == "edge":
-        more = f"add `Checks allowed: {counted + 1}` to notes.md, then " * (counted >= allowed)
+        more = [(add, f"Checks allowed: {counted + 1}")] * (counted >= allowed)
         blocker = f"check-{last}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
-        options = [f"Accept them: say so in the builder session, which adds each under ## Accepted; then run "
-                   f"`jflow {slug}`.", f"Fix them: {more}send `{fix % last}` in the builder session."]
+        options = [("Accept them", [(accept, None), (B, f"jflow {slug}")]), ("Fix them", more + [(B, fix % last)])]
         why = f"check-{last} has only [edge] defects"
     if blocker:
-        # Every stop for the human ends on lettered options, the recommended one first.
-        blocker = "\n".join([f"{blocker}.", ""] + [("➡️ " if i == 0 else "") + f"{'AB'[i]}. {o}"
-                                                     for i, o in enumerate(options)])
+        # Recommended option first; text to paste sits alone in a code block.
+        lines = [f"{blocker}."] + ([""] + [f"- {d}" for d in details] if details else [])
+        for i, (label, steps) in enumerate(options):
+            lines += ["", ("**➡️ " if i == 0 else "**") + f"{'AB'[i]}. {label}**" + (" (recommended)" if i == 0 else "")]
+            for say, paste in steps:
+                lines += ["", say] + (["```text", paste, "```"] if paste else [])
+        blocker = "\n".join(lines)
         step = "human"
     meta = FLOW["steps"].get(step, {})
     seat = seat_for(repo, step, a) if meta else None
@@ -470,12 +470,12 @@ def next_step(repo, run, a):
 
 def card(n):
     if n["blocker"]:
-        return f"The human decides: {n['blocker']}"
+        return f"⏸️ You decide: {n['blocker']}"
     if not n["step"]:
         return f"Nothing next: {n['why']}."
-    session = "builder session" if n["session"] == "builder" else n["session"]
-    return (f"Model: {n['model']['model']} · {n['model']['effort']}. Session: {session}.\n\n"
-            f"```text\n{n['command']}\n```")
+    m = f"{n['model']['model']} · {n['model']['effort']}"
+    where = f"send this in the builder session ({m})" if n["session"] == "builder" else f"open a fresh session on {m} and send"
+    return f"Next: {where}:\n\n```text\n{n['command']}\n```"
 
 
 def main(argv=None):
