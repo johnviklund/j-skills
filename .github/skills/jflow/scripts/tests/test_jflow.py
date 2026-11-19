@@ -252,8 +252,7 @@ class RunRecord(unittest.TestCase):
                 self.assertIn("➡️ A. Accept them", n["blocker"])
         (self.run_dir / "notes.md").write_text("Checks allowed: 0\n")  # a cap set below the checks used
         self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
-        self.assertIn("**B. Fix them**\n\nSend this in the builder session:\n```text\nOne more check allowed. Fix ",
-                      self.next()["blocker"])
+        self.assertIn("**B. Fix them**: I fix them and raise the check limit.", self.next()["blocker"])
 
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):
@@ -264,11 +263,11 @@ class RunRecord(unittest.TestCase):
         self.receipt(4, "BROKEN", "- none", self.git("rev-parse", "HEAD"))
         self.commit("rerun only")
         self.assertIn("3 checks used of 3", self.next()["blocker"])
-        card = self.jflow("next", "demo").splitlines()
-        self.assertIn("went from 1 to 1", card[0])
-        self.assertEqual(card[2], "**➡️ A. Stop here** (recommended)", card)
-        self.assertIn("**B. One more check**", card)
-        self.assertIn("One more check allowed. Fix .jflow/demo/receipts/check-4.md, then print the card.", card)
+        ask = self.jflow("next", "demo", "--ask").splitlines()
+        self.assertIn("went from 1 to 1", ask[0])
+        self.assertEqual(ask[2], "**➡️ A. Stop here** (recommended): I accept what is open and move on.", ask)
+        self.assertIn("**B. One more check**: I raise the limit and fix; if that check finds a new problem, stop.", ask)
+        self.assertEqual(ask[-1], "Reply A or B.")
         (self.run_dir / "receipts/check-3.md").write_text(
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
@@ -276,7 +275,7 @@ class RunRecord(unittest.TestCase):
         (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
         self.commit("allow")
         self.assertIn("3 checks used of 2", self.next()["blocker"])
-        self.assertIn("\nOne more check allowed. ", self.next()["blocker"])
+        self.assertIn("I raise the limit", self.next()["blocker"])
         with (self.run_dir / "notes.md").open("a") as notes:
             notes.write("Checks allowed: 5\n")
         self.commit("allow more")
@@ -357,14 +356,18 @@ class RunRecord(unittest.TestCase):
             self.assertEqual(((n := self.next())["step"], n["session"]), expected, (lines, receipt, text))
             if named:
                 self.assertIn(named, n["blocker"])
-                self.assertEqual((n["role"], n["model"], n["command"], self.jflow("next", "demo")[:15]),
-                                 ("human", None, None, "⏸️ You decide: "))
-                self.assertIn("\n\n**➡️ A. ", self.jflow("next", "demo"))
-                # Text to paste sits alone in a code block, never inside a sentence.
-                self.assertEqual([l for l in n["blocker"].splitlines() if "`" in l and l != "```" and l != "```text"], [])
-                # Each option is one message for one session; the human never edits a run file.
-                self.assertNotIn("notes.md:", n["blocker"])
-                self.assertEqual(n["blocker"].count("```text"), n["blocker"].count("Send this in "))
+                self.assertEqual((n["role"], n["model"], n["command"]), ("human", None, None))
+                # Any session's card sends the human to the builder session with one message, no options.
+                card = self.jflow("next", "demo")
+                self.assertTrue(card.startswith("Next: a decision for you. Send this in the builder session"), card)
+                self.assertTrue(card.endswith("```text\njflow demo\n```"), card)
+                self.assertNotIn("A.", card)
+                # The builder session asks the question itself; the human replies there.
+                ask = self.jflow("next", "demo", "--ask")
+                self.assertEqual(ask, n["blocker"])
+                self.assertIn("\n\n**➡️ A. ", ask)
+                self.assertTrue(ask.endswith("\n\nReply A or B."), ask)
+                self.assertNotIn("```", ask)
 
 if __name__ == "__main__":
     unittest.main()

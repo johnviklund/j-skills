@@ -96,8 +96,9 @@ previous receipt.
 ## Route
 
 Record the step as `check`, commit the receipt and `run.jsonl`, then run `jflow.py next <slug>` and
-print its card. Even when the card says `done`, the check ends there: done runs in the builder
-session, so never set `Status: done` or edit `WORKLOG.md`, `TODO.md` or `ROADMAP.md`. BROKEN rows and defects go to the
+print its card. The check ends there, even when the card says `done`. To any later message about
+this run, print the card again and do nothing else: decisions, `## Accepted` and done belong to
+the builder session. BROKEN rows and defects go to the
 builder together, in one fix. BLOCKED and UNREACHABLE do not: no fix can reach them. Name what is
 missing for each BLOCKED row and stop there. `next` and the human decide what follows, the check
 cap included: never plan how to unblock a row, and never ask or argue for more checks: the card's options

@@ -68,7 +68,7 @@ Commit only these files; raw output goes to a temp folder.
 every row then runs again.
 
 **Accepted.** When the human accepts a missed bar, an unproved row or a defect in so many words,
-the session they said it to adds one line under `## Accepted` at the end of `spec.md`, in its own
+the builder session adds one line under `## Accepted` at the end of `spec.md`, in its own
 commit named `jflow accept <slug>`, and no row runs again. The bar stays as written, so the record
 shows what was missed.
 
@@ -86,9 +86,8 @@ verdicts included, and was committed in or after that check's receipt.
 `python3 <skill>/scripts/jflow.py next <slug>` reads the run folder and git and prints the closing
 card for the next step. With `--json` it prints the same decision for a driver: `step`, `n`, `role`,
 `model`, `command`, `session`, `blocker` and `why`. Bare `jflow <slug>` prints that card. A stop for
-the human has `role: "human"` and a `blocker` that ends on lettered options, the recommended one
-first; print it as it stands. Pass `--builder-vendor V`
-as for `seat`.
+the human has `role: "human"` and a `blocker`: the question, lettered options, the recommended one
+first. Pass `--builder-vendor V` as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
 checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
@@ -100,19 +99,19 @@ live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes.
 human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
 with `Yes: <point>` clears that point, and no other.
 
-**The human never edits run files.** Each option on a stop is one message for one session. The
-session that gets it, or a reply like "A" to the card, commits the line it stands for first:
-`Approach approved` is `Yes: approach`, `Yes to the live gate` is `Yes: gate`, `Human checks hold`
-is `Yes: done`, `One more check allowed` is `Checks allowed: <used + 1>`, `Accept …` adds
-`## Accepted` lines.
+**Decisions happen in the builder session, never elsewhere.** Another session's card for a stop
+sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the
+question, ending "Reply A or B." On the reply it writes the line the option stands for (a `Yes:`
+line, `Checks allowed: <used + 1>` or `## Accepted` lines), commits, does what the option says,
+then prints the next card. The human never edits run files.
 
 ## The closing card
 
-End each step, after its commit, by running `jflow.py next <slug>` and printing its card as it
-stands, last in the message. The card is the only next action: add no options, questions or
-prompts of your own beside it. A question asked mid-step ends the message instead, with no card.
-A step ends at its card: never run the step it names yourself, `done` included. Text to paste sits
-alone in its own code block, never inside a sentence. The card has this shape:
+End each step, after its commit, by running `jflow.py next <slug>` (`--ask` in the builder
+session) and printing its output as it stands, last in the message. It is the only next action:
+add no options, questions or prompts of your own. A question asked mid-step ends the message
+instead. A step ends at its card: never run the step it names, `done` included. Text to paste sits
+alone in its own code block. The card has this shape:
 
 ````markdown
 Next: open a fresh session on <model · effort> and send:
@@ -121,8 +120,6 @@ Next: open a fresh session on <model · effort> and send:
 <exact message to send>
 ```
 ````
-
-A stop for the human starts `⏸️ You decide:` and ends on its lettered options.
 
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
 Codex 0.166, a local test client hangs in the default sandbox.
