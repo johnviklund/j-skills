@@ -325,7 +325,7 @@ def next_step(repo, run, a):
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
     receipts = [receipt_fields(p) for p in receipts_of(run)]
     newest = receipts[-1] if receipts else None
-    step, blocker, n, session, options, details = None, None, None, None, [], []
+    step, blocker, n, session, options, details, late = None, None, None, None, [], [], False
     fix = f"Fix .jflow/{slug}/receipts/check-%s.md, then print the card."
     B, F = "the builder session", "a fresh session"
 
@@ -337,6 +337,26 @@ def next_step(repo, run, a):
 
     def yes(point):
         return re.search(rf"^Yes: {point}\b", notes, re.M)
+
+    # Cap: a check counts when code changed since the receipt before it, or Base.
+    shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
+    counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
+    allowed = re.findall(r"^Checks allowed:\s*(\d+)", notes, re.M)  # the last line raises it
+    allowed = int(allowed[-1]) if allowed else 3
+
+    acceptances = []
+    for l in section(spec, "Accepted"):
+        m = re.match(r"- (Row|Defect) (\d+) ·.*· ([0-9a-f]{7,40})\s*$", l)
+        if m:
+            added = git(repo, "log", "-1", "--format=%H", "-S", l, "--", str(run / "spec.md"))
+            acceptances.append((m.group(1, 2), m.group(3), added))
+
+    def after(a, b):
+        return not subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", a, b]).returncode
+
+    def accepted_late():
+        made = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts_of(run)[-1]))
+        return counted >= allowed and any(c and c != made and after(made, c) for *_, c in acceptances)
 
     if status == "done":
         why = "spec.md says Status: done"
@@ -352,18 +372,11 @@ def next_step(repo, run, a):
         else:
             step, why = "build", "no code commit since Base"
             session = "builder" if ask and yes("approach") else None
-    elif not newest or changed(repo, newest["sha"], "HEAD") is not False:
+    elif not newest or (late := changed(repo, newest["sha"], "HEAD") is not False) and not accepted_late():
         step, n = "check", len(receipts) + 1
         why = "code changed since the newest receipt" if newest else "no check receipt yet"
     else:
         paths = {f["n"]: p for f, p in zip(receipts, receipts_of(run))}
-        acceptances = []
-        for l in section(spec, "Accepted"):
-            m = re.match(r"- (Row|Defect) (\d+) ·.*· ([0-9a-f]{7,40})\s*$", l)
-            if m:
-                added = git(repo, "log", "-1", "--format=%H", "-S", l, "--", str(run / "spec.md"))
-                acceptances.append((m.group(1, 2), m.group(3), added))
-
         def closed(k, key):
             # Acceptances name the source check's sha and follow its receipt commit.
             carried = re.search(r"carried from check-(\d+)", items(k)[key], re.I)
@@ -372,8 +385,7 @@ def next_step(repo, run, a):
             sha = receipt_fields(paths[k])["sha"] or "-"
             created = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(paths[k]))
             return bool(created) and any(item == key and (named.startswith(sha) or sha.startswith(named)) and (
-                not added or subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", created, added]
-                                            ).returncode == 0) for item, named, added in acceptances)
+                not added or after(created, added)) for item, named, added in acceptances)
 
         def items(k):
             """Receipt lines keyed ("Row", "3") or ("Defect", "1")."""
@@ -390,7 +402,9 @@ def next_step(repo, run, a):
         stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
         edge = [k for k in defects if re.match(r"- \d+\. \[edge\]\s", items(last)[k])]
-        if any(v == "BROKEN" for _, v in rows) or defects != edge:
+        if late and (defects or {v for _, v in rows} - {"PROVED"}):
+            step, n, why = "check", len(receipts) + 1, "code changed after an open receipt"
+        elif any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
         elif edge:
             step = "edge"
@@ -422,13 +436,7 @@ def next_step(repo, run, a):
                 why = f"{name} has every row proved and waits on the human"
             else:
                 step, why = "done", f"{name} has every row proved"
-    # Cap: a check counts when code changed since the receipt before it, or Base.
-    shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
-    counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
-    allowed = re.findall(r"^Checks allowed:\s*(\d+)", notes, re.M)  # the last line raises it
-    allowed = int(allowed[-1]) if allowed else 3
-    if counted >= allowed and (step == "fix" or step == "check" and newest
-                               and changed(repo, newest["sha"], "HEAD") is not False):
+    if counted >= allowed and (step == "fix" or step == "check" and late):
         # Closing: the newest receipt has fewer BROKEN rows and defects than the one before it.
         open_ = [len(re.findall(r"^\|\s*\d+\s*\|\s*BROKEN\s*\|", t, re.M)) + len(section(t, "Defects"))
                  for t in (p.read_text("utf-8") for p in receipts_of(run)[-2:])]

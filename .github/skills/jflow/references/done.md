@@ -4,6 +4,8 @@ Runs in the builder session after the last check.
 
 1. Confirm no code changed since the newest check receipt's sha, and every row is PROVED or under
    `## Accepted` with no defect open. What the human accepts now gets its `## Accepted` line first.
+   With every check used, an `## Accepted` line committed after the newest receipt also accepts the
+   code changed since it: list those files for the human in step 2.
 2. Show the human any **Human checks**, Maybes, `control` verb candidates from `drive.py` per step
    6, and everything left open in `notes.md` or this session: a cost, a risk left in place, a doc
    left out of date. Show the exact `PRODUCT.md` or `DESIGN.md` edit this change calls for, such as

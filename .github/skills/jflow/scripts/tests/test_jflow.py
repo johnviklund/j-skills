@@ -282,6 +282,28 @@ class RunRecord(unittest.TestCase):
         self.commit("allow more")
         self.assertEqual(self.next()["step"], "fix")
 
+    def test_next_closes_on_acceptance_after_live_changes_at_the_cap(self):
+        (self.repo / "app.py").write_text("a = 2\n")
+        self.commit("build")
+        (self.run_dir / "notes.md").write_text("Checks allowed: 1\n")
+        self.receipt(1, "WAITING", "- none")
+        self.commit("check-1")
+        (self.repo / "report.md").write_text("live verdict\n")
+        self.commit("live")
+        self.assertIn("1 checks used of 1 and check is next", self.next()["blocker"])
+        sha = self.git("rev-parse", "HEAD~2")  # the receipt's header sha
+        with (self.run_dir / "spec.md").open("a") as spec:
+            spec.write(f"\n## Accepted\n- Row 2 · not the open row · {sha}\n")
+        self.commit("accept another row")
+        self.assertIn("1 checks used of 1", self.next()["blocker"])
+        with (self.run_dir / "spec.md").open("a") as spec:
+            spec.write(f"- Row 1 · waiting after the live steps · {sha}\n")
+        self.commit("accept what is open")
+        self.assertEqual(self.next()["step"], "done")
+        (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
+        self.commit("allow")
+        self.assertEqual(self.next()["step"], "check")
+
     def test_next_vendor_override_and_bad_slug(self):
         (self.repo / "app.py").write_text("a = 2\n")
         self.commit("build")
