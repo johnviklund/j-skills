@@ -398,21 +398,23 @@ def next_step(repo, run, a):
         rows = [(int(r), v) for r, v in re.findall(r"^\|\s*(\d+)\s*\|\s*([A-Z]+)\s*\|", text, re.M)
                 if not closed(last, ("Row", r))]
         defects = [key for key in items(last) if key[0] == "Defect" and not closed(last, key)]
-        stuck = [f"row {r} {v}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
+        stuck = [f"Row {r}, {v}: {items(last)[('Row', str(r))].split('|')[3].strip()}"
+                 for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{newest['n']}"
         edge = [k for k in defects if re.match(r"- \d+\. \[edge\]\s", items(last)[k])]
         if late and (defects or {v for _, v in rows} - {"PROVED"}):
             step, n, why = "check", len(receipts) + 1, "code changed after an open receipt"
         elif any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
+        elif stuck:  # before [edge] defects
+            blocker, details = f"{name} could not prove {len(stuck)} row{"s" * (len(stuck) > 1)}, and no fix can", stuck
+            options = [("Supply what is missing", "give me what the rows above lack" + (
+                "; for UNREACHABLE, delete the code or say what reaches it" * ("UNREACHABLE" in str(stuck)))
+                + "; I hand you a fresh check."),
+                ("Accept them unproved", "I add them" + " and the [edge] defects" * bool(edge) + " under ## Accepted.")]
+            why = f"{name} has rows no fix can reach"
         elif edge:
             step = "edge"
-        elif stuck:
-            blocker, details = f"{name} has rows no fix can reach", stuck
-            options = [("Supply what is missing", f"give me what each row lacks, as {name} names it" + (
-                "; for UNREACHABLE, delete the code or say what reaches it" * ("UNREACHABLE" in str(stuck)))
-                + "; then I hand you a fresh check."), ("Accept these rows unproved", "I add them under ## Accepted.")]
-            why = f"{name} has rows no fix can reach"
         elif any(v == "WAITING" for _, v in rows) and not re.search(r"^Live done:", notes, re.M):
             if constraint("Gate") and not yes("gate"):
                 blocker = f"run the live gate, {constraint('Gate')}, or not"
@@ -451,7 +453,7 @@ def next_step(repo, run, a):
                    ("Fix them", "I fix them" + " and raise the check limit" * (counted >= allowed) + ".")]
         why = f"check-{last} has only [edge] defects"
     if blocker:
-        # The builder session asks this and acts on the reply; other sessions point there (card).
+        # Asked and acted on in the builder session only.
         lines = [f"⏸️ {blocker[0].upper()}{blocker[1:]}."] + ([""] + [f"- {d}" for d in details] if details else [])
         for i, (label, say) in enumerate(options):
             lines += ["", ("**➡️ " if i == 0 else "**") + f"{'AB'[i]}. {label}**" + " (recommended)" * (i == 0) + ": " + say]
@@ -470,7 +472,8 @@ def next_step(repo, run, a):
 
 def card(n):
     if n["blocker"]:
-        return f"Next: a decision for you. Send this in the builder session; it asks you there:\n\n```text\njflow {n['slug']}\n```"
+        return (f"Next: you decide. {n['blocker'].splitlines()[0][3:]} Send this in the builder session; it asks you"
+                f" there:\n\n```text\njflow {n['slug']}\n```")
     if not n["step"]:
         return f"Nothing next: {n['why']}."
     m = f"{n['model']['model']} · {n['model']['effort']}"

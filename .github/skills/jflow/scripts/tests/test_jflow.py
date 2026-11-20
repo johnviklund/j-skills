@@ -34,6 +34,10 @@ A fixture run.
 - none
 """
 
+def ask_line(n):
+    return n["blocker"].splitlines()[0][3:]
+
+
 RECEIPT = """# check-{n} @ {sha} · GPT-6.1 Sol · high
 | # | Verdict | Evidence |
 |---|---|---|
@@ -254,6 +258,15 @@ class RunRecord(unittest.TestCase):
         self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
         self.assertIn("**B. Fix them**: I fix them and raise the check limit.", self.next()["blocker"])
 
+    def test_next_asks_about_unproved_rows_before_edge_defects(self):
+        self.state("BLOCKED", "- 1. [edge] app.py: x -> crash -> ok", code=True)
+        n = self.next()
+        self.assertEqual(n["step"], "human")
+        # The row's own reason from the receipt, so the human sees what is missing.
+        self.assertIn("- Row 1, BLOCKED: `cmd` -> ok", n["blocker"])
+        self.assertIn("I add them and the [edge] defects under ## Accepted.", n["blocker"])
+        self.assertTrue(ask_line(n).startswith("Check-1 could not prove 1 row,"), ask_line(n))
+
     def test_next_stops_at_the_check_cap(self):
         for k in range(1, 4):
             (self.repo / "app.py").write_text(f"a = {k + 1}\n")
@@ -359,7 +372,7 @@ class RunRecord(unittest.TestCase):
                 self.assertEqual((n["role"], n["model"], n["command"]), ("human", None, None))
                 # Any session's card sends the human to the builder session with one message, no options.
                 card = self.jflow("next", "demo")
-                self.assertTrue(card.startswith("Next: a decision for you. Send this in the builder session"), card)
+                self.assertTrue(card.startswith(f"Next: you decide. {ask_line(n)} Send this in the builder session"), card)
                 self.assertTrue(card.endswith("```text\njflow demo\n```"), card)
                 self.assertNotIn("A.", card)
                 # The builder session asks the question itself; the human replies there.
