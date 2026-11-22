@@ -15,3 +15,11 @@
 - Defect 5: the test fails when `JFLOW_PROP_RUNS` is less than 1. Defect 6: fixture git commands run with `GIT_DEFAULT_HASH=sha1`; the default run passes with `GIT_DEFAULT_HASH=sha256` set.
 - At HEAD, `next` still agrees with the oracle on 1,200 runs from seeds 1, 1000, 2000 and 3000 (300 each). `jflow.py` is unchanged.
 - Cost: the default run takes about 6.4 s, up from 4.6 s, because the stories make more receipts. The file is 177 lines, a little over the spec's "about 150 to 170", to pay for the story table.
+
+## Fix 2 (check-2)
+- Defect 1: the generator carried only defects, so lineage for rows went untested. Now any open row or defect in a later check can be "carried from check-j". The oracle follows each item back through every source check that has it, the way `next` does. An eighth story, `carried`, has at least two checks and carries most of the newest check's items. Mixed acceptance mode now makes exactly one line wrong, so that line decides the outcome. For a carried item the wrong line is "here": it names the newest check's sha. Otherwise it is a wrong sha, committed before the receipt (double weight), or prose that only mentions the item.
+- Defect 2: the test runs with every `GIT_*` variable removed (and `GIT_DEFAULT_HASH=sha1`), so an exported `GIT_DIR` reaches neither the fixtures nor `next`. With `GIT_DIR` set to another repo, that repo still has only its own commit afterwards.
+- A bug of mine, found by the 300-run sweep from seed 1000: the carried story crashed when the newest check carried nothing. It now falls back to any item.
+- Coverage across the default seeds 1–50: every mutant fails at least 2 seeds. The checker's carried-row copy fails 7 (seed 14 first). Seeds 51–150 catch every mutant except count-blocked-or-waiting, which misses all of 101–150. The default seeds catch it twice. At HEAD, 1,200 runs from seeds 1, 1000, 2000 and 3000 agree with `next`, and `jflow.py` is unchanged.
+- `drive.py carried-row` and `drive.py foreign-git-dir` now fail on their own asserts. Each asserts the defect's behavior: the buggy copy passing, and the caller's repo gaining commits.
+- Cost: the file is 184 lines, more than the spec's "about 150 to 170". The extra lines go to the eight stories and the per-item lineage. The default run takes about 5.7 s.

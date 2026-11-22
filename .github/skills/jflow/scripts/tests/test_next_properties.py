@@ -2,7 +2,7 @@
 
 JFLOW_PROP_SEED sets the first seed (default 1) and JFLOW_PROP_RUNS the run count (default 50).
 Run i uses seed SEED + i, so a failure's seed reruns alone with JFLOW_PROP_RUNS=1. Seed s plays
-story s % 7, so the default runs reach every stop of next; all else in the run is random.
+story s % 8, so the default runs reach every stop of next; all else in the run is random.
 """
 import importlib.util
 import json
@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 SCRIPT = Path(__file__).resolve().parents[1] / "jflow.py"
 _spec = importlib.util.spec_from_file_location("jflow_under_test", SCRIPT)
@@ -25,7 +26,7 @@ VERDICTS = ["PROVED", "BROKEN", "BLOCKED", "UNREACHABLE", "WAITING"]
 SHAPES = {"proved": (["PROVED"], []), "edge": (["PROVED"], ["edge"]), "waiting": (["PROVED", "WAITING"], []),
           "rerun": (["BLOCKED", "WAITING"], []), "stuck": (["PROVED", "BLOCKED", "UNREACHABLE"], ["edge"]),
           "fix": (["PROVED", "BROKEN"], ["use", None]), "any": (VERDICTS, ["use", "edge", None])}
-STORIES = ["pre", "proved", "edge", "stuck", "waiting", "fix", "late"]
+STORIES = ["pre", "proved", "edge", "stuck", "waiting", "fix", "late", "carried"]
 MAYBES = ["- <none>", "- none", "- None of the retries are logged", "- slow on a cold cache"]
 KINDS = {"approach": "approve the approach", "cap": "checks used of", "stuck": "could not prove",
          "edge": "every open defect is [edge]", "gate": "the live gate", "done": "answer these before done"}
@@ -37,7 +38,7 @@ def generate(seed, repo):
     def g(*args):
         return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-c",
                                "commit.gpgsign=false", "-C", str(repo), *args], check=True, capture_output=True,
-                              text=True, env=dict(os.environ, GIT_DEFAULT_HASH="sha1")).stdout.strip()
+                              text=True).stdout.strip()
 
     version = [0]
 
@@ -74,9 +75,9 @@ def generate(seed, repo):
                          else "build")
         return d
 
-    k = rng.randint(2 if story == "fix" else 1, 4)
+    k = rng.randint(2 if story in ("fix", "carried") else 1, 4)
     rerun = False
-    shas, versions, counts, carries, accepted = [], [], [], [], []
+    shas, versions, present, carries, accepted = [], [], [], [], []
 
     def accept(lines, msg):
         accepted.extend(lines)
@@ -91,33 +92,33 @@ def generate(seed, repo):
         rows = [(r, pick(pool)) for r in range(1, rng.randint(2, 4) + 1)]
         tags = [pick(tagpool) for _ in range(rng.randint(1, 2) if tagpool else 0)]
         rerun = not tags and {v for _, v in rows} <= {"PROVED", "BLOCKED", "WAITING"}
-        carried = {i: rng.randint(1, n - 1) for i in range(1, len(tags) + 1) if n > 1 and rng.random() < .3}
+        keys = [("Row", r) for r, v in rows if v != "PROVED"] + [("Defect", i) for i in range(1, len(tags) + 1)]
+        carried = {key: rng.randint(1, n - 1) for key in keys if n > 1 and rng.random() < (.8 if story == "carried" else .3)}
         maybe = MAYBES[2] if story == "proved" else pick(MAYBES)
-        acc = {}
         if n == k:
-            mode = "all" if story == "late" else pick(["none", "all", "mixed", "mixed"])  # mixed: some lines wrong
-            keys = [("Row", r) for r, v in rows if v != "PROVED"] + [("Defect", i) for i in range(1, len(tags) + 1)]
-            acc = {key: "ok" if mode == "all" else pick(["ok", "sha", "early", "prose"])
+            # mixed: one line wrong, so it decides. here: this check's sha, though the item was carried.
+            mode = {"late": "all", "carried": "mixed"}.get(story) or pick(["none", "all", "mixed", "mixed"])
+            wrong = pick(story == "carried" and list(carried) or keys) if keys and mode == "mixed" else None
+            acc = {key: ("here" if key in carried else pick(["sha", "early", "early", "prose"])) if key == wrong else "ok"
                    for key in keys if mode != "none"}
 
             def line(key, v):
-                src = carried.get(key[1]) if key[0] == "Defect" and v == "ok" else None
-                named = shas[src - 1] if src else base if v == "sha" else sha
+                named = shas[carried[key] - 1] if v == "ok" and key in carried else base if v == "sha" else sha
                 head = f"Defect 99 · same as {key[0]} {key[1]}" if v == "prose" else f"{key[0]} {key[1]} · {v}"
                 return f'- {head} · "fine" · 2026-11-22 · {named[:pick([7, 40])]}'
 
             accept([line(key, v) for key, v in acc.items() if v == "early"], "accept early")
-        defects = [f"- {i}. " + (f"[{t}] " if t else "") + f"miss {i}"
-                   + (f" (carried from check-{carried[i]})" if i in carried else "") + ". Evidence: x"
+        note = {key: f" (carried from check-{j})" for key, j in carried.items()}
+        defects = [f"- {i}. " + (f"[{t}] " if t else "") + f"miss {i}" + note.get(("Defect", i), "") + ". Evidence: x"
                    for i, t in enumerate(tags, 1)]
         (run / f"receipts/check-{n}.md").write_text(
             f"# check-{n} @ {sha} · m · high\n| # | Verdict | Evidence |\n|---|---|---|\n"
-            + "".join(f"| {r} | {v} | ev {r} |\n" for r, v in rows)
+            + "".join(f"| {r} | {v} | ev {r}{note.get(('Row', r), '')} |\n" for r, v in rows)
             + "\n## Defects\n" + ("\n".join(defects) or "- none") + f"\n\n## Maybes\n{maybe}\n")
         commit(f"check {n}")
         shas.append(sha)
         versions.append(version[0])
-        counts.append(len(tags))
+        present.append({("Row", r) for r, _ in rows} | {("Defect", i) for i in range(1, len(tags) + 1)})
         carries.append(carried)
     late = story == "late" or story == "fix" and rng.random() < .3
     if late:
@@ -125,12 +126,12 @@ def generate(seed, repo):
     accept([line(key, v) for key, v in acc.items() if v != "early"], "accept")
 
     # The oracle, from what was generated.
-    def origin(n, i):  # the check a carried defect resolves to: back through each source that has it
-        j = carries[n - 1].get(i)
-        return origin(j, i) if j and i <= counts[j - 1] else n
+    def origin(n, key):  # the check a carried item resolves to: back through each source that has it
+        j = carries[n - 1].get(key)
+        return origin(j, key) if j and key in present[j - 1] else n
 
-    closed = {key for key, v in acc.items() if v == "ok" and (
-        key[0] == "Row" or shas[origin(k, key[1]) - 1] == shas[carried.get(key[1], k) - 1])}
+    closed = {key for key, v in acc.items() if v in ("ok", "here")
+              and shas[origin(k, key) - 1] == shas[(carried.get(key, k) if v == "ok" else k) - 1]}
     open_rows = [v for r, v in rows if ("Row", r) not in closed]
     open_tags = [t for i, t in enumerate(tags, 1) if ("Defect", i) not in closed]
     counted = sum(a != b for a, b in zip([1] + versions, versions))
@@ -162,6 +163,12 @@ def generate(seed, repo):
 class NextProperties(unittest.TestCase):
     def test_generated_runs_follow_next_rules(self):
         self.assertGreater(RUNS, 0, "JFLOW_PROP_RUNS must be positive")
+        # A caller's GIT_DIR or hash default must not reach the fixtures or next.
+        env = {key: v for key, v in os.environ.items() if not key.startswith("GIT_")}
+        with mock.patch.dict(os.environ, dict(env, GIT_DEFAULT_HASH="sha1"), clear=True):
+            self.check_runs()
+
+    def check_runs(self):
         for seed in range(SEED, SEED + RUNS):
             with tempfile.TemporaryDirectory() as tmp:
                 repo = Path(tmp).resolve()
