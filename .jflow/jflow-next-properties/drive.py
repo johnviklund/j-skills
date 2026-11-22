@@ -1,6 +1,7 @@
 """Run the proof commands for jflow-next-properties from the repo root."""
 
 import ast
+import json
 import os
 import re
 import shutil
@@ -48,8 +49,13 @@ MUTATIONS = {
 }
 
 
+def scratch_env():
+    return {key: value for key, value in os.environ.items()
+            if not key.startswith("GIT_") and key not in {"JFLOW_PROP_SEED", "JFLOW_PROP_RUNS"}}
+
+
 def run(args, cwd=Path("."), **variables):
-    env = {key: value for key, value in os.environ.items() if key not in {"JFLOW_PROP_SEED", "JFLOW_PROP_RUNS"}}
+    env = scratch_env()
     env.update(variables)
     return subprocess.run([sys.executable, *args], cwd=cwd, env=env, capture_output=True, text=True)
 
@@ -148,6 +154,80 @@ def stdlib():
     print("isolated unittest OK, 0 third-party imports, Python 3.9 AST OK")
 
 
+def git(root, *args):
+    return subprocess.check_output(
+        ["git", "-C", str(root), "-c", "user.name=test", "-c", "user.email=test@example.com",
+         "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", *args], text=True, env=scratch_env(),
+    ).strip()
+
+
+def carried_row():
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp).resolve()
+        shutil.copytree(SKILL, root / SKILL, ignore=shutil.ignore_patterns("__pycache__"))
+        repo = root / "repo"
+        repo.mkdir()
+        git(repo, "init", "-q", "--object-format=sha1")
+
+        def commit(message):
+            git(repo, "add", "-A")
+            git(repo, "commit", "-qm", message)
+            return git(repo, "rev-parse", "HEAD")
+
+        (repo / "app.py").write_text("version = 1\n")
+        base = commit("base")
+        folder = repo / ".jflow/p"
+        (folder / "receipts").mkdir(parents=True)
+        spec = folder / "spec.md"
+        original = f"# p\nStatus: ready\nBase: {base}\n\n## Human checks\n- none\n"
+        spec.write_text(original)
+        commit("spec")
+        (repo / "app.py").write_text("version = 2\n")
+        first = commit("build")
+
+        def receipt(number, sha, rows):
+            (folder / f"receipts/check-{number}.md").write_text(
+                f"# check-{number} @ {sha} · m · high\n| # | Verdict | Evidence |\n|---|---|---|\n"
+                + rows + "\n## Defects\n- none\n\n## Maybes\n- none\n"
+            )
+            commit(f"check {number}")
+
+        receipt(1, first, "| 1 | BROKEN | wrong output |\n| 2 | BLOCKED | missing input |\n")
+        (folder / "notes.md").write_text("# notes\nThe input for row 2 is available.\n")
+        second = commit("input for recheck")
+        receipt(2, second, "| 1 | BROKEN | carried from check-1 |\n| 2 | PROVED | expected output |\n")
+        spec.write_text(original + f'\n## Accepted\n- Row 1 · wrong output · "fine" · 2026-11-22 · {second}\n')
+        commit("accept using check-2 sha")
+
+        script = root / SKILL / "scripts/jflow.py"
+
+        def step():
+            result = run([str(script), "next", "p", "--json"], repo)
+            result.check_returncode()
+            return json.loads(result.stdout)["step"]
+
+        assert step() == "fix"
+        source = script.read_text()
+        marker = "if carried and int(carried.group(1)) < k"
+        assert source.count(marker) == 1
+        script.write_text(source.replace(marker, 'if key[0] == "Defect" and carried and int(carried.group(1)) < k'))
+        assert step() == "done"
+        passed(run(PROPERTIES, root))
+        print("carried row with wrong acceptance SHA: HEAD=fix, buggy copy=done, buggy property run=OK")
+
+
+def foreign_git_dir():
+    with tempfile.TemporaryDirectory() as temp:
+        repo = Path(temp).resolve()
+        git(repo, "init", "-q", "--object-format=sha1")
+        git(repo, "commit", "-qm", "before", "--allow-empty")
+        result = run(PROPERTIES, GIT_DIR=str(repo / ".git"), JFLOW_PROP_SEED="7", JFLOW_PROP_RUNS="1")
+        passed(result)
+        history = git(repo, "log", "-3", "--format=%s").splitlines()
+        assert history == ["spec", "base", "before"], history
+        print("unittest OK; caller repo gained two commits: base, spec")
+
+
 if __name__ == "__main__":
     mode = sys.argv[1]
     if mode == "historical":
@@ -170,5 +250,9 @@ if __name__ == "__main__":
         count()
     elif mode == "stdlib":
         stdlib()
+    elif mode == "carried-row":
+        carried_row()
+    elif mode == "foreign-git-dir":
+        foreign_git_dir()
     else:
         raise SystemExit(f"unknown proof: {mode}")
