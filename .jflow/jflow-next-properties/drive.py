@@ -161,7 +161,7 @@ def git(root, *args):
     ).strip()
 
 
-def carried_row():
+def carried_row(fixed=False):
     with tempfile.TemporaryDirectory() as temp:
         root = Path(temp).resolve()
         shutil.copytree(SKILL, root / SKILL, ignore=shutil.ignore_patterns("__pycache__"))
@@ -212,11 +212,16 @@ def carried_row():
         assert source.count(marker) == 1
         script.write_text(source.replace(marker, 'if key[0] == "Defect" and carried and int(carried.group(1)) < k'))
         assert step() == "done"
-        passed(run(PROPERTIES, root))
-        print("carried row with wrong acceptance SHA: HEAD=fix, buggy copy=done, buggy property run=OK")
+        result = run(PROPERTIES, root)
+        if fixed:
+            _, seed, _, _ = failed(result)
+            print(f"carried row: HEAD=fix, buggy copy=done, buggy property run failed at seed {seed}")
+        else:
+            passed(result)
+            print("carried row with wrong acceptance SHA: HEAD=fix, buggy copy=done, buggy property run=OK")
 
 
-def foreign_git_dir():
+def foreign_git_dir(fixed=False):
     with tempfile.TemporaryDirectory() as temp:
         repo = Path(temp).resolve()
         git(repo, "init", "-q", "--object-format=sha1")
@@ -224,8 +229,30 @@ def foreign_git_dir():
         result = run(PROPERTIES, GIT_DIR=str(repo / ".git"), JFLOW_PROP_SEED="7", JFLOW_PROP_RUNS="1")
         passed(result)
         history = git(repo, "log", "-3", "--format=%s").splitlines()
-        assert history == ["spec", "base", "before"], history
-        print("unittest OK; caller repo gained two commits: base, spec")
+        if fixed:
+            assert history == ["before"], history
+            print("unittest OK; caller repo still has one commit")
+        else:
+            assert history == ["spec", "base", "before"], history
+            print("unittest OK; caller repo gained two commits: base, spec")
+
+
+def global_hook():
+    with tempfile.TemporaryDirectory() as temp:
+        root = Path(temp)
+        config = root / "git"
+        config.mkdir()
+        hooks = root / "hooks"
+        hooks.mkdir()
+        hook = hooks / "pre-commit"
+        hook.write_text('#!/bin/sh\necho called > "' + str(root / "called") + '"\nexit 1\n')
+        hook.chmod(0o755)
+        (config / "config").write_text(f"[core]\n\thooksPath = {hooks}\n")
+        env = {"XDG_CONFIG_HOME": temp, "JFLOW_PROP_SEED": "8", "JFLOW_PROP_RUNS": "1"}
+        result = run(PROPERTIES, **env, GIT_CONFIG_GLOBAL=os.devnull)
+        assert result.returncode == 1 and (root / "called").exists(), result.stderr
+        assert "subprocess.CalledProcessError" in result.stderr, result.stderr
+        print("GIT_CONFIG_GLOBAL=/dev/null ignored; global pre-commit ran; unittest exited 1")
 
 
 if __name__ == "__main__":
@@ -252,7 +279,13 @@ if __name__ == "__main__":
         stdlib()
     elif mode == "carried-row":
         carried_row()
+    elif mode == "carried-row-fixed":
+        carried_row(fixed=True)
     elif mode == "foreign-git-dir":
         foreign_git_dir()
+    elif mode == "foreign-git-dir-fixed":
+        foreign_git_dir(fixed=True)
+    elif mode == "global-hook":
+        global_hook()
     else:
         raise SystemExit(f"unknown proof: {mode}")
