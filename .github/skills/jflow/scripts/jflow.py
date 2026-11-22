@@ -407,7 +407,7 @@ def next_step(repo, run, a):
         elif any(v == "BROKEN" for _, v in rows) or defects != edge:
             step, n, why = "fix", newest["n"], f"{name} has BROKEN rows or open defects"
         elif stuck:  # before [edge] defects
-            blocker, details = f"{name} could not prove {len(stuck)} row{"s" * (len(stuck) > 1)}, and no fix can", stuck
+            blocker, details = f"{name} could not prove {len(stuck)} row{'s' * (len(stuck) > 1)}, and no fix can", stuck
             options = [("Supply what is missing", "give me what the rows above lack" + (
                 "; for UNREACHABLE, delete the code or say what reaches it" * ("UNREACHABLE" in str(stuck)))
                 + "; I hand you a fresh check."),
