@@ -43,3 +43,6 @@ Rows 1 to 3 run the new property test command in scratch copies of the repo with
 
 ## Human checks
 - none
+
+## Accepted
+- Defect 1 · the fixture drops GIT_CONFIG_GLOBAL with the other GIT_* variables, so a global pre-commit hook can run in its scratch repos · "option A" · 2026-11-22 · b782169753ab52dbaf6ec32a15b0440bbbe5ef3f
