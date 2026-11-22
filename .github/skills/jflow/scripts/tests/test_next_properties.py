@@ -1,7 +1,8 @@
 """Property tests: random run folders in real git repos, checked against the rules of jflow.py next.
 
 JFLOW_PROP_SEED sets the first seed (default 1) and JFLOW_PROP_RUNS the run count (default 50).
-Run i uses seed SEED + i, so a failure's seed reruns alone with JFLOW_PROP_RUNS=1.
+Run i uses seed SEED + i, so a failure's seed reruns alone with JFLOW_PROP_RUNS=1. Seed s plays
+story s % 7, so the default runs reach every stop of next; all else in the run is random.
 """
 import importlib.util
 import json
@@ -20,17 +21,23 @@ _spec.loader.exec_module(J)
 SEED = int(os.environ.get("JFLOW_PROP_SEED", "1"))
 RUNS = int(os.environ.get("JFLOW_PROP_RUNS", "50"))
 VERDICTS = ["PROVED", "BROKEN", "BLOCKED", "UNREACHABLE", "WAITING"]
+# Receipt shapes: row verdicts, defect tags.
+SHAPES = {"proved": (["PROVED"], []), "edge": (["PROVED"], ["edge"]), "waiting": (["PROVED", "WAITING"], []),
+          "rerun": (["BLOCKED", "WAITING"], []), "stuck": (["PROVED", "BLOCKED", "UNREACHABLE"], ["edge"]),
+          "fix": (["PROVED", "BROKEN"], ["use", None]), "any": (VERDICTS, ["use", "edge", None])}
+STORIES = ["pre", "proved", "edge", "stuck", "waiting", "fix", "late"]
 MAYBES = ["- <none>", "- none", "- None of the retries are logged", "- slow on a cold cache"]
 KINDS = {"approach": "approve the approach", "cap": "checks used of", "stuck": "could not prove",
          "edge": "every open defect is [edge]", "gate": "the live gate", "done": "answer these before done"}
 
 
-def generate(rng, repo):
+def generate(seed, repo):
     """Build a random run in repo; return its summary with the step the rules expect."""
+    rng, story = random.Random(seed), STORIES[seed % len(STORIES)]
     def g(*args):
         return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com", "-c",
-                               "commit.gpgsign=false", "-C", str(repo), *args],
-                              check=True, capture_output=True, text=True).stdout.strip()
+                               "commit.gpgsign=false", "-C", str(repo), *args], check=True, capture_output=True,
+                              text=True, env=dict(os.environ, GIT_DEFAULT_HASH="sha1")).stdout.strip()
 
     version = [0]
 
@@ -47,10 +54,13 @@ def generate(rng, repo):
     base = commit("base", True)
     run = repo / ".jflow" / "p"
     (run / "receipts").mkdir(parents=True)
-    d = {"ask": pick(["nothing", "the schema"]), "gate": pick(["none", "deploy"]),
-         "human": pick([[], ["try it on a phone"]]), "approach": rng.random() < .5,
-         "yes": [p for p in ("approach", "gate", "done") if rng.random() < .4],
-         "allowed": [rng.randint(1, 5) for _ in range(pick([0, 0, 1, 2]))], "live_done": rng.random() < .25}
+    d = {"story": story, "ask": pick(["nothing"] + ["the schema"] * 4),
+         "gate": pick(["none", "deploy"]), "human": pick([[], ["try it on a phone"]]) * (story != "proved"),
+         "approach": rng.random() < .8, "yes": [p for p in ("approach", "gate", "done") if rng.random() < .3],
+         # fix and late: the last Checks allowed line lowers the limit to about the checks used
+         "allowed": {"fix": [rng.randint(3, 4), 2], "late": [rng.randint(3, 4), rng.randint(1, 2)]}.get(
+             story, [rng.randint(1, 4)] * pick([0, 1])),
+         "live_done": rng.random() < .25}
     notes = (["# notes"] + [f'Yes: {p} · "yes" · 2026-11-22' for p in d["yes"]]
              + [f"Checks allowed: {c}" for c in d["allowed"]] + ["Live done: 2026-11-22"] * d["live_done"]
              + ["## Approach", "- plan"] * d["approach"])
@@ -59,13 +69,13 @@ def generate(rng, repo):
             "## Human checks\n" + ("\n".join(f"- {h}" for h in d["human"]) or "- none") + "\n")
     (run / "spec.md").write_text(spec)
     commit("spec")
-    if rng.random() < .2:  # no build yet
+    if story == "pre":
         d["expected"] = ("human:approach" if d["ask"] != "nothing" and d["approach"] and "approach" not in d["yes"]
                          else "build")
         return d
 
-    k = rng.randint(1, 4)
-    pool = pick([["PROVED"], ["PROVED", "WAITING"], ["PROVED", "BLOCKED", "UNREACHABLE"], VERDICTS])
+    k = rng.randint(2 if story == "fix" else 1, 4)
+    rerun = False
     shas, versions, counts, carries, accepted = [], [], [], [], []
 
     def accept(lines, msg):
@@ -75,18 +85,20 @@ def generate(rng, repo):
             commit(msg)
 
     for n in range(1, k + 1):
-        sha = commit(f"code {n}", True) if rng.random() < (.8 if n == 1 else .5) else g("rev-parse", "HEAD")
-        rows = [(r, pick(pool if n == k else VERDICTS)) for r in range(1, rng.randint(2, 4) + 1)]
-        tags = [pick(["use", "edge", None]) for _ in range(pick([0, 0, 1, 2]))]
+        # A check that only blocked or waited is mostly rerun without a code change.
+        sha = commit(f"code {n}", True) if rng.random() < (.3 if rerun else .8) else g("rev-parse", "HEAD")
+        pool, tagpool = SHAPES.get(story if n == k else "rerun" if story == "fix" else "") or pick(list(SHAPES.values()))
+        rows = [(r, pick(pool)) for r in range(1, rng.randint(2, 4) + 1)]
+        tags = [pick(tagpool) for _ in range(rng.randint(1, 2) if tagpool else 0)]
+        rerun = not tags and {v for _, v in rows} <= {"PROVED", "BLOCKED", "WAITING"}
         carried = {i: rng.randint(1, n - 1) for i in range(1, len(tags) + 1) if n > 1 and rng.random() < .3}
-        maybe = pick(MAYBES)
+        maybe = MAYBES[2] if story == "proved" else pick(MAYBES)
         acc = {}
         if n == k:
-            mode = pick(["none", "all", "mixed"])
+            mode = "all" if story == "late" else pick(["none", "all", "mixed", "mixed"])  # mixed: some lines wrong
             keys = [("Row", r) for r, v in rows if v != "PROVED"] + [("Defect", i) for i in range(1, len(tags) + 1)]
-            acc = {key: "ok" if mode == "all" else pick(["ok", "sha", "early", "prose", None])
+            acc = {key: "ok" if mode == "all" else pick(["ok", "sha", "early", "prose"])
                    for key in keys if mode != "none"}
-            acc = {key: v for key, v in acc.items() if v}
 
             def line(key, v):
                 src = carried.get(key[1]) if key[0] == "Defect" and v == "ok" else None
@@ -107,7 +119,7 @@ def generate(rng, repo):
         versions.append(version[0])
         counts.append(len(tags))
         carries.append(carried)
-    late = rng.random() < 1 / 3
+    late = story == "late" or story == "fix" and rng.random() < .3
     if late:
         commit("late code", True)
     accept([line(key, v) for key, v in acc.items() if v != "early"], "accept")
@@ -149,10 +161,11 @@ def generate(rng, repo):
 
 class NextProperties(unittest.TestCase):
     def test_generated_runs_follow_next_rules(self):
+        self.assertGreater(RUNS, 0, "JFLOW_PROP_RUNS must be positive")
         for seed in range(SEED, SEED + RUNS):
             with tempfile.TemporaryDirectory() as tmp:
                 repo = Path(tmp).resolve()
-                d = generate(random.Random(seed), repo)
+                d = generate(seed, repo)
                 n = J.next_step(repo, repo / ".jflow" / "p", SimpleNamespace(config=None, builder_vendor=None))
                 got = n["step"] if not n["blocker"] else "human:" + next(
                     (k for k, phrase in KINDS.items() if phrase in n["blocker"].lower()), "?")
