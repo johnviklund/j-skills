@@ -1,5 +1,5 @@
 # jflow-next-properties
-Status: ready
+Status: done
 Base: d546f8c
 Serves: none
 

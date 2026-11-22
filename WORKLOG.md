@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-22 · jflow-next-properties · property tests check jflow.py next on generated run folders · claude-opus-5-5
+- `test_next_properties.py` builds 50 seeded random run folders in real git repos, one of 8 stories per seed, and checks the step or human stop `next` picks against an oracle built from the generated run; every reintroduced past `next` bug fails it, and `jflow.py` is unchanged.
+- Commits: 0d8ab1c 43ee16a b782169
+- jflow: 5 sessions · 2 fix rounds · 7 rows · 1 accepted · check 9 defects · net code +0 · tests +184 · docs +0
+
 ## 2026-11-18 · check-reach · checkers tag defects [use] or [edge]; edge-only receipts stop for the human, not a fix round · claude-opus-5-5
 - In check-scope, 6 of 10 defects used inputs normal work never makes and cost two fix rounds; `next` now offers to accept them, and `validate` refuses unknown or repeated tags and defect numbers.
 - Commits: c86ae51 88c6157 f2ae69e
@@ -89,13 +94,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@83f608b20044, checkup@a71b8a916aee
 - Why: the secret scan and the run check stop depending on an agent reading prose.
-
-## 2026-11-01 · lean-workflow-tests · workflow test suites fold duplicate cases and lose no covered line or caught mutant · GPT-6.1 Sol
-- Shared helpers (`fails()`, `run_command(expected=)`, `check(checkout=)`) and folded cases cut the workflow tests from 120 to 112 and 1,630 to 1,565 lines; the checkout test moved to check-run; median suite time 52.3 to 50.9 s.
-- The coverage map and mutation run (with message-string and `1.5` mutants) from the run's own tool lose nothing: `compare.py base final` → `lost 0`, and four hand mutants agree.
-- Commits: 6bdf81d e86f78a d508b3a 6c4b4ca a13c5a2 961deed
-- Review: ship as-is (cycle 2, 0 open) @ 2a8e5fc
-- Run: 5 tickets · 5 sessions · 2 review cycles · 5 deviations · 0 findings overturned · net code +0 · tests -65
-- Seats: 0 Opus 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@306d1f188783, checkup@20651cbda779
-- Why: stop the tests growing faster than the scripts, with proof that nothing covered was lost.

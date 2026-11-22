@@ -4,6 +4,24 @@ Completed steps, moved from `ROADMAP.md` at wrap.
 
 ## Done
 
+### jflow-next-properties · jflow's next-step rules are tested on generated run folders
+
+- **Status:** done 2026-11-22 e2d4eda
+- **Problem:** The conductor trusts `jflow.py next` to pick every step and every stop for the human,
+  and that logic keeps breaking in small ways. On 9 Nov the jflow-next and wait-points runs needed
+  five fixes to it, each found by a full check session and not by the 14 tests.
+- **Impact:** ~1 to 2 fewer fix rounds on each change to `next`, from those five fixes; a wrong
+  `next` in a conductor run skips a stop or loops, and nobody is watching.
+- **Why now:** the conductor's first unattended runs rely on it.
+- **Solved when:** one command generates random run folders and fails if `next` skips a wait point,
+  counts a rerun of only BLOCKED or WAITING rows toward the cap, or lets an Accepted or `Yes:` line
+  clear anything other than what it names; it fails on at least one of the five past bugs.
+- **Out of scope:** TLA+, Lean or any model of the flow outside the test file.
+- **Budget:** about 120 lines of tests, no change to `jflow.py` unless a test finds a bug
+- **Run:** jflow · j-skills
+- **After:** none
+- **Open for spec:** is Hypothesis worth a test dependency, or does a seeded random generator do?
+
 ### check-scope · check proves and reports, and leaves decisions to others
 
 - **Status:** done 2026-11-18 b39c9a9
