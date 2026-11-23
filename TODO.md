@@ -2,6 +2,11 @@
 
 Archived items: see TODO_ARCHIVE.md (grep it).
 
+## jflow
+- Guardrail: structure — emit a typed `wait_point` field (`"approach"`, `"gate"`, `"done"`, or `null`) in `jflow.py next --json` so drivers stop scraping blocker prose · must fail on 4a7487c (make room under `jflow.py`'s 30,000-byte cap first)
+- Headless done wait point — `jflow done` writes proposed `PRODUCT.md`, `DESIGN.md`, or `drive.py` verb edits under `## Proposed edits` in `notes.md` and stops; `jflow.py next` returns `wait_point: "edits"` until `Yes: edits` is committed (hq-py39 retro)
+- Unpushed commits on Human checks stop — `jflow.py next` adds an `Unpushed: N commits ahead of <upstream>` detail line when `@{u}..HEAD` has commits (hq-py39 retro)
+
 ## Simplify
 - Worktree setup as a script — run a committed `.worktree-setup` instead of parsing `## Worktree setup` from AGENTS.md; the parser drew 5 of 17 run-worktrees findings
 
