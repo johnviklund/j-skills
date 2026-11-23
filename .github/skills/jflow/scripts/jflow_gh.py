@@ -202,9 +202,10 @@ class Hub:
         (tmp / ".git/objects/info/alternates").write_text(f"{objects}\n", "utf-8")
         spec, accepted, notes, receipts, files, parent, checked, done = None, [], [], {}, {}, None, None, False
         now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+        last_spec = max((i for i, e in enumerate(events) if e[2] == "spec"), default=-1)
         for i, (at, _, kind, attrs, body, _) in enumerate(events):
             if kind == "spec":
-                spec, done = body, False  # a spec posted after done starts the run again
+                spec = body
             elif kind == "accepted":
                 accepted += [l for l in body.splitlines() if l.startswith("- ")]
             elif kind == "notes":
@@ -212,7 +213,9 @@ class Hub:
             elif kind == "receipt":
                 receipts[attrs.get("n", "0")], checked = body, spec
             records = self.records(events[:i + 1])
-            done = done or kind == "record" and records[-1].get("step") == "done"
+            # Only a done after the newest spec counts: a spec posted after done starts the run again,
+            # and summary's end then is the latest done, not a superseded one.
+            done = done or i > last_spec and kind == "record" and records[-1].get("step") == "done"
             if spec is not None:
                 text = spec.rstrip("\n") + "\n" + ("\n## Accepted\n" + "\n".join(accepted) + "\n") * bool(accepted)
                 files["spec.md"] = re.sub(r"^Status: ready", "Status: done", text, flags=re.M) if done else text

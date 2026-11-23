@@ -37,3 +37,6 @@ Yes: approach · "yes" · 2026-11-23
 - **Defect 1.** A done record counts only when it comes after the newest spec comment. A spec posted after done starts the run again: the spec reads `Status: ready`, and the stand-in file from the check-1 fix asks for check-2. Test: `test_spec_recorded_after_done_needs_another_check`.
 - **Defect 2.** `find_pr` collects every pull request from `jflow/<issue>`: from this repo's head branch, plus the forks found through the issue's references whenever this repo has no open one. It picks an open pull request first, then the highest number. Test: `test_fork_pull_request_found_through_its_issue_reference_open_one_first`.
 Checks allowed: 4
+
+## Fix after check-3
+- **Defect 1.** The replay writes `Status: done` only for a done record after the newest spec comment, so an earlier, superseded done leaves no `Status: done` in the temporary history. `summary` then ends at the current run's done and counts code added after a re-spec. `.jflow/` mode keeps its own `done_commits[-1]` (the oldest change to `Status: done`), so historical runs keep their numbers. A re-spec after done in `.jflow/` mode would show the same undercount; changing that is a non-goal. Test: extended `test_spec_recorded_after_done_needs_another_check`.

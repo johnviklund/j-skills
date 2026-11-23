@@ -395,6 +395,10 @@ class GitHubMode(unittest.TestCase):
         self.assertIsNone(self.next()["step"])
         self.record("spec", "--file", self.file("spec2.md", self.spec().replace("| 1 | a |", "| 1 | harder |")))
         self.assertEqual((self.next()["step"], self.next()["n"]), ("check", 2))
+        self.record("check", "--file", self.file("r2.md", receipt(2, self.code(text="x = 2\n"))))
+        self.record("done")
+        s = json.loads(self.ok("summary", "#42", "--json"))
+        self.assertEqual((s["net_code"], s["checks"]), (2, 2))
 
     # Row 4
     def test_jflow_files_on_the_branch_are_refused(self):
