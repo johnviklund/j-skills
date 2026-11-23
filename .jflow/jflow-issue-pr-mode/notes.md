@@ -40,3 +40,4 @@ Checks allowed: 4
 
 ## Fix after check-3
 - **Defect 1.** The replay writes `Status: done` only for a done record after the newest spec comment, so an earlier, superseded done leaves no `Status: done` in the temporary history. `summary` then ends at the current run's done and counts code added after a re-spec. `.jflow/` mode keeps its own `done_commits[-1]` (the oldest change to `Status: done`), so historical runs keep their numbers. A re-spec after done in `.jflow/` mode would show the same undercount; changing that is a non-goal. Test: extended `test_spec_recorded_after_done_needs_another_check`.
+Yes: done · "A, trial passed in jflow-trial and jflow-trial-public" · 2026-11-23
