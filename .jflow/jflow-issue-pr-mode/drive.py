@@ -77,6 +77,31 @@ def attack(name):
             summary = json.loads(c.ok('summary', '#42', '--json'))
             added, deleted, _ = c.git(c.repo, 'diff', '--numstat', c.base + '..HEAD', '--', 'app.py').split('\t')
             print(f'respec-summary: net_code={summary["net_code"]}; actual diff={added} added, {deleted} deleted; checks={summary["checks"]}')
+        elif name == 'summary-cycles':
+            c.record('done')
+            expected_lines = 1
+            for n, add_code in ((2, False), (3, True), (4, True)):
+                revised = c.spec().replace('| 1 | a |', f'| 1 | revision {n} |')
+                c.record('spec', '--file', c.file(f'spec{n}.md', revised))
+                decision = c.next()
+                assert (decision['step'], decision['n']) == ('check', n), decision
+                if add_code:
+                    c.code(text=f'x = {n}\n')
+                    expected_lines += 1
+                active = json.loads(c.ok('summary', '#42', '--json'))
+                assert active['net_code'] == expected_lines, active
+                c.record('check', '--file', c.file(f'r{n}.md', fixtures.receipt(n, c.head())))
+                assert c.next()['step'] == 'done', c.next()
+                c.record('done')
+                finished = json.loads(c.ok('summary', '#42', '--json'))
+                assert (finished['net_code'], finished['checks']) == (expected_lines, n), finished
+                state = c.load()
+                last = json.loads(state['comments']['7'][-1]['body'].split('```json\n')[1].split('\n```')[0])
+                assert last['summary']['net_code'] == expected_lines, last
+            c.code(text='x = 99\n')
+            frozen = json.loads(c.ok('summary', '#42', '--json'))
+            assert frozen['net_code'] == expected_lines, frozen
+            print('summary-cycles: 4 checks; no-code and code revisions, active/final/recorded totals and post-done cutoff OK')
         elif name == 'replaced-fork-pr':
             stub = (c.bin / 'gh').read_text().replace(
                 '"head": {"ref": p["head"]}',
