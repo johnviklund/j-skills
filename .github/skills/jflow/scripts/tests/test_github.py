@@ -19,8 +19,12 @@ if not s["auth"]:
     sys.exit(print("To get started with GitHub CLI, please run:  gh auth login", file=sys.stderr) or 4)
 path, query = (args[1].split("?") + [""])[:2]
 body = json.loads(sys.stdin.read()) if "--input" in args else None
+if "{owner}" in path and not os.path.realpath(os.getcwd()).startswith(s["cwd"]):
+    sys.exit(print("gh: cannot infer repository from cwd", file=sys.stderr) or 1)
 path = path.replace("{owner}/{repo}", s["nwo"])
-m = re.fullmatch(r"repos/([^/]+/[^/]+)(/issues|/pulls)?(?:/(\d+))?(/comments)?", path)
+if path == "user":
+    sys.exit(print(json.dumps({"login": "me"})))
+m = re.fullmatch(r"repos/([^/]+/[^/]+)(/issues|/pulls|/collaborators)?(?:/([\w-]+))?(/comments|/timeline|/permission)?", path)
 if not m or m[1] != s["nwo"]:
     sys.exit(print("gh: Not Found (HTTP 404)", file=sys.stderr) or 1)
 def stamp():
@@ -29,14 +33,20 @@ def stamp():
 out = None
 if not m[2]:
     out = {"full_name": s["nwo"], "private": s["private"]}
+elif m[2] == "/collaborators":
+    out = {"permission": s.get("perms", {}).get(m[3], "read")}
+elif m[2] == "/pulls" and m[3]:
+    out = next(({"number": p["number"], "head": {"ref": p["head"]}} for p in s["pulls"] if str(p["number"]) == m[3]), None)
 elif m[2] == "/pulls":
     head = dict(q.split("=", 1) for q in query.split("&") if q).get("head", "")
-    out = [{"number": p["number"]} for p in s["pulls"] if s["nwo"].split("/")[0] + ":" + p["head"] == head]
+    out = [{"number": p["number"]} for p in s["pulls"] if p.get("owner", "o") + ":" + p["head"] == head]
+elif m[4] == "/timeline":
+    out = s.get("timeline", {}).get(m[3], [])
 elif m[4]:
     out = s["comments"].setdefault(m[3], [])
     if body is not None:
         n, at = stamp()
-        out.append({"id": n, "created_at": at, "body": body["body"], "author_association": "OWNER"})
+        out.append({"id": n, "created_at": at, "body": body["body"], "user": {"login": "me"}})
         out = out[-1]
 elif m[3]:
     out = s["issues"].get(m[3])
@@ -111,6 +121,7 @@ class GitHubMode(unittest.TestCase):
         self.repo = self.make_repo(self.tmp / "repo")
         self.base = self.head()
         self.save({"auth": True, "nwo": "o/r", "private": True, "clock": 0, "pulls": [], "comments": {},
+                   "cwd": os.path.realpath(self.repo),
                    "issues": {"42": {"number": 42, "title": "Make it faster", "body": "Original body"}}})
 
     def make_repo(self, repo):
@@ -143,10 +154,10 @@ class GitHubMode(unittest.TestCase):
     def save(self, s):
         self.state.write_text(json.dumps(s))
 
-    def run_jflow(self, *args, path=None, env=None, repo=None):
+    def run_jflow(self, *args, path=None, env=None, repo=None, cwd=None):
         full = {k: v for k, v in os.environ.items() if k != "JFLOW_CONFIG"}
         full.update(PATH=str(path or self.bin), GH_STUB=str(self.state), **(env or {}))
-        return subprocess.run([sys.executable, str(SCRIPT), *args], cwd=repo or self.repo, env=full,
+        return subprocess.run([sys.executable, str(SCRIPT), *args], cwd=cwd or repo or self.repo, env=full,
                               capture_output=True, text=True)
 
     def ok(self, *args, **kw):
@@ -162,14 +173,14 @@ class GitHubMode(unittest.TestCase):
         path.write_text(text)
         return str(path)
 
-    def post(self, number, kind, body, sha=None, **attrs):
-        """A jflow comment as a person with write access would post it."""
+    def post(self, number, kind, body, sha=None, login="me", **attrs):
+        """A jflow comment, by default from the gh user."""
         s = self.load()
         s["clock"] += 1
         marker = "".join(f" {k}={v}" for k, v in dict(attrs, sha=sha or self.head()).items())
         s["comments"].setdefault(str(number), []).append({
             "id": s["clock"], "created_at": "2026-01-01T%02d:%02d:00Z" % divmod(s["clock"], 60),
-            "body": f"<!-- jflow:{kind} v1{marker} -->\n{body}", "author_association": "OWNER"})
+            "body": f"<!-- jflow:{kind} v1{marker} -->\n{body}", "user": {"login": login}})
         self.save(s)
 
     def spec(self, ask="none", gate="none", human="- none"):
@@ -321,15 +332,56 @@ class GitHubMode(unittest.TestCase):
                 self.assertEqual(self.play(story, github=True), self.play(story, github=False))
                 self.assert_no_jflow()
 
-    def test_marked_comment_without_write_access_is_ignored(self):
+    def test_marked_comment_counts_only_from_the_gh_user_or_write_access(self):
         self.post(42, "spec", self.spec(ask="the marker format"))
         self.open_pr()
         self.post(7, "notes", "## Approach\n- markers\n")
-        self.post(7, "notes", 'Yes: approach · "sure" · 2026-11-23\n')
         s = self.load()
-        s["comments"]["7"][-1]["author_association"] = "NONE"
+        s["perms"] = {"reader": "read", "maintainer": "write"}
         self.save(s)
+        self.post(7, "notes", 'Yes: approach · "sure" · 2026-11-23\n', login="reader")
         self.assertIn("approve the approach", self.next()["blocker"].lower())
+        self.post(7, "notes", 'Yes: approach · "yes" · 2026-11-23\n', login="maintainer")
+        self.assertEqual(self.next()["step"], "build")
+
+    def checked_run(self):
+        """A recorded spec, a draft pull request, code and a clean check-1."""
+        self.record("spec", "--file", self.file("spec.md", self.spec()))
+        self.open_pr()
+        self.record("check", "--file", self.file("r1.md", receipt(1, self.code())))
+        self.assertEqual(self.next()["step"], "done")
+
+    def test_spec_recorded_after_the_newest_check_needs_another_check(self):
+        self.checked_run()
+        self.record("spec", "--file", self.file("spec2.md", self.spec().replace("| 1 | a |", "| 1 | harder |")))
+        self.assertEqual((self.next()["step"], self.next()["n"]), ("check", 2))
+        self.record("check", "--file", self.file("r2.md", receipt(2, self.head())))
+        self.assertEqual(self.next()["step"], "done")
+
+    def test_spec_comment_with_its_marker_removed_is_refused(self):
+        self.checked_run()
+        s = self.load()
+        s["comments"]["42"][0]["body"] = s["comments"]["42"][0]["body"].split("\n", 1)[1]
+        self.save(s)
+        out = self.run_jflow("next", "#42")
+        self.assertNotEqual(out.returncode, 0)
+        self.assertIn("changed after record spec", out.stderr)
+
+    def test_repo_option_runs_gh_in_that_clone(self):
+        self.checked_run()
+        out = self.run_jflow("next", "#42", "--json", "--repo", str(self.repo), cwd=self.tmp)
+        self.assertEqual((out.returncode, json.loads(out.stdout or "{}").get("step")), (0, "done"), out.stderr)
+
+    def test_fork_pull_request_found_through_its_issue_reference(self):
+        self.record("spec", "--file", self.file("spec.md", self.spec()))
+        self.git(self.repo, "checkout", "-qb", "jflow/42")
+        self.code()
+        s = self.load()
+        s["pulls"].append({"number": 8, "head": "jflow/42", "owner": "fork"})
+        s["timeline"] = {"42": [{"event": "cross-referenced", "source": {"issue": {
+            "number": 8, "pull_request": {}, "repository": {"full_name": "o/r"}}}}]}
+        self.save(s)
+        self.assertEqual(self.next()["step"], "check")
 
     # Row 4
     def test_jflow_files_on_the_branch_are_refused(self):

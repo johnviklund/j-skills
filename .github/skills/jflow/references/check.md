@@ -82,12 +82,12 @@ previous receipt.
 # check-N @ <sha> · <model and effort from the card, or unknown>
 | # | Verdict | Evidence |
 |---|---|---|
-| 1 | PROVED | `<command>` → <decisive output line; at most 240 characters for the whole cell> |
+| 1 | PROVED | `<command>` → <decisive output line> |
 | 2 | BROKEN | defect 1 |
-| 3 | BROKEN | `<command>` → <decisive output line; no defect, at most 240 characters for the whole cell> |
+| 3 | BROKEN | `<command>` → <decisive output line; no defect> |
 
 ## Defects
-- 1. [use] <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line; at most 240 characters after Evidence:>
+- 1. [use] <file and symbol>: <input> → <what happens> → <what should happen>. Evidence: <run or traced>, `<command>` → <decisive output line>
 
 ## Maybes
 - <none, or for the human only>
@@ -105,3 +105,9 @@ cap included: never plan how to unblock a row, and never ask or argue for more c
 carry the recommendation. For
 UNREACHABLE, the human chooses between deleting the code and saying what reaches it. With only
 WAITING rows left, say the change is clear to pass the gate.
+
+## Issue and pull request mode
+
+On `jflow/<issue>`, read the spec in the issue's comments and no pull request comment until your
+findings are drafted. `next` refuses a changed spec: skip the
+key check. Keep `drive.py` in `.git/jflow/<issue>/`. Post the receipt: `record <slug> check --file F`.

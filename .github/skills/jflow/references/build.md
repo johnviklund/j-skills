@@ -46,3 +46,13 @@ A receipt comes back with BROKEN rows or defects. Fix the cause, in one design w
 items share it, and rerun the row or the failing input. Reporting a wrong finding is part of the
 job: when the input does not fail, answer with the command and its output and leave the code as it
 is. Record the step as `fix`, commit, then run `jflow.py next <slug> --ask` and print its output.
+
+## Issue and pull request mode
+
+Nothing goes in `.jflow/`. First create branch `jflow/<issue>` from `Base` with an empty commit,
+push it, and open a draft pull request with `Refs #<issue>` in its body (`gh pr create --draft`).
+Write each note, `## Approach`, `Yes:`, `Checks allowed:` or `Live done:` line to a temporary file
+outside the repo and post it with `jflow.py note <slug> --file F`. Accepted lines go through
+`record <slug> accept --file F`; other records post themselves. Receipts are on the pull request
+(`gh pr view <number> --comments`). Later pushes wait for done. On a public repo, every push, post
+and pull request needs the human's yes first; then pass `--confirmed`.

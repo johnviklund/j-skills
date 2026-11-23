@@ -53,3 +53,10 @@ Done when the push succeeded. Close with one line: what shipped, whether row 1, 
 `Solved when`, passed, the proof count, and, on any branch but the default, that the change is not
 on the default branch yet. Then, when `ROADMAP.md` has a `## Next up` item, run `jflow.py next
 <first item's slug>` and print its card as the closing card, under `Next up in ROADMAP.md: <slug>`.
+
+## Issue and pull request mode
+
+Step 4: leave the spec comment as it is; `record done` marks the run done. Step 6: delete
+`drive.py` from `.git/jflow/<issue>/`. Step 8: push the branch, then `gh pr ready <number>`; never
+merge. On a public repo, ask before the push and the post, then pass `--confirmed`. Done when the
+pull request is ready for review.

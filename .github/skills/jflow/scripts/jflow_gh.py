@@ -17,8 +17,8 @@ from pathlib import Path
 
 URL = re.compile(r"https://github\.com/([\w.-]+/[\w.-]+)/issues/(\d+)/?")
 MARK = re.compile(r"<!-- jflow:(spec|accepted|notes|receipt|record) v1((?: [a-z]+=[\w.#-]+)*) -->\n?")
-# Anyone can comment on a public repo; only people with write access steer the run.
-TRUSTED = ("OWNER", "MEMBER", "COLLABORATOR")
+# Anyone can comment on a public repo: only the gh user and people with write access steer the run.
+WRITE = ("admin", "maintain", "write")
 POSTS = {"spec": "spec", "check": "receipt", "accept": "accepted"}
 SHA = re.compile(r"[0-9a-f]{7,40}")
 
@@ -28,17 +28,19 @@ def git(repo, *args, **kw):
                           **kw).stdout.strip()
 
 
-def api(path, body=None):
-    """gh api, as parsed JSON; a list endpoint returns every page joined."""
+def api(path, body=None, cwd=None, missing=False):
+    """gh api, as parsed JSON; a list endpoint returns every page joined. missing: None on a refusal."""
     write = ["-X", "POST", "--input", "-"] if body is not None else ["--paginate"]
     try:
-        p = subprocess.run(["gh", "api", path, *write], capture_output=True, text=True,
+        p = subprocess.run(["gh", "api", path, *write], capture_output=True, text=True, cwd=cwd,
                            input=None if body is None else json.dumps(body))
     except OSError:
         raise SystemExit("gh not found: install the GitHub CLI for issue and pull request mode")
     if p.returncode:
         if re.search(r"auth login|not logged in|authenticat|bad credentials|HTTP 401", p.stderr, re.I):
             raise SystemExit("gh is not authenticated: run gh auth login")
+        if missing and re.search(r"HTTP 40[34]", p.stderr):
+            return None
         raise SystemExit("gh api failed: " + (p.stderr.strip().splitlines() or [f"exit {p.returncode}"])[0])
     pages, out, i = [], p.stdout.strip(), 0
     try:  # --paginate prints one JSON document per page
@@ -108,27 +110,27 @@ class Hub:
 
     def __init__(self, a, real, m):
         self.real, self.head = real, git(real, "rev-parse", "HEAD")
-        info = api("repos/" + (m[1] if m and m.re is URL else "{owner}/{repo}"))
+        info = self.api("repos/" + (m[1] if m and m.re is URL else "{owner}/{repo}"))
         self.nwo, public = info.get("full_name"), info.get("private") is False
         step = getattr(a, "step", None)
         if a.cmd in ("record", "note") and public and not a.confirmed:
             raise SystemExit(f"{self.nwo} is public: ask the human before this GitHub write, then pass --confirmed")
         self.issue = int(m[2] if m.re is URL else m[1]) if m else self.find(a.slug)
         self.slug = f"#{self.issue}" if m else a.slug
-        self.pr = self.issue and next((p["number"] for p in api(
-            f"repos/{self.nwo}/pulls?state=all&per_page=100&head={self.nwo.split('/')[0]}:jflow/{self.issue}")), None)
-        events = []
+        self.pr = self.issue and self.find_pr()
+        events, self.trust, self.me = [], {}, None
         for number in filter(None, (self.issue, self.pr)):
-            for c in api(f"repos/{self.nwo}/issues/{number}/comments?per_page=100"):
+            for c in self.api(f"repos/{self.nwo}/issues/{number}/comments?per_page=100"):
                 body = (c.get("body") or "").replace("\r\n", "\n")
                 mark = MARK.match(body)
-                if mark and c.get("author_association") in TRUSTED:
+                if mark and self.trusted((c.get("user") or {}).get("login")):
                     attrs = dict(x.split("=", 1) for x in mark[2].split())
                     events.append((c["created_at"], c["id"], mark[1], attrs, body[mark.end():], body))
         events.sort(key=lambda e: e[:2])
         specs = [e for e in events if e[2] == "spec"]
         locks = [r.get("spec_sha256") for r in self.records(events) if r.get("step") == "spec"]
-        if specs and locks and digest(specs[-1][5]) != locks[-1] and step != "spec":
+        # A spec comment edited, unmarked or deleted after record spec no longer matches the lock.
+        if locks and (not specs or digest(specs[-1][5]) != locks[-1]) and step != "spec":
             raise SystemExit(f"the spec comment on #{self.issue} changed after record spec; only jflow spec changes it")
         base = re.search(r"^Base:\s*(\S+)", specs[-1][4], re.M) if specs else None
         base = base[1] if base and SHA.fullmatch(base[1]) else None
@@ -151,9 +153,33 @@ class Hub:
             raise SystemExit(f"record {step} in issue and pull request mode needs --file")
         self.repo, self.run = self.replay(events)
 
+    def api(self, path, body=None, missing=False):
+        return api(path, body, cwd=self.real, missing=missing)
+
+    def trusted(self, login):
+        if login and login not in self.trust:
+            self.me = self.me or self.api("user").get("login")
+            perm = login != self.me and self.api(f"repos/{self.nwo}/collaborators/{login}/permission", missing=True)
+            self.trust[login] = login == self.me or (perm or {}).get("permission") in WRITE
+        return self.trust.get(login, False)
+
+    def find_pr(self):
+        """The pull request from branch jflow/<issue>: in this repo, or a fork's that references the issue."""
+        head = f"jflow/{self.issue}"
+        for p in self.api(f"repos/{self.nwo}/pulls?state=all&per_page=100&head={self.nwo.split('/')[0]}:{head}"):
+            return p["number"]
+        for e in self.api(f"repos/{self.nwo}/issues/{self.issue}/timeline?per_page=100"):
+            source = (e.get("source") or {}).get("issue") or {}
+            if e.get("event") == "cross-referenced" and "pull_request" in source and \
+                    (source.get("repository") or {}).get("full_name", self.nwo) == self.nwo:
+                pr = self.api(f"repos/{self.nwo}/pulls/{source['number']}")
+                if (pr.get("head") or {}).get("ref") == head:
+                    return pr["number"]
+        return None
+
     def find(self, slug):
         """The issue titled 'jflow: <slug>', or None."""
-        return min((i["number"] for i in api(f"repos/{self.nwo}/issues?state=all&per_page=100")
+        return min((i["number"] for i in self.api(f"repos/{self.nwo}/issues?state=all&per_page=100")
                     if i.get("title") == f"jflow: {slug}" and "pull_request" not in i), default=None)
 
     @staticmethod
@@ -174,7 +200,7 @@ class Hub:
         git(tmp, "init", "-q")
         objects = Path(git(self.real, "rev-parse", "--path-format=absolute", "--git-common-dir")) / "objects"
         (tmp / ".git/objects/info/alternates").write_text(f"{objects}\n", "utf-8")
-        spec, accepted, notes, receipts, files, parent = None, [], [], {}, {}, None
+        spec, accepted, notes, receipts, files, parent, checked = None, [], [], {}, {}, None, None
         now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
         for i, (at, _, kind, attrs, body, _) in enumerate(events):
             if kind == "spec":
@@ -184,7 +210,7 @@ class Hub:
             elif kind == "notes":
                 notes.append(body.rstrip("\n") + "\n")
             elif kind == "receipt":
-                receipts[attrs.get("n", "0")] = body
+                receipts[attrs.get("n", "0")], checked = body, spec
             records = self.records(events[:i + 1])
             if spec is not None:
                 text = spec.rstrip("\n") + "\n" + ("\n## Accepted\n" + "\n".join(accepted) + "\n") * bool(accepted)
@@ -195,7 +221,10 @@ class Hub:
             if not SHA.fullmatch(attrs.get("sha", "")):
                 raise SystemExit(f"jflow comment {events[i][1]} has no commit sha in its marker")
             parent = self.commit(tmp, attrs["sha"], files, parent, now if at == "9" else at)
-        git(tmp, "update-ref", "HEAD", self.commit(tmp, self.head, files, parent, now))
+        # A spec changed after the newest receipt needs every row again: a stand-in file outside
+        # .jflow/ makes jflow.py see a change since that check, until the next receipt.
+        extra = {".jflow-spec-changed": "the spec changed after the newest check\n"} if receipts and spec != checked else {}
+        git(tmp, "update-ref", "HEAD", self.commit(tmp, self.head, files, parent, now, extra))
         run = tmp / ".jflow" / self.slug
         for name, text in files.items():
             (run / name).parent.mkdir(parents=True, exist_ok=True)
@@ -204,7 +233,7 @@ class Hub:
             shutil.copy(self.real / "PRODUCT.md", tmp / "PRODUCT.md")
         return tmp, run
 
-    def commit(self, tmp, sha, files, parent, at):
+    def commit(self, tmp, sha, files, parent, at, extra=None):
         env = dict(os.environ, GIT_INDEX_FILE=str(tmp / ".git/jflow-index"), GIT_AUTHOR_NAME="jflow",
                    GIT_AUTHOR_EMAIL="jflow@localhost", GIT_COMMITTER_NAME="jflow",
                    GIT_COMMITTER_EMAIL="jflow@localhost", GIT_AUTHOR_DATE=at, GIT_COMMITTER_DATE=at)
@@ -212,21 +241,21 @@ class Hub:
             git(tmp, "read-tree", sha, env=env)
         except subprocess.CalledProcessError:
             raise SystemExit(f"unknown commit {sha} in a jflow comment: fetch the run branch first")
-        index = "".join(f"100644 {git(tmp, 'hash-object', '-w', '--stdin', input=t)}\t.jflow/{self.slug}/{n}\n"
-                        for n, t in files.items())
+        paths = dict({f".jflow/{self.slug}/{n}": t for n, t in files.items()}, **(extra or {}))
+        index = "".join(f"100644 {git(tmp, 'hash-object', '-w', '--stdin', input=t)}\t{n}\n" for n, t in paths.items())
         git(tmp, "update-index", "--add", "--index-info", input=index, env=env)
         tree = git(tmp, "write-tree", env=env)
         return git(tmp, "commit-tree", "--no-gpg-sign", tree, *(["-p", parent] if parent else []), "-m", "jflow", env=env)
 
     def comment(self, number, kind, body, **attrs):
         attrs = "".join(f" {k}={v}" for k, v in dict(attrs, sha=self.head).items())
-        return api(f"repos/{self.nwo}/issues/{number}/comments", {"body": f"<!-- jflow:{kind} v1{attrs} -->\n{body}"})
+        return self.api(f"repos/{self.nwo}/issues/{number}/comments", {"body": f"<!-- jflow:{kind} v1{attrs} -->\n{body}"})
 
     def post(self, step, entry):
         """Post the step's spec, receipt or Accepted lines, then its record."""
         entry["sha"] = self.head
         if step == "spec" and not self.issue:
-            self.issue = api(f"repos/{self.nwo}/issues", {
+            self.issue = self.api(f"repos/{self.nwo}/issues", {
                 "title": f"jflow: {self.slug}",
                 "body": f"jflow run `{self.slug}`: the spec and its Accepted lines are in the comments."})["number"]
         if step in POSTS:

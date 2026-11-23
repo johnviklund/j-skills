@@ -16,7 +16,7 @@ Yes: approach · "yes" · 2026-11-23
 - **Size cap.** `jflow.py` stays under 30,000 bytes (29,998) only because three `git log --diff-filter=A` calls became one `born()` helper, the slug check moved into `Hub.of`, and four comments and one help string got shorter. The GitHub options and the `note` command are registered by `jflow_gh.add_args`.
 - **`.jflow/config.json` and `mode`.** `seats()` accepts `mode` as a known key. `jflow_gh.github_mode` refuses it in `.jflow/config.json` and refuses any value other than `jflow` or `github`. `jflow.py seat` never reads `mode`.
 - **A missing pull request is an error only when one is needed.** `next` routes to `spec` and `build` before the pull request exists. It fails only once code has changed since Base, or for `note` and the records that live on the pull request. Build opens the draft with an empty first commit, so the Ask first approach has somewhere to go.
-- **Only commenters with write access count** (`OWNER`, `MEMBER`, `COLLABORATOR`). On a public repo, anyone could otherwise post a marked `Yes: approach`. The extra test `test_marked_comment_without_write_access_is_ignored` covers this; no Proof row reaches it.
+- **Who counts.** Only the `gh` user's comments count, plus comments from people whose collaborator permission is `admin`, `maintain` or `write` (fix for check-1 defect 3: `MEMBER` can be read-only). The `gh` user is trusted so a fork contributor without push access can still run jflow on their own pull request. If the permission call is refused (403 or 404), that commenter does not count. Test: `test_marked_comment_counts_only_from_the_gh_user_or_write_access`.
 - **Public repos.** `record` and `note` refuse to write without `--confirmed`. The check runs before any write, so the refusal posts nothing.
 - **`drive.py`** goes in `.git/jflow/<issue>/`: reused across checks in one clone, and never tracked.
 
@@ -24,4 +24,11 @@ Yes: approach · "yes" · 2026-11-23
 - `record` posts two comments (the text, then the record). If the second fails, the text stays without its record. Running `record` again posts both again, and the newest pair wins.
 - `validate` errors still name `.jflow/#42/spec.md:N`. The line numbers match the comment body, but the path is the temporary one.
 - A plain slug finds its issue by listing every issue. That is slow on a repo with thousands.
-- The `SKILL.md` pointer adds `references/github.md` (4,351 bytes) to what a step reads in this mode. The 14,000-byte cap test covers only `SKILL.md` plus each of the four step files, which all stay under it.
+
+## Fix after check-1
+- **Defect 1.** The spec lock now also refuses a spec comment that was unmarked or deleted after `record spec`: once a lock exists, the newest spec comment must exist and match it.
+- **Defect 2.** A spec posted after the newest receipt now needs another check. The replay adds a stand-in file, `.jflow-spec-changed`, outside `.jflow/` in the temporary repo's final commit. `jflow.py` sees a change since that receipt and asks for a check, until the next receipt is posted. Only the spec comment body counts, so Accepted comments do not trigger it. `.jflow/` mode has the same gap (its `changed()` ignores `spec.md`). I left it alone, because changing `.jflow/` mode is a non-goal. Test: `test_spec_recorded_after_the_newest_check_needs_another_check`.
+- **Defect 4.** Every `gh` call runs with `cwd` set to the clone `--repo` names.
+- **Defect 5.** If no pull request comes from `<owner>:jflow/<issue>`, the issue's timeline is read for cross-references from pull requests in this repo, and the first one whose head branch is `jflow/<issue>` is used. That covers fork pull requests with `Refs #<issue>`.
+- **Defect 6.** No step reads `github.md` any more. Each step reference ends with a short "Issue and pull request mode" section, and `SKILL.md` links to it in one line. With the check section included, `SKILL.md` + `check.md` is 13,997 bytes. To fit, I dropped the template's three repeats of the 240-character limits; the prose above the template still states both limits. `github.md` stays as the whole mode in one place, for people and for Row 7.
+- The checker's `drive.py` probes for defects 3 to 5 patch the old stub text and post the approval as the `gh` user. They cannot see these fixes as written. The new tests cover each defect against the updated stub.

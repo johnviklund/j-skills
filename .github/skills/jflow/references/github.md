@@ -2,8 +2,9 @@
 
 Use this mode on a shared or public GitHub repository that will not take `.jflow/` files or direct
 pushes to the default branch. The run lives in GitHub comments, and the branch holds only the code.
-Every step works as in [SKILL.md](../SKILL.md) and its step reference. This page lists only what
-is different. You need `gh`, installed and logged in.
+Every step works as in [SKILL.md](../SKILL.md) and its step reference, whose last section lists
+what changes for that step. Agents read that section; this page is the whole mode in one place. You
+need `gh`, installed and logged in.
 
 ## Turning it on
 
@@ -24,9 +25,11 @@ is different. You need `gh`, installed and logged in.
 | `run.jsonl` | `jflow:record` comments: the spec's on the issue, the rest on the pull request |
 | `drive.py` | `$(git rev-parse --git-dir)/jflow/<issue>/drive.py`: inside `.git`, so never committed |
 
-The pull request is the draft whose head branch is `jflow/<issue>`. Its body says `Refs #<issue>`,
-not `Closes`, so nothing closes the issue. `jflow.py` reads comments in the order they were posted,
-and only from people with write access to the repo.
+The pull request is the draft whose head branch is `jflow/<issue>`, in this repo or in a fork.
+Its body says `Refs #<issue>`, not `Closes`, so nothing closes the issue; a fork's pull request is
+found through that reference. `jflow.py` reads comments in the order they were posted, and only
+from the `gh` user and people with write access to the repo. An organization member with read
+access does not count.
 
 Write each text to a temporary file outside the repo, then let `jflow.py` post it. It adds the
 comment's first line, the marker, so never post a jflow comment by hand:
@@ -37,8 +40,9 @@ comment's first line, the marker, so never post a jflow comment by hand:
   `Yes:` line, `Checks allowed:` or `Live done:`.
 
 `validate` and `next` refuse the run when the branch has `.jflow/` files, staged or committed, and
-when anyone has edited the spec comment since `record spec`. To change the spec, run `jflow spec`
-again: it posts a new spec comment and records it.
+when anyone has edited, unmarked or deleted the spec comment since `record spec`. To change the
+spec, run `jflow spec` again: it posts a new spec comment and records it, and `next` then asks for a
+check, so every row runs again.
 
 ## Spec
 
@@ -57,24 +61,25 @@ wait for done, as in `.jflow/` mode.
 Work on branch `jflow/<issue>`. Read the spec and its Accepted lines in the issue's comments
 (`gh issue view <issue> --comments`). The builder's notes are on the pull request: read no pull
 request comment until your findings are drafted. The key check is done for you: `validate` and
-`next` refuse a spec comment that was edited, or added without `record spec`. Keep `drive.py` at the path in the
-table: later checks in the same clone reuse it, and git never tracks it. Post the receipt with
-`record check --file`.
+`next` refuse a spec comment that was edited, or added without `record spec`. Keep `drive.py` at
+the path in the table: later checks in the same clone reuse it, and git never tracks it. Post the
+receipt with `record check --file`.
 
 ## Done
 
 Follow [done.md](done.md) with three changes. In step 4, leave the spec comment as it is:
-`record done` marks the run done. In step 6, delete `drive.py` from `.git/jflow/<issue>/`. In step 8, push the
-branch, then mark the pull request ready with `gh pr ready <number>`. Never merge it: the repo's
+`record done` marks the run done. In step 6, delete `drive.py` from `.git/jflow/<issue>/`. In
+step 8, push the branch, then mark the pull request ready with `gh pr ready <number>`. Never merge it: the repo's
 own review does that. The step ends when the pull request is ready for review.
 
 ## Public repos
 
 `public_paid_needs_human` covers every comment, issue, push and pull request on a public repo.
-Before each one, show the human what will be posted and ask. On their yes, pass `--confirmed`. Without it, `record` and
-`note` refuse to post to a public repo.
+Before each one, show the human what will be posted and ask. On their yes, pass `--confirmed`.
+Without it, `record` and `note` refuse to post to a public repo.
 
 ## When gh fails
 
-A missing `gh`, a `gh` that is not logged in, or a missing pull request stops `jflow.py` with one
+`jflow.py` runs `gh` in the clone that `--repo` names. A missing `gh`, a `gh` that is not logged
+in, or a missing pull request stops `jflow.py` with one
 line naming the cause, and nothing is posted. Fix the cause and run the same command again.

@@ -102,3 +102,10 @@ Serves: <the ### outcome in PRODUCT.md | none>
 ## Human checks
 - <what only the human can judge or do | none>
 ```
+
+## Issue and pull request mode
+
+The spec is an issue comment, never a file, and the issue body stays as it is. Write the spec to a
+temporary file outside the repo and post it with `jflow.py record <slug> spec --file F ...`. For a
+plain slug, this opens the issue `jflow: <slug>` first. On a public repo, show the human the post
+and pass `--confirmed` only after their yes.
