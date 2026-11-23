@@ -30,7 +30,7 @@ def secret(value):
         return any(secret(k) or secret(v) for k, v in value.items())
     if isinstance(value, (list, tuple)):
         return any(secret(v) for v in value)
-    # Generic sk- needs 20 characters and a digit or no inner hyphen; bare tokens need 40.
+    # sk- needs 20 characters and a digit or no inner hyphen; bare tokens need 40.
     return isinstance(value, str) and bool(re.search(
         r"(?<![\w-])(?:sk-ant-|sk-(?=[\w-]*\d|\w+(?![\w-]))[A-Za-z0-9_-]{20,}|gh[pousr]_|AKIA)|[A-Za-z0-9_+/=]{40,}", value))
 
@@ -282,7 +282,7 @@ def summary(repo, run):
     if not base:
         raise SystemExit("summary: spec.md has no Base line")
     spec_path = str(run / "spec.md")
-    # Stop before the done commit's WORKLOG/TODO edits.
+    # Stop before done's WORKLOG/TODO edits.
     done_commits = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", spec_path).splitlines()
     end = done_commits[-1] + "^" if done_commits else "HEAD"
     lines = dict.fromkeys(("net_code", "tests", "docs", "other"), 0)
@@ -297,7 +297,7 @@ def summary(repo, run):
     ended = dt.datetime.fromisoformat(git(repo, "log", "-1", "--format=%cI", done_commits[-1])) if done_commits \
         else dt.datetime.now(dt.timezone.utc)
     hours = round((ended - dt.datetime.fromisoformat(started[0])).total_seconds() / 3600, 1) if started else None
-    # Count checks predating run.jsonl too.
+    # Count checks before run.jsonl too.
     checks = [receipt_fields(p) for p in receipts_of(run)]
     # Git also counts unrecorded fixes.
     shas = [c["sha"] for c in checks] + [end]
@@ -491,6 +491,7 @@ def main(argv=None):
     rec, summ, val, seat, nxt = map(sub.add_parser, ("record", "summary", "validate", "seat", "next"))
     for p in (rec, summ, val, nxt):
         p.add_argument("slug")
+    sys.path[:0] = [str(SKILL / "scripts")]
     import jflow_gh
     jflow_gh.add_args(sub, rec, summ, val)
     for p in (summ, nxt):

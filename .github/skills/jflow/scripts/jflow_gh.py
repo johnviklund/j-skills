@@ -103,9 +103,11 @@ class Hub:
             return cls(a, real, m)
         except subprocess.CalledProcessError as error:
             raise SystemExit("git failed: " + ((error.stderr or "").strip().splitlines() or ["?"])[0])
+        except OSError as error:
+            raise SystemExit(f"cannot read {error.filename}: {error.strerror}")
 
     def __init__(self, a, real, m):
-        self.a, self.real, self.head = a, real, git(real, "rev-parse", "HEAD")
+        self.real, self.head = real, git(real, "rev-parse", "HEAD")
         info = api("repos/" + (m[1] if m and m.re is URL else "{owner}/{repo}"))
         self.nwo, public = info.get("full_name"), info.get("private") is False
         step = getattr(a, "step", None)

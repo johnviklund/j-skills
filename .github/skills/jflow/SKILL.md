@@ -51,7 +51,8 @@ starts blind to part of that folder. Its completion criterion ends the step.
 
 ## The run: `.jflow/<slug>/`
 
-Tracked in git.
+Tracked in git. For `#42`, an issue URL or `git config jflow.mode github`, the run lives in GitHub
+comments instead: read [references/github.md](references/github.md) too.
 
 ```text
 .jflow/<slug>/
