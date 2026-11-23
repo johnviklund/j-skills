@@ -121,13 +121,14 @@ Next: open a fresh session on <model · effort> and send:
 ```
 ````
 
-In Codex, run check with `-c sandbox_workspace_write.network_access=true`: measured 2026-11-04 on
-Codex 0.166, a local test client hangs in the default sandbox.
+In Codex, run check with `-c sandbox_workspace_write.network_access=true`: on Codex 0.166 a local
+test client hangs in the default sandbox.
 
-`record` validates the spec, check and accept steps; fix reported problems before recording.
+`record` validates spec, check and accept steps; fix problems first.
 Before the commit, record the step:
 `python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
-`<skill>` is this skill's absolute folder and the model is your own. Use the step from `flow.json`.
+`<skill>` is this skill's folder and the model is yours, never `unknown` (`jflow.py seat <step>`
+prints it). Use the step from `flow.json`.
 Record a check again if its receipt changes.
 
 Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's
