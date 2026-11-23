@@ -54,7 +54,7 @@ def seats(repo, explicit):
                 raise ValueError("secret-like value refused")
             if not isinstance(data, dict) or type(data.get("schema_version")) is not int or data["schema_version"] != 1:
                 raise ValueError("schema_version must be 1")
-            if set(data) - {"schema_version", "seats", "rules", "different_vendors", "other_vendor"}:
+            if set(data) - {"schema_version", "seats", "rules", "different_vendors", "other_vendor", "mode"}:
                 raise ValueError("unknown config field")
             rules = data.get("rules", {})
             if not isinstance(rules, dict):
@@ -100,6 +100,10 @@ def seat_for(repo, step, a):
 
 def git(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True, text=True).stdout.strip()
+
+
+def born(repo, path):
+    return git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(path))
 
 
 def section(text, heading):
@@ -233,7 +237,7 @@ def validate(repo, run, step):
             # Compare with the prior receipt's commit, or its header SHA if uncommitted.
             rel, files = os.fsencode(run.relative_to(repo).as_posix()), []
             try:
-                prev = (git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts[-2]))
+                prev = (born(repo, receipts[-2])
                         or receipt_fields(receipts[-2])["sha"])
                 # A tree diff sees merge commits and both sides of a rename.
                 files = subprocess.check_output(
@@ -278,7 +282,7 @@ def summary(repo, run):
     if not base:
         raise SystemExit("summary: spec.md has no Base line")
     spec_path = str(run / "spec.md")
-    # Exclude the done commit's WORKLOG/TODO edits and later work from finished runs.
+    # Stop before the done commit's WORKLOG/TODO edits.
     done_commits = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", spec_path).splitlines()
     end = done_commits[-1] + "^" if done_commits else "HEAD"
     lines = dict.fromkeys(("net_code", "tests", "docs", "other"), 0)
@@ -340,7 +344,7 @@ def next_step(repo, run, a):
     # Cap: a check counts when code changed since the receipt before it, or Base.
     shas = [base.group(1) if base else None] + [r["sha"] for r in receipts]
     counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
-    allowed = re.findall(r"^Checks allowed:\s*(\d+)", notes, re.M)  # the last line raises it
+    allowed = re.findall(r"^Checks allowed:\s*(\d+)", notes, re.M)
     allowed = int(allowed[-1]) if allowed else 3
 
     acceptances = []
@@ -354,7 +358,7 @@ def next_step(repo, run, a):
         return not subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", a, b]).returncode
 
     def accepted_late():
-        made = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(receipts_of(run)[-1]))
+        made = born(repo, receipts_of(run)[-1])
         return counted >= allowed and any(c and c != made and after(made, c) for *_, c in acceptances)
 
     if status == "done":
@@ -382,7 +386,7 @@ def next_step(repo, run, a):
             if carried and int(carried.group(1)) < k and key in items(int(carried.group(1))):
                 return closed(int(carried.group(1)), key)
             sha = receipt_fields(paths[k])["sha"] or "-"
-            created = git(repo, "log", "-1", "--diff-filter=A", "--format=%H", "--", str(paths[k]))
+            created = born(repo, paths[k])
             return bool(created) and any(item == key and (named.startswith(sha) or sha.startswith(named)) and (
                 not added or after(created, added)) for item, named, added in acceptances)
 
@@ -437,7 +441,7 @@ def next_step(repo, run, a):
             else:
                 step, why = "done", f"{name} has every row proved"
     if counted >= allowed and (step == "fix" or step == "check" and late):
-        # Closing: the newest receipt has fewer BROKEN rows and defects than the one before it.
+        # Closing: fewer BROKEN rows and defects than the receipt before.
         open_ = [len(re.findall(r"^\|\s*\d+\s*\|\s*BROKEN\s*\|", t, re.M)) + len(section(t, "Defects"))
                  for t in (p.read_text("utf-8") for p in receipts_of(run)[-2:])]
         blocker = f"{counted} checks used of {allowed} and {step} is next" + (
@@ -487,9 +491,11 @@ def main(argv=None):
     rec, summ, val, seat, nxt = map(sub.add_parser, ("record", "summary", "validate", "seat", "next"))
     for p in (rec, summ, val, nxt):
         p.add_argument("slug")
+    import jflow_gh
+    jflow_gh.add_args(sub, rec, summ, val)
     for p in (summ, nxt):
         p.add_argument("--json", action="store_true")
-    nxt.add_argument("--ask", action="store_true", help="builder session: print a stop as its question")
+    nxt.add_argument("--ask", action="store_true", help="print a stop as its question")
     rec.add_argument("step", choices=STEPS)
     rec.add_argument("--model", required=True, type=record_value)
     rec.add_argument("--effort", required=True, type=record_value)
@@ -498,21 +504,23 @@ def main(argv=None):
     seat.add_argument("step")
     for p in (seat, nxt):
         p.add_argument("--config")
-        p.add_argument("--builder-vendor", help="actual builder vendor when its session differs from config")
+        p.add_argument("--builder-vendor", help="builder vendor, if not as configured")
     for p in (rec, summ, seat, nxt, val):
         p.add_argument("--repo", default=".")
     a = parser.parse_args(argv)
+    repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))
     if a.cmd == "seat":
         if a.step not in STEPS:
             raise SystemExit("unknown flow step")
-        print(json.dumps(seat_for(Path(git(a.repo, "rev-parse", "--show-toplevel")), a.step, a)))
+        print(json.dumps(seat_for(repo, a.step, a)))
         return 0
-    if not SLUG.match(a.slug):
-        raise SystemExit(f"bad slug: {a.slug}")
-    repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))
-    run = repo / ".jflow" / a.slug
+    hub = jflow_gh.Hub.of(a, repo, SLUG)
+    repo, run = (hub.repo, hub.run) if hub else (repo, repo / ".jflow" / a.slug)
+    if a.cmd == "note":
+        return hub.note(a.file) or 0
     if a.cmd == "next":
         n = next_step(repo, run, a)
+        hub and hub.tidy(n)
         print(json.dumps(n) if a.json else n["blocker"] if a.ask and n["blocker"] else card(n))
         return 0
     if a.cmd == "validate" or a.cmd == "record" and a.step in ("spec", "check", "accept"):
@@ -527,11 +535,10 @@ def main(argv=None):
         s = summary(repo, run)
         print(json.dumps(s) if a.json else line(s))
         return 0
-    skill = SKILL / "SKILL.md"
     entry = {"v": 1, "step": a.step, "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
              "sha": git(repo, "rev-parse", "HEAD"), "model": a.model, "effort": a.effort,
              "session": (a.session or "builder") if a.step in BUILDER_STEPS else "fresh",
-             "skill": "jflow@" + hashlib.sha256(skill.read_bytes()).hexdigest()[:12]}
+             "skill": "jflow@" + hashlib.sha256((SKILL / "SKILL.md").read_bytes()).hexdigest()[:12]}
     if a.step == "check":
         entry.update(receipt_fields(receipts_of(run)[-1]))
     if a.step == "fix":
@@ -541,7 +548,10 @@ def main(argv=None):
     # Re-recording replaces the check's line.
     kept = [r for r in read_records(run) if not (a.step == "check" and r.get("step") == "check"
                                                   and r.get("n") == entry["n"])]
-    (run / "run.jsonl").write_text("".join(json.dumps(r) + "\n" for r in kept + [entry]), encoding="utf-8")
+    if hub:
+        hub.post(a.step, entry)
+    else:
+        (run / "run.jsonl").write_text("".join(json.dumps(r) + "\n" for r in kept + [entry]), encoding="utf-8")
     print(line(entry["summary"]) if a.step == "done" else json.dumps(entry))
     return 0
 
