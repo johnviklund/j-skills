@@ -40,9 +40,9 @@ A wrong-vendor session says so in its first line and notes, then continues.
 Its check card uses `--builder-vendor V`.
 
 **Locked rules.** Seats print fixed `rules`; config may repeat them as true.
-`public_paid_needs_human` requires a human for public or paid actions; `checker_read_only`
-forbids product edits by checkers. `no_secrets` rejects key-like
-config values and record's `--model` and `--effort` values without echoing them.
+`public_paid_needs_human` gates public/paid actions on the human; `checker_read_only`
+forbids product edits by checkers; `no_secrets` rejects key-like
+config or record `--model`/`--effort` values without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
 
@@ -55,11 +55,11 @@ Tracked in git, except in [issue and pull request mode](references/github.md): e
 
 ```text
 .jflow/<slug>/
-  spec.md             the spec and Proof table, written by spec and read-only afterwards
-  notes.md            the builder's judgement calls and anything left open
-  drive.py            the checker's driver, reused by later checks, deleted at done
-  receipts/check-N.md one per check, numbered from 1
-  run.jsonl           one line per step, written by scripts/jflow.py: the run's numbers
+  spec.md             spec and Proof table (read-only after spec)
+  notes.md            builder judgement calls and open notes
+  drive.py            checker driver, reused across checks, deleted at done
+  receipts/check-N.md one per check, from 1
+  run.jsonl           step records written by scripts/jflow.py
 ```
 
 Commit only these files; raw output goes to a temp folder.
@@ -67,10 +67,9 @@ Commit only these files; raw output goes to a temp folder.
 `spec.md` is the answer key. Only `jflow spec`, with the human's confirmation, changes it, and
 every row then runs again.
 
-**Accepted.** When the human accepts a missed bar, an unproved row or a defect in so many words,
-the builder session adds one line under `## Accepted` at the end of `spec.md`, in its own
-commit named `jflow accept <slug>`, and no row runs again. The bar stays as written, so the record
-shows what was missed.
+**Accepted.** When the human accepts a missed bar, unproved row or defect explicitly,
+the builder adds a line under `## Accepted` at the end of `spec.md` in its own
+commit `jflow accept <slug>`; no row reruns and the bar stays as written.
 
 ```markdown
 ## Accepted
@@ -78,16 +77,16 @@ shows what was missed.
 - Defect 2 · <the miss> · "<the human's words>" · <date> · <sha it applies to>
 ```
 
-`next` closes an item whose line names the sha of the check its verdict came from, carried
-verdicts included, and was committed in or after that check's receipt.
+`next` closes an item whose line names the sha of the newest or source check for a carried verdict,
+committed in or after that check's receipt; a defect carried unchanged across two checks stops for
+the human.
 
 ## The next step
 
 `python3 <skill>/scripts/jflow.py next <slug>` reads the run folder and git and prints the closing
-card for the next step. With `--json` it prints the same decision for a driver: `step`, `n`, `role`,
-`model`, `command`, `session`, `blocker` and `why`. Bare `jflow <slug>` prints that card. A stop for
-the human has `role: "human"` and a `blocker`: the question, lettered options, the recommended one
-first. Pass `--builder-vendor V` as for `seat`.
+card (or bare `jflow <slug>`). `--json` prints `step`, `n`, `role`, `model`, `command`, `session`,
+`blocker` and `why`. A human stop has `role: "human"` and a `blocker` (question, lettered options,
+recommended first). Pass `--builder-vendor V` as for `seat`.
 
 **Checks are capped, because a loop that has not converged needs a person.** A change gets three
 checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
@@ -97,7 +96,8 @@ human what is open. A `Checks allowed: N` line in `notes.md` raises the cap; the
 `notes.md`: `Yes: approach` for an approach posted for an **Ask first** item, `Yes: gate` before the
 live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes. The session the
 human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
-with `Yes: <point>` clears that point, and no other.
+with `Yes: <point>` clears that point, and no other. A mid-run `jflow spec` resets the check cap
+and requires fresh `Yes: approach` and `Yes: gate` approvals.
 
 **Decisions happen in the builder session, never elsewhere.** Another session's card for a stop
 sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the

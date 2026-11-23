@@ -29,7 +29,8 @@ SHAPES = {"proved": (["PROVED"], []), "edge": (["PROVED"], ["edge"]), "waiting":
 STORIES = ["pre", "proved", "edge", "stuck", "waiting", "fix", "late", "carried"]
 MAYBES = ["- <none>", "- none", "- None of the retries are logged", "- slow on a cold cache"]
 KINDS = {"approach": "approve the approach", "cap": "checks used of", "stuck": "could not prove",
-         "edge": "every open defect is [edge]", "gate": "the live gate", "done": "answer these before done"}
+         "carried": "carried unchanged across two checks", "edge": "every open defect is [edge]",
+         "gate": "the live gate", "done": "answer these before done"}
 
 
 def generate(seed, repo):
@@ -126,14 +127,25 @@ def generate(seed, repo):
     accept([line(key, v) for key, v in acc.items() if v != "early"], "accept")
 
     # The oracle, from what was generated.
-    def origin(n, key):  # the check a carried item resolves to: back through each source that has it
+    def carry_src(n, key):
         j = carries[n - 1].get(key)
-        return origin(j, key) if j and key in present[j - 1] else n
+        return j if j and key in present[j - 1] else None
+
+    def origin(n, key):  # the check a carried item resolves to: back through each source that has it
+        j = carry_src(n, key)
+        return origin(j, key) if j else n
+
+    def chain_shas(n, key):
+        j = carry_src(n, key)
+        return {shas[n - 1]} | (chain_shas(j, key) if j else set())
 
     closed = {key for key, v in acc.items() if v in ("ok", "here")
-              and shas[origin(k, key) - 1] == shas[(carried.get(key, k) if v == "ok" else k) - 1]}
+              and shas[(carried.get(key, k) if v == "ok" else k) - 1] in chain_shas(k, key)}
     open_rows = [v for r, v in rows if ("Row", r) not in closed]
     open_tags = [t for i, t in enumerate(tags, 1) if ("Defect", i) not in closed]
+    open_use = {("Defect", i) for i, t in enumerate(tags, 1) if ("Defect", i) not in closed and t != "edge"}
+    carried2 = {key for key in open_use if k >= 2 and carry_src(k, key) and carry_src(k - 1, key)
+                and origin(k, key) == origin(k - 1, key)}
     counted = sum(a != b for a, b in zip([1] + versions, versions))
     allowed = d["allowed"][-1] if d["allowed"] else 3
     cap = counted >= allowed
@@ -141,8 +153,10 @@ def generate(seed, repo):
     real_maybe = MAYBES.index(maybe) >= 2
     if late and (not (cap and after) or open_tags or set(open_rows) - {"PROVED"}):
         step = "check"
-    elif "BROKEN" in open_rows or set(open_tags) - {"edge"}:
+    elif "BROKEN" in open_rows or open_use - carried2:
         step = "fix"
+    elif carried2:
+        step = "human:carried"
     elif {"BLOCKED", "UNREACHABLE"} & set(open_rows):
         step = "human:stuck"
     elif open_tags:

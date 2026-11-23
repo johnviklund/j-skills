@@ -382,5 +382,124 @@ class RunRecord(unittest.TestCase):
                 self.assertTrue(ask.endswith("\n\nReply A or B."), ask)
                 self.assertNotIn("```", ask)
 
+    def test_next_mid_run_respec_resets_routing_cap_trend_and_approvals(self):
+        spec, notes = self.run_dir / "spec.md", self.run_dir / "notes.md"
+        spec.write_text(spec.read_text().replace("- Gate: none.", "- Gate: publish.\n- Ask first: schema."))
+        notes.write_text('## Approach\n- v1\nYes: approach · "ok" · 2026-11-22\nYes: gate · "ok" · 2026-11-22\n')
+        self.commit("spec with gate")
+        self.state("WAITING", code=True)
+        self.assertEqual(self.next()["step"], "live")
+        # Mid-run re-spec (non-Accepted edit): routes to build (not live), invalidates Yes: approach & Yes: gate.
+        spec.write_text(spec.read_text().replace("1. Prove the run.", "1. Prove the revised run."))
+        self.commit("mid-run respec")
+        n = self.next()
+        self.assertEqual(n["step"], "human")
+        self.assertIn("Approve the approach", n["blocker"])
+        with notes.open("a") as f:
+            f.write('Yes: approach · "ok v2" · 2026-11-23\n')
+        self.commit("fresh approach yes")
+        self.assertEqual(self.next()["step"], "build")
+        (self.repo / "app.py").write_text("a = 10\n")
+        self.commit("build v2")
+        self.assertEqual((self.next()["step"], self.next()["n"]), ("check", 2))
+        self.receipt(2, "WAITING", "- none")
+        self.commit("check-2")
+        n = self.next()
+        self.assertEqual(n["step"], "human")
+        self.assertIn("the live gate", n["blocker"])
+        with notes.open("a") as f:
+            f.write('Yes: gate · "go v2" · 2026-11-23\n')
+        self.commit("fresh gate yes")
+        self.assertEqual(self.next()["step"], "live")
+
+    def test_next_mid_run_respec_resets_check_cap_and_defect_trend(self):
+        spec, notes = self.run_dir / "spec.md", self.run_dir / "notes.md"
+        for k in range(1, 4):
+            (self.repo / "app.py").write_text(f"a = {k + 1}\n")
+            self.commit(f"code {k}")
+            self.receipt(k, "BROKEN", "- 1. [use] app.py: x -> y -> z. Evidence: run\n- 2. [use] app.py: p -> q -> r. Evidence: run")
+            self.commit(f"check-{k}")
+        notes.write_text("Checks allowed: 2\n")
+        self.commit("prior cap")
+        self.assertIn("3 checks used of 2", self.next()["blocker"])
+        # Mid-run re-spec resets budget to 3 and clears trend against check-3.
+        spec.write_text(spec.read_text().replace("1. Prove the run.", "1. Prove the new scope."))
+        self.commit("respec")
+        self.assertEqual(self.next()["step"], "build")
+        (self.repo / "app.py").write_text("a = 20\n")
+        self.commit("build after respec")
+        self.receipt(4, "BROKEN", "- none")
+        self.commit("check-4")
+        self.assertEqual((self.next()["step"], self.next()["n"]), ("fix", 4))
+        with notes.open("a") as f:
+            f.write("Checks allowed: 1\n")
+        self.commit("lower cap after respec")
+        blocker = self.next()["blocker"]
+        self.assertIn("1 checks used of 1", blocker)
+        self.assertNotIn("went from", blocker)
+        self.assertIn("➡️ A. Stop here", blocker)
+
+    def test_next_carried_newest_sha_accepted_row_on_late_and_twice_carried_escalation(self):
+        spec, notes = self.run_dir / "spec.md", self.run_dir / "notes.md"
+        # 1) Newest-sha acceptance of a carried defect closes it.
+        (self.repo / "app.py").write_text("a = 2\n")
+        self.commit("code 1")
+        sha1 = self.git("rev-parse", "HEAD")
+        self.receipt(1, "PROVED", "- 1. [use] app.py: x -> bad -> ok. Evidence: run", sha1)
+        self.commit("check-1")
+        (self.repo / "app.py").write_text("a = 3\n")
+        self.commit("code 2")
+        sha2 = self.git("rev-parse", "HEAD")
+        self.receipt(2, "PROVED", "- 1. [use] app.py (carried from check-1): x -> bad -> ok. Evidence: run", sha2)
+        self.commit("check-2")
+        self.assertEqual(self.next()["step"], "fix")
+        # 2) Twice-carried [use] defect escalates to human instead of looping fix.
+        notes.write_text("Dispute: intentional behavior.\n")
+        self.commit("rebuttal")
+        self.receipt(3, "PROVED", "- 1. [use] app.py (carried from check-1): x -> bad -> ok. Evidence: run", sha2)
+        self.commit("check-3")
+        n = self.next()
+        self.assertEqual(n["step"], "human")
+        self.assertIn("defect 1 carried unchanged across two checks", n["blocker"])
+        self.assertIn("➡️ A. Accept", n["blocker"])
+        # Non-carried defect or BROKEN row still routes to fix.
+        self.receipt(3, "BROKEN", "- 1. [use] app.py (carried from check-1): x -> bad -> ok. Evidence: run", sha2)
+        self.commit("check-3 broken")
+        self.assertEqual(self.next()["step"], "fix")
+        self.receipt(3, "PROVED", "- 1. [use] app.py (carried from check-2): x -> bad -> ok. Evidence: run", sha2)
+        self.commit("check-3 carried from check-2")
+        self.assertEqual(self.next()["step"], "human")
+        # Accepting with newest sha closes the carried defect.
+        with spec.open("a") as f:
+            f.write(f'\n## Accepted\n- Defect 1 · disputed · "accept it" · 2026-11-23 · {sha2}\n')
+        self.commit("accept newest sha")
+        self.assertEqual(self.next()["step"], "done")
+
+    def test_next_treats_accepted_rows_as_closed_in_late_checks(self):
+        spec, notes = self.run_dir / "spec.md", self.run_dir / "notes.md"
+        (self.repo / "app.py").write_text("a = 2\n")
+        self.commit("code 1")
+        sha1 = self.git("rev-parse", "HEAD")
+        self.receipt(1, "WAITING", "- none", sha1)
+        self.commit("check-1")
+        with spec.open("a") as f:
+            f.write(f'\n## Accepted\n- Row 1 · ok · "fine" · 2026-11-23 · {sha1}\n')
+        self.commit("accept row 1")
+        (self.repo / "app.py").write_text("a = 3\n")
+        self.commit("code 2")
+        sha2 = self.git("rev-parse", "HEAD")
+        notes.write_text("Checks allowed: 2\n")
+        (self.run_dir / "receipts/check-2.md").write_text(
+            f"# check-2 @ {sha2} · GPT-6.1 Sol · high\n| # | Verdict | Evidence |\n|---|---|\n"
+            f"| 1 | ACCEPTED | accepted in check-1 |\n| 2 | WAITING | `cmd` -> wait |\n\n## Defects\n- none\n\n## Maybes\n- <none>\n")
+        self.commit("check-2")
+        (self.repo / "app.py").write_text("a = 4\n")
+        self.commit("late code")
+        self.assertIn("2 checks used of 2 and check is next", self.next()["blocker"])
+        with spec.open("a") as f:
+            f.write(f'- Row 2 · wait · "fine" · 2026-11-23 · {sha2}\n')
+        self.commit("accept row 2")
+        self.assertEqual(self.next()["step"], "done")
+
 if __name__ == "__main__":
     unittest.main()
