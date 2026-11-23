@@ -1,6 +1,7 @@
 """Checker's CLI probes. All mutations stay in temporary fixture repositories."""
 import ast
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -66,6 +67,16 @@ def attack(name):
             c.record('spec', '--file', c.file('spec2.md', changed))
             n = c.next()
             print(f'respec-after-done: step={n["step"]}; why={n["why"]}')
+        elif name == 'respec-summary':
+            c.record('done')
+            changed = c.spec().replace('| 1 | a |', '| 1 | changed claim |')
+            c.record('spec', '--file', c.file('spec2.md', changed))
+            sha = c.code(text='x = 2\n')
+            c.record('check', '--file', c.file('r2.md', fixtures.receipt(2, sha)))
+            c.record('done')
+            summary = json.loads(c.ok('summary', '#42', '--json'))
+            added, deleted, _ = c.git(c.repo, 'diff', '--numstat', c.base + '..HEAD', '--', 'app.py').split('\t')
+            print(f'respec-summary: net_code={summary["net_code"]}; actual diff={added} added, {deleted} deleted; checks={summary["checks"]}')
         elif name == 'replaced-fork-pr':
             stub = (c.bin / 'gh').read_text().replace(
                 '"head": {"ref": p["head"]}',
