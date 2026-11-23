@@ -59,7 +59,34 @@ def attack(name):
             state['comments']['42'][0]['body'] = state['comments']['42'][0]['body'].split('\n', 1)[1]
             c.save(state)
             p = c.run_jflow('next', '#42', '--json')
-            print(f'strip-spec-marker: exit={p.returncode}; next={__import__("json").loads(p.stdout)["step"]}')
+            print(f'strip-spec-marker: exit={p.returncode}; {p.stdout.strip() or p.stderr.strip()}')
+        elif name == 'respec-after-done':
+            c.record('done')
+            changed = c.spec().replace('| 1 | a |', '| 1 | changed claim |')
+            c.record('spec', '--file', c.file('spec2.md', changed))
+            n = c.next()
+            print(f'respec-after-done: step={n["step"]}; why={n["why"]}')
+        elif name == 'replaced-fork-pr':
+            stub = (c.bin / 'gh').read_text().replace(
+                '"head": {"ref": p["head"]}',
+                '"head": {"ref": p["head"]}, "state": p.get("state", "open"), "draft": True')
+            (c.bin / 'gh').write_text(stub)
+            state = c.load()
+            state['pulls'] = [
+                {'number': 7, 'head': 'jflow/42', 'owner': 'fork', 'state': 'closed'},
+                {'number': 8, 'head': 'jflow/42', 'owner': 'fork', 'state': 'open'},
+            ]
+            state['timeline'] = {'42': [
+                {'event': 'cross-referenced', 'source': {'issue': {
+                    'number': n, 'pull_request': {}, 'repository': {'full_name': 'o/r'}}}}
+                for n in (7, 8)
+            ]}
+            c.save(state)
+            c.ok('note', '#42', '--file', c.file('note.md', 'current run note\n'))
+            state = c.load()
+            targets = [n for n, comments in state['comments'].items()
+                       if any('current run note' in item['body'] for item in comments)]
+            print('replaced-fork-pr: note posted to PR #' + ','.join(targets) + '; open run PR #8')
         elif name == 'member-approval':
             print('member-approval: before=' + str(c.next()['role']))
             c.post(7, 'notes', 'Yes: done · "sure" · 2026-11-23\n')
@@ -89,7 +116,7 @@ def attack(name):
 
 if __name__ == '__main__':
     mode = sys.argv[1]
-    if mode == 'rows':
+    if mode in ('rows', 'fixes'):
         names = [
             'test_entry_points_enter_github_mode_without_jflow_files',
             'test_full_run_through_comments',
@@ -97,6 +124,12 @@ if __name__ == '__main__':
             'test_jflow_files_on_the_branch_are_refused',
             'test_spec_comment_edited_after_record_spec_is_refused',
             'test_missing_gh_auth_or_pr_fails_on_one_line_without_writes',
+        ] if mode == 'rows' else [
+            'test_spec_comment_with_its_marker_removed_is_refused',
+            'test_spec_recorded_after_the_newest_check_needs_another_check',
+            'test_marked_comment_counts_only_from_the_gh_user_or_write_access',
+            'test_repo_option_runs_gh_in_that_clone',
+            'test_fork_pull_request_found_through_its_issue_reference',
         ]
         result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(fixtures.GitHubMode(n) for n in names))
         sys.exit(not result.wasSuccessful())
