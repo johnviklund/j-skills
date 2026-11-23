@@ -1,5 +1,5 @@
 # jflow-issue-pr-mode
-Status: ready
+Status: done
 Base: 4a396e5
 Serves: none
 

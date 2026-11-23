@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-23 · jflow-issue-pr-mode · jflow runs on pull-request-gated GitHub repos through issue and pull request comments · claude-opus-5-5
+- `#42`, an issue URL, or `git config jflow.mode github` keeps the run in comments instead of `.jflow/` files. The spec and Accepted lines go on the issue; notes, receipts and records go on a draft pull request. The new `jflow_gh.py` rebuilds the comments as a temporary git history, so `jflow.py` makes the same decisions as in `.jflow/` mode. Each step reference ends with a short section on the mode.
+- Commits: b92c671 de709e7 6827ad7 86bd967 693c986
+- jflow: 6 sessions · 3 fix rounds · 9 rows · 0 accepted · check 9 defects · net code +294 · tests +458 · docs +115
+
 ## 2026-11-22 · jflow-next-properties · property tests check jflow.py next on generated run folders · claude-opus-5-5
 - `test_next_properties.py` builds 50 seeded random run folders in real git repos, one of 8 stories per seed, and checks the step or human stop `next` picks against an oracle built from the generated run; every reintroduced past `next` bug fails it, and `jflow.py` is unchanged.
 - Commits: 0d8ab1c 43ee16a b782169
@@ -84,13 +89,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@ef6309467514, checkup@1d1808312d83
 - Why: a skill rule now earns its place on a recorded save, and "no signal" no longer means keep.
-
-## 2026-11-01 · git-hooks · pre-commit and pre-push hooks enforce the run check and the secret scan · GPT-6.1 Sol
-- `hooks.py` installs a pre-commit hook (runs `check-run.py` on staged run files) and a pre-push hook (gitleaks over the commits the push adds); `bootstrap` installs them and `checkup` flags a repo without them or with an open `--no-verify`.
-- Three review cycles found 9 defects (a secret passing a spaced push target, commits on another remote skipped, 3 untested guards); all fixed, 2 P3s stay in `review.md`.
-- Commits: f1ed6eb 2556e51 cb2e649 a2d308f d6de8e2 8667607 0cf89fa ffc3856 3368007
-- Review: ship as-is (cycle 3, 0 open) @ a152e3e
-- Run: 3 tickets · 4 sessions · 3 review cycles · 5 deviations · 0 findings overturned · net code +157 · tests +246
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@83f608b20044, checkup@a71b8a916aee
-- Why: the secret scan and the run check stop depending on an agent reading prose.
