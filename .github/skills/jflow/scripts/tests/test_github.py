@@ -36,10 +36,12 @@ if not m[2]:
 elif m[2] == "/collaborators":
     out = {"permission": s.get("perms", {}).get(m[3], "read")}
 elif m[2] == "/pulls" and m[3]:
-    out = next(({"number": p["number"], "head": {"ref": p["head"]}} for p in s["pulls"] if str(p["number"]) == m[3]), None)
+    out = next(({"number": p["number"], "state": p.get("state", "open"), "head": {"ref": p["head"]}}
+                for p in s["pulls"] if str(p["number"]) == m[3]), None)
 elif m[2] == "/pulls":
     head = dict(q.split("=", 1) for q in query.split("&") if q).get("head", "")
-    out = [{"number": p["number"]} for p in s["pulls"] if p.get("owner", "o") + ":" + p["head"] == head]
+    out = [{"number": p["number"], "state": p.get("state", "open")} for p in s["pulls"]
+           if p.get("owner", "o") + ":" + p["head"] == head]
 elif m[4] == "/timeline":
     out = s.get("timeline", {}).get(m[3], [])
 elif m[4]:
@@ -372,16 +374,27 @@ class GitHubMode(unittest.TestCase):
         out = self.run_jflow("next", "#42", "--json", "--repo", str(self.repo), cwd=self.tmp)
         self.assertEqual((out.returncode, json.loads(out.stdout or "{}").get("step")), (0, "done"), out.stderr)
 
-    def test_fork_pull_request_found_through_its_issue_reference(self):
+    def test_fork_pull_request_found_through_its_issue_reference_open_one_first(self):
         self.record("spec", "--file", self.file("spec.md", self.spec()))
         self.git(self.repo, "checkout", "-qb", "jflow/42")
         self.code()
         s = self.load()
-        s["pulls"].append({"number": 8, "head": "jflow/42", "owner": "fork"})
+        s["pulls"] += [{"number": 7, "head": "jflow/42", "owner": "fork", "state": "closed"},
+                       {"number": 8, "head": "jflow/42", "owner": "fork"}]
         s["timeline"] = {"42": [{"event": "cross-referenced", "source": {"issue": {
-            "number": 8, "pull_request": {}, "repository": {"full_name": "o/r"}}}}]}
+            "number": n, "pull_request": {}, "repository": {"full_name": "o/r"}}}} for n in (7, 8)]}
         self.save(s)
         self.assertEqual(self.next()["step"], "check")
+        self.ok("note", "#42", "--file", self.file("n.md", "a note\n"))
+        self.assertIn("8", self.load()["comments"])
+        self.assertNotIn("7", self.load()["comments"])
+
+    def test_spec_recorded_after_done_needs_another_check(self):
+        self.checked_run()
+        self.record("done")
+        self.assertIsNone(self.next()["step"])
+        self.record("spec", "--file", self.file("spec2.md", self.spec().replace("| 1 | a |", "| 1 | harder |")))
+        self.assertEqual((self.next()["step"], self.next()["n"]), ("check", 2))
 
     # Row 4
     def test_jflow_files_on_the_branch_are_refused(self):

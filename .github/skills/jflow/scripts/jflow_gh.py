@@ -164,18 +164,18 @@ class Hub:
         return self.trust.get(login, False)
 
     def find_pr(self):
-        """The pull request from branch jflow/<issue>: in this repo, or a fork's that references the issue."""
+        """The pull request from branch jflow/<issue>, in this repo or a fork's that references the issue:
+        an open one first, then the newest."""
         head = f"jflow/{self.issue}"
-        for p in self.api(f"repos/{self.nwo}/pulls?state=all&per_page=100&head={self.nwo.split('/')[0]}:{head}"):
-            return p["number"]
-        for e in self.api(f"repos/{self.nwo}/issues/{self.issue}/timeline?per_page=100"):
-            source = (e.get("source") or {}).get("issue") or {}
-            if e.get("event") == "cross-referenced" and "pull_request" in source and \
-                    (source.get("repository") or {}).get("full_name", self.nwo) == self.nwo:
-                pr = self.api(f"repos/{self.nwo}/pulls/{source['number']}")
-                if (pr.get("head") or {}).get("ref") == head:
-                    return pr["number"]
-        return None
+        found = self.api(f"repos/{self.nwo}/pulls?state=all&per_page=100&head={self.nwo.split('/')[0]}:{head}")
+        if not any(p.get("state") == "open" for p in found):
+            for e in self.api(f"repos/{self.nwo}/issues/{self.issue}/timeline?per_page=100"):
+                source = (e.get("source") or {}).get("issue") or {}
+                if e.get("event") == "cross-referenced" and "pull_request" in source and \
+                        (source.get("repository") or {}).get("full_name", self.nwo) == self.nwo:
+                    pr = self.api(f"repos/{self.nwo}/pulls/{source['number']}")
+                    found += [pr] if (pr.get("head") or {}).get("ref") == head else []
+        return max(found, key=lambda p: (p.get("state") == "open", p["number"]))["number"] if found else None
 
     def find(self, slug):
         """The issue titled 'jflow: <slug>', or None."""
@@ -200,11 +200,11 @@ class Hub:
         git(tmp, "init", "-q")
         objects = Path(git(self.real, "rev-parse", "--path-format=absolute", "--git-common-dir")) / "objects"
         (tmp / ".git/objects/info/alternates").write_text(f"{objects}\n", "utf-8")
-        spec, accepted, notes, receipts, files, parent, checked = None, [], [], {}, {}, None, None
+        spec, accepted, notes, receipts, files, parent, checked, done = None, [], [], {}, {}, None, None, False
         now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
         for i, (at, _, kind, attrs, body, _) in enumerate(events):
             if kind == "spec":
-                spec = body
+                spec, done = body, False  # a spec posted after done starts the run again
             elif kind == "accepted":
                 accepted += [l for l in body.splitlines() if l.startswith("- ")]
             elif kind == "notes":
@@ -212,9 +212,9 @@ class Hub:
             elif kind == "receipt":
                 receipts[attrs.get("n", "0")], checked = body, spec
             records = self.records(events[:i + 1])
+            done = done or kind == "record" and records[-1].get("step") == "done"
             if spec is not None:
                 text = spec.rstrip("\n") + "\n" + ("\n## Accepted\n" + "\n".join(accepted) + "\n") * bool(accepted)
-                done = any(r.get("step") == "done" for r in records)
                 files["spec.md"] = re.sub(r"^Status: ready", "Status: done", text, flags=re.M) if done else text
             files.update({"notes.md": "".join(notes), "run.jsonl": "".join(json.dumps(r) + "\n" for r in records),
                           **{f"receipts/check-{n}.md": t for n, t in receipts.items()}})
