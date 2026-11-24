@@ -131,8 +131,7 @@ Before the commit, record the step:
 prints it). Use the step from `flow.json`.
 Record a check again if its receipt changes.
 
-Commit each step's files, `run.jsonl` included, before the card. Leave pushing and the repo's
-full build, test and lint commands to `jflow done`, even when the repo asks for them every step.
+Commit each step's files, `run.jsonl` included, before the card. Leave pushing to `jflow done`.
 
 Every step runs in any CLI, as a plain message in a session the human starts. Where the builder
 session cannot be resumed, a new session on the builder's model takes over the branch and run
