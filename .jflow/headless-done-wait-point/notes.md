@@ -48,3 +48,14 @@
 - `jflow.py` is 29,989 bytes.
 
 Checks allowed: 4 · "A" · 2026-11-24
+
+## Fix 3 (check-3)
+
+- Defect 1: a fresh section with the same edits as the old one counted as old, because fix 2
+  compared edit text. `next` now tracks by position which `notes.md` lines are new since the
+  re-spec. The newest proposal is fresh when its heading or any of its `- ` lines is new. A
+  `Yes: edits` counts when it is new and comes after that heading. This one rule covers all six
+  re-spec cases the checks found: rewrite, kept edit, copy into `## Deferred`, `Yes: done` under an
+  old proposal, repost, and uncommitted yes.
+- `rnotes`, which the other `Yes:` points and `Checks allowed:` read, is now built from the same
+  list of new lines. `jflow.py` is 29,991 bytes.
