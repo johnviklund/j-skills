@@ -12,6 +12,13 @@ Runs in the builder session after the last check.
    a reached outcome or a new design decision, or say neither needs one; make it only after their
    yes. Wait for their answer. With none, go on. A `Yes: done` line in `notes.md` answers the Human
    checks and Maybes, so do not wait again for them.
+
+   **Unattended,** with no human in the session, as under `conductor`: write each `PRODUCT.md`,
+   `DESIGN.md` or `TODO.md` edit and each `drive.py` verb you would ask about as one `- ` line
+   under `## Proposed edits` in `notes.md`. Commit only `notes.md` and end with the closing card:
+   steps 3 to 8 wait, since `next` waits for `Yes: edits`. With a `Yes: edits` line already
+   there, make the proposed edits as written, with any change the human gave, and do not ask
+   again. In a session with a human, ask in chat as above.
 3. Run the repo's own verification commands from `AGENTS.md`.
 4. Set `Status: done` in `spec.md`, then record the step as `done`. The script prints the run's
    `jflow:` line; copy it unchanged. When the repo keeps a `WORKLOG.md`, add this entry at its top:

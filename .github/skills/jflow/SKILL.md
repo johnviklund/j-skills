@@ -92,12 +92,13 @@ recommended first). Pass `--builder-vendor V` as for `seat`.
 checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
 human what is open. A `Checks allowed: N` line in `notes.md` raises the cap; the last such line counts.
 
-**Wait points.** `next` also stops for the human at three points, each cleared by a line in
-`notes.md`: `Yes: approach` for an approach posted for an **Ask first** item, `Yes: gate` before the
-live `Gate:`, and `Yes: done` before done when there are Human checks or Maybes. The session the
-human answered commits `Yes: <point> · "<the human's words>" · <date>`. Only a line that starts
-with `Yes: <point>` clears that point, and no other. A mid-run `jflow spec` resets the check cap
-and requires fresh `Yes: approach` and `Yes: gate` approvals.
+**Wait points.** `next` also stops for the human at four points, each cleared by a line in
+`notes.md`: `Yes: approach` for an **Ask first** approach, `Yes: gate` before the `Gate:`,
+`Yes: done` before done when there are Human checks or Maybes, and `Yes: edits` for the
+`## Proposed edits` an unattended done left. `--json` names it in `wait_point`, which other stops
+omit. The session the human answered commits `Yes: <point> · "<the human's words>" · <date>`. A
+line that starts with `Yes: <point>` clears only that point. A mid-run `jflow spec` resets the
+check cap and voids earlier `## Proposed edits` and `Yes:` lines.
 
 **Decisions happen in the builder session, never elsewhere.** Another session's card for a stop
 sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the
