@@ -59,3 +59,4 @@ Checks allowed: 4 · "A" · 2026-11-24
   old proposal, repost, and uncommitted yes.
 - `rnotes`, which the other `Yes:` points and `Checks allowed:` read, is now built from the same
   list of new lines. `jflow.py` is 29,991 bytes.
+Yes: done · "A" · 2026-11-24
