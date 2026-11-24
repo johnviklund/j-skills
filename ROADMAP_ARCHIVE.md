@@ -4,6 +4,27 @@ Completed steps, moved from `ROADMAP.md` at wrap.
 
 ## Done
 
+### headless-done-wait-point · conductor pauses cleanly for done-step doc and TODO approvals
+
+- **Status:** done 2026-11-24 7c8e242
+- **Problem:** Headless `conductor` runs abort with exit 1 (`no progress`) at `jflow done` whenever
+  `done` asks to approve `PRODUCT.md`, `DESIGN.md`, `TODO.md` or `drive.py` verb edits, forcing a
+  manual session resume. Seen in 3 of 3 recent conductor runs (`hq-py39`, `jflow-issue-pr-mode` and
+  a private-repo run on 2026-11-24).
+- **Impact:** conductor `done` exit-1 aborts on doc or TODO edits drop from 3 of 3 runs to 0,
+  removing a manual resume and wall-clock stall on every run.
+- **Why now:** `hq` Phase 2 is unblocked and will run `conductor` on every task.
+- **Solved when:** a conductor run whose `done` step proposes `PRODUCT.md`, `DESIGN.md` or `TODO.md`
+  edits stops cleanly with exit 2 and a typed wait point, and finishes `done` after
+  `conductor SLUG --answer yes` without a manual CLI resume.
+- **Out of scope:** changing interactive `jflow done` questions or rewriting `jflow.py` beyond
+  making room under its 30,000-byte cap.
+- **Budget:** 2 runs. Shipped in `j-skills` at `7c8e242` (`wait_point` in `jflow.py next --json` and
+  unattended `## Proposed edits` / `Yes: edits`) and in `conductor` at `a736248` (`conductor.py`
+  reads `wait_point`, tells `done` it runs unattended, and exits 2 at `edits`).
+- **Run:** jflow · j-skills
+- **After:** none
+
 ### jflow-next-properties · jflow's next-step rules are tested on generated run folders
 
 - **Status:** done 2026-11-22 e2d4eda
