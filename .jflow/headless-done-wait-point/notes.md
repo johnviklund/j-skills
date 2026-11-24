@@ -34,3 +34,15 @@
   already runs that path: "stub gh routes edits to the human, then done in the builder session".
 - To stay under 30,000 bytes I shortened the new blocker and option texts. `jflow.py` is now
   29,987 bytes.
+
+## Fix 2 (check-2)
+
+- Defects 1 and 2 share a cause: fix 1 judged the proposal line by line, by whether each line was
+  new since the re-spec. So a kept edit vanished from a revised proposal, and an old edit copied
+  into `## Deferred` counted as new. `next` now judges the whole proposal: it compares the `- `
+  lines of the newest `## Proposed edits` with those of the newest one before the re-spec. If they
+  differ, it shows every line. A `Yes: edits` line counts when it sits under the newest heading and
+  is new since the re-spec.
+- Only the `- ` lines are compared, not the raw section. A `Yes: done` line appended under an
+  unchanged proposal must not turn it into a new one; `drive.py 3` caught that in my first try.
+- `jflow.py` is 29,989 bytes.
