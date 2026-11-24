@@ -9,7 +9,7 @@ workflow goes once what other skills still need from it has moved. Start every i
 Budgets count sessions or changed lines.
 
 ## Next up
-1. headless-done-wait-point · every conductor run that proposes doc or TODO edits at done aborts with exit 1, seen in 3 of 3 recent runs, before Phase 2 runs conductor on every task
+1. headless-done-wait-point · the conductor half is left: jflow now stops at a typed `edits` wait point, and conductor must read it so done exits 2, not 1, before Phase 2 runs conductor on every task
 2. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
 3. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
@@ -34,7 +34,7 @@ Budgets count sessions or changed lines.
 
 ### headless-done-wait-point · conductor pauses cleanly for done-step doc and TODO approvals
 
-- **Status:** open
+- **Status:** started
 - **Problem:** Headless `conductor` runs abort with exit 1 (`no progress`) at `jflow done` whenever
   `done` asks to approve `PRODUCT.md`, `DESIGN.md`, `TODO.md` or `drive.py` verb edits, forcing a
   manual session resume. Seen in 3 of 3 recent conductor runs (`hq-py39`, `jflow-issue-pr-mode` and
@@ -47,12 +47,12 @@ Budgets count sessions or changed lines.
   `conductor SLUG --answer yes` without a manual CLI resume.
 - **Out of scope:** changing interactive `jflow done` questions or rewriting `jflow.py` beyond
   making room under its 30,000-byte cap.
-- **Budget:** 2 runs, one in `j-skills` and one in `conductor`
+- **Budget:** 2 runs. The `j-skills` run shipped on 2026-11-24: `jflow.py next --json` has a typed
+  `wait_point`, and an unattended `done` writes `## Proposed edits` and stops until `Yes: edits`.
+  The `conductor` run is left: `conductor.py` reads `wait_point` instead of blocker text, tells
+  `done` it runs unattended, and exits 2 at `edits`.
 - **Run:** jflow · j-skills
 - **After:** none
-- **Open for spec:** should `jflow done` write proposed edits under `## Proposed edits` in
-  `notes.md` with `wait_point: "edits"` and `Yes: edits`, alongside emitting a typed `wait_point`
-  field in `jflow.py next --json` for `conductor.py`?
 
 ### delete-workflow · delete workflow and the scripts only it uses
 

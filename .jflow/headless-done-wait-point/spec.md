@@ -1,5 +1,5 @@
 # headless-done-wait-point
-Status: ready
+Status: done
 Base: 0fcb2e5
 Serves: none
 

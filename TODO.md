@@ -3,8 +3,7 @@
 Archived items: see TODO_ARCHIVE.md (grep it).
 
 ## jflow
-- Guardrail: structure — emit a typed `wait_point` field (`"approach"`, `"gate"`, `"done"`, or `null`) in `jflow.py next --json` so drivers stop scraping blocker prose · must fail on 4a7487c (make room under `jflow.py`'s 30,000-byte cap first; promoted to `ROADMAP.md` under `headless-done-wait-point`)
-- Headless done wait point — `jflow done` writes proposed `PRODUCT.md`, `DESIGN.md`, or `drive.py` verb edits under `## Proposed edits` in `notes.md` and stops; `jflow.py next` returns `wait_point: "edits"` until `Yes: edits` is committed (promoted to `ROADMAP.md` under `headless-done-wait-point`; 3 of 3 conductor runs hit exit 1 at done: `hq-py39`, `jflow-issue-pr-mode`, and a private-repo run on 2026-11-24)
+- Re-spec gap in `## Proposed edits` — after a mid-run re-spec, a proposal deleted in one commit and reposted unchanged in a later one, or trimmed with its stale yes removed, skips its `edits` stop. Fix: treat the proposal as new when any commit to `notes.md` since the re-spec changed its `- ` lines, read with `git log`. Make room under `jflow.py`'s 30,000-byte cap first: it is at 29,991 (headless-done-wait-point, accepted at check-4)
 - GitHub-mode `validate` errors name the temporary `.jflow/#42/spec.md:N` path; name the spec or receipt comment instead (jflow-issue-pr-mode)
 - `.jflow/` mode re-spec gap — a `spec.md` change after a passing check or after done routes no new check, and `summary` ends at the first done; GitHub mode fixed both in `jflow_gh.py` (jflow-issue-pr-mode)
 - Unpushed commits on Human checks stop — `jflow.py next` adds an `Unpushed: N commits ahead of <upstream>` detail line when `@{u}..HEAD` has commits (hq-py39 retro)
@@ -16,5 +15,5 @@ Archived items: see TODO_ARCHIVE.md (grep it).
 - `jflow-config`: Unsupported flags or invalid `--session` values can echo key-like text in stderr; nothing is recorded. The human kept this existing behavior on 2026-11-08.
 - `receipt-evidence-cap`: Measure the next three trial runs. Every Evidence cell and defect `Evidence:` part must be at most 240 characters, and each receipt under 3 KB. A work-repo run done 2026-11-17: every Evidence cell at most 240 characters; all 15 receipts over 3 KB, 3.0 to 7.7 KB, mostly Maybes.
 - `check-scope`: After five runs, measure row 1 with `jflow.py summary --json` and receipt sizes: median checks a run under 3.5, Maybes under 1.7 a check, no check rerun without new input, every receipt under 3 KB. Also judge whether check still catches real defects. Accepted at done on 2026-11-17: a numbered list under a bare `Checks allowed:` heading can override the cap line above it.
-- `check-reach`: After five runs, judge whether edge-only stops replaced fix rounds without hiding a real bug. `jflow.py` is at 29,987 of its 30,000 bytes, so the next change to it must make room.
+- `check-reach`: After five runs, judge whether edge-only stops replaced fix rounds without hiding a real bug. `jflow.py` is at 29,991 of its 30,000 bytes, so the next change to it must make room.
 - `jflow-validate`: Revisit non-template BROKEN citation lists and leading-zero defect IDs if needed; check-3 records the limits kept at done on 2026-11-10.

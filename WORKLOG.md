@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-24 · headless-done-wait-point · jflow next types its wait points and stops at an `edits` point for an unattended done · claude-opus-5-5
+- `next --json` adds `wait_point` (`approach`, `gate`, `done`, `edits`) only at a wait point, so conductor can stop reading blocker text. An unattended `done` writes `## Proposed edits` to `notes.md` and stops until `Yes: edits`; GitHub mode posts it as a note. Three re-spec edge cases are accepted and listed in `TODO.md`.
+- Commits: f0b82e2 489ea32 cfafa0a 6cb8938 d62ff93
+- jflow: 6 sessions · 3 fix rounds · 6 rows · 3 accepted · check 9 defects · net code +5 · tests +86 · docs +9
+
 ## 2026-11-23 · jflow-issue-pr-mode · jflow runs on pull-request-gated GitHub repos through issue and pull request comments · claude-opus-5-5
 - `#42`, an issue URL, or `git config jflow.mode github` keeps the run in comments instead of `.jflow/` files. The spec and Accepted lines go on the issue; notes, receipts and records go on a draft pull request. The new `jflow_gh.py` rebuilds the comments as a temporary git history, so `jflow.py` makes the same decisions as in `.jflow/` mode. Each step reference ends with a short section on the mode.
 - Commits: b92c671 de709e7 6827ad7 86bd967 693c986
@@ -79,13 +84,3 @@ oldest when appending would exceed that.
 - Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
 - Skills: workflow@11e805e2c25a, checkup@ef4000aec266
 - Why: corrections the human gives are counted across sessions, so a repeat becomes visible without anyone running `retro` on each one.
-
-## 2026-11-01 · retire-on-no-signal · skill trials end in keep, insurance or a removal candidate, counted from save tags · GPT-6.1 Sol
-- `skill-trials.py` counts `[saved→skill]` tags per `SKILL-IMPACT.md` row and judges finished trials by saves and `Run:` numbers; `--sweep` labelled all 37 open rows, and the human confirmed each (no removal).
-- Four review cycles found 1 P0 (archive rows with `\|` crashed the report) and 5 P1/P2 defects, mostly tests that missed one side of a guard; all fixed, 1 P3 group stays in `review.md`.
-- Commits: 3aeab1c 1ad5a7d dcaedc4 953e4ac a8b72da 25a4739 2dc5056
-- Review: ship as-is (cycle 4, 0 open) @ d1c3141
-- Run: 3 tickets · 7 sessions · 4 review cycles · 1 deviations · 0 findings overturned · net code +112 · tests +219
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@ef6309467514, checkup@1d1808312d83
-- Why: a skill rule now earns its place on a recorded save, and "no signal" no longer means keep.
