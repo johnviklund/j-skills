@@ -269,6 +269,9 @@ class GitHubMode(unittest.TestCase):
         "done": [("spec", dict(human="- try it on a phone")), ("pr",), ("code",),
                  ("receipt", dict(maybes="- slow on a cold cache")), ("ask", "answer these before done"),
                  ("notes", 'Yes: done · "fine" · 2026-11-23'), ("step", "done")],
+        "edits": [("spec", {}), ("pr",), ("code",), ("receipt", {}),
+                  ("notes", "## Proposed edits\n- PRODUCT.md: mark the outcome reached"), ("ask", "product.md: mark"),
+                  ("notes", 'Yes: edits · "yes" · 2026-11-24'), ("step", "done")],
         "cap": [("spec", {}), ("pr",)] + [("code",), ("receipt", dict(v1="BROKEN"))] * 3
                + [("ask", "3 checks used of 3"), ("notes", "Checks allowed: 4"), ("step", "fix")],
         "rerun": [("spec", {}), ("pr",), ("code",), ("receipt", dict(v1="BROKEN")), ("code",),
@@ -324,7 +327,7 @@ class GitHubMode(unittest.TestCase):
                     self.assertIn(arg[0], (n["blocker"] or "").lower(), (story, github))
                 else:
                     self.assertEqual(n["step"], arg[0], (story, github, n))
-                seen.append((n["step"], n["n"], n["role"], bool(n["blocker"]), n["session"]))
+                seen.append((n["step"], n["n"], n["role"], bool(n["blocker"]), n["session"], n.get("wait_point")))
         return seen
 
     def test_wait_points_cap_edge_and_accepted_match_jflow_mode(self):

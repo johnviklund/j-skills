@@ -382,6 +382,66 @@ class RunRecord(unittest.TestCase):
                 self.assertTrue(ask.endswith("\n\nReply A or B."), ask)
                 self.assertNotIn("```", ask)
 
+    def test_next_types_wait_points_and_edits_waits_for_its_own_yes(self):
+        spec, notes, start = self.run_dir / "spec.md", self.run_dir / "notes.md", self.git("rev-parse", "HEAD")
+        edits = "## Proposed edits\n- PRODUCT.md: mark Prove the run reached\n- TODO.md: drop the demo line\n"
+        ydone, yedits = 'Yes: done · "ok" · 2026-11-24\n', 'Yes: edits · "yes" · 2026-11-24\n'
+        human = ("## Human checks\n- none", "## Human checks\n- try it on the laptop")
+        edge = "- 1. [edge] app.py: odd -> y -> z. Evidence: run"
+        cases = [  # spec edit, receipt (row 1, defects) or None, notes: expected step and wait_point
+            (("- Gate: none.", "- Gate: none.\n- Ask first: schema."), None, "## Approach\n- v1\n", "human", "approach"),
+            (("- Gate: none.", "- Gate: publish."), ("WAITING", "- none"), "", "human", "gate"),
+            (human, ("PROVED", "- none"), edits, "human", "done"),
+            (human, ("PROVED", "- none"), edits + ydone, "human", "edits"),
+            (human, ("PROVED", "- none"), edits + yedits, "human", "done"),
+            (human, ("PROVED", "- none"), edits + ydone + yedits, "done", None),
+            (None, ("PROVED", "- none"), edits, "human", "edits"),
+            (None, ("PROVED", "- none"), edits + yedits, "done", None),
+            (None, ("BROKEN", "- none"), "Checks allowed: 1\n", "human", None),
+            (None, ("BLOCKED", "- none"), "", "human", None),
+            (None, ("PROVED", edge), "", "human", None),
+            (None, None, "", "build", None)]
+        for edit, receipt, text, step, wp in cases:
+            self.git("reset", "-q", "--hard", start)
+            (self.run_dir / "receipts").mkdir(exist_ok=True)
+            if edit:
+                spec.write_text(spec.read_text().replace(*edit))
+            notes.write_text(text)
+            self.commit("state")
+            if receipt:
+                self.state(*receipt, code=True)
+            n = self.next()
+            self.assertEqual((n["step"], n.get("wait_point")), (step, wp), (edit, receipt, text))
+            self.assertEqual("wait_point" in n, bool(wp))
+            if wp == "edits":
+                self.assertIn("- PRODUCT.md: mark Prove the run reached\n- TODO.md: drop the demo line", n["blocker"])
+                self.assertEqual((n["role"], n["session"]), ("human", None))
+            if step == "done":
+                self.assertEqual(n["session"], "builder")
+        # A mid-run re-spec voids earlier Proposed edits and Yes: edits: they neither stop nor clear.
+        self.git("reset", "-q", "--hard", start)
+        notes.write_text(edits + yedits)
+        self.commit("edits approved")
+        self.state("PROVED", code=True)
+        self.assertEqual(self.next()["step"], "done")
+        spec.write_text(spec.read_text().replace("1. Prove the run.", "1. Prove the revised run."))
+        self.commit("respec")
+        (self.repo / "app.py").write_text("a = 30\n")
+        self.commit("build v2")
+        self.receipt(2, "PROVED", "- none")
+        self.commit("check-2")
+        self.assertNotIn("wait_point", n := self.next())
+        self.assertEqual(n["step"], "done")
+        with notes.open("a") as f:
+            f.write("## Proposed edits\n- DESIGN.md: new rule\n")
+        self.commit("new edits")
+        self.assertEqual(self.next().get("wait_point"), "edits")
+        with notes.open("a") as f:
+            f.write('Yes: edits · "go" · 2026-11-25\n')
+        self.commit("fresh yes")
+        self.assertEqual((n := self.next())["step"], "done")
+        self.assertNotIn("wait_point", n)
+
     def test_next_mid_run_respec_resets_routing_cap_trend_and_approvals(self):
         spec, notes = self.run_dir / "spec.md", self.run_dir / "notes.md"
         spec.write_text(spec.read_text().replace("- Gate: none.", "- Gate: publish.\n- Ask first: schema."))

@@ -318,7 +318,7 @@ def next_step(repo, run, a):
     scoped = [(p, f) for p in all_paths for f in (receipt_fields(p),) if in_scope(p, f)]
     rpaths, receipts = [p for p, _ in scoped], [f for _, f in scoped]
     newest, next_n = (receipts[-1] if receipts else None), len(all_paths) + 1
-    step, blocker, n, session, options, details, late = None, None, None, None, [], [], False
+    step, blocker, n, session, options, details, late, wp = None, None, None, None, [], [], False, None
     fix = f"Fix .jflow/{slug}/receipts/check-%s.md, then print the card."
 
     def constraint(name):
@@ -360,7 +360,7 @@ def next_step(repo, run, a):
             blocker = f"approve the approach in notes.md for Ask first: {ask}"
             options = [("It fits", "read ## Approach in notes.md first; I record your yes and build."),
                        ("Change it", "say what to change; I post a new approach.")]
-            why = "build posted its approach"
+            why, wp = "build posted its approach", "approach"
         else:
             step, why = "build", "no code commit since Base"
             session = "builder" if ask and yes("approach") else None
@@ -431,7 +431,7 @@ def next_step(repo, run, a):
                 blocker = f"run the live gate, {constraint('Gate')}, or not"
                 options = [("Run it", "I record your yes and run the live steps."),
                            ("Not yet", "nothing changes; the WAITING rows stay unproved.")]
-                why = f"{name} leaves only WAITING rows before the gate"
+                why, wp = f"{name} leaves only WAITING rows before the gate", "gate"
             else:
                 step, why = "live", f"{name} has WAITING rows and notes.md has no Live done: line"
         elif any(v == "WAITING" for _, v in rows):
@@ -443,7 +443,12 @@ def next_step(repo, run, a):
                 blocker, details = "answer these before done", waits
                 options = [("They hold", "do each one first; I record your yes and run done."),
                            ("One fails", "say what failed; I fix it.")]
-                why = f"{name} has every row proved and waits on the human"
+                why, wp = f"{name} has every row proved and waits on the human", "done"
+            elif re.search(r"^## Proposed edits", rnotes, re.M) and not yes("edits"):
+                blocker, details = "approve the edits done proposed in notes.md", [l[2:] for l in section(rnotes, "Proposed edits")]
+                options = [("Make them", "I record your yes and run done, which makes them."),
+                           ("Change them", "say what to change; I rewrite ## Proposed edits.")]
+                why, wp = f"{name} has every row proved and done proposed edits", "edits"
             else:
                 step, why = "done", f"{name} has every row proved"
     if counted >= allowed and (step == "fix" or step == "check" and late):
@@ -468,7 +473,7 @@ def next_step(repo, run, a):
            "done": f"jflow done {slug}"}.get(step)
     return {"schema_version": 1, "slug": slug, "step": step, "n": n, "role": "human" if blocker else meta.get("role"),
             "model": {k: seat[k] for k in ("model", "vendor", "effort")} if seat else None,
-            "command": cmd, "session": session or meta.get("session"), "blocker": blocker, "why": why}
+            "command": cmd, "session": session or meta.get("session"), "blocker": blocker, "why": why, **({"wait_point": wp} if wp else {})}
 
 
 def card(n):
