@@ -327,13 +327,10 @@ def next_step(repo, run, a):
         v = v.group(1) if v else ""
         return "" if v.lower() in ("", "none", "nothing") else v
 
-    pn = git(repo, "show", f"{spec_c}^:{notes_rel}", check=False) if spec_c else None
-    if pn and not pn.returncode:
-        nl = notes.splitlines()
-        rnotes = "\n".join(l for tag, _, _, j1, j2 in difflib.SequenceMatcher(
-            None, pn.stdout.splitlines(), nl).get_opcodes() if tag in ("insert", "replace") for l in nl[j1:j2])
-    else:
-        rnotes = notes
+    pn, nl = git(repo, "show", f"{spec_c}^:{notes_rel}", check=False) if spec_c else None, notes.splitlines()
+    new = [j for tag, _, _, j1, j2 in difflib.SequenceMatcher(None, pn.stdout.splitlines(), nl).get_opcodes()
+           if tag[0] in "ir" for j in range(j1, j2)] if pn and not pn.returncode else range(len(nl))
+    rnotes = "\n".join(nl[j] for j in new)
 
     def yes(pt):
         return re.search(rf"^Yes: {pt}\b", rnotes, re.M)
@@ -440,15 +437,15 @@ def next_step(repo, run, a):
         else:
             waits = [f"{h[:-1]}: {l[2:]}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")), ("Maybes", section(text, "Maybes"))) for l in ls]
-            (_, h, pe), (*_, op) = (("\n" + t).rpartition("\n## Proposed edits\n") for t in (notes, pn.stdout if pn else ""))
-            ed = [[l[2:] for l in t.split("\n## ")[0].splitlines() if l[:2] == "- "] for t in (pe, op)]
+            k = max([j for j, l in enumerate(nl) if l == "## Proposed edits"] or [len(nl)])
+            bs = [j for j in range(k + 1, len(nl)) if nl[j][:2] == "- " and not any(l[:3] == "## " for l in nl[k + 1:j])]
             if waits and not yes("done"):
                 blocker, details = "answer these before done", waits
                 options = [("They hold", "do each one first; I record your yes and run done."),
                            ("One fails", "say what failed; I fix it.")]
                 why, wp = f"{name} has every row proved and waits on the human", "done"
-            elif h and ed[0] != ed[1] and not ("\nYes: edits" in pe and yes("edits")) and (details := ed[0]):
-                blocker = "approve the proposed edits"
+            elif bs and {k, *bs} & {*new} and not any(nl[j][:10] == "Yes: edits" for j in new if j > k):
+                blocker, details = "approve the proposed edits", [nl[j][2:] for j in bs]
                 options = [("Make them", "I record your yes; done makes them."),
                            ("Change them", "say what to change; I rewrite them.")]
                 why, wp = f"{name}: done proposed edits", "edits"

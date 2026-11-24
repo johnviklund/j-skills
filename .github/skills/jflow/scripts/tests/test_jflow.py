@@ -437,6 +437,12 @@ class RunRecord(unittest.TestCase):
             f.write(ydone)
         self.commit("yes done after respec")
         self.assertEqual(self.next()["step"], "done")
+        # The same edits posted again in a fresh section need a fresh yes.
+        with notes.open("a") as f:
+            f.write("\n" + edits)
+        self.commit("repost")
+        self.assertEqual(self.next().get("wait_point"), "edits")
+        self.git("reset", "-q", "--hard", "HEAD^")
         # An old proposal line copied into another section is no new proposal.
         with notes.open("a") as f:
             f.write("\n## Deferred\n- PRODUCT.md: mark Prove the run reached\n")
