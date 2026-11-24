@@ -49,7 +49,12 @@ def worklogs(repos):
             cycles = re.search(r"(\d+) review cycles", block)
             deviations = re.search(r"(\d+) deviations", block)
             skills = re.search(r"(?m)^- Skills: (.+)", block)
-            if date and cycles and deviations and skills:
+            # A jflow done entry: score fix rounds plus check defects; it ran jflow.
+            run = re.search(r"(?m)^- jflow: .*?(\d+) fix rounds .*?check (\d+) defects", block)
+            if date and run:
+                names = re.findall(r"([\w.-]+)@", skills[1]) if skills else ["jflow"]
+                entries.append((date[0], names, int(run[1]) + int(run[2])))
+            elif date and cycles and deviations and skills:
                 names = re.findall(r"([\w.-]+)@", skills[1])
                 entries.append((date[0], names, int(cycles[1]) + int(deviations[1])))
     return sorted(entries, key=lambda entry: entry[0])

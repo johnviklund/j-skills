@@ -22,9 +22,10 @@ change does not touch. The **scope gate** below is what makes skipping them safe
 | `design check <slug>` | 2 · fresh-eyes seat, fresh session | reads the screenshots only, reports drift, fixes what the human picks |
 
 Models: the design seat is jflow's build seat at effort high, from `python3 <jflow skill
-folder>/scripts/jflow.py seat build`. Fresh eyes is the other vendor, OpenAI · GPT-6.1 Terra ·
-medium (picker ID `gpt-6.1-terra`), chosen for its visual reasoning at about a tenth of the
-price; when that model is unavailable, use `jflow.py seat check`.
+folder>/scripts/jflow.py seat build`. Fresh eyes is always the other vendor. When the design seat is not
+OpenAI, it is OpenAI · GPT-6.1 Terra · medium (picker ID `gpt-6.1-terra`), chosen for its visual
+reasoning at about a tenth of the price. When the design seat is OpenAI, or Terra is unavailable,
+use `jflow.py seat check`, which jflow keeps on a vendor other than the build seat's.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the
 first message. Questions use jflow's shape: one decision each, lettered options, the

@@ -80,6 +80,15 @@ class SkillTrialsTests(unittest.TestCase):
                            f"- Skills: {skill}@abc\n" for i in range(count))
         (repo or self.a).joinpath("WORKLOG.md").write_text("\n".join(reversed(entries)))
 
+    def test_jflow_worklog_entries_judge_trials(self):
+        entries = [f"## {date} · run-{i} · shipped · model\n- Commits: abc\n- jflow: 4 sessions · "
+                   f"{rounds} fix rounds · 5 rows · 0 accepted · check {defects} defects · net code +1\n"
+                   for date, rounds, defects in [("2026-10-31", 2, 2), ("2026-11-02", 1, 0)]
+                   for i in range(3)]
+        self.a.joinpath("WORKLOG.md").write_text("\n".join(entries))
+        self.rows(self.row())
+        self.assertIn("numbers better (before 4.0 → after 1.0)", self.scan()[0])
+
     def test_finished_trial_verdicts(self):
         for score, save, source, expected in [
             (2, False, "run", "✅ 2026-11-01 jflow · push guard · trial complete · kept · numbers better (before 4.0 → after 2.0)"),

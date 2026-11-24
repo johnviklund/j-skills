@@ -36,6 +36,20 @@
 - **memory.remember.** `references/workflow-runs.md` became `references/runs.md`, about `.jflow/`
   runs.
 
+## Fix after check-1
+
+- **Defect 1.** `skill-trials.py` now reads `jflow:` worklog lines. The score is fix rounds plus
+  check defects, and the run counts for `jflow`, or for the skills on a `- Skills:` line when
+  one exists. Older entries keep their old score. Mixing the two scores in one before/after
+  window is possible only for a row whose skills both kinds name. One test, which fails without
+  the fix. On this repo's worklog, 13 entries are read, and the jflow ones were dropped before.
+  A `jflow:` line kept in `notes.md` because a repo has no worklog is still not read: it has no
+  date of its own.
+- **Defect 2.** Design's fresh eyes always uses the other vendor. When the design seat is OpenAI,
+  it uses `jflow.py seat check`, which already moves to another vendor. Checked with an OpenAI
+  build override: `seat check` printed `claude-opus-5-5`, vendor `anthropic`.
+- **Row 1** still waits on the human: the spec conflict with row 4 that code cannot fix.
+
 ## Open
 
 - Row 1 against row 4: see above. The human decides.
