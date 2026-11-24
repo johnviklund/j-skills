@@ -50,6 +50,14 @@
   build override: `seat check` printed `claude-opus-5-5`, vendor `anthropic`.
 - **Row 1** still waits on the human: the spec conflict with row 4 that code cannot fix.
 
+## Fix after check-2
+
+- **Defect 1.** `jflow.py` writes `check clean` when a run had no defects, and the trials parser
+  dropped those lines. It now reads `clean` as 0 defects. The existing jflow worklog test uses a
+  clean entry for its after window, so it fails without the fix. On this repo's worklog, 14
+  entries are read, up from 13.
+- **Row 1** still waits on the human.
+
 ## Open
 
 - Row 1 against row 4: see above. The human decides.

@@ -82,8 +82,9 @@ class SkillTrialsTests(unittest.TestCase):
 
     def test_jflow_worklog_entries_judge_trials(self):
         entries = [f"## {date} · run-{i} · shipped · model\n- Commits: abc\n- jflow: 4 sessions · "
-                   f"{rounds} fix rounds · 5 rows · 0 accepted · check {defects} defects · net code +1\n"
-                   for date, rounds, defects in [("2026-10-31", 2, 2), ("2026-11-02", 1, 0)]
+                   f"{rounds} fix rounds · 5 rows · 0 accepted · {check} · net code +1\n"
+                   for date, rounds, check in [("2026-10-31", 2, "check 2 defects"),
+                                               ("2026-11-02", 1, "check clean")]
                    for i in range(3)]
         self.a.joinpath("WORKLOG.md").write_text("\n".join(entries))
         self.rows(self.row())
