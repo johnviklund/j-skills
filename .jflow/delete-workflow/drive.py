@@ -179,9 +179,19 @@ def attack_trials():
         entries = trials['worklogs']([folder])
         report = run(sys.executable, str(TRIALS), '--impact', str(impact), str(folder)).stdout
         sweep = run(sys.executable, str(TRIALS), '--sweep', '--impact', str(impact), str(folder)).stdout
-        assert len(entries) == 1 and entries[0][0] == '2026-11-09'
-        assert not report and 'numbers unavailable' in sweep
-        print('attack trials: 2 jflow entries -> 1 recognized; check clean dropped; completed trial produces no report')
+        assert entries == [('2026-11-09', ['jflow'], 2),
+                           ('2026-11-11', ['jflow'], 0)], entries
+        assert 'trial complete' in report and 'numbers better (before 2.0 → after 0.0)' in report, report
+        assert 'keep' in sweep and 'numbers better' in sweep, sweep
+        # Clean checks can follow fix rounds; both quantities still count separately.
+        for check, rounds, score in [('clean', 0, 0), ('clean', 2, 2),
+                                     ('0 defects', 0, 0), ('3 defects', 2, 5)]:
+            (folder / 'WORKLOG.md').write_text(
+                '## 2026-11-11 · fixture · shipped fixture · builder\n'
+                f'- jflow: 3 sessions · {rounds} fix rounds · 1 rows · 0 accepted · check {check}'
+                ' · net code +1 · tests +0 · docs +0\n')
+            assert trials['worklogs']([folder]) == [('2026-11-11', ['jflow'], score)]
+        print('attack trials: clean and numeric checks recognized; fix rounds retained; completed trial reports before 2.0 → after 0.0')
 
 
 def attack_design():
