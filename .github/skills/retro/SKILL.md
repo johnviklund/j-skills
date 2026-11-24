@@ -1,7 +1,7 @@
 ---
 name: retro
 description: >
-  Retrospective on one coding session or a workflow or jflow run: finds where the agent lost time or built
+  Retrospective on one coding session or a jflow run: finds where the agent lost time or built
   more than the work needed, and proposes the few environment fixes worth making (at most three),
   each with its measured cost and routed to the file or skill that owns it. Run only on an
   explicit "retro" or "/retro" message, optionally with a run slug or session id; never on casual
@@ -18,8 +18,7 @@ A retro returns **at most three fixes**, often fewer. Every proposed rule is one
 later agent reads, so a retro that proposes a fix for every friction point adds sediment instead
 of removing waste. The human should be able to approve the whole list without weighing each item.
 
-**Invocation:** `retro` (the current session) · `retro <slug>` (a `.workflow/<slug>/` or
-`.jflow/<slug>/` run) · `retro <session id>`.
+**Invocation:** `retro` (the current session) · `retro <slug>` (a `.jflow/<slug>/` run) · `retro <session id>`.
 
 ## Steps
 
@@ -32,10 +31,7 @@ of removing waste. The human should be able to approve the whole list without we
    a retried or failed command, a search that took several tries, a re-read, an edit to the wrong
    file, a human correction, a deviation, a patch cycle, an overturned finding, a ticket or file
    later cut.
-   - **Run slug:** `.workflow/<slug>/` — `plan.md` (`## Deviations`, `Writer:` lines), `review.md`
-     (cycles, `## Resolved`, findings marked wrong), `learnings.md`, `wrap.md`; the slug's
-     `WORKLOG.md` entry (`Run:` numbers); then the transcripts for the run's dates and cwd.
-   - **jflow slug:** `.jflow/<slug>/` — `spec.md` (Proof rows), `notes.md` (judgement calls, what
+   - **Run slug:** `.jflow/<slug>/` — `spec.md` (Proof rows), `notes.md` (judgement calls, what
      was left open), `receipts/check-*.md` (each BROKEN row or defect cost a fix round; BLOCKED rows
      and Maybes show what a check could not reach); the slug's `WORKLOG.md` entry or the `jflow:`
      line in `notes.md`; then the transcripts for the run's dates and cwd.
@@ -45,7 +41,7 @@ of removing waste. The human should be able to approve the whole list without we
      turns before reading around them.
    - **Steering in force:** repo `AGENTS.md`/`CLAUDE.md`, the `MEMORY.md` index, the global
      files (`~/.copilot/copilot-instructions.md`, `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`),
-     and the trialing rows of `workflow/SKILL-IMPACT.md`.
+     and the trialing rows of `checkup/SKILL-IMPACT.md`.
 
 3. **Turn friction into candidates.** Done when every friction point is a candidate or marked
    expected (a deliberate failing-test run, a planned human gate). The *Categories* below are a
@@ -74,7 +70,7 @@ of removing waste. The human should be able to approve the whole list without we
 
    Keep the top three by cost × recurrence. Zero is a valid result: report "no fix worth making".
 
-5. **Present** the kept fixes in the workflow's Decisions shape, one numbered item each, then the
+5. **Present** the kept fixes as decisions, one numbered item each, then the
    rest, and stop for the answer. Exact layout:
 
    ```
@@ -96,8 +92,8 @@ of removing waste. The human should be able to approve the whole list without we
 - **Overbuild** — the run built more than its Outcome needed: a ticket, abstraction or file
   that review or the human later cut, a helper with one caller, a wrapper that adds nothing,
   tests far over the ticket's Budget, a design the human had to ask to simplify. The fix is the
-  rule or check that would have stopped it at brainstorm or plan; overbuild still in the code is a
-  `workflow todo Simplify:` line naming what to delete.
+  rule or check that would have stopped it at spec or build; overbuild still in the code is a
+  `TODO.md` line `Simplify:` naming what to delete.
 - **Navigation** — finding the right file took several searches, or a hidden dependency between
   files surprised the agent. Fix: a **navigation pointer** where the agent was when it needed it.
 - **Guardrails** — the agent made a mistake a deterministic check would catch (lint, types, tests,
@@ -116,24 +112,24 @@ of removing waste. The human should be able to approve the whole list without we
 - **No-ops** — a steering line or skill rule that changed no behaviour this session, or cost time
   and saved none. The fix is deleting it; a retro that removes a line is the cheapest kind.
 - **Tool economy** — an expensive call that a narrower one would have answered: whole-file reads
-  of archives, other runs' folders or a whole `PRODUCT.md` (outside the workflow's grounding
-  tiers), verbose command output, a token-hungry custom tool, a slow command rerun on unchanged
+  of archives, other runs' folders or a whole `PRODUCT.md` (beyond what the step's reference
+  asks for), verbose command output, a token-hungry custom tool, a slow command rerun on unchanged
   input.
 - **Information access** — a crucial fact was out of the agent's reach: server logs, a read-only
   query against a third-party service, a doc behind auth.
-- **Skill friction** — a skill's own contract caused the waste: a workflow phase that forced a
+- **Skill friction** — a skill's own contract caused the waste: a jflow step that forced a
   reroute, a clarify gate that missed, a budget that split a run, a memory rule that misrouted.
 
 ## Destinations
 
 | Change | Owner | How |
 |---|---|---|
-| Lesson, judgement-call review rule, memory-page pointer | `memory.remember` | In a live run: `[durable→memory]` lines in its `learnings.md`. Otherwise: hand it the approved items. A repeat bumps the page's occurrences. |
+| Lesson, judgement-call review rule, memory-page pointer | `memory.remember` | Hand it the approved items. A repeat bumps the page's occurrences. |
 | Line added, moved or removed in repo `AGENTS.md` / `README.md` | `memory.remember` | Same routing; it owns canonical-doc edits. |
-| Guardrail (new or rewired check) | `workflow` | `workflow todo Guardrail: <rung> — <the check> · must fail on <sha>` — a check is code and ships through a run. A matching memory page gets `Enforced by: pending — <that line>` via `memory.remember`. |
-| Overbuild still in the code | `workflow` | `workflow todo Simplify: <what to delete or inline> · <evidence>` — behaviour unchanged, tests unchanged. |
-| Reviewer missed a P0/P1 | `workflow` | `[durable→eval] code-review` line in a live run's `learnings.md` (the reviewed run's while it is open); wrap deposits it. |
-| Skill change | `memory.remember` | `[durable→skill]` line: applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. On a machine with no push-able `j-skills` clone it comes back as a skill-edit prompt for the human (`memory.remember` *Scope*); the receipt carries the prompt. |
+| Guardrail (new or rewired check) | `jflow` | A `TODO.md` line `Guardrail: <rung> — <the check> · must fail on <sha>` — a check is code and ships through a jflow run. A matching memory page gets `Enforced by: pending — <that line>` via `memory.remember`. |
+| Overbuild still in the code | `jflow` | A `TODO.md` line `Simplify: <what to delete or inline> · <evidence>` — behaviour unchanged, tests unchanged. |
+| Checker missed a P0/P1 | `evals` | Show the human the miss and its sha; with their yes, add it to the exam set as a `missed` case. |
+| Skill change | `memory.remember` | Applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. On a machine with no push-able `j-skills` clone it comes back as a skill-edit prompt for the human (`memory.remember` *Scope*); the receipt carries the prompt. |
 | Trial evidence | `memory.remember` | Append the run and its for/against line to the trialing `SKILL-IMPACT.md` row. |
 | Global steering file edit | the human | Show the exact diff; global files sit outside every repo. |
 | Workspace hygiene noticed in passing | `checkup` | Name it and recommend `checkup <scope>`. |

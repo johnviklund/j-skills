@@ -6,9 +6,8 @@ description: >
   and how it looks; ROADMAP.md, the ordered steps toward that state; and TODO.md, the scratchpad.
   "bootstrap [PRD]" creates them from a PRD or splits existing long docs into them; "bootstrap
   update CHANGE" changes the north star or the design on purpose. jflow and roadmap read these
-  docs to stay on course. Run only when the message itself starts with "bootstrap". A message that
-  starts with "workflow" belongs to the workflow skill, and a question about bootstrapping an app,
-  framework or project template is not this skill.
+  docs to stay on course. Run only when the message itself starts with "bootstrap". A question about
+  bootstrapping an app, framework or project template is not this skill.
 ---
 
 # bootstrap

@@ -7,7 +7,7 @@ description: >
   map saying how a user reaches each feature and what proves it works. "verify.create"
   generates it and proves it on one feature; "verify.maintain" re-checks every mapped feature
   from source and live, then commits only proven corrections. Run only on an explicit
-  "verify.create" or "verify.maintain" message, or a workflow ticket that names one; never on
+  "verify.create" or "verify.maintain" message, or a jflow spec or TODO line that names one; never on
   casual mentions of verifying, testing or checking a change.
 ---
 
@@ -16,7 +16,7 @@ description: >
 Agents can only close the loop on their own work when they can drive the real app the way a
 user does. This skill gives a repo that ability once, as a **lever** (a tool every later agent
 runs instead of improvising): a project-local skill named `verify-APP` with a control CLI and a
-**feature map**. `workflow` execute and review use it when it exists; `checkup` flags it when it
+**feature map**. `jflow` build and check use it when it exists; `checkup` flags it when it
 goes stale.
 
 Two commands:

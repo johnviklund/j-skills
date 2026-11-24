@@ -151,8 +151,8 @@ What this repo has measured or settled, on top of the reference above:
 - **No external skills.** A j-skill names only j-skills. `checkup` flags any other skill name as a dead reference.
   One exception, chosen by the user on 2026-10-26: `understand`'s video step loads the HyperFrames
   skills for video craft, and says which of their instructions it overrides.
-- **No start dates.** A new check in `check-run.py` applies to every run not yet done, never from a `*_SINCE` date: a run started the day a rule ships silently got the old rule, and it took three exchanges to explain (2026-10-18). A done brief becomes history once committed and clean. Finished runs get header, sha and layout checks only when included with `--all` or named explicitly.
-- **Every change is logged.** A skill change gets a row in `workflow/SKILL-IMPACT.md` and is judged on the runs that follow, not by review alone.
+- **No start dates.** A new check in a skill's script applies to every run not yet done, never from a `*_SINCE` date: a run started the day a rule ships silently got the old rule, and it took three exchanges to explain (2026-10-18). A done run becomes history once committed and clean.
+- **Every change is logged.** A skill change gets a row in `checkup/SKILL-IMPACT.md` and is judged on the runs that follow, not by review alone.
 
 ### Testing a skill
 
@@ -161,7 +161,7 @@ A skill is done when it has been run, not when it reads well. Before shipping a 
 1. **Write the cases.** At least three realistic prompts the skill should handle, worded the way you actually type, plus near-misses that share its words but need something else (for `plain`: "give me the output as plain text"). Keep them in the skill folder as `tests/triggers.tsv`; the format is in the script's header.
 2. **Test the triggers** on every CLI: `python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/SKILL/tests/triggers.tsv`. Done when every case passes on Claude Code, Codex and Copilot.
 3. **Compare against a baseline.** Run a real task with the skill and without it, or against the previous version for a change. The skill earns its place only where the run with it is better.
-4. **Cover the models** the skill runs on, as listed in `workflow/ROUTING.md`: a smaller model may need more guidance, a larger one is slowed by over-explaining. The script's `--model` flag picks one per CLI.
+4. **Cover the models** the skill runs on, as `python3 .github/skills/jflow/scripts/jflow.py seat <step>` prints them for each step, from jflow's `config.json`: a smaller model may need more guidance, a larger one is slowed by over-explaining. The script's `--model` flag picks one per CLI.
 5. **Read the transcripts**, not only the answers: which files the agent opened, in what order, and what it skipped. A file never opened is unneeded or badly pointed at; a file opened every time belongs in `SKILL.md`.
 
 ### Before you ship
@@ -175,4 +175,4 @@ A skill is done when it has been run, not when it reads well. Before shipping a 
 - [ ] Scripts handle their own errors and explain their constants
 - [ ] Trigger test passes on all three CLIs, near-misses included
 - [ ] The run with the skill beats the baseline on at least three prompts
-- [ ] Row added to `workflow/SKILL-IMPACT.md`, skill linked into all three CLIs, and `copilot skill list` shows it
+- [ ] Row added to `checkup/SKILL-IMPACT.md`, skill linked into all three CLIs, and `copilot skill list` shows it

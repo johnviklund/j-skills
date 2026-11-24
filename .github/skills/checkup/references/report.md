@@ -17,7 +17,6 @@ is used here before calling its missing verify link 🔴.
 Each question cites every path its finding rests on. Until answered, the section line says
 "see Question N" with those paths; state the consequence only after the answer.
 
-Use workflow `SKILL.md` §Talking to the human as the source for this default shape.
 Put the ➡️ recommended option first and give every option a reason:
 
 **1. <title>** <question and evidence, at most two sentences>
@@ -26,7 +25,8 @@ Put the ➡️ recommended option first and give every option a reason:
 
 A seat promotion candidate or exam-set pruning is a human decision. Ask it above the cards.
 Its card uses `Model: human · <the one edit>`, `Reset: no` and `Fallback: none`.
-For a promotion, quote the exact new `ROUTING.md` row in the prompt; checkup never applies it.
+For a promotion, quote the exact new seat for `.jflow/config.json` in the prompt; checkup never
+applies it.
 
 ## Action cards
 
@@ -39,14 +39,13 @@ action.
 
 A finding with a stated cost earns a card even when its fix needs a human call.
 Its prompt tells the agent to propose the change and wait for approval.
-For example, `TODO.md` over ~15 KB gets a `workflow todo` card that proposes what to archive.
+For example, `TODO.md` over ~15 KB gets a card that proposes what to move to `TODO_ARCHIVE.md`.
 Say "No action earns a card" only when no ⚠️/🔴 finding names a cost.
 
 Group warnings that share one fix into one card and one prompt. For example, leftover
-`## Execution state` blocks, tracked `.DS_Store` and loose files in finished runs get one
-"tidy finished runs" card. Prioritize by the cost of leaving the finding; stop at three cards.
+`drive.py` files in done runs and a tracked `.DS_Store` get one "tidy finished runs" card. Prioritize by the cost of leaving the finding; stop at three cards.
 
-Default card shape, adapted from workflow `SKILL.md` §The closing card:
+Default card shape:
 
 **▶ Next: <action>**
 
@@ -67,22 +66,19 @@ to "the findings above". For finished-run cleanup, name the runs and route unsav
 
 ## Skill to seat
 
-Run `python3 <workflow>/scripts/next-step.py --key <key>` and copy its Model and Fallback lines
-unchanged. `<workflow>` is the sibling workflow skill's absolute folder. The script reads its
-`ROUTING.md`, including trial models and explicit fallback efforts; an error stops the action
-card until resolved. This table selects the key:
+Run `python3 <jflow>/scripts/jflow.py seat <step>` from the repo and copy its model, effort and
+fallback unchanged. `<jflow>` is the installed jflow skill's absolute folder. The script merges
+jflow's `config.json` with the repo's `.jflow/config.json`; an error stops the action card until
+resolved. This table selects the step:
 
-| Skill or command | Key |
+| Skill or command | Step |
 |---|---|
-| `memory.*`, `workflow improve`, `workflow park` | `brainstorm` |
-| `evals.run reviewer` | `review` |
-| `verify.maintain`, `verify.create` | `execute:logic` |
-| Other workflow commands except execute | The command, such as `todo`, `wrap`, `plan`, `review` or `realign` |
-| `workflow execute` | Use the run's JSON `key`, including the patch severity override |
+| `memory.*`, `roadmap`, `bootstrap`, a `TODO.md` edit | `spec` |
+| `evals.run reviewer` | `check` |
+| `verify.maintain`, `verify.create`, any code change | `build` |
+| A jflow run | Its next step: `jflow.py next <slug> --json` gives the model and any `blocker` |
 
-For execute, resolve the run per workflow `references/worktrees.md`, then run
-`next-step.py <slug> --repo <checkout> --json` to read its key and blocker.
-Human-only decisions use the human card rule above. A blocked run uses its `blocker.action`.
+Human-only decisions use the human card rule above. A blocked run uses its `blocker`.
 Follow the configured fallback chain when a model is unavailable and name the switch.
 
 ## Safe-fix line

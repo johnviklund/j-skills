@@ -24,7 +24,7 @@ person, skip both modes, and return to that skill.
 
 1. **Ground.** Done when you can name the repo, the task and what just happened. Use the
    conversation first. In a fresh session, read `git status`, `git log --oneline -5` and the
-   newest `.workflow/<slug>/` artifact when one exists.
+   newest `.jflow/<slug>/` run's `spec.md` and `notes.md` when one exists.
 2. **Write the answer** in this order:
    - **Where we are:** one sentence with the repo, the task and the last step.
    - **The short answer:** two or three sentences that stand alone.

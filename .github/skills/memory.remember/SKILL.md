@@ -10,8 +10,7 @@ description: >
   SKILL-IMPACT.md and trialed); DESIGN.md is refined in place when present.
   Use when the user says "remember this", "save this for later", "update
   memory", "curate learnings", or asks to record a new workflow, repo rule,
-  design decision, or important lesson — including at the end of a
-  brainstorm/plan/execute/review workflow pass.
+  design decision, or important lesson — including at the end of a jflow run.
 ---
 
 # memory.remember
@@ -84,7 +83,7 @@ something. The count is what makes promotion mechanical — so it must be honest
   the same run three times — mid-run, at wrap, after an interrupted wrap — leaves `Occurrences`
   exactly where one routing left it. `Occurrences` always equals the number of distinct entries.
 - **Routed lines are marked, then skipped.** After routing a tagged line in
-  `.workflow/<slug>/learnings.md`, append ` [routed → <destination> <YYYY-MM-DD>]` to that line in
+  `.jflow/<slug>/notes.md`, append ` [routed → <destination> <YYYY-MM-DD>]` to that line in
   place; a line already carrying the mark is skipped on every later pass. The mark is the routing
   receipt and survives resets because it lives in the tracked run folder.
 - **A promotion is applied once.** Before promoting at `Occurrences: 3`, check the page for
@@ -112,8 +111,8 @@ prose.
      additions. Same command locally and in CI.
   4. **A test** of the behaviour — one that would fail if the code returned nothing.
 
-  Write `workflow todo Guardrail: <rung> — <the check> · must fail on <Evidence sha> · memory/<slug>.md`
-  and set `Enforced by: pending — <that TODO line>`. The ticket proves the check goes red on the
+  Add a `TODO.md` line `Guardrail: <rung> — <the check> · must fail on <Evidence sha> · memory/<slug>.md`
+  and set `Enforced by: pending — <that TODO line>`. The jflow run that builds it proves the check goes red on the
   real past mistake and green on HEAD; a check never seen failing proves nothing. When that run
   routes its learnings, set `Enforced by:` to the check and `Status: retired`.
 - **Judgement** — no tool can decide it (cross-file consistency, naming fit, product tone). Set
@@ -153,7 +152,7 @@ When the user invokes `/remember`:
    - Read `MEMORY.md` (the index) and `AGENTS.md` in the current repo; open only the `memory/` pages whose index line plausibly matches a candidate.
    - Read the `name` + `description` frontmatter of every skill under `.github/skills/*/SKILL.md` (repo-local) and the shared `j-skills` repo's `.github/skills/*/SKILL.md` — just the frontmatter, not the full body — so you know what already exists before proposing a new skill or a new bullet in one.
 
-   - Check whether the repo has a `DESIGN.md` and, if this session was a `workflow` run, which `.workflow/<slug>/` folder it was (see step 3).
+   - Check whether the repo has a `DESIGN.md` and, if this session was a jflow run, which `.jflow/<slug>/` folder it was (see step 3).
    - Read recent git history: `git log --oneline -20`.
    - Read `README.md` only if the learning changes operator-facing setup or features.
    - Read `MEMORY_ARCHIVE.md` only when needed to check likely duplicates, superseded context, or archive destinations.
@@ -164,7 +163,7 @@ When the user invokes `/remember`:
    - **`DESIGN.md`** (only if the repo has one): durable UI/design-system decisions. Refine the relevant section in place — it is a living doc, not an append-only log. If a change would contradict or majorly restructure an existing section, flag it instead of overwriting.
    - If the right owner already contains the lesson, update that owner instead of copying the same prose into active memory.
 
-3. If this session touched CE artifacts or has a workflow run folder, read [CE sessions and workflow runs](references/workflow-runs.md).
+3. If this session touched CE artifacts or has a jflow run folder, read [CE sessions and jflow runs](references/runs.md).
 
 4. **Extract and reconcile in one pass**
    - Produce candidate pages in the page shape above.
@@ -197,7 +196,7 @@ When the user invokes `/remember`:
      - `DESIGN.md` for any refined design-system section, when the repo has one
    - Also update the shared `j-skills` repo when the change affects a shared skill or another cross-repo convention.
 
-7. When finishing a workflow pass, follow the [workflow wrap-up](references/workflow-runs.md).
+7. When finishing a jflow run, follow the [run wrap-up](references/runs.md).
 
 ## What to Save
 
@@ -252,6 +251,6 @@ Everything else routes to its owner in the same pass (do not stage it in memory)
 - If nothing durable was learned, say so instead of forcing an update.
 - Do not put operational rules in `SOUL.md`; keep identity there and operations in `AGENTS.md`.
 - Do not treat memory as a changelog; write only the durable part that should survive. The
-  session-level "what was built/changed" log is `WORKLOG.md` (owned by the `workflow` skill), not memory.
-- Never delete, empty, or rename anything under `.workflow/` or `.jflow/` — run folders are the repo's history; the `workflow` skill's wrap step archives `.workflow/` runs.
+  session-level "what was built/changed" log is `WORKLOG.md` (written by `jflow done`), not memory.
+- Never delete, empty, or rename anything under `.jflow/` — run folders are the repo's history.
 - When a shared skill itself changes (this one, `memory.compact`, or any other skill in `j-skills`), update that skill's own docs as part of the same remember pass.

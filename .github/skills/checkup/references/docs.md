@@ -17,7 +17,7 @@
 - **Verify skill.** When the repo has `.agents/skills/verify-*/`: a missing or dangling
   `.claude/skills/verify-*` symlink is 🔴 (Claude Code cannot see the skill); a
   `features/README.md` without a `Last maintained: DATE @ SHA` line is ⚠️. Count commits since
-  that sha outside `.workflow/` and `*.md` (`git log --oneline SHA..HEAD -- . ':(exclude).workflow'
+  that sha outside `.jflow/` and `*.md` (`git log --oneline SHA..HEAD -- . ':(exclude).jflow'
   ':(exclude)*.md' | wc -l`): a stamp older than ~30 days with 20 or more such commits is ⚠️
   "feature map may have drifted -- `verify.maintain`". A repo with a user surface (UI, CLI, API)
   and no verify skill is ⚠️ "no scripted way to drive the app -- `verify.create`".

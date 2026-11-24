@@ -70,31 +70,32 @@ Read each selected section before running its checks:
 Only these may be applied during a checkup, and only after the user approves each:
 
 - Create a missing or repair a broken `~/.codex/skills/<name>` symlink for a repo-local skill.
-- Install missing workflow hooks with `python3 <workflow skill folder>/scripts/hooks.py install`; foreign hooks and `core.hooksPath` stay unchanged.
+- Install or upgrade the pre-push hook with `python3 <jflow skill folder>/scripts/hooks.py install`; foreign hooks and `core.hooksPath` stay unchanged.
 - Remove a tracked `.DS_Store` (and add it to `.gitignore` if missing).
 - Add obviously-missing `.gitignore` entries (`.DS_Store`, `.env`, venvs, build output).
 - Delete a leftover `.proposed.md` **only** after confirming its content was already accepted/routed.
 
 Everything else is **propose-only or delegate**: renaming a colliding skill, editing any canonical
 doc, compacting memory (`memory.compact`), routing learnings (`memory.remember`), deleting
-`.workflow` scratch (route first), editing `ROUTING.md`, pruning the reviewer exam set, running the
+a run folder (route first), editing a jflow seat, pruning the reviewer exam set, running the
 reviewer exam (`evals.run reviewer`), or removing anything that could carry unsaved value.
 
 ## Relationship to the other skills
 
 - `memory.compact` — owns the actual MEMORY.md compaction proposal; checkup only *detects the need*.
 - `memory.remember` — owns routing learnings; checkup only flags un-routed leftovers.
-- `workflow` — owns the dev loop, writes the `Run:`/`Seats:` evidence at wrap, and owns
-  `ROUTING.md`; checkup reads the evidence, flags leftover `.workflow` scratch and unpushed work,
-  and recommends routing edits it never applies.
+- `jflow` — owns the dev loop, writes the `jflow:` evidence line at done, and owns the seats in
+  its `config.json`; checkup reads the evidence, flags stalled `.jflow` runs and unpushed work, and
+  recommends seat edits it never applies. checkup also owns `SKILL-IMPACT.md`, the log of skill
+  changes and their trials.
 - `evals.run reviewer` — owns the one exam (reviewer recall and false alarms on ≤10 cases); checkup only audits
   that set and flags an unchecked reviewer.
 - `retro` — owns the per-session look at friction (what one run or session cost); checkup owns the
   standing state of the workspace. A retro hands hygiene it notices to `checkup`.
 - `verify` — builds (`verify.create`) and maintains (`verify.maintain`) the repo's verify skill and
   feature map; checkup only flags a missing skill, a broken symlink or a stale `Last maintained` stamp.
-- `understand` — writes human-facing explainers (`.workflow/<slug>/understand/`,
-  `docs/understand/<topic>/`); checkup treats them as tracked docs, not `.workflow` scratch.
+- `understand` — writes human-facing explainers (`.jflow/<slug>/understand/`,
+  `docs/understand/<topic>/`); checkup treats them as tracked docs, not run scratch.
 
 Keep this skill's `description` under ~900 characters (it enforces that rule on others -- it must
 pass its own check).

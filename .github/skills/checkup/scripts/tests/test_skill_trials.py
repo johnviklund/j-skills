@@ -22,11 +22,11 @@ class SkillTrialsTests(unittest.TestCase):
         self.impact.write_text("| Date | Skill | Change | From | Trial until | Outcome |\n"
                                "|---|---|---|---|---|---|\n" + "\n".join(rows))
 
-    def row(self, change="push guard", source="run", outcome="trialing", skill="workflow"):
+    def row(self, change="push guard", source="run", outcome="trialing", skill="jflow"):
         return f"| 2026-11-01 | {skill} | {change} | {source} | 3 runs | {outcome} |"
 
     def tag(self, repo, text):
-        path = repo / ".workflow/run/learnings.md"
+        path = repo / ".jflow/run/notes.md"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
 
@@ -40,11 +40,11 @@ class SkillTrialsTests(unittest.TestCase):
         self.rows(self.row(), self.row(change="rollback", source="insurance: lost a release"),
                   self.row(outcome="kept"))
         for repo in (self.a, self.b):
-            self.tag(repo, "- [saved→skill] 2026-11-01 workflow push guard — stopped a bad push\n")
+            self.tag(repo, "- [saved→skill] 2026-11-01 jflow push guard — stopped a bad push\n")
         before = {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
         self.assertEqual(self.scan("--sweep"), [
-            "keep · 2026-11-01 · workflow · 2 saves · push guard",
-            "insurance · 2026-11-01 · workflow · 0 saves · rollback"])
+            "keep · 2026-11-01 · jflow · 2 saves · push guard",
+            "insurance · 2026-11-01 · jflow · 0 saves · rollback"])
         self.assertEqual(before, {p: p.read_bytes() for p in self.root.rglob("*") if p.is_file()})
 
     def test_tag_disambiguation(self):
@@ -53,25 +53,25 @@ class SkillTrialsTests(unittest.TestCase):
             ("run routing", [0, 1], None), ("", [0, 0], "matches 2 rows; add words of the change"),
             ("missing", [0, 0], "matches 0 rows; add words of the change")]:
             with self.subTest(words=words):
-                self.tag(self.a, f"[saved→skill] 2026-11-01 workflow {words} — stopped it\n")
+                self.tag(self.a, f"[saved→skill] 2026-11-01 jflow {words} — stopped it\n")
                 out = self.scan("--sweep")
                 labels = [line for line in out if not line.startswith("⚠️")]
                 for line, count in zip(labels, counts):
                     self.assertIn(f"· {count} save", line)
                 if warning:
-                    self.assertIn(f"⚠️ tag .workflow/run/learnings.md:1 {warning}", out)
+                    self.assertIn(f"⚠️ tag .jflow/run/notes.md:1 {warning}", out)
 
     def test_unique_skill_match_and_wrong_keys(self):
-        self.rows(self.row(skill="design (new) · workflow"))
-        for date, skill, saves in [("2026-11-01", "workflow", 1),
+        self.rows(self.row(skill="design (new) · jflow"))
+        for date, skill, saves in [("2026-11-01", "jflow", 1),
                                    ("2026-11-01", "design", 1),
-                                   ("2026-10-31", "workflow", 0),
+                                   ("2026-10-31", "jflow", 0),
                                    ("2026-11-01", "checkup", 0)]:
             with self.subTest(date=date, skill=skill):
                 self.tag(self.a, f"- [saved→skill] {date} {skill} — stopped it\n")
                 self.assertIn(f"· {saves} save", self.scan("--sweep")[-1])
 
-    def worklog(self, after=3, score=4, before=True, repo=None, skill="workflow"):
+    def worklog(self, after=3, score=4, before=True, repo=None, skill="jflow"):
         entries = []
         for date, count, value in [("2026-10-31", 3 if before else 0, 4),
                                    ("2026-11-02", after, score)]:
@@ -82,23 +82,23 @@ class SkillTrialsTests(unittest.TestCase):
 
     def test_finished_trial_verdicts(self):
         for score, save, source, expected in [
-            (2, False, "run", "✅ 2026-11-01 workflow · push guard · trial complete · kept · numbers better (before 4.0 → after 2.0)"),
-            (4, False, "run", "⚠️ 2026-11-01 workflow · push guard · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → workflow improve workflow"),
-            (6, True, "run", "✅ 2026-11-01 workflow · push guard · trial complete · kept · 1 save"),
-            (6, False, "insurance: release", "✅ 2026-11-01 workflow · push guard · trial complete · kept · insurance: release")]:
+            (2, False, "run", "✅ 2026-11-01 jflow · push guard · trial complete · kept · numbers better (before 4.0 → after 2.0)"),
+            (4, False, "run", "⚠️ 2026-11-01 jflow · push guard · trial complete · 0 saves · numbers not better (before 4.0 → after 4.0) · removal candidate → TODO.md: remove from jflow"),
+            (6, True, "run", "✅ 2026-11-01 jflow · push guard · trial complete · kept · 1 save"),
+            (6, False, "insurance: release", "✅ 2026-11-01 jflow · push guard · trial complete · kept · insurance: release")]:
             with self.subTest(score=score, save=save, source=source):
                 self.rows(self.row(source=source))
                 self.worklog(score=score)
-                self.tag(self.a, "[saved→skill] 2026-11-01 workflow — stopped it" if save else "")
+                self.tag(self.a, "[saved→skill] 2026-11-01 jflow — stopped it" if save else "")
                 self.assertTrue(self.scan()[0].startswith(expected), self.scan())
                 self.assertTrue(self.scan("--sweep")[0].startswith(
                     ("keep" if score < 4 or save else "insurance" if "insurance:" in source else "candidate") + " ·"))
 
     def test_trial_completion_and_missing_evidence(self):
         for count, unit, before, skill, expected in [
-            (2, "runs", True, "workflow", []),
-            (3, "checkups", True, "workflow", ["open · count checkups by hand"]),
-            (3, "runs", False, "workflow", ["numbers unavailable (before n/a → after 4.0)"]),
+            (2, "runs", True, "jflow", []),
+            (3, "checkups", True, "jflow", ["open · count checkups by hand"]),
+            (3, "runs", False, "jflow", ["numbers unavailable (before n/a → after 4.0)"]),
             (3, "runs", True, "checkup", [])]:
             with self.subTest(count=count, unit=unit, before=before, skill=skill):
                 self.rows(self.row().replace("3 runs", f"3 {unit}"))
@@ -120,7 +120,7 @@ class SkillTrialsTests(unittest.TestCase):
         self.impact.write_text("# SKILL-IMPACT — changes to these skills, and what the runs after them showed\n\n"
                                "Mode: autonomous\n\nOne line per change, newest first.\n" + self.impact.read_text())
         self.tag(self.a, "## Execute\n- [durable→memory] Keep evidence\n"
-                 "- [saved→skill] 2026-11-01 workflow push guard — stopped it [routed → SKILL-IMPACT 2026-11-02]\n")
+                 "- [saved→skill] 2026-11-01 jflow push guard — stopped it [routed → SKILL-IMPACT 2026-11-02]\n")
         self.worklog(score=6)
         out = self.scan("--sweep")
         self.assertEqual(len(out), 2)
@@ -130,23 +130,23 @@ class SkillTrialsTests(unittest.TestCase):
     def test_date_windows_and_incomplete_worklog_blocks(self):
         self.rows(self.row())
         dates = [f"2026-10-{day}" for day in range(27, 32)] + [f"2026-11-{day:02}" for day in range(1, 7)]
-        blocks = [f"## {date} · run\n- Run: {score} review cycles · 0 deviations\n- Skills: workflow@abc\n"
+        blocks = [f"## {date} · run\n- Run: {score} review cycles · 0 deviations\n- Skills: jflow@abc\n"
                   for date, score in zip(dates, [20, 15, 9, 6, 3, 99, 1, 2, 3, 10, 14])]
-        malformed = "## 2026-10-31 · incomplete\n- Run: 90 review cycles · 0 deviations\n- Skills: workflow@abc\n"
+        malformed = "## 2026-10-31 · incomplete\n- Run: 90 review cycles · 0 deviations\n- Skills: jflow@abc\n"
         incomplete = [malformed.replace(part, "") for part in
-                      ["2026-10-31", "90 review cycles", "0 deviations", "- Skills: workflow@abc"]]
+                      ["2026-10-31", "90 review cycles", "0 deviations", "- Skills: jflow@abc"]]
         for repo, subset in [(self.a, blocks[::2]), (self.b, blocks[1::2])]:
             (repo / "WORKLOG.md").write_text("# WORKLOG\nPreamble\n" + "\n".join(reversed(subset + incomplete)))
         self.assertIn("numbers better (before 6.0 → after 2.0)", self.scan()[0])
 
     def test_cli_defaults_deduplication_and_path_errors(self):
         self.rows(self.row())
-        self.tag(self.a, "[saved→skill] 2026-11-01 workflow — stopped it\n")
+        self.tag(self.a, "[saved→skill] 2026-11-01 jflow — stopped it\n")
         installed = self.root / "skills/checkup/scripts/skill-trials.py"
         installed.parent.mkdir(parents=True)
         installed.write_bytes(SCRIPT.read_bytes())
-        impact = self.root / "skills/workflow/SKILL-IMPACT.md"
-        impact.parent.mkdir()
+        impact = self.root / "skills/checkup/SKILL-IMPACT.md"
+        impact.parent.mkdir(exist_ok=True)
         impact.write_bytes(self.impact.read_bytes())
         for script, args, code, needle in [
             (SCRIPT, ["--impact", str(self.impact), "--sweep"], 0, "· 1 save ·"),
@@ -166,10 +166,10 @@ class SkillTrialsTests(unittest.TestCase):
         self.worklog()
         out = self.scan()
         for line, words in zip(out, ["tests.md: a fixture copies every real…", "Run routing tables override model and…"]):
-            self.assertIn(f"2026-10-30 workflow · {words} · trial complete · 0 saves · numbers unavailable", line)
+            self.assertIn(f"2026-10-30 jflow · {words} · trial complete · 0 saves · numbers unavailable", line)
         self.assertEqual(len(out), 2)
         self.rows(self.row("manual trial").replace("3 runs", "3 checkups"))
-        self.assertEqual(self.scan(), ["⚠️ 2026-11-01 workflow · manual trial · open · count checkups by hand"])
+        self.assertEqual(self.scan(), ["⚠️ 2026-11-01 jflow · manual trial · open · count checkups by hand"])
 
     def test_closed_row_saves(self):
         archive = self.impact.with_name("SKILL-IMPACT_ARCHIVE.md")
@@ -180,16 +180,16 @@ class SkillTrialsTests(unittest.TestCase):
                     archive.write_text(self.row(outcome="kept"))
                 elif archive.exists():
                     archive.unlink()
-                self.tag(self.a, "[saved→skill] 2026-11-01 workflow push guard — stopped it\n")
-                warning = ["⚠️ tag .workflow/run/learnings.md:1 matches 0 rows; add words of the change"]
+                self.tag(self.a, "[saved→skill] 2026-11-01 jflow push guard — stopped it\n")
+                warning = ["⚠️ tag .jflow/run/notes.md:1 matches 0 rows; add words of the change"]
                 self.assertEqual(self.scan("--sweep"), (warning if location == "missing" else []) +
-                                 ["candidate · 2026-11-01 · workflow · 0 saves · other"])
+                                 ["candidate · 2026-11-01 · jflow · 0 saves · other"])
 
     def test_escaped_pipe_rows(self):
         self.rows(self.row(r"Risk: cheap\|costly\|irreversible"))
-        self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text(self.row(r"check-run \| tail; git commit", outcome="kept"))
-        self.tag(self.a, r"[saved→skill] 2026-11-01 workflow check-run \| tail; git commit — stopped it")
-        self.assertEqual(self.scan("--sweep"), [r"candidate · 2026-11-01 · workflow · 0 saves · Risk: cheap\|costly\|irreversible"])
+        self.impact.with_name("SKILL-IMPACT_ARCHIVE.md").write_text(self.row(r"lint \| tail; git commit", outcome="kept"))
+        self.tag(self.a, r"[saved→skill] 2026-11-01 jflow lint \| tail; git commit — stopped it")
+        self.assertEqual(self.scan("--sweep"), [r"candidate · 2026-11-01 · jflow · 0 saves · Risk: cheap\|costly\|irreversible"])
 
     def test_trial_without_after_runs(self):
         self.rows(self.row())
@@ -198,9 +198,9 @@ class SkillTrialsTests(unittest.TestCase):
         self.assertEqual(self.scan(), [])
 
     def test_finished_multiskill_candidate(self):
-        self.rows(self.row(skill="design (new) · workflow"))
+        self.rows(self.row(skill="design (new) · jflow"))
         self.worklog()
-        self.assertTrue(self.scan()[0].endswith("removal candidate → workflow improve design"))
+        self.assertTrue(self.scan()[0].endswith("removal candidate → TODO.md: remove from design"))
 
     def test_change_at_six_word_boundary(self):
         self.rows(self.row("one two three four five six"))

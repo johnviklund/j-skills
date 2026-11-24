@@ -11,11 +11,11 @@
 3. **Pictures.** Done when every screen the page shows has its picture, a before and an after
    for a slug's changed screen and one for an area's screen, or a stated reason for each one
    missing. Skip this step when the page shows no screen. Take the cheapest source that exists:
-   1. The run's own `screens/` (execute saves them per UI ticket): use them as they are.
+   1. Screenshots a check receipt saved in the run folder: use them as they are.
    2. The repo's verify skill (`verify-<app>`, made by `verify.create`): its control CLI starts
       the app and saves a screenshot of a route, with the same data every time.
    3. Capture with a browser tool. *After*: run the app at `HEAD`. *Before*: a worktree at the
-      plan's `Base` (`git worktree add $TMPDIR/understand-before <Base>`; reuse the main
+      spec's `Base` (`git worktree add $TMPDIR/understand-before <Base>`; reuse the main
       checkout's dependencies when the lockfile is unchanged; another port). Same route, viewport
       1280×800 and data for both; crop to the changed region; JPEG into the output folder's
       `screens/`. Remove the worktree after.

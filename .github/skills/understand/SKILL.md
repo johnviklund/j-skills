@@ -1,12 +1,12 @@
 ---
 name: understand
 description: >
-  Human-friendly explainer for a finished workflow run or an area of a codebase: one HTML page
+  Human-friendly explainer for a finished jflow run or an area of a codebase: one HTML page
   with plain-English prose, inline SVG diagrams, screenshots (before/after for every changed
   screen, unrequested UI changes flagged), decisions, and open questions and
   risks; every claim cites a file:line or commit; optionally a narrated 3Blue1Brown-style video
   of the same story. Run only on an explicit "understand SLUG" or "understand AREA" message,
-  typically after "workflow wrap"; never on casual mentions of understanding something.
+  typically after "jflow done"; never on casual mentions of understanding something.
 ---
 
 # understand
@@ -21,9 +21,9 @@ for or not. Every claim is pinned to code, so the page stays honest after its au
 
 | Command | Target | Output folder |
 |---|---|---|
-| `understand <slug>` | a done `.workflow/<slug>/` run | `.workflow/<slug>/understand/` |
+| `understand <slug>` | a done `.jflow/<slug>/` run | `.jflow/<slug>/understand/` |
 | `understand <area>` | a path, feature or question about the repo | `docs/understand/<topic>/` (`<topic>` = kebab-case of the area) |
-| `understand` | — | list the three most recently wrapped runs, lettered, and ask |
+| `understand` | — | list the three most recently done runs, lettered, and ask |
 
 The page is `explainer.html` in the output folder; screenshots this skill takes go in its
 `screens/`, a video in its `video/`. `--video` or `--no-video` after the target answers the
@@ -33,7 +33,8 @@ video question in advance. `<skill>` below is this skill's folder.
 
 1. **Resolve the target.** Done when the output folder, the evidence set and the pinned `HEAD` sha
    are named.
-   - **Slug:** `brainstorm.md` must carry `Status: done`; a live run routes to `workflow wrap <slug>`.
+   - **Slug:** `spec.md` must carry `Status: done`; a live run routes to `jflow <slug>`, which
+     says what is next.
    - **Area:** resolve it to files with grep/glob. More than one plausible reading: list them
      lettered with a recommended default and ask.
    - An existing explainer is regenerated from scratch; git keeps the old version. Exception:
@@ -44,16 +45,14 @@ video question in advance. `<skill>` below is this skill's folder.
    with a reason, and the video question is settled. The run's artifacts say what was
    *intended*; code and tests say what *is*: every behaviour the page states is seen at a line
    you can cite.
-   - **Slug:** `wrap.md` (outcome, ticket → sha), `brainstorm.md` (problem, behaviours B#,
-     decisions, out of scope), `plan.md` (tickets, `## Deviations`, `Base:`), `review.md` (verdict,
-     deferrals, `## Resolved`), `learnings.md`, and the file list of `receipts/` and `screens/`.
-     Then `git diff --stat <plan Base>..<last shipped sha>` and read the hunks that carry the
-     behaviours. This skill reads a done run in full; the workflow's "`wrap.md` alone" rule
-     governs later runs' grounding, not this.
+   - **Slug:** `spec.md` (problem, goals, non-goals, Proof rows, `Base:`, `## Accepted`),
+     `notes.md` (judgement calls, what was left open), `receipts/check-*.md` (row verdicts,
+     defects, Maybes) and `run.jsonl` (step → commit). Then `git diff --stat <spec Base>..<done
+     commit>` and read the hunks that carry the goals. This skill reads a done run in full.
    - **Area:** entry points and the path a request or record takes through them; the tests that pin
      the behaviour; `git log --oneline -20 -- <paths>`, traced back past the latest commit
      (`git log --follow`), because the current shape is often several decisions old; done runs that touched it
-     (`grep -l '<path>' .workflow/*/wrap.md`, their `wrap.md` only); `PRODUCT.md`/`DESIGN.md` by
+     (`grep -l '<path>' .jflow/*/spec.md`, their `spec.md` only); `PRODUCT.md`/`DESIGN.md` by
      heading, the sections naming the area; `memory/` pages whose `Applies when` matches.
    - **Why, from review** (both): for the commits that shaped the cited code, find their PRs (`(#N)`
      in the subject, or `gh pr list --state merged --search <sha>`) and read the body and review
@@ -63,8 +62,8 @@ video question in advance. `<skill>` below is this skill's folder.
      the author's stated intent, not as fact. No `gh`, no remote, or no PR: say "PR discussion
      not searched" under *Open questions & risks*.
    - **Screens changed** (slug): UI files in the run's diff — components, pages, styles, templates;
-     tests excluded. Map each to the screen a user reaches and to the B# or ticket that asked for
-     it. A visible change no behaviour or acceptance line asked for is **unrequested**.
+     tests excluded. Map each to the screen a user reaches and to the goal or Proof row that asked
+     for it. A visible change no goal or row asked for is **unrequested**.
    - **Screens shown** (area with a UI): the screens and states a user meets the area through,
      each with its route and how to reach that state, from the feature map of the repo's verify
      skill when one exists. A reader understands a UI feature from seeing it, so an area page
@@ -100,15 +99,15 @@ video question in advance. `<skill>` below is this skill's folder.
      is under ~400 px wide; `.stack` otherwise. An area page titles the section *What it looks
      like* instead: its screens in the order a user meets them, two to a figure, each caption
      citing the code that draws it.
-   - **Why it exists** — slug: the brief's problem. Area: its purpose and who relies on it.
+   - **Why it exists** — slug: the spec's problem. Area: its purpose and who relies on it.
    - **How it works** — diagrams, each followed by the prose it illustrates; depth that a first
      read can skip goes in `<details>`. On a UI run the pictures carry the story: keep this to
      one diagram and two short paragraphs.
-   - **What changed** (slug only) — before/after in behaviour terms (from the B# list, as shipped),
-     then a table of ticket → what it did → commit cite.
-   - **Decisions** — from the brief, `## Deviations`, review and PR discussion: the choice, why,
+   - **What changed** (slug only) — before/after in behaviour terms (from the goals, as shipped),
+     then a table of Proof row → verdict → commit cite.
+   - **Decisions** — from the spec, `notes.md`, check receipts and PR discussion: the choice, why,
      the rejected alternative.
-   - **Open questions & risks** — review deferrals, related `TODO.md` lines, out-of-scope items,
+   - **Open questions & risks** — `## Accepted` lines, Maybes, related `TODO.md` lines, out-of-scope items,
      known fragility, any claim you could not verify, and any doc statement the code contradicts.
    - **Glossary** — every repo term the page uses, `PRODUCT.md` vocabulary first.
    - **Sources** — every artifact and doc read.
@@ -168,7 +167,7 @@ Keep the template's palette, type and spacing; add no CSS beyond small layout tw
 
 - Writes only its output folder. Run artifacts, the run's `screens/`, product docs, `memory/` and
   `TODO.md` stay untouched: a contradiction goes to Open questions and the receipt, and the human
-  decides who fixes it (`memory.remember`, `workflow todo`, a doc edit).
+  decides who fixes it (`memory.remember`, a `TODO.md` line, a doc edit).
 - Budget: page ~150 KB, each screenshot ≤ ~400 KB, a video ≤ ~25 MB; one explainer per run or
   topic.
 - Narration text leaves the machine only for ElevenLabs, and only after the human chose a voiced

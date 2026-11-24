@@ -1,10 +1,10 @@
 ---
 name: design
 description: >
-  Short path for pure UI and UX changes to an existing screen, without a full workflow run: one
+  Short path for pure UI and UX changes to an existing screen, without a full jflow run: one
   session invents 2-3 design directions as rendered mockups, the human picks or mixes, the same
   session builds it in the real code and screenshots before and after; "design check" then has
-  the other vendor look at the screenshots only, with fresh eyes. Hands over to workflow as soon
+  the other vendor look at the screenshots only, with fresh eyes. Hands over to jflow as soon
   as the change needs new data, an API, schema or logic. Run only on an explicit "design SLUG",
   "design check SLUG" or "/design" message; never on casual mentions of design or UI.
 ---
@@ -12,7 +12,7 @@ description: >
 # design
 
 A **design run** changes how a screen looks and feels, and nothing under it. It costs two
-sessions where a workflow run costs five or more, because the human's eyes are the real test
+sessions where a jflow run costs five or more, because the human's eyes are the real test
 of a visual change: code review, tickets and acceptance lines check things that a pure UI
 change does not touch. The **scope gate** below is what makes skipping them safe.
 
@@ -21,19 +21,19 @@ change does not touch. The **scope gate** below is what makes skipping them safe
 | `design <slug> - goal: <what should look or feel different>` | 1 · design seat | ground, explore, pick, build, try, commit |
 | `design check <slug>` | 2 · fresh-eyes seat, fresh session | reads the screenshots only, reports drift, fixes what the human picks |
 
-Models: the design seat is Anthropic · Opus 5.5 · high; fresh eyes is the other vendor, OpenAI ·
-GPT-6.1 Terra · medium (picker ID `gpt-6.1-terra`), chosen for its visual reasoning at about a
-tenth of the price. When `workflow/ROUTING.md` has rows named *Design* and *Design check*, those
-rows win.
+Models: the design seat is jflow's build seat at effort high, from `python3 <jflow skill
+folder>/scripts/jflow.py seat build`. Fresh eyes is the other vendor, OpenAI · GPT-6.1 Terra ·
+medium (picker ID `gpt-6.1-terra`), chosen for its visual reasoning at about a tenth of the
+price; when that model is unavailable, use `jflow.py seat check`.
 
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the
-first message. Questions use the workflow's shape: one decision each, lettered options, the
+first message. Questions use jflow's shape: one decision each, lettered options, the
 ➡️ recommended one first and bold, a reason on every option.
 
 ## The run — `.design/<slug>/`
 
-Tracked in git and kept. A separate root from `.workflow/`, so the workflow's state machine and
-`check-run.py` never mistake it for a half-finished run.
+Tracked in git and kept. A separate root from `.jflow/`, so `jflow.py next` never mistakes it for a half-finished
+run.
 
 ```
 .design/<slug>/
@@ -50,11 +50,9 @@ leaves alone what data is read or written, API calls, persisted state, validatio
 permissions.
 
 Check the gate twice: when a direction is picked, and on `git diff --stat` before the commit.
-A change that fails it **hands over**: stop, copy the picked mockup and its screens into
-`.workflow/<slug>/prototypes/P1-<name>/` and `screens/`, write the reason in `design.md` with
-`Status: handed over`, and end on the workflow's brainstorm card (`workflow brainstorm <slug>`),
-naming the prototype as evidence for the decision it already settles. The pick is not
-re-asked there.
+A change that fails it **hands over**: stop, write the reason in `design.md` with
+`Status: handed over`, and end on a `jflow spec <slug>` card that names `.design/<slug>/` and the
+picked mockup as evidence for the decision it already settles. The pick is not re-asked there.
 
 ## Session 1 — `design <slug> - goal: ...`
 
@@ -111,7 +109,7 @@ Report under `## Check` in `design.md`, at most 8 lines, each one of:
 
 Each line names the screenshot and the spot on it. Ask which to fix, ➡️ drift and floor first.
 Fix the chosen ones, re-screenshot, let the human try it, commit with `Status: done`. A finding
-that needs a logic change hands over to `workflow` instead of being fixed here.
+that needs a logic change hands over to `jflow spec` instead of being fixed here.
 
 ## The floor
 

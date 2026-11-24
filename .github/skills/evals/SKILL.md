@@ -2,24 +2,25 @@
 name: evals
 description: >
   The evals.run and evals.list commands; load this skill to run either. A recall check for
-  strict-reviewer candidates and for changes to the review instructions: "evals.run reviewer
+  candidates for jflow's check seat and for changes to its instructions: "evals.run reviewer
   [vendor model effort]" shows the candidate each case in the private exam set (at most 10
   diffs with planted or missed P0/P1s, each with a clean twin), then records which defects it
   named and how many false alarms it raised on the clean twins. "evals.list" shows the set's
   status. No other seat is examined: models earn every other seat on trial runs recorded in
   WORKLOG.md. Run only on an explicit "evals.run ..." or "evals.list" message; never on casual
-  mentions of evals or testing. Never edits the workflow skill or product code.
+  mentions of evals or testing. Never edits the jflow skill or product code.
 ---
 
 # evals
 
-One exam, one seat. A reviewer miss is the expensive kind, and a diff with a known defect is a
-cheap, honest exam of exactly that. Every other seat (brainstorm, plan, execution lanes) is
-judged on trial runs: the worklog's `Run:`/`Seats:` lines, compared by `checkup`.
+One exam, one seat: jflow's check seat, the checker that proves and attacks a build. A checker
+miss is the expensive kind, and a diff with a known defect is a cheap, honest exam of exactly
+that. Every other seat (spec, build, done) is judged on trial runs: the worklog's `jflow:` lines
+and each run's `run.jsonl`, compared by `checkup`.
 
-Run it before giving a new model the strict-reviewer seat, and before keeping a change to
-`workflow/references/phase-4-review.md` (same model, old and new instructions). The human
-invokes it.
+Run it before giving a new model the check seat, and before keeping a change to
+`jflow/references/check.md` (same model, old and new instructions). The human invokes it. The
+incumbent is what `python3 <jflow skill folder>/scripts/jflow.py seat check` prints.
 
 ## The exam set
 
@@ -54,7 +55,8 @@ Added: <date> · missed by <model> | planted by <model>
 - <P0|P1> · <file and symbol> · <the defect in one line>
 ```
 
-- **missed:** a real P0/P1 that a writer or reviewer missed, deposited by `workflow wrap`. The
+- **missed:** a real P0/P1 that a builder and a jflow check both missed, added when a later run
+  or the human finds it. The
   clean diff is the whole change with the fix applied, when one exists: one self-contained diff
   against the same base as `## Diff`, never the fix alone, with the test the fix shipped with.
   When the fix shipped without a test, its one line says so: a "no test" finding on that twin
@@ -75,7 +77,7 @@ Added: <date> · missed by <model> | planted by <model>
 ## Commands
 
 - `evals.run reviewer [<vendor> <model> <effort>]`: ask for the candidate if not given. For a
-  review-instruction change, the candidate is the incumbent twice: once with `phase-4-review.md`
+  check-instruction change, the candidate is the incumbent twice: once with `check.md`
   at `HEAD`, once at the change's parent commit.
 - `evals.list`: read-only. Cases by kind, any that break the shape above, the last result.
 
@@ -84,11 +86,11 @@ Added: <date> · missed by <model> | planted by <model>
 **1. Preflight.** Load the set. A case missing its diff or its `## Must name` lines is skipped
 and flagged, never fails the run. Fewer than 3 usable cases: say the exam is not meaningful and
 stop. State the bill: one candidate call per diff (planted plus each clean twin), at the
-reviewer seat's review effort, no grader model. Confirm with the human.
+check seat's effort, no grader model. Confirm with the human.
 
 **2. Run the candidate, one diff per fresh context.** Give it the case's `## Context`, one diff,
-and the review instructions from the `workflow` skill (`references/phase-4-review.md`), at the
-seat's review effort. Never show it `## Must name`, the case's `Kind`, or that a clean twin exists:
+and the check instructions from the `jflow` skill (`jflow/references/check.md`), told to review
+the diff for P0/P1 defects only, at the check seat's effort. Never show it `## Must name`, the case's `Kind`, or that a clean twin exists:
 the planted and clean diffs of one case go to separate fresh contexts, in random order. Capture
 its findings verbatim, plus tokens and latency where the CLI reports them. One retry on a
 mechanical failure; a second failure scores that diff as missed.
@@ -108,12 +110,12 @@ the clean twin. Matching is a short human read, and the human's mark is final.
 **4. Record.** Append one block to `strict-reviewer/RESULTS.md` in the exam set: date, candidate
 (vendor · model · effort) or instruction change (commit), recall N/M (missed · seeded), false
 alarms N on K clean diffs, per-case misses, cost and latency, one-line verdict. Commit and push
-in `j-skills-evals`. No routing proposal: the human edits `ROUTING.md` if the numbers convince
-them, and only full recall with no false alarm on a set of 3 or more cases should.
+in `j-skills-evals`. No seat proposal: the human edits jflow's `config.json` or the repo's
+`.jflow/config.json` if the numbers convince them, and only full recall with no false alarm on a set of 3 or more cases should.
 
 ## Ground rules
 
 - **Writes only `RESULTS.md`, and new `missed` cases the human confirmed in step 3.** Never
-  edits other cases, the workflow skill, or code.
+  edits other cases, the jflow skill, or code.
 - **Bounded.** At most 10 cases, one seat, one candidate per invocation.
 - **Provenance.** Exact model and effort, never a family name.

@@ -23,7 +23,7 @@ def rows(path, trialing=True):
 
 def count_saves(trials, repos, all_rows):
     for repo in repos:
-        for path in sorted((repo / ".workflow").glob("*/learnings.md")):
+        for path in sorted((repo / ".jflow").glob("*/notes.md")):
             for number, line in enumerate(path.read_text().splitlines(), 1):
                 tag = re.search(r"\[saved→skill\] (\d{4}-\d{2}-\d{2}) (\S+)(.*?) — ", line)
                 if not tag:
@@ -78,7 +78,7 @@ def report(row, sweep, entries):
         reason = row["source"] if insurance else saves if row["saves"] else numbers
         verdict = f"kept · {reason}" + (f" · {numbers}" if insurance or row["saves"] else "")
         if label == "candidate":
-            verdict = f"0 saves · {numbers} · removal candidate → workflow improve {row['names'][0]}"
+            verdict = f"0 saves · {numbers} · removal candidate → TODO.md: remove from {row['names'][0]}"
         print(f'{"⚠️" if label == "candidate" else "✅"} {row["date"]} {row["skill"]} · {change} · trial complete · {verdict}')
 
 
@@ -87,7 +87,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sweep", action="store_true", help="label every trialing row")
     parser.add_argument("--impact", type=Path,
-                        default=Path(__file__).resolve().parents[2] / "workflow/SKILL-IMPACT.md")
+                        default=Path(__file__).resolve().parents[1] / "SKILL-IMPACT.md")
     parser.add_argument("repos", nargs="*", type=Path, help="evidence repos, default: current directory")
     args = parser.parse_args()
     repos = list(dict.fromkeys(p.resolve() for p in (args.repos or [Path(".")])))

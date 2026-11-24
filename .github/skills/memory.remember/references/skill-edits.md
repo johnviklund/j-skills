@@ -15,7 +15,7 @@ repo. The prompt (default shape) goes in your report:
 
 ```text
 In the j-skills clone, edit `.github/skills/<skill>/<file>`: <exact old text> → <exact new text>
-Add to `.github/skills/workflow/SKILL-IMPACT.md`: | <date> | <skill> | <change. Judge: …> | <generic from> | 3 runs | trialing |
+Add to `.github/skills/checkup/SKILL-IMPACT.md`: | <date> | <skill> | <change. Judge: …> | <generic from> | 3 runs | trialing |
 Apply per the log's `Mode:` line, commit only these files, push, then run `npx skills update -g`.
 ```
 

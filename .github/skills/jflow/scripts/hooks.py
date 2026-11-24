@@ -1,44 +1,46 @@
 #!/usr/bin/env python3
-"""Install and run workflow git hooks. Python 3 standard library and git required.
+"""Install and run the j-skills pre-push hook, which runs gitleaks on outgoing commits.
 
-Run `python3 hooks.py install` in a repo. pre-push also requires gitleaks
-(install with `brew install gitleaks` or `mise use -g gitleaks`).
+Run `python3 hooks.py install` in a repo. Python 3, git and gitleaks are required
+(install gitleaks with `brew install gitleaks` or `mise use -g gitleaks`). Install
+upgrades older j-skills stubs and removes the old pre-commit stub.
 """
 import argparse
 import os
+import re
 from pathlib import Path
 import shlex
 import shutil
 import subprocess
 import sys
 
-MARKER = '# j-skills workflow hook'
-HOOKS = ('pre-commit', 'pre-push')
+MARKER = '# j-skills hook'
+# Any '# j-skills ... hook' line marks a stub an older j-skills version installed.
+OURS = re.compile(r'^# j-skills( [\w.-]+)? hook$', re.M)
 
 
 def git(*args):
     return subprocess.check_output(['git', *args], text=True).strip()
 
 
-def stub(hook):
+def stub():
     # The installing copy wins; runtime fallbacks cover the README install folders.
     paths = [shlex.quote(str(Path(__file__).resolve()))]
-    paths += [f'"$root/{folder}/skills/workflow/scripts/hooks.py"'
+    paths += [f'"$root/{folder}/skills/jflow/scripts/hooks.py"'
               for folder in ('.github', '.agents', '.claude', '.codex')]
-    paths += [f'"$HOME/{folder}/skills/workflow/scripts/hooks.py"'
+    paths += [f'"$HOME/{folder}/skills/jflow/scripts/hooks.py"'
               for folder in ('.agents', '.claude', '.codex', '.copilot')]
-    paths += ['"${CODEX_HOME:-$HOME/.codex}/skills/workflow/scripts/hooks.py"']
-    missing_exit = 0 if hook == 'pre-commit' else 1
+    paths += ['"${CODEX_HOME:-$HOME/.codex}/skills/jflow/scripts/hooks.py"']
     return f'''#!/bin/sh
 {MARKER}
 root=$(git rev-parse --show-toplevel) || exit 1
 searched=""
 for script in {' '.join(paths)}; do
     searched="$searched\n  $script"
-    if [ -f "$script" ]; then exec python3 "$script" {hook} "$@"; fi
+    if [ -f "$script" ]; then exec python3 "$script" pre-push "$@"; fi
 done
-printf 'workflow: hooks.py missing; searched:%b\n' "$searched" >&2
-exit {missing_exit}
+printf 'jflow: hooks.py missing; searched:%b\n' "$searched" >&2
+exit 1
 '''
 
 
@@ -49,47 +51,34 @@ def install(check=False):
         print('Refusing core.hooksPath: ' + configured.stdout.strip(), file=sys.stderr)
         return 1
     directory = Path(git('rev-parse', '--git-path', 'hooks'))
-    for hook in HOOKS:
-        path = directory / hook
-        if path.exists() and MARKER not in path.read_text():
-            print(f'Refusing foreign hook: {path}', file=sys.stderr)
-            return 1
+    push, commit = directory / 'pre-push', directory / 'pre-commit'
+    if push.exists() and not OURS.search(push.read_text()):
+        print(f'Refusing foreign hook: {push}', file=sys.stderr)
+        return 1
+    old_commit = commit.exists() and OURS.search(commit.read_text())
     if check:
-        missing = [hook for hook in HOOKS if not (directory / hook).is_file()
-                   or not os.access(directory / hook, os.X_OK)]
-        print('would install ' + ', '.join(missing) if missing else 'installed')
+        todo = []
+        if not (push.is_file() and os.access(push, os.X_OK)
+                and MARKER in push.read_text().splitlines()):
+            todo.append('would install pre-push')
+        if old_commit:
+            todo.append('would remove pre-commit')
+        print(', '.join(todo) or 'installed')
         return 0
     directory.mkdir(parents=True, exist_ok=True)
-    for hook in HOOKS:
-        path = directory / hook
-        content = stub(hook)
-        if not path.exists() or path.read_text() != content:
-            path.write_text(content)
-        path.chmod(path.stat().st_mode | 0o111)
+    content = stub()
+    if not push.exists() or push.read_text() != content:
+        push.write_text(content)
+    push.chmod(push.stat().st_mode | 0o111)
+    if old_commit:
+        commit.unlink()
     print('installed')
-    return 0
-
-
-def pre_commit():
-    os.chdir(git('rev-parse', '--show-toplevel'))
-    paths = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '-z']).decode().split('\0')
-    slugs = {parts[1] for path in paths if len(parts := path.split('/')) >= 3
-             and parts[0] == '.workflow' and parts[1] != 'archive'
-             and Path('.workflow', parts[1]).is_dir()}
-    checker = Path(__file__).resolve().with_name('check-run.py')
-    if slugs and not checker.is_file():
-        print(f'Warning: check-run.py missing; searched: {checker}', file=sys.stderr)
-        return 0
-    for slug in sorted(slugs):
-        result = subprocess.run([sys.executable, str(checker), slug])
-        if result.returncode:
-            return result.returncode
     return 0
 
 
 def pre_push(remote):
     if not shutil.which('gitleaks'):
-        print('workflow: install gitleaks before pushing (brew install gitleaks or mise use -g gitleaks)',
+        print('jflow: install gitleaks before pushing (brew install gitleaks or mise use -g gitleaks)',
               file=sys.stderr)
         return 1
     named = remote in git('remote').splitlines()
@@ -104,7 +93,7 @@ def pre_push(remote):
         exclusion = [f'--remotes={remote}'] if named else [remote_sha] if known else []
         not_part = ['--not', *exclusion] if exclusion else []
         if subprocess.run(['git', 'rev-list', '--quiet', local_sha, *not_part]).returncode:
-            print(f'workflow: cannot list outgoing commits for {local_ref}', file=sys.stderr)
+            print(f'jflow: cannot list outgoing commits for {local_ref}', file=sys.stderr)
             return 1
         result = subprocess.run(['gitleaks', 'git',
                                  f'--log-opts={" ".join([local_sha, *not_part])}',
@@ -116,18 +105,16 @@ def pre_push(remote):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('install', *HOOKS))
+    parser.add_argument('command', choices=('install', 'pre-push'))
     parser.add_argument('--check', action='store_true', help='report missing hooks without writing')
     parser.add_argument('args', nargs='*', help='git hook arguments')
     args = parser.parse_args()
     try:
         if args.command == 'install':
             return install(args.check)
-        if args.command == 'pre-commit':
-            return pre_commit()
         return pre_push(args.args[0])
     except (OSError, subprocess.CalledProcessError) as error:
-        print(f'workflow hook: {error}', file=sys.stderr)
+        print(f'jflow hook: {error}', file=sys.stderr)
         return 1
 
 

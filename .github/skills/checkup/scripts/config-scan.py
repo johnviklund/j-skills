@@ -162,7 +162,7 @@ def scan(path, kind):
 
 def no_verify():
     """Report missing Claude denials once, combining project and personal settings."""
-    if not os.path.isdir('.workflow'):
+    if not os.path.isdir('.jflow'):
         return []
     deny = []
     for path, kind in FILES:
@@ -177,12 +177,11 @@ def no_verify():
                 deny.extend(rule for rule in rules if isinstance(rule, str))
         except (OSError, ValueError):
             continue  # scan() reports unreadable or malformed settings separately.
-    if all(any(fnmatch.fnmatchcase(command, rule) for rule in deny)
-           for command in ('Bash(git commit -m x --no-verify)', 'Bash(git push origin main --no-verify)')):
+    if any(fnmatch.fnmatchcase('Bash(git push origin main --no-verify)', rule) for rule in deny):
         return []
-    return ['⚠️ Claude permissions.deny: --no-verify can skip workflow hooks; add '
-            'Bash(git commit *--no-verify*) and Bash(git push *--no-verify*) with update-config; '
-            'these rules cover usual command forms only']
+    return ['⚠️ Claude permissions.deny: --no-verify can skip the pre-push secret scan; add '
+            'Bash(git push *--no-verify*) with update-config; '
+            'this rule covers usual command forms only']
 
 
 def main():

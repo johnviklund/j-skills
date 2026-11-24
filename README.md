@@ -1,12 +1,12 @@
 # j-skills
 
-Twelve skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
-Use `workflow` to take a coding task from idea to reviewed code. Use the other skills when you
-need an explanation, app checks, saved lessons or help improving how you work.
+Thirteen skills for working with coding agents in Claude Code, Codex CLI and GitHub Copilot CLI.
+Use `jflow` to take a code change from spec to pushed, proved code. Use the other skills when you
+need a roadmap, an explanation, app checks, saved lessons or help improving how you work.
 
-**Start with one task. You do not need to run every skill each time.**
+**Start with one change. You do not need to run every skill each time.**
 
-[Install the skills](#setup) · [Follow a coding task](#follow-one-task-from-idea-to-done) ·
+[Install the skills](#setup) · [Follow a change](#follow-one-change-from-spec-to-done) ·
 [Choose a skill](#which-skill-do-i-need) · [Read the details](#skill-reference)
 
 ## Start here
@@ -15,74 +15,46 @@ After [installation](#setup), open your coding agent in the project you want to 
 Send this as a chat message:
 
 ```text
-workflow brainstorm export-csv
+jflow spec export-csv
 I want users to download the current table as a CSV file.
 ```
 
-`export-csv` is the **run name**, also called a slug. Choose a short name for your own task.
-The agent asks questions, saves a brief, and gives you the next command.
+`export-csv` is the **run name**, also called a slug. Choose a short name for your own change.
+The agent asks what to build, writes a one-page spec, and gives you the next message to send.
 
-Commands in the workflow and skill tables are **messages to your agent**.
-The shell blocks under setup and configuration go in a terminal or the named configuration file.
-When installed as a plugin, a skill may appear with a prefix such as `j-skills:workflow`.
-Use the exact command on the agent's closing card when it includes a prefix.
+Commands in the tables are **messages to your agent**. The shell blocks under setup go in a
+terminal. When installed as a plugin, a skill may appear with a prefix such as `j-skills:jflow`.
+Use the exact message on the agent's closing card when it includes a prefix.
 
-## How the skills fit together
+## Follow one change from spec to done
 
-Follow the character through the five coding steps. The toolkit below shows the skills you can use along the way.
-
-![A coding companion brainstorms, plans, builds, reviews and wraps a task. Below it, nine helper skills explain, check, remember and improve the work.](docs/assets/workflow-character.png)
-
-[Open the full-size illustration](docs/assets/workflow-character.png). The command tables below explain when to use each skill.
-
-`workflow` manages all five numbered steps. Ask for `plain` whenever an answer is hard to follow.
-For upkeep, use `checkup`, `memory.compact` and `evals` as needed.
-`agent-docs` helps when writing instructions that agents will read.
-
-## Follow one task from idea to done
-
-Send **one command at a time**. Wait for the result before continuing.
-Keep the same run name throughout.
+Send **one message at a time**. Wait for the result before continuing, and keep the same run name.
 
 | Step | Message to send | What you get | Your part |
 |---|---|---|---|
-| 1. Define the task | `workflow brainstorm export-csv` | A brief describing the problem and expected behaviour | Answer questions and confirm what to build |
-| 2. Agree on the work | `workflow plan export-csv` | Usually 2–5 tickets, at most eight, with a check for each | Approve the tickets |
-| 3. Build it | `workflow execute export-csv` | Tested changes, one ticket at a time | Try UI changes before their commits; complete any steps assigned to you |
-| 4. Check it | `workflow review export-csv` | Findings from a reviewer, normally using a different model vendor | Choose which lower-priority findings to fix |
-| 5. Finish it | `workflow wrap export-csv` | Final checks, commits and push, updated docs, saved lessons and a closed run | Follow any remaining requests on the closing card |
+| 1. Say what to build | `jflow spec export-csv` | A one-page spec with a Proof table: what a pass looks like | Answer questions and confirm the spec |
+| 2. Build it | `jflow build export-csv` | The whole change, with tests, in one session | Answer any question it stops on |
+| 3. Prove it | `jflow check export-csv` | A fresh session on another vendor runs each Proof row on the real thing, then attacks what the table never asked | Decide on any row it could not prove |
+| 4. Ship it | `jflow done export-csv` | Final checks, updated `TODO.md` and `ROADMAP.md`, saved lessons and a push | Approve any doc edits it proposes |
 
-Execute handles up to three tickets per session. Repeat it when the closing card says more work remains.
-If review finds problems, follow the card through fixes and another review before wrap.
-Live or irreversible actions become **operator tickets**, with prepared steps and a record of their result.
+When a check finds a defect, the card sends you back to the build session to fix it, then to a
+new check. Every step ends with a **closing card**: the model to pick, whether to start a fresh
+session, and the exact message to send. Send `jflow export-csv` to see it again. Progress lives in
+`.jflow/export-csv/`, so a fresh session can resume from the saved files.
 
-Every step ends with a **closing card**. It tells you which model to select, whether to start a
-fresh session, and exactly what to send next. Follow it when switching agents or models.
-Progress lives in `.workflow/export-csv/`, so a fresh session can resume from the saved files.
-
-| If you need to… | Send |
-|---|---|
-| Find where you left off | `workflow status` |
-| See the next command and model again | `workflow next` |
-| Pause the task | `workflow park export-csv` |
-| Save an idea for later | `workflow todo Add a PDF export` |
-| Improve something that already exists | `workflow improve export-csv - goal: make large exports faster` |
-
-For a new project, `workflow bootstrap` sets up the repo instructions and planning files.
-Once the app runs, use `verify.create` to give the agent a repeatable way to drive and check it.
-See the [full workflow guide](.github/skills/workflow/README.md) for all commands and
-[model routing](.github/skills/workflow/ROUTING.md) for the models used at each step.
+To save an idea for later, add a line to `TODO.md`. To decide what to work on next, use
+`roadmap`. For a new project, `bootstrap` writes the steering docs. Once the app runs,
+`verify.create` gives the agent a repeatable way to drive and check it.
 
 ## Which skill do I need?
 
-Choose the row that matches your situation. These skills also work outside a workflow run.
+Choose the row that matches your situation.
 
 | When you need… | Skill | Example message | Result |
 |---|---|---|---|
-| A coding task planned, built and reviewed | [workflow](#workflow) | `workflow brainstorm export-csv` | A saved run with tickets, checks and review |
+| A code change specified, built and proved | [jflow](#jflow) | `jflow spec export-csv` | A one-page spec with a Proof table, then the change, built and proved on the real thing |
 | Steering docs for a repo: the north star, the design and the roadmap | [bootstrap](#bootstrap) | `bootstrap PRD.md` | `PRODUCT.md`, `DESIGN.md`, `ROADMAP.md` and `TODO.md`, each holding one thing |
 | A roadmap that says where to start and why each item matters | [roadmap](#roadmap) | `roadmap item admins cannot see the key numbers` | One item with the problem, its evidence and a way to tell it is solved; `roadmap tidy` finds stale and overlapping items |
-| A code change on the short path, on trial next to `workflow` | [jflow](#jflow) | `jflow spec export-csv` | A one-page spec with a Proof table, then the change, built and proved on the real thing |
 | A pure UI or UX change to a screen, without a full run | [design](#design) | `design settings-page - goal: group the options` | Rendered mockups to pick from, then the built change with before/after screenshots |
 | A simpler explanation right now | [plain](#plain) | `plain Why did this test fail?` | A short answer in chat |
 | A visual explanation to keep or share | [understand](#understand) | `understand export-csv` | An HTML page with diagrams, screenshots and source links, and an optional video |
@@ -91,7 +63,7 @@ Choose the row that matches your situation. These skills also work outside a wor
 | To understand why a session was slow | [retro](#retro) | `retro export-csv` | Suggested fixes for the way you work, for you to approve |
 | To find problems in the repo or skill setup | [checkup](#checkup) | `checkup` | A read-only health report and suggested actions |
 | To tidy repeated or stale memory | [memory.compact](#memorycompact) | `memory.compact` | Proposed memory changes for you to accept |
-| To test a new reviewer model | [evals](#evals) | `evals.run reviewer` | Bug-detection and false-alarm results; asks which model to test |
+| To test a new checker model | [evals](#evals) | `evals.run reviewer` | Bug-detection and false-alarm results; asks which model to test |
 | To write instructions agents can follow | [agent-docs](#agent-docs) | `Use agent-docs to improve this repo's AGENTS.md.` | Guidance for writing and testing the instructions |
 
 ### What happens automatically, and what do I ask for?
@@ -99,11 +71,11 @@ Choose the row that matches your situation. These skills also work outside a wor
 | Timing | What to use |
 |---|---|
 | Once the repo has a runnable app | Ask for `verify.create`. Existing verification skill? Use `verify.maintain` instead. |
-| During a workflow run | The agent uses `plain` writing rules and the repo's verification skill when available. |
-| At wrap | `workflow` calls `memory.remember` to save lessons and updates the verification feature map for changed features. |
+| During a jflow run | The agent uses `plain` writing rules and the repo's verification skill when available. |
+| At done | `jflow` calls `memory.remember` when you corrected the agent during the run. |
 | After a run, when useful | Ask for `understand <run-name>` to explain the result, or `retro <run-name>` to improve the process. |
 | Whenever upkeep is needed | Ask for `checkup`. Use `memory.compact` for memory cleanup or `verify.maintain` to recheck the feature map. |
-| Before changing the reviewer | Run `evals.run reviewer`. It needs the private exam repository described in [setup](#setup). |
+| Before changing the checker | Run `evals.run reviewer`. It needs the private exam repository described in [setup](#setup). |
 | When skills or agent instructions change | `retro` and `memory.remember` load `agent-docs` when needed. You can also request it directly. |
 
 For example, finish `export-csv`, then send `understand export-csv --no-video` to get a visual
@@ -112,6 +84,42 @@ explanation. If repeated setup failures slowed the run, send `retro export-csv` 
 ## Skill reference
 
 Read the sections below when you need a skill's options, output locations or setup requirements.
+
+### jflow
+
+Use it for any code change bigger than a quick fix.
+
+- `jflow spec <slug>` asks about what to build, never how, and writes a one-page spec. Its Proof
+  table says what a pass looks like, and every row must be able to fail.
+- `jflow build <slug>` runs one session that builds the whole change and keeps every later fix.
+- `jflow check <slug>` runs in a fresh session on the other vendor. It runs the table on the real
+  thing, gives each row a verdict, then looks for what the table never asked, and reports only
+  defects with a failing input.
+- `jflow done <slug>` runs the final checks, records the run, updates `TODO.md` and `ROADMAP.md`,
+  and pushes.
+
+When a change writes to real data, the spec names a **gate**: the first live step that cannot be
+undone. The checker clears the change before that step and checks again after it. When you accept a
+missed bar or an unproved row, the session records your words under `## Accepted` in the spec, and
+the bar stays as written.
+
+Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
+see that again. The record is `.jflow/<slug>/`, tracked in git.
+
+Seats come from JSON. Run `python3 .github/skills/jflow/scripts/jflow.py seat build` to see the
+resolved assignment. Defaults live in [jflow/config.json](.github/skills/jflow/config.json).
+The repo's `.jflow/config.json` overrides complete seats; `--config FILE` or `$JFLOW_CONFIG`
+overrides that. See the [jflow skill](.github/skills/jflow/SKILL.md) for the schema and vendor rule.
+
+**Secret scan before every push.** Install the pre-push hook once per repo:
+`python3 ~/.agents/skills/jflow/scripts/hooks.py install`. It runs
+[gitleaks](https://github.com/gitleaks/gitleaks) on the commits a push sends and blocks the push
+on a finding. Install gitleaks once, for example with `brew install gitleaks` or
+`mise use -g gitleaks`; the hook blocks a push without it. You can push unscanned with
+`git push --no-verify`. The install replaces hooks an older j-skills version left, removes its old
+`pre-commit` hook, and refuses to touch another tool's hook or a `core.hooksPath` setting.
+Optional: to stop an agent from skipping the hook with `--no-verify`, `checkup` suggests a deny
+rule for your Claude settings.
 
 ### plain
 
@@ -130,7 +138,7 @@ Use it after a finished run, or when you want to learn one part of a codebase.
 - It writes one self-contained HTML page with diagrams, decisions and open questions.
 - Every claim links to a line of code or a commit, and a checker confirms each link. It also reads
   pull request reviews, to explain why the code looks the way it does.
-- The page goes to `.workflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
+- The page goes to `.jflow/<slug>/understand/` for a run, or `docs/understand/<topic>/` for
   an area.
 
 **Screenshots.** A page about a run shows each changed screen before and after, with changes
@@ -179,7 +187,7 @@ short narrated video. Add `--video` or `--no-video` to the command to answer in 
 
 ### design
 
-Use it when a change only alters how a screen looks or feels. A full workflow run is more than
+Use it when a change only alters how a screen looks or feels. A full jflow run is more than
 that needs.
 
 - Session 1 grounds itself in `DESIGN.md` and screenshots of the current screen. It invents 2–3
@@ -192,7 +200,7 @@ that needs.
 - Every screen meets a fixed floor: contrast, keyboard focus, reduced motion, a phone layout
   that fits, and real content only.
 - When the change turns out to need new data, an API, a schema or logic, it hands over to
-  `workflow brainstorm`, bringing the mockups along as evidence.
+  `jflow spec`, bringing the mockups along as evidence.
 - The record is `.design/<slug>/design.md` with its mockups and screens.
 
 ### bootstrap
@@ -229,59 +237,6 @@ names no outcome, and an outcome that no open item moves.
 Each item's `Solved when` line tells `jflow spec` what its first Proof row should prove. Run
 `python3 .github/skills/roadmap/scripts/roadmap.py check ROADMAP.md` to check a roadmap's format.
 
-### jflow
-
-Use it to try the short path next to `workflow`. It is on trial: `ROADMAP.md` says how the trial is
-judged.
-
-- `jflow spec <slug>` asks about what to build, never how, and writes a one-page spec. Its Proof
-  table says what a pass looks like, and every row must be able to fail.
-- `jflow build <slug>` runs one session that builds the whole change and keeps every later fix.
-- `jflow check <slug>` runs in a fresh session on the other vendor. It runs the table on the real
-  thing, gives each row a verdict, then looks for what the table never asked, and reports only
-  defects with a failing input.
-- `jflow done <slug>` runs the final checks, records the run, updates `TODO.md` and `ROADMAP.md`,
-  and pushes.
-
-When a change writes to real data, the spec names a **gate**: the first live step that cannot be
-undone. The checker clears the change before that step and checks again after it. When you accept a
-missed bar or an unproved row, the session records your words under `## Accepted` in the spec, and
-the bar stays as written.
-
-Every step ends by telling you the next message, the model and the session. Send `jflow <slug>` to
-see that again. The record is `.jflow/<slug>/`.
-
-Seats come from JSON. Run `python3 .github/skills/jflow/scripts/jflow.py seat build` to see the
-resolved assignment. Defaults live in [jflow/config.json](.github/skills/jflow/config.json).
-The repo's `.jflow/config.json` overrides complete seats; `--config FILE` or `$JFLOW_CONFIG`
-overrides that. See the [jflow skill](.github/skills/jflow/SKILL.md) for the schema and vendor rule.
-
-### workflow
-
-Use it for any coding task bigger than a quick fix.
-
-| Step | What happens |
-|---|---|
-| Brainstorm | The agent asks questions until the task is clear, then writes a short brief. It builds quick throwaway sketches when trying beats asking |
-| Plan | Up to eight small tickets, each with lines that say when it is done |
-| Execute | One ticket at a time, test first. Steps only you can take become operator tickets |
-| Review | Checks the result where users see it. A model from another vendor reviews the code |
-| Wrap | Updates docs and memory, then closes the run |
-
-Each step ends with a card that names the next command and the model to use. Before a step marks
-its file complete, `workflow/scripts/check-run.py` checks the run folder's format, so mistakes
-in headers, tickets or review notes are caught by a script.
-
-Before every push, the agent scans the new commits for secrets with
-[gitleaks](https://github.com/gitleaks/gitleaks). Install it once, for example with
-`brew install gitleaks` or `mise use -g gitleaks`. The pre-push hook refuses a push without it.
-The human can push unscanned with `git push --no-verify`; record that choice in the run.
-Optional: to stop an agent from skipping the hooks with `--no-verify`, `checkup` suggests two deny
-rules for your Claude settings. j-skills works without them.
-
-[`ROUTING.md`](.github/skills/workflow/ROUTING.md) sets the models, and the
-[workflow guide](.github/skills/workflow/README.md) explains every command.
-
 ### retro
 
 Use it after a session that felt slow.
@@ -291,7 +246,7 @@ Use it after a session that felt slow.
   transcripts on your machine. Nothing is written to a file.
 - It suggests fixes, ranked by how much time they would save.
 - Each fix you approve goes to the skill or file that owns it.
-- Run `retro` for the current session, `retro <slug>` for a workflow or jflow run, or `retro <session id>`.
+- Run `retro` for the current session, `retro <slug>` for a jflow run, or `retro <session id>`.
 
 ### memory.remember
 
@@ -324,16 +279,17 @@ Use it when something feels off, or before a cleanup.
 
 ### evals
 
-Use it before you let a new model review code, or before you keep a change to the review rules.
+Use it before you give jflow's check seat to a new model, or before you keep a change to
+`jflow/references/check.md`.
 
 - It shows the model up to ten diffs that hide known serious bugs, and records which bugs it finds.
 - Each diff also has a clean twin with no bug. A serious bug reported on a clean twin counts as a
   false alarm, so a model that flags everything does not score well.
-- Some cases are real bugs a review missed. Others are planted in diffs that already shipped, so
+- Some cases are real bugs a check missed. Others are planted in diffs that already shipped, so
   the exam can run before any real miss happens.
 - The cases live in a separate private repo, `j-skills-evals`, because they copy code from your
   repos. See *Setup*.
-- Only the reviewer seat is tested this way. Other seats are judged on real runs in `WORKLOG.md`.
+- Only jflow's check seat is tested this way. Other seats are judged on real runs in `WORKLOG.md`.
 
 ### verify
 
@@ -344,8 +300,8 @@ Use it once per repo that has something a user touches: a web page, an app, a CL
 - It also writes a feature map: for each feature, how a user gets to it and what proves it works.
 - The command prints `***` instead of passwords and tokens, because its output can end up in
   committed run files. A verify skill built before this rule may not, so check older ones.
-- `workflow` uses it for before and after screenshots and to check the result in review. Wrap
-  updates the map for the features a run changed.
+- `jflow` build and check use it to drive the real app. `jflow done` names driver steps worth
+  keeping, and `verify.maintain` adds them to the command.
 - `verify.maintain` drives every feature again and fixes the map where the app has moved on.
   `checkup` tells you when it is due.
 - The skill lives in `.agents/skills/verify-<app>/` with a link in `.claude/skills/`, so all
@@ -363,27 +319,29 @@ agents.
 
 ## Setup
 
-The terminal commands below install the skills for Codex and GitHub Copilot. For Claude Code,
-use the [workflow guide's folder setup](.github/skills/workflow/README.md#install) for each skill
-you want to load. This repo also includes Claude Code plugin discovery links.
+The terminal commands below install the skills for Claude Code, Codex and GitHub Copilot. This
+repo also includes Claude Code plugin discovery links.
 
 Each skill is installed once, as a real folder in `~/.agents/skills/<name>`. The `skills`
 installer copies it from GitHub and records it in `~/.agents/.skill-lock.json`. Copilot CLI reads
-that folder; Codex reads the same folder through a link in `~/.codex/skills`. These global installs are independent of the working clone, so that clone can live anywhere.
+that folder; Codex and Claude Code read the same folder through links in `~/.codex/skills` and
+`~/.claude/skills`. These global installs are independent of the working clone, so that clone can live anywhere.
 
 | Path | What it is |
 |---|---|
 | `~/.agents/skills/<name>` | The installed skill. Copilot CLI and Codex 0.160 or newer read it |
 | `~/.codex/skills/<name>` | A link to `~/.agents/skills/<name>`, for Codex |
+| `~/.claude/skills/<name>` | A link to `~/.agents/skills/<name>`, for Claude Code |
 | `skills/<name>` in this repo | A link for Claude Code plugin discovery, through `.claude-plugin/plugin.json` |
 
 Install every skill:
 
 ```sh
 npx skills add johnviklund/j-skills -g -a codex github-copilot -s '*' -y
-mkdir -p ~/.codex/skills
-for n in agent-docs bootstrap checkup design evals jflow memory.compact memory.remember plain retro roadmap understand verify workflow; do
+mkdir -p ~/.codex/skills ~/.claude/skills
+for n in agent-docs bootstrap checkup design evals jflow memory.compact memory.remember plain retro roadmap understand verify; do
   ln -sfn ~/.agents/skills/$n ~/.codex/skills/$n
+  ln -sfn ../../.agents/skills/$n ~/.claude/skills/$n
 done
 ```
 
@@ -415,11 +373,12 @@ gh repo clone johnviklund/j-skills-evals ~/.agents/j-skills-evals
    python3 .github/skills/agent-docs/scripts/trigger-test.py .github/skills/<name>/tests/triggers.tsv
    ```
 
-4. Commit and push. Install it and link it for Codex, then add its name to the loop above:
+4. Commit and push. Install it and link it for Codex and Claude Code, then add its name to the loop above:
 
    ```sh
    npx skills add johnviklund/j-skills -g -a codex github-copilot -s <name> -y
    ln -s ~/.agents/skills/<name> ~/.codex/skills/<name>
+   ln -s ../../.agents/skills/<name> ~/.claude/skills/<name>
    ```
 
 5. Check that Copilot registered it: `copilot skill list --json | grep '"name": "<name>"'`.
