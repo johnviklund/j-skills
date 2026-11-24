@@ -46,3 +46,5 @@
 - Only the `- ` lines are compared, not the raw section. A `Yes: done` line appended under an
   unchanged proposal must not turn it into a new one; `drive.py 3` caught that in my first try.
 - `jflow.py` is 29,989 bytes.
+
+Checks allowed: 4 · "A" · 2026-11-24
