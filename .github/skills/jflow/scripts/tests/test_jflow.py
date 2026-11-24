@@ -432,12 +432,16 @@ class RunRecord(unittest.TestCase):
         self.commit("check-2")
         self.assertNotIn("wait_point", n := self.next())
         self.assertEqual(n["step"], "done")
-        with notes.open("a") as f:
-            f.write("## Proposed edits\n- DESIGN.md: new rule\n")
+        # A new proposal written over the old one, under its old heading and old yes, still waits.
+        notes.write_text("## Proposed edits\n- DESIGN.md: new rule\n" + yedits)
         self.commit("new edits")
-        self.assertEqual(self.next().get("wait_point"), "edits")
+        self.assertEqual((n := self.next()).get("wait_point"), "edits")
+        self.assertIn("- DESIGN.md: new rule", n["blocker"])
+        self.assertNotIn("PRODUCT.md", n["blocker"])
+        # Only a committed yes counts.
         with notes.open("a") as f:
             f.write('Yes: edits · "go" · 2026-11-25\n')
+        self.assertEqual(self.next().get("wait_point"), "edits")
         self.commit("fresh yes")
         self.assertEqual((n := self.next())["step"], "done")
         self.assertNotIn("wait_point", n)

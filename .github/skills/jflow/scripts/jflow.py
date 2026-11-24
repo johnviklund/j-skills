@@ -290,13 +290,14 @@ def line(s):
 
 def next_step(repo, run, a):
     slug = run.name
-    spec, notes = ((run / f).read_text("utf-8") if (run / f).exists() else "" for f in ("spec.md", "notes.md"))
+    spec = (run / "spec.md").read_text("utf-8") if (run / "spec.md").exists() else ""
     st = re.search(r"^Status:\s*(\w+)", spec, re.M)
     status = st.group(1) if st else None
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
     base_sha = base.group(1) if base else None
     rel = run.relative_to(repo).as_posix()
     spec_rel, notes_rel = f"{rel}/spec.md", f"{rel}/notes.md"
+    notes = git(repo, "show", f"HEAD:{notes_rel}", check=False).stdout
 
     def after(x, y):
         return bool(x and y) and not git(repo, "merge-base", "--is-ancestor", x, y, check=False).returncode
@@ -439,16 +440,19 @@ def next_step(repo, run, a):
         else:
             waits = [f"{h[:-1]}: {l[2:]}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")), ("Maybes", section(text, "Maybes"))) for l in ls]
+            _, h, pe = ("\n" + notes).rpartition("\n## Proposed edits\n")
+            new = set(rnotes.splitlines())
             if waits and not yes("done"):
                 blocker, details = "answer these before done", waits
                 options = [("They hold", "do each one first; I record your yes and run done."),
                            ("One fails", "say what failed; I fix it.")]
                 why, wp = f"{name} has every row proved and waits on the human", "done"
-            elif re.search(r"^## Proposed edits", rnotes, re.M) and not yes("edits"):
-                blocker, details = "approve the edits done proposed in notes.md", [l[2:] for l in section(rnotes, "Proposed edits")]
-                options = [("Make them", "I record your yes and run done, which makes them."),
-                           ("Change them", "say what to change; I rewrite ## Proposed edits.")]
-                why, wp = f"{name} has every row proved and done proposed edits", "edits"
+            elif h and not any(l[:10] == "Yes: edits" for l in new & {*pe.splitlines()}) and (
+                    details := [l[2:] for l in pe.split("\n## ")[0].splitlines() if l[:2] == "- " and l in new]):
+                blocker = "approve the proposed edits in notes.md"
+                options = [("Make them", "I record your yes; done makes them."),
+                           ("Change them", "say what to change; I rewrite them.")]
+                why, wp = f"{name}: done proposed edits", "edits"
             else:
                 step, why = "done", f"{name} has every row proved"
     if counted >= allowed and (step == "fix" or step == "check" and late):

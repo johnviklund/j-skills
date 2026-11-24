@@ -16,8 +16,8 @@ Runs in the builder session after the last check.
    **Unattended,** with no human in the session, as under `conductor`: write each `PRODUCT.md`,
    `DESIGN.md` or `TODO.md` edit and each `drive.py` verb you would ask about as one `- ` line
    under `## Proposed edits` in `notes.md`. Commit only `notes.md` and end with the closing card:
-   steps 3 to 8 wait, since `next` waits for `Yes: edits`. With a `Yes: edits` line already
-   there, make the proposed edits as written, with any change the human gave, and do not ask
+   steps 3 to 8 wait, since `next` waits for `Yes: edits`. A changed proposal goes in a new
+   `## Proposed edits`; the newest one counts. With a `Yes: edits` line after it, make the proposed edits as written, with any change the human gave, and do not ask
    again. In a session with a human, ask in chat as above.
 3. Run the repo's own verification commands from `AGENTS.md`.
 4. Set `Status: done` in `spec.md`, then record the step as `done`. The script prints the run's
@@ -63,7 +63,8 @@ on the default branch yet. Then, when `ROADMAP.md` has a `## Next up` item, run 
 
 ## Issue and pull request mode
 
-Step 4: leave the spec comment as it is; `record done` marks the run done. Step 6: delete
+Step 2, unattended: post `## Proposed edits` with `jflow.py note <slug> --file F` instead of
+committing `notes.md`. Step 4: leave the spec comment as it is; `record done` marks the run done. Step 6: delete
 `drive.py` from `.git/jflow/<issue>/`. Step 8: push the branch, then `gh pr ready <number>`; never
 merge. On a public repo, ask before the push and the post, then pass `--confirmed`. Done when the
 pull request is ready for review.

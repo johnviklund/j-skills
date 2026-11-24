@@ -272,6 +272,10 @@ class GitHubMode(unittest.TestCase):
         "edits": [("spec", {}), ("pr",), ("code",), ("receipt", {}),
                   ("notes", "## Proposed edits\n- PRODUCT.md: mark the outcome reached"), ("ask", "product.md: mark"),
                   ("notes", 'Yes: edits · "yes" · 2026-11-24'), ("step", "done")],
+        "edits-changed": [("spec", {}), ("pr",), ("code",), ("receipt", {}),
+                          ("notes", "## Proposed edits\n- PRODUCT.md: mark the outcome reached"),
+                          ("notes", "## Proposed edits\n- DESIGN.md: the revised rule"), ("ask", "design.md: the revised"),
+                          ("notes", 'Yes: edits · "yes" · 2026-11-24'), ("step", "done")],
         "cap": [("spec", {}), ("pr",)] + [("code",), ("receipt", dict(v1="BROKEN"))] * 3
                + [("ask", "3 checks used of 3"), ("notes", "Checks allowed: 4"), ("step", "fix")],
         "rerun": [("spec", {}), ("pr",), ("code",), ("receipt", dict(v1="BROKEN")), ("code",),
