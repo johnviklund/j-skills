@@ -56,3 +56,6 @@ ROADMAP.md.
 - On the work laptop: run `npx skills update -g`, delete the installed `workflow` folder if the
   update leaves it, and run `hooks.py install` in each repo with hooks.
 - Read the new README top once for plain language.
+
+## Accepted
+- Row 1 · 91 historical ledger matches in checkup/SKILL-IMPACT.md and checkup/SKILL-IMPACT_ARCHIVE.md conflict with Row 4's byte-identical preservation bar · "B" · 2026-11-24 · 86e07ad
