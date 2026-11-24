@@ -157,6 +157,26 @@ def repost_after_respec(run):
     expect(result, 'human', 'edits')
 
 
+def repost_after_cleanup(run):
+    notes = reprove_after_respec(run)
+    notes.write_text('')
+    run.commit('prune the obsolete proposal and approval')
+    notes.write_text(EDITS)
+    run.commit('post the proposal for the revised spec')
+    result = run.next()
+    print(f'Reposted proposal returned {result["step"]} with wait_point={result.get("wait_point")}', flush=True)
+    expect(result, 'human', 'edits')
+
+
+def trim_after_respec(run):
+    notes = reprove_after_respec(run)
+    notes.write_text(EDITS.split('- TODO.md:')[0])
+    run.commit('propose only the remaining edit')
+    result = run.next()
+    print(f'Shortened proposal returned {result["step"]} with wait_point={result.get("wait_point")}', flush=True)
+    expect(result, 'human', 'edits')
+
+
 def uncommitted_approval(run):
     run.state('PROVED', code=True)
     notes = run.run_dir / 'notes.md'
@@ -201,6 +221,8 @@ if __name__ == '__main__':
         'retain-edit-after-respec': retain_edit_after_respec,
         'repeat-old-edit-in-note': repeat_old_edit_in_note,
         'repost-after-respec': repost_after_respec,
+        'repost-after-cleanup': repost_after_cleanup,
+        'trim-after-respec': trim_after_respec,
         'uncommitted-approval': uncommitted_approval,
         'github-replacement': github_replacement,
         'github-done-instructions': github_done_instructions,
