@@ -37,3 +37,8 @@ Headless conductor runs abort with exit 1 (`no progress`) at `jflow done` whenev
 
 ## Human checks
 - After both this `j-skills` run and the follow-up `conductor` run ship and `npx skills update -g` runs, verify one real `conductor` run whose `done` step proposes a doc or `TODO.md` edit stops with exit 2 and finishes after `conductor SLUG --answer yes`.
+
+## Accepted
+- Row 3 · after a re-spec, a proposal deleted then reposted, or trimmed, can skip its edits stop · "A" · 2026-11-24 · 0de041566c30f6a341e14ae018a07ead145f6153
+- Defect 1 · cleanup commit then identical repost after re-spec returns done · "A" · 2026-11-24 · 0de041566c30f6a341e14ae018a07ead145f6153
+- Defect 2 · trimmed proposal with its stale yes removed after re-spec returns done · "A" · 2026-11-24 · 0de041566c30f6a341e14ae018a07ead145f6153
