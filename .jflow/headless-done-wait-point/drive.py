@@ -101,7 +101,7 @@ def github_edits(run):
     print('stub gh routes edits to the human, then done in the builder session')
 
 
-def replace_after_respec(run):
+def reprove_after_respec(run):
     spec, notes = run.run_dir / 'spec.md', run.run_dir / 'notes.md'
     notes.write_text(EDITS + YES_EDITS)
     run.commit('approve first proposal')
@@ -113,11 +113,38 @@ def replace_after_respec(run):
     run.receipt(2, 'PROVED', '- none')
     run.commit('re-prove')
     expect(run.next(), 'done')
+    return notes
+
+
+def replace_after_respec(run):
+    notes = reprove_after_respec(run)
     notes.write_text('## Proposed edits\n- DESIGN.md: add the revised rule\n')
     run.commit('replace the old proposal in notes')
     result = run.next()
     print(f'Replacement after re-spec returned {result["step"]} with wait_point={result.get("wait_point")}')
     expect(result, 'human', 'edits')
+
+
+def retain_edit_after_respec(run):
+    notes = reprove_after_respec(run)
+    retained = '- PRODUCT.md: mark the outcome reached'
+    changed = '- TODO.md: keep the demo item and mark it finished'
+    notes.write_text(f'## Proposed edits\n{retained}\n{changed}\n')
+    run.commit('replace proposal and retain one edit')
+    result = run.next()
+    expect(result, 'human', 'edits')
+    shown = [line for line in result['blocker'].splitlines() if line.startswith('- ')]
+    print('Revised blocker shows ' + ', '.join(shown), flush=True)
+    assert shown == [retained, changed], result
+
+
+def repeat_old_edit_in_note(run):
+    notes = reprove_after_respec(run)
+    notes.write_text(notes.read_text() + '\n## Deferred\n- PRODUCT.md: mark the outcome reached\n')
+    run.commit('note a deferred edit')
+    result = run.next()
+    print(f'Deferred note returned {result["step"]} with wait_point={result.get("wait_point")}', flush=True)
+    expect(result, 'done')
 
 
 def uncommitted_approval(run):
@@ -161,6 +188,8 @@ if __name__ == '__main__':
     scenarios = {
         '1': local_edits, '2': all_wait_points, '3': independent_approvals, '4': github_edits,
         'replace-after-respec': replace_after_respec,
+        'retain-edit-after-respec': retain_edit_after_respec,
+        'repeat-old-edit-in-note': repeat_old_edit_in_note,
         'uncommitted-approval': uncommitted_approval,
         'github-replacement': github_replacement,
         'github-done-instructions': github_done_instructions,
