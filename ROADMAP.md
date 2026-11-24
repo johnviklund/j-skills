@@ -1,5 +1,5 @@
 # Roadmap
-Updated: 2026-11-22
+Updated: 2026-11-24
 
 This repo holds the `j-skills` skills. Undecided intake lives in [TODO.md](TODO.md), what shipped
 lives in [WORKLOG.md](WORKLOG.md) and git, and done items and earlier goals sit in
@@ -9,8 +9,9 @@ workflow goes once what other skills still need from it has moved. Start every i
 Budgets count sessions or changed lines.
 
 ## Next up
-1. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
-2. escaped-defects · the first conductor run opens a bug window that should land in its run folder
+1. headless-done-wait-point · every conductor run that proposes doc or TODO edits at done aborts with exit 1, seen in 3 of 3 recent runs, before Phase 2 runs conductor on every task
+2. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
+3. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
 ## Features
 
@@ -30,6 +31,28 @@ Budgets count sessions or changed lines.
 - **Open for spec:** is the recording a required Proof row for UI changes, and from when?
 
 ## Tooling
+
+### headless-done-wait-point · conductor pauses cleanly for done-step doc and TODO approvals
+
+- **Status:** open
+- **Problem:** Headless `conductor` runs abort with exit 1 (`no progress`) at `jflow done` whenever
+  `done` asks to approve `PRODUCT.md`, `DESIGN.md`, `TODO.md` or `drive.py` verb edits, forcing a
+  manual session resume. Seen in 3 of 3 recent conductor runs (`hq-py39`, `jflow-issue-pr-mode` and
+  a private-repo run on 2026-11-24).
+- **Impact:** conductor `done` exit-1 aborts on doc or TODO edits drop from 3 of 3 runs to 0,
+  removing a manual resume and wall-clock stall on every run.
+- **Why now:** `hq` Phase 2 is unblocked and will run `conductor` on every task.
+- **Solved when:** a conductor run whose `done` step proposes `PRODUCT.md`, `DESIGN.md` or `TODO.md`
+  edits stops cleanly with exit 2 and a typed wait point, and finishes `done` after
+  `conductor SLUG --answer yes` without a manual CLI resume.
+- **Out of scope:** changing interactive `jflow done` questions or rewriting `jflow.py` beyond
+  making room under its 30,000-byte cap.
+- **Budget:** 2 runs, one in `j-skills` and one in `conductor`
+- **Run:** jflow · j-skills
+- **After:** none
+- **Open for spec:** should `jflow done` write proposed edits under `## Proposed edits` in
+  `notes.md` with `wait_point: "edits"` and `Yes: edits`, alongside emitting a typed `wait_point`
+  field in `jflow.py next --json` for `conductor.py`?
 
 ### delete-workflow · delete workflow and the scripts only it uses
 
