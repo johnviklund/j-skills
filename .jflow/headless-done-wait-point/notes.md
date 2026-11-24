@@ -18,3 +18,19 @@
   voided every `Yes:` line, `Yes: done` included, so the text now says "earlier `Yes:` lines".
 - Open: `done` decides for itself whether it runs unattended. The follow-up `conductor` run has to
   tell it so in the prompt it sends, and read `wait_point` instead of the blocker text.
+
+## Fix 1 (check-1)
+
+- Defects 1 and 2 share a cause: `next` read the first `## Proposed edits` heading among the lines
+  added since the re-spec. It now reads the newest `## Proposed edits` in the whole notes text and
+  counts only the lines added since the last re-spec, both its `- ` lines and the `Yes: edits`
+  line. A proposal rewritten under its old heading counts. A newer proposal posted after the first
+  one replaces it in the blocker. `done.md` now says the newest proposal is the one that counts.
+- Defect 4: `next` now reads `notes.md` from `HEAD`, so an uncommitted `Yes:` line clears no wait
+  point. This applies to all four points, matching `SKILL.md`, where the session commits the line.
+- Defect 3: the code is right to refuse `.jflow/42/notes.md` in GitHub mode, so the scenario
+  `drive.py github-done-instructions` still fails by design. The fix is in `done.md`: in issue and
+  pull request mode, an unattended done posts `## Proposed edits` with `jflow.py note`. `drive.py 4`
+  already runs that path: "stub gh routes edits to the human, then done in the builder session".
+- To stay under 30,000 bytes I shortened the new blocker and option texts. `jflow.py` is now
+  29,987 bytes.
