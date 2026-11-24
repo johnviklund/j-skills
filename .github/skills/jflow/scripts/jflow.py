@@ -440,16 +440,15 @@ def next_step(repo, run, a):
         else:
             waits = [f"{h[:-1]}: {l[2:]}" for h, ls in (
                 ("Human checks", section(spec, "Human checks")), ("Maybes", section(text, "Maybes"))) for l in ls]
-            _, h, pe = ("\n" + notes).rpartition("\n## Proposed edits\n")
-            new = set(rnotes.splitlines())
+            (_, h, pe), (*_, op) = (("\n" + t).rpartition("\n## Proposed edits\n") for t in (notes, pn.stdout if pn else ""))
+            ed = [[l[2:] for l in t.split("\n## ")[0].splitlines() if l[:2] == "- "] for t in (pe, op)]
             if waits and not yes("done"):
                 blocker, details = "answer these before done", waits
                 options = [("They hold", "do each one first; I record your yes and run done."),
                            ("One fails", "say what failed; I fix it.")]
                 why, wp = f"{name} has every row proved and waits on the human", "done"
-            elif h and not any(l[:10] == "Yes: edits" for l in new & {*pe.splitlines()}) and (
-                    details := [l[2:] for l in pe.split("\n## ")[0].splitlines() if l[:2] == "- " and l in new]):
-                blocker = "approve the proposed edits in notes.md"
+            elif h and ed[0] != ed[1] and not ("\nYes: edits" in pe and yes("edits")) and (details := ed[0]):
+                blocker = "approve the proposed edits"
                 options = [("Make them", "I record your yes; done makes them."),
                            ("Change them", "say what to change; I rewrite them.")]
                 why, wp = f"{name}: done proposed edits", "edits"

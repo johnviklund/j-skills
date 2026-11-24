@@ -432,12 +432,21 @@ class RunRecord(unittest.TestCase):
         self.commit("check-2")
         self.assertNotIn("wait_point", n := self.next())
         self.assertEqual(n["step"], "done")
-        # A new proposal written over the old one, under its old heading and old yes, still waits.
-        notes.write_text("## Proposed edits\n- DESIGN.md: new rule\n" + yedits)
+        # Another yes appended under the old proposal leaves it old.
+        with notes.open("a") as f:
+            f.write(ydone)
+        self.commit("yes done after respec")
+        self.assertEqual(self.next()["step"], "done")
+        # An old proposal line copied into another section is no new proposal.
+        with notes.open("a") as f:
+            f.write("\n## Deferred\n- PRODUCT.md: mark Prove the run reached\n")
+        self.commit("deferred note")
+        self.assertEqual(((n := self.next())["step"], n.get("wait_point")), ("done", None))
+        # A proposal revised under its old heading and old yes waits, and shows every edit, kept ones too.
+        notes.write_text(edits.replace("drop", "keep") + yedits)
         self.commit("new edits")
         self.assertEqual((n := self.next()).get("wait_point"), "edits")
-        self.assertIn("- DESIGN.md: new rule", n["blocker"])
-        self.assertNotIn("PRODUCT.md", n["blocker"])
+        self.assertIn("- PRODUCT.md: mark Prove the run reached\n- TODO.md: keep the demo line", n["blocker"])
         # Only a committed yes counts.
         with notes.open("a") as f:
             f.write('Yes: edits · "go" · 2026-11-25\n')
