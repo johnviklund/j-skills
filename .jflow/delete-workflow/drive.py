@@ -179,8 +179,9 @@ def attack_trials():
         entries = trials['worklogs']([folder])
         report = run(sys.executable, str(TRIALS), '--impact', str(impact), str(folder)).stdout
         sweep = run(sys.executable, str(TRIALS), '--sweep', '--impact', str(impact), str(folder)).stdout
-        assert not entries and not report and 'numbers unavailable' not in sweep
-        print('attack trials: 2 jflow entries -> 0 recognized; completed trial produces no report')
+        assert len(entries) == 1 and entries[0][0] == '2026-11-09'
+        assert not report and 'numbers unavailable' in sweep
+        print('attack trials: 2 jflow entries -> 1 recognized; check clean dropped; completed trial produces no report')
 
 
 def attack_design():
@@ -191,10 +192,14 @@ def attack_design():
             'model': 'gpt-6.2-sol', 'vendor': 'openai', 'effort': 'high', 'fallback': None}}}))
         seat = json.loads(run(sys.executable, str(ROOT / '.github/skills/jflow/scripts/jflow.py'),
                               'seat', 'build', '--config', str(config)).stdout)
+        checker = json.loads(run(sys.executable, str(ROOT / '.github/skills/jflow/scripts/jflow.py'),
+                                 'seat', 'check', '--config', str(config)).stdout)
         instructions = (ROOT / '.github/skills/design/SKILL.md').read_text()
         assert seat['vendor'] == 'openai'
-        assert 'Fresh eyes is the other vendor, OpenAI' in instructions
-        print('attack design: build override selects OpenAI; fresh eyes still selects OpenAI, contrary to other-vendor rule')
+        assert checker['vendor'] != seat['vendor']
+        assert 'When the design seat is OpenAI' in instructions
+        assert 'use `jflow.py seat check`' in instructions
+        print('attack design: OpenAI build override selects Anthropic fresh eyes through jflow check seat')
 
 
 if __name__ == '__main__':
