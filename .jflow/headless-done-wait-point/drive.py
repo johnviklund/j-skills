@@ -147,6 +147,16 @@ def repeat_old_edit_in_note(run):
     expect(result, 'done')
 
 
+def repost_after_respec(run):
+    notes = reprove_after_respec(run)
+    with notes.open('a') as file:
+        file.write('\n' + EDITS)
+    run.commit('repost the same edits for fresh approval')
+    result = run.next()
+    print(f'Reposted proposal returned {result["step"]} with wait_point={result.get("wait_point")}', flush=True)
+    expect(result, 'human', 'edits')
+
+
 def uncommitted_approval(run):
     run.state('PROVED', code=True)
     notes = run.run_dir / 'notes.md'
@@ -190,6 +200,7 @@ if __name__ == '__main__':
         'replace-after-respec': replace_after_respec,
         'retain-edit-after-respec': retain_edit_after_respec,
         'repeat-old-edit-in-note': repeat_old_edit_in_note,
+        'repost-after-respec': repost_after_respec,
         'uncommitted-approval': uncommitted_approval,
         'github-replacement': github_replacement,
         'github-done-instructions': github_done_instructions,
