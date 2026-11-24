@@ -62,3 +62,4 @@
 
 - Row 1 against row 4: see above. The human decides.
 - Plain-English uses of "workflow" stay, such as memory.compact's `## Workflow` heading.
+Yes: done · "yes" · 2026-11-24
