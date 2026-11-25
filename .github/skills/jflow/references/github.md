@@ -26,7 +26,7 @@ need `gh`, installed and logged in.
 | `drive.py` | `$(git rev-parse --git-dir)/jflow/<issue>/drive.py`: inside `.git`, so never committed |
 
 The pull request is the draft whose head branch is `jflow/<issue>`, in this repo or in a fork.
-Its body says `Refs #<issue>`, not `Closes`, so nothing closes the issue; a fork's pull request is
+Its body says `Closes #<issue>` so merging the pull request closes the issue; a fork's pull request is
 found through that reference. `jflow.py` reads comments in the order they were posted, and only
 from the `gh` user and people with write access to the repo. An organization member with read
 access does not count.
@@ -46,13 +46,15 @@ check, so every row runs again.
 
 ## Spec
 
-Never edit the issue body. On an existing issue, post the spec as a comment with `record spec`. For
-a plain slug, `record spec` opens the issue first. Set `Base:` to the default branch's `HEAD`.
+Never edit the issue body. On an existing issue, post the spec as a comment with `record spec`; it
+also adds the `ready-for-agent` label (and removes `next` if present) so the board moves the issue
+to Ready. For a plain slug, `record spec` opens the issue first. Set `Base:` to the default branch's
+`HEAD`.
 
 ## Build
 
 Create branch `jflow/<issue>` from `Base`. Make an empty first commit, push it, and open a draft
-pull request with `Refs #<issue>` in its body (`gh pr create --draft`). Do this before anything else,
+pull request with `Closes #<issue>` in its body (`gh pr create --draft`). Do this before anything else,
 because notes, including an `## Approach` for **Ask first**, go on that pull request. Later pushes
 wait for done, as in `.jflow/` mode.
 

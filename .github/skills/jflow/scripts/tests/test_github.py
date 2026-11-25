@@ -24,7 +24,7 @@ if "{owner}" in path and not os.path.realpath(os.getcwd()).startswith(s["cwd"]):
 path = path.replace("{owner}/{repo}", s["nwo"])
 if path == "user":
     sys.exit(print(json.dumps({"login": "me"})))
-m = re.fullmatch(r"repos/([^/]+/[^/]+)(/issues|/pulls|/collaborators)?(?:/([\w-]+))?(/comments|/timeline|/permission)?", path)
+m = re.fullmatch(r"repos/([^/]+/[^/]+)(/issues|/pulls|/collaborators)?(?:/([\w-]+))?(/comments|/timeline|/permission|/labels(?:/[\w-]+)?)?", path)
 if not m or m[1] != s["nwo"]:
     sys.exit(print("gh: Not Found (HTTP 404)", file=sys.stderr) or 1)
 def stamp():
@@ -44,6 +44,22 @@ elif m[2] == "/pulls":
            if p.get("owner", "o") + ":" + p["head"] == head]
 elif m[4] == "/timeline":
     out = s.get("timeline", {}).get(m[3], [])
+elif m[4] and m[4].startswith("/labels"):
+    labels = s.setdefault("labels", {}).setdefault(m[3], [])
+    if m[4] == "/labels" and body is not None:
+        for name in body.get("labels", []):
+            if name not in labels:
+                labels.append(name)
+        out = [{"name": n} for n in labels]
+    elif m[4].startswith("/labels/") and "-X" in args and "DELETE" in args:
+        name = m[4].split("/", 2)[2]
+        if name in labels:
+            labels.remove(name)
+            out = [{"name": n} for n in labels]
+        else:
+            out = None
+    else:
+        out = [{"name": n} for n in labels]
 elif m[4]:
     out = s["comments"].setdefault(m[3], [])
     if body is not None:
@@ -459,6 +475,13 @@ class GitHubMode(unittest.TestCase):
                     self.assertNotIn("Traceback", out.stderr)
                     self.assertEqual(json.loads(self.state.read_text())["comments"], json.loads(before)["comments"])
                     self.assert_no_jflow()
+
+    def test_record_spec_labels_issue_ready_for_agent(self):
+        s = self.load()
+        s["labels"] = {"42": ["next"]}
+        self.save(s)
+        self.record("spec", "--file", self.file("spec.md", self.spec()))
+        self.assertEqual(self.load()["labels"]["42"], ["ready-for-agent"])
 
 
 if __name__ == "__main__":

@@ -28,9 +28,14 @@ def git(repo, *args, **kw):
                           **kw).stdout.strip()
 
 
-def api(path, body=None, cwd=None, missing=False):
+def api(path, body=None, cwd=None, missing=False, method=None):
     """gh api, as parsed JSON; a list endpoint returns every page joined. missing: None on a refusal."""
-    write = ["-X", "POST", "--input", "-"] if body is not None else ["--paginate"]
+    if body is not None:
+        write = ["-X", method or "POST", "--input", "-"]
+    elif method:
+        write = ["-X", method]
+    else:
+        write = ["--paginate"]
     try:
         p = subprocess.run(["gh", "api", path, *write], capture_output=True, text=True, cwd=cwd,
                            input=None if body is None else json.dumps(body))
@@ -141,7 +146,7 @@ class Hub:
         coded = base and git(real, "diff", "--name-only", f"{base}..HEAD", "--", ".", ":(exclude).jflow")
         if not self.pr and (coded or a.cmd == "note" or a.cmd == "record" and step not in ("spec", "accept")):
             raise SystemExit(f"no linked pull request: open a draft PR from branch jflow/{self.issue or '<issue>'}"
-                             f" with Refs #{self.issue or '<issue>'} in its body")
+                             f" with Closes #{self.issue or '<issue>'} in its body")
         self.text = None
         if a.cmd in ("validate", "record") and a.file:
             if step not in POSTS:
@@ -153,8 +158,8 @@ class Hub:
             raise SystemExit(f"record {step} in issue and pull request mode needs --file")
         self.repo, self.run = self.replay(events)
 
-    def api(self, path, body=None, missing=False):
-        return api(path, body, cwd=self.real, missing=missing)
+    def api(self, path, body=None, missing=False, method=None):
+        return api(path, body, cwd=self.real, missing=missing, method=method)
 
     def trusted(self, login):
         if login and login not in self.trust:
@@ -269,6 +274,9 @@ class Hub:
                 entry["spec_sha256"] = digest(posted.get("body", ""))
         self.comment(self.issue if step in ("spec", "accept") else self.pr, "record",
                      "```json\n" + json.dumps(entry) + "\n```")
+        if step == "spec":
+            self.api(f"repos/{self.nwo}/issues/{self.issue}/labels", {"labels": ["ready-for-agent"]}, missing=True)
+            self.api(f"repos/{self.nwo}/issues/{self.issue}/labels/next", missing=True, method="DELETE")
 
     def note(self, path):
         self.comment(self.pr, "notes", Path(path).read_text("utf-8"))
