@@ -6,14 +6,17 @@ defects stay in spec.md's ## Accepted. .jflow/ mode only. Standard library, Pyth
 import argparse
 import datetime as dt
 import json
+import os
 import re
 import subprocess
 import sys
+import urllib.parse
 from pathlib import Path
 
 from jflow_gh import github_mode
 
-COMMIT_REF = re.compile(r"(?:https?://\S+/commit/)?([0-9a-f]{40})", re.I)
+HEX40 = re.compile(r"[0-9a-f]{40}", re.I)
+COMMIT_SEGS = ("commit", "commits", "tree", "blob")
 
 
 def _add_options(p):
@@ -27,13 +30,32 @@ def add_args(sub):
     _add_options(sub.add_parser("escaped", help="append a bug found after done to .jflow/<slug>/run.jsonl"))
 
 
+def _path_is_secret(path, is_secret):
+    return any(is_secret(part) for part in re.split(r"[/\\]+", path))
+
+
+def _url_ref_is_secret(ref, is_secret):
+    u = urllib.parse.urlsplit(ref)
+    if u.username is not None or u.password is not None or "@" in u.netloc:
+        return True
+    if is_secret([u.hostname or "", u.query, u.fragment]):
+        return True
+    segs = u.path.split("/")
+    for i, seg in enumerate(segs):
+        if is_secret(seg):
+            if not (HEX40.fullmatch(seg) and i > 0 and segs[i - 1].lower() in COMMIT_SEGS):
+                return True
+    return False
+
+
 def _ref_is_secret(ref, repo, is_secret):
+    if re.match(r"https?://", ref, re.I):
+        return _url_ref_is_secret(ref, is_secret)
     if not is_secret(ref):
         return False
-    m = COMMIT_REF.fullmatch(ref)
-    if m and subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "--verify", m[1] + "^{commit}"],
-        capture_output=True, text=True,
+    if HEX40.fullmatch(ref) and repo is not None and subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "--verify", ref + "^{commit}"],
+        capture_output=True,
     ).returncode == 0:
         return False
     return True
@@ -51,9 +73,9 @@ def run(argv, is_secret, slug):
     p = _Parser(prog="jflow.py escaped", description="append a bug found after done to .jflow/<slug>/run.jsonl")
     _add_options(p)
     a = p.parse_args(raw[1:])
-    if is_secret([a.slug, a.text, a.repo]):
+    if is_secret([a.slug, a.text]) or any(_path_is_secret(r, is_secret) for r in a.repo):
         raise SystemExit("secret-like argument refused")
-    if any(is_secret(r) and not COMMIT_REF.fullmatch(r) for r in a.ref):
+    if any(_ref_is_secret(r, None, is_secret) and not HEX40.fullmatch(r) for r in a.ref):
         raise SystemExit("secret-like argument refused")
     if len(a.ref) > 1:
         raise SystemExit("escaped: --ref may be given only once")
@@ -61,11 +83,11 @@ def run(argv, is_secret, slug):
         raise SystemExit("escaped: --repo may be given only once")
     repo_arg = a.repo[0] if a.repo else "."
     ref = a.ref[0] if a.ref else None
-    g = subprocess.run(["git", "-C", repo_arg, "rev-parse", "--show-toplevel", "HEAD"], capture_output=True, text=True)
-    if g.returncode or "\n" not in g.stdout[:-1]:
+    g = subprocess.run(["git", "-C", repo_arg, "rev-parse", "--show-toplevel", "HEAD"], capture_output=True)
+    if g.returncode or not g.stdout.endswith(b"\n") or b"\n" not in g.stdout[:-1]:
         raise SystemExit("escaped: not a git repo with a commit")
-    top, sha = g.stdout[:-1].rsplit("\n", 1)
-    repo = Path(top)
+    top_b, sha_b = g.stdout[:-1].rsplit(b"\n", 1)
+    repo, sha = Path(os.fsdecode(top_b)), sha_b.decode("ascii")
     if ref and _ref_is_secret(ref, repo, is_secret):
         raise SystemExit("secret-like argument refused")
     if not slug.match(a.slug) or github_mode(a, repo):

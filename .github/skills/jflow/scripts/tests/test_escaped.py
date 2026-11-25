@@ -119,21 +119,43 @@ class Escaped(unittest.TestCase):
                 self.assertEqual((self.run_dir / "run.jsonl").read_text(), before)
 
     def test_repo_path_with_newline(self):
+        import os
         import tempfile
         from pathlib import Path
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp) / "repo\nwith-newline"
-            repo.mkdir()
-            for cmd in (["init", "-q"], ["config", "user.name", "t"], ["config", "user.email", "t@t"]):
-                subprocess.run(["git", "-C", str(repo), *cmd], check=True)
-            (repo / ".jflow/demo").mkdir(parents=True)
-            (repo / ".jflow/demo/spec.md").write_text("# demo\nStatus: done\n")
-            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
-            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"], check=True)
-            out = subprocess.run([sys.executable, str(SCRIPT), "escaped", "demo", "nl path", "--repo", str(repo)],
-                                 capture_output=True, text=True)
-            self.assertEqual(out.returncode, 0, out.stderr)
-            self.assertEqual(json.loads(out.stdout)["text"], "nl path")
+            for name in (
+                "repo\nwith-newline",
+                "repo\rwith-cr",
+                "nested/deep/path/with/over/forty/chars/inside/repo",
+                os.fsdecode(b"repo-\xff-bytes"),
+            ):
+                with self.subTest(name=repr(name)):
+                    repo = Path(tmp) / name
+                    repo.mkdir(parents=True)
+                    for cmd in (["init", "-q"], ["config", "user.name", "t"], ["config", "user.email", "t@t"]):
+                        subprocess.run(["git", "-C", str(repo), *cmd], check=True)
+                    (repo / ".jflow/demo").mkdir(parents=True)
+                    (repo / ".jflow/demo/spec.md").write_text("# demo\nStatus: done\n")
+                    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+                    subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"], check=True)
+                    out = subprocess.run([sys.executable, str(SCRIPT), "escaped", "demo", "path bug", "--repo", str(repo)],
+                                         capture_output=True, text=True)
+                    self.assertEqual(out.returncode, 0, out.stderr)
+                    self.assertEqual(json.loads(out.stdout)["text"], "path bug")
+
+    def test_commit_url_other_repo_and_credential_url_refused(self):
+        before = self.done_run()
+        head = self.git("rev-parse", "HEAD")
+        other_url = "https://github.com/other/repo/commit/" + "a" * 40
+        ok = self.escaped("demo", "other repo commit", "--ref", other_url)
+        self.assertEqual(ok.returncode, 0, ok.stderr)
+        self.assertEqual(json.loads(ok.stdout)["ref"], other_url)
+        cred_url = f"https://user:{SECRET}@github.com/owner/repo/commit/{head}"
+        bad = self.escaped("demo", "cred url", "--ref", cred_url)
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertIn("secret-like", bad.stderr)
+        self.assertNotIn(SECRET, bad.stderr)
+        self.assertEqual(len((self.run_dir / "run.jsonl").read_text().splitlines()), len(before.splitlines()) + 1)
 
 
 if __name__ == "__main__":
