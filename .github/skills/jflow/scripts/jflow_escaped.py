@@ -16,6 +16,7 @@ from pathlib import Path
 from jflow_gh import github_mode
 
 HEX40 = re.compile(r"[0-9a-f]{40}", re.I)
+REV40 = re.compile(r"(?:[A-Za-z0-9_.-]{1,39}:)?[0-9a-f]{40}(?:[~^]\d*)*", re.I)
 COMMIT_SEGS = ("commit", "commits", "tree", "blob")
 
 
@@ -51,10 +52,10 @@ def _url_ref_is_secret(ref, is_secret):
     for i, seg in enumerate(segs):
         if is_secret(seg):
             prev = segs[i - 1].lower() if i > 0 else ""
-            if HEX40.fullmatch(seg) and prev in COMMIT_SEGS:
+            if REV40.fullmatch(urllib.parse.unquote(seg)) and prev in COMMIT_SEGS:
                 continue
             parts = re.split(r"\.{2,3}", seg) if prev == "compare" else []
-            if len(parts) == 2 and all(HEX40.fullmatch(x) or not is_secret(x) for x in parts):
+            if len(parts) == 2 and all(REV40.fullmatch(urllib.parse.unquote(x)) or not is_secret(x) for x in parts):
                 continue
             return True
     return False

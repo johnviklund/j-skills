@@ -155,7 +155,7 @@ class Escaped(unittest.TestCase):
         self.assertNotEqual(bad.returncode, 0)
         self.assertIn("secret-like", bad.stderr)
         self.assertNotIn(SECRET, bad.stderr)
-        cmp_url = f"https://github.com/other/repo/compare/{'a' * 40}...{'b' * 40}"
+        cmp_url = f"https://github.com/other/repo/compare/{'a' * 40}~1...{'b' * 40}"
         cmp_ok = self.escaped("demo", "compare url", "--ref", cmp_url)
         self.assertEqual(cmp_ok.returncode, 0, cmp_ok.stderr)
         self.assertEqual(json.loads(cmp_ok.stdout)["ref"], cmp_url)
