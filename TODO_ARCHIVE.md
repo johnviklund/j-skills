@@ -1,5 +1,7 @@
 # TODO archive
 
+- Worktree setup as a script — run a committed `.worktree-setup` instead of parsing `## Worktree setup` from AGENTS.md; the parser drew 5 of 17 run-worktrees findings — dropped: the worktree parser went with workflow · 2026-11-24 · delete-workflow
+
 - Guardrail: structure — emit a typed `wait_point` field (`"approach"`, `"gate"`, `"done"`, or `null`) in `jflow.py next --json` so drivers stop scraping blocker prose · must fail on 4a7487c (make room under `jflow.py`'s 30,000-byte cap first; promoted to `ROADMAP.md` under `headless-done-wait-point`) — done 2026-11-24 · headless-done-wait-point
 
 - Headless done wait point — `jflow done` writes proposed `PRODUCT.md`, `DESIGN.md`, or `drive.py` verb edits under `## Proposed edits` in `notes.md` and stops; `jflow.py next` returns `wait_point: "edits"` until `Yes: edits` is committed (promoted to `ROADMAP.md` under `headless-done-wait-point`; 3 of 3 conductor runs hit exit 1 at done: `hq-py39`, `jflow-issue-pr-mode`, and a private-repo run on 2026-11-24) — done 2026-11-24 · headless-done-wait-point

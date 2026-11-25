@@ -7,9 +7,7 @@ Archived items: see TODO_ARCHIVE.md (grep it).
 - GitHub-mode `validate` errors name the temporary `.jflow/#42/spec.md:N` path; name the spec or receipt comment instead (jflow-issue-pr-mode)
 - `.jflow/` mode re-spec gap — a `spec.md` change after a passing check or after done routes no new check, and `summary` ends at the first done; GitHub mode fixed both in `jflow_gh.py` (jflow-issue-pr-mode)
 - Unpushed commits on Human checks stop — `jflow.py next` adds an `Unpushed: N commits ahead of <upstream>` detail line when `@{u}..HEAD` has commits (hq-py39 retro)
-
-## Simplify
-- Worktree setup as a script — run a committed `.worktree-setup` instead of parsing `## Worktree setup` from AGENTS.md; the parser drew 5 of 17 run-worktrees findings
+- `skill-trials.py` reads `jflow:` lines only from `WORKLOG.md`; a repo with no worklog keeps its line in `notes.md` with no date, so its runs never count toward a trial. Fix: date it from the run's `done` record in `run.jsonl` (delete-workflow)
 
 ## Review deferrals
 - `jflow-config`: Unsupported flags or invalid `--session` values can echo key-like text in stderr; nothing is recorded. The human kept this existing behavior on 2026-11-08.

@@ -1,5 +1,5 @@
 # delete-workflow
-Status: ready
+Status: done
 Base: f2137fb
 Serves: none
 

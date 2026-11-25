@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-25 · delete-workflow · the workflow skill is deleted; jflow is the one dev loop · claude-opus-5-5
+- What other skills still needed moved out: the gitleaks pre-push hook to `jflow/scripts/hooks.py`, which upgrades old stubs; `SKILL-IMPACT.md` to checkup; seat and run readers to `jflow.py seat` and `.jflow/`. The README leads with jflow. Row 1's 91 history lines in SKILL-IMPACT are accepted.
+- Commits: 4f5cf0f 8610b41 9e9120b
+- jflow: 5 sessions · 2 fix rounds · 7 rows · 1 accepted · check 3 defects · net code -1632 · tests -1839 · docs -2485
+
 ## 2026-11-24 · headless-done-wait-point · jflow next types its wait points and stops at an `edits` point for an unattended done · claude-opus-5-5
 - `next --json` adds `wait_point` (`approach`, `gate`, `done`, `edits`) only at a wait point, so conductor can stop reading blocker text. An unattended `done` writes `## Proposed edits` to `notes.md` and stops until `Yes: edits`; GitHub mode posts it as a note. Three re-spec edge cases are accepted and listed in `TODO.md`.
 - Commits: f0b82e2 489ea32 cfafa0a 6cb8938 d62ff93
@@ -74,13 +79,3 @@ oldest when appending would exceed that.
 - One catch per transcript across Claude, Codex and Copilot keeps the report alive and the readable transcripts counted; a lone surrogate now prints as `?`. Closes correction-mining C2-1.
 - Commits: 90b326c e771ae9 24e45af ed8dbbf
 - jflow: 4 sessions · 0 fix rounds · 4 rows · review clean · net code +5 · tests +30
-
-## 2026-11-02 · correction-mining · a stdlib script lists repeated denials, interrupts and redirects from Claude, Codex and Copilot transcripts · GPT-6.1 Sol
-- `checkup/scripts/corrections.py` prints repeated denials and interrupts and the redirect turns to stdout only; `checkup` reports the top 5 repeats and `retro` cites one in its *Recurring* test.
-- Two review cycles found 2 P1 (an unmatched quote in a denied command crashed the report; 15 of 48 mutants survived the writer's sweep); both fixed, 1 P2 deferred to `TODO.md`, 5 P3 stay in `review.md`.
-- Commits: 00623b1 a5cd7fc 5683806 eecbc49 9911caa c3a6606 f7c04bf
-- Review: ship as-is (cycle 2, 0 open) @ 77efe6d
-- Run: 3 tickets · 3 sessions · 2 review cycles · 4 deviations · 0 findings overturned · net code +182 · tests +218
-- Seats: 0 Sonnet 5.5 · 2 Opus 5.5 · 3 GPT-6.1 Sol · 4 Opus 5.5
-- Skills: workflow@11e805e2c25a, checkup@ef4000aec266
-- Why: corrections the human gives are counted across sessions, so a repeat becomes visible without anyone running `retro` on each one.
