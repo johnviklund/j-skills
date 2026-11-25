@@ -8,6 +8,7 @@ Archived items: see TODO_ARCHIVE.md (grep it).
 - `.jflow/` mode re-spec gap — a `spec.md` change after a passing check or after done routes no new check, and `summary` ends at the first done; GitHub mode fixed both in `jflow_gh.py` (jflow-issue-pr-mode)
 - Unpushed commits on Human checks stop — `jflow.py next` adds an `Unpushed: N commits ahead of <upstream>` detail line when `@{u}..HEAD` has commits (hq-py39 retro)
 - `skill-trials.py` reads `jflow:` lines only from `WORKLOG.md`; a repo with no worklog keeps its line in `notes.md` with no date, so its runs never count toward a trial. Fix: date it from the run's `done` record in `run.jsonl` (delete-workflow)
+- Guardrail: test — resolve the git object directory with `git rev-parse --git-common-dir` instead of `ROOT / '.git/objects'` in `.github/skills/jflow/scripts/tests/test_validate.py` (`test_historical_specs_and_all_sixteen_receipts`) · must fail in a `git worktree` at `5396a4c` (escaped-defects retro)
 
 ## Review deferrals
 - `jflow-config`: Unsupported flags or invalid `--session` values can echo key-like text in stderr; nothing is recorded. The human kept this existing behavior on 2026-11-08.

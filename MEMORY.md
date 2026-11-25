@@ -5,3 +5,4 @@
 - [installed-skill-copy-is-not-the-clone](memory/installed-skill-copy-is-not-the-clone.md) — an installed skill folder has no .git; check rev-parse before committing a skill edit · occurrences 1 · 2026-08-26
 - [mutation-baseline-needs-control-and-case-count](memory/mutation-baseline-needs-control-and-case-count.md) — run the mutation tool on an unmutated copy and count cases from the runner first · occurrences 1 · 2026-10-31
 - [parser-tests-need-real-file-and-both-sides](memory/parser-tests-need-real-file-and-both-sides.md) — new parser tests need the real file and both sides of a guard · occurrences 2 · 2026-11-02
+- [jflow-secret-check-inputs](memory/jflow-secret-check-inputs.md) — `secret()`'s 40-char rule collides with paths, SHAs, URLs and argparse errors; define input shapes up front · occurrences 2 · 2026-11-25
