@@ -155,7 +155,17 @@ class Escaped(unittest.TestCase):
         self.assertNotEqual(bad.returncode, 0)
         self.assertIn("secret-like", bad.stderr)
         self.assertNotIn(SECRET, bad.stderr)
-        self.assertEqual(len((self.run_dir / "run.jsonl").read_text().splitlines()), len(before.splitlines()) + 1)
+        cmp_url = f"https://github.com/other/repo/compare/{'a' * 40}...{'b' * 40}"
+        cmp_ok = self.escaped("demo", "compare url", "--ref", cmp_url)
+        self.assertEqual(cmp_ok.returncode, 0, cmp_ok.stderr)
+        self.assertEqual(json.loads(cmp_ok.stdout)["ref"], cmp_url)
+        malformed = f"https://[{SECRET}/commit/{head}"
+        mal_bad = self.escaped("demo", "malformed url", "--ref", malformed)
+        self.assertNotEqual(mal_bad.returncode, 0)
+        self.assertRegex(mal_bad.stderr, r"^[^\n]+\n$")
+        self.assertIn("secret-like", mal_bad.stderr)
+        self.assertNotIn(SECRET, mal_bad.stderr)
+        self.assertEqual(len((self.run_dir / "run.jsonl").read_text().splitlines()), len(before.splitlines()) + 2)
 
 
 if __name__ == "__main__":

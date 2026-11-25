@@ -35,16 +35,28 @@ def _path_is_secret(path, is_secret):
 
 
 def _url_ref_is_secret(ref, is_secret):
-    u = urllib.parse.urlsplit(ref)
+    try:
+        u = urllib.parse.urlsplit(ref)
+        host = u.hostname or ""
+        _ = u.port
+    except ValueError:
+        if is_secret(ref):
+            return True
+        raise SystemExit("escaped: invalid URL in --ref")
     if u.username is not None or u.password is not None or "@" in u.netloc:
         return True
-    if is_secret([u.hostname or "", u.query, u.fragment]):
+    if is_secret([host, u.query, u.fragment]):
         return True
     segs = u.path.split("/")
     for i, seg in enumerate(segs):
         if is_secret(seg):
-            if not (HEX40.fullmatch(seg) and i > 0 and segs[i - 1].lower() in COMMIT_SEGS):
-                return True
+            prev = segs[i - 1].lower() if i > 0 else ""
+            if HEX40.fullmatch(seg) and prev in COMMIT_SEGS:
+                continue
+            parts = re.split(r"\.{2,3}", seg) if prev == "compare" else []
+            if len(parts) == 2 and all(HEX40.fullmatch(x) or not is_secret(x) for x in parts):
+                continue
+            return True
     return False
 
 
