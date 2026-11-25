@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-25 · escaped-defects · `jflow.py escaped` records post-done bugs in `run.jsonl` · claude-opus-5-5 / gemini-4-neon
+- `jflow.py escaped <slug> "<one line>" [--ref R]` appends a `"step": "escaped"` line to `.jflow/<slug>/run.jsonl`, `summary --json` counts non-zero escaped bugs without changing session or fix counts, and accepted defects stay in `## Accepted`. One check-5 `[edge]` URL qualifier defect is accepted and logged in `TODO.md`.
+- Commits: 5d516ca 1fd7a03 edcc27d 99423d8 cb5e063
+- jflow: 8 sessions · 4 fix rounds · 6 rows · 2 accepted · check 12 defects · net code +122 · tests +172 · docs -6
+
 ## 2026-11-25 · delete-workflow · the workflow skill is deleted; jflow is the one dev loop · claude-opus-5-5
 - What other skills still needed moved out: the gitleaks pre-push hook to `jflow/scripts/hooks.py`, which upgrades old stubs; `SKILL-IMPACT.md` to checkup; seat and run readers to `jflow.py seat` and `.jflow/`. The README leads with jflow. Row 1's 91 history lines in SKILL-IMPACT are accepted.
 - Commits: 4f5cf0f 8610b41 9e9120b
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - Evidence keeps the command and decisive output line within 240 characters; defect references avoid repetition.
 - Commits: 2cd2359 3ad0bd2 458473c 03e783e a2e921d
 - jflow: 4 sessions · 1 fix rounds · 6 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +6
-
-## 2026-11-04 · corrections-bad-records · `corrections.py` skips a malformed transcript instead of losing the whole report · Opus 5.5
-- One catch per transcript across Claude, Codex and Copilot keeps the report alive and the readable transcripts counted; a lone surrogate now prints as `?`. Closes correction-mining C2-1.
-- Commits: 90b326c e771ae9 24e45af ed8dbbf
-- jflow: 4 sessions · 0 fix rounds · 4 rows · review clean · net code +5 · tests +30

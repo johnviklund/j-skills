@@ -4,6 +4,24 @@ Completed steps, moved from `ROADMAP.md` at wrap.
 
 ## Done
 
+### escaped-defects · a defect that leaves with a run is recorded against it
+
+- **Status:** done 2026-11-25 cb5e063
+- **Problem:** A bug found after done is not recorded against the run that shipped it, so nobody can
+  count escaped defects. Defects accepted at done are not tracked either: one work-repo run shipped
+  a count that shows wrong data as correct, and another closed with all 12 rows accepted, then cost
+  a 6-session follow-up run for 3 defects its second check had found.
+- **Impact:** escaped and accepted defects become countable per run; today the count is 0 because
+  nothing records them.
+- **Why now:** the first conductor run opens a bug window, and its bugs should land in its folder.
+- **Solved when:** one jflow command records a bug, or an accepted defect, in the folder of the run
+  that shipped it, in any repo, with or without hq, and hq's scores count it from there.
+- **Budget:** about 40 lines
+- **Run:** jflow · j-skills
+- **After:** none
+- **Open for spec:** should an accepted defect go through the same command, or is the `## Accepted`
+  section already enough to count?
+
 ### delete-workflow · delete workflow and the scripts only it uses
 
 - **Status:** done 2026-11-25 af6b684
