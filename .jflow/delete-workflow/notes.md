@@ -68,3 +68,4 @@ Yes: done · "yes" · 2026-11-24
 - `TODO.md`, under `## jflow`, add: `skill-trials.py` reads `jflow:` lines only from `WORKLOG.md`; a repo with no worklog keeps its line in `notes.md` with no date, so its runs never count toward a trial. Fix: date it from the run's `done` record in `run.jsonl` (delete-workflow)
 - `TODO.md`, move `## Simplify` "Worktree setup as a script" word for word to `TODO_ARCHIVE.md` with `— dropped: the worktree parser went with workflow · 2026-11-24 · delete-workflow`
 - No `PRODUCT.md` or `DESIGN.md` exists, so neither needs an edit. `drive.py` holds only proof and attack steps for this run, so no `control` verb is worth keeping.
+Yes: edits · "yes" · 2026-11-25
