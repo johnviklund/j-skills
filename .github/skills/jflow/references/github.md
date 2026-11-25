@@ -38,6 +38,8 @@ comment's first line, the marker, so never post a jflow comment by hand:
 - `jflow.py record <slug> spec|check|accept --file F ...` validates and posts the text, then the record.
 - `jflow.py note <slug> --file F` posts a notes comment: an `## Approach`, a judgement call, a
   `Yes:` line, `Checks allowed:` or `Live done:`.
+- `jflow.py show <slug>` prints the run's trusted comments read-only, under the `.jflow/` file
+  names: `retro` and `memory.remember` read GitHub-mode runs through it.
 
 `validate` and `next` refuse the run when the branch has `.jflow/` files, staged or committed, and
 when anyone has edited, unmarked or deleted the spec comment since `record spec`. To change the

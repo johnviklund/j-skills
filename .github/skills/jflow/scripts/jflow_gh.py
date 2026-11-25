@@ -83,15 +83,17 @@ def github_mode(a, repo):
 
 
 def add_args(sub, rec, summ, val):
-    """GitHub mode's note command and options."""
+    """GitHub mode's note and show commands and options."""
     note = sub.add_parser("note", help="GitHub mode: post a builder note to the pull request")
-    note.add_argument("slug")
-    note.add_argument("--repo", default=".")
+    show = sub.add_parser("show", help="GitHub mode: print a run's spec, notes, receipts and records, read-only")
+    for p in (note, show):
+        p.add_argument("slug")
+        p.add_argument("--repo", default=".")
     for p in (rec, val, note):
         p.add_argument("--file", help="GitHub mode: the spec, receipt, Accepted lines or note to post")
     for p in (rec, note):
         p.add_argument("--confirmed", action="store_true", help="GitHub mode: the human approved a public write")
-    for p in (rec, summ, val, note):
+    for p in (rec, summ, val, note, show):
         p.add_argument("--config")
 
 
@@ -103,8 +105,8 @@ class Hub:
         if not m and not slug.match(a.slug):
             raise SystemExit(f"bad slug: {a.slug}")
         if not m and not github_mode(a, real):
-            if a.cmd == "note":
-                raise SystemExit("note works only in issue and pull request mode")
+            if a.cmd in ("note", "show"):
+                raise SystemExit(f"{a.cmd} works only in issue and pull request mode")
             return None
         try:
             return cls(a, real, m)
@@ -122,6 +124,8 @@ class Hub:
             raise SystemExit(f"{self.nwo} is public: ask the human before this GitHub write, then pass --confirmed")
         self.issue = int(m[2] if m.re is URL else m[1]) if m else self.find(a.slug)
         self.slug = f"#{self.issue}" if m else a.slug
+        if a.cmd == "show" and not (self.issue and self.api(f"repos/{self.nwo}/issues/{self.issue}", missing=True)):
+            raise SystemExit(f"no jflow issue for {self.slug} in {self.nwo}")
         self.pr = self.issue and self.find_pr()
         events, self.trust, self.me = [], {}, None
         for number in filter(None, (self.issue, self.pr)):
@@ -132,6 +136,9 @@ class Hub:
                     attrs = dict(x.split("=", 1) for x in mark[2].split())
                     events.append((c["created_at"], c["id"], mark[1], attrs, body[mark.end():], body))
         events.sort(key=lambda e: e[:2])
+        if a.cmd == "show":  # read-only: no lock, branch or replay, so a merged run with pruned commits reads too
+            self.events, self.repo, self.run = events, None, None
+            return
         specs = [e for e in events if e[2] == "spec"]
         locks = [r.get("spec_sha256") for r in self.records(events) if r.get("step") == "spec"]
         # A spec comment edited, unmarked or deleted after record spec no longer matches the lock.
@@ -278,9 +285,24 @@ class Hub:
             self.api(f"repos/{self.nwo}/issues/{self.issue}/labels", {"labels": ["ready-for-agent"]}, missing=True)
             self.api(f"repos/{self.nwo}/issues/{self.issue}/labels/next", missing=True, method="DELETE")
 
-    def note(self, path):
-        self.comment(self.pr, "notes", Path(path).read_text("utf-8"))
+    def note(self, a):
+        self.comment(self.pr, "notes", Path(a.file).read_text("utf-8"))
         print(f"posted a jflow note on PR #{self.pr}")
+
+    def show(self, a):
+        """The run's trusted comments as the .jflow/ files they stand for, in posting order."""
+        ev, receipts = self.events, {}
+        for e in ev:
+            if e[2] == "receipt":
+                receipts[f"receipts/check-{e[3].get('n', '0')}.md"] = e[4]
+        accepted = [l for e in ev if e[2] == "accepted" for l in e[4].splitlines() if l.startswith("- ")]
+        spec = ([e[4].rstrip("\n") for e in ev if e[2] == "spec"] or ["(no spec comment)"])[-1]
+        print(f"jflow {self.slug}: issue #{self.issue}, " + (f"PR #{self.pr}" if self.pr else "no pull request"))
+        files = {"spec.md": spec + "\n\n## Accepted\n" * bool(accepted) + "\n".join(accepted),
+                 "notes.md": "\n".join(e[4].rstrip("\n") for e in ev if e[2] == "notes"), **receipts,
+                 "run.jsonl": "\n".join(json.dumps(r) for r in self.records(ev))}
+        for name, text in files.items():
+            print(f"\n==> {name} <==\n{text.rstrip()}")
 
     def tidy(self, n):
         """Point a next decision at comments instead of files."""

@@ -18,7 +18,8 @@ A retro returns **at most three fixes**, often fewer. Every proposed rule is one
 later agent reads, so a retro that proposes a fix for every friction point adds sediment instead
 of removing waste. The human should be able to approve the whole list without weighing each item.
 
-**Invocation:** `retro` (the current session) · `retro <slug>` (a `.jflow/<slug>/` run) · `retro <session id>`.
+**Invocation:** `retro` (the current session) · `retro <slug>` (a `.jflow/<slug>/` run) · `retro #N`
+or `retro <issue URL>` (a run in jflow's issue and pull request mode) · `retro <session id>`.
 
 ## Steps
 
@@ -35,6 +36,10 @@ of removing waste. The human should be able to approve the whole list without we
      was left open), `receipts/check-*.md` (each BROKEN row or defect cost a fix round; BLOCKED rows
      and Maybes show what a check could not reach); the slug's `WORKLOG.md` entry or the `jflow:`
      line in `notes.md`; then the transcripts for the run's dates and cwd.
+   - **GitHub-mode run:** `#N`, an issue URL, or a slug in a clone with `git config jflow.mode
+     github` keeps no `.jflow/` folder: its spec, notes, receipts and records are issue and pull
+     request comments. Read them with `python3 <jflow skill>/scripts/jflow.py show <#N|URL|slug>`,
+     which prints them read-only under the same file names, then read them as for a run slug.
    - **Transcripts:** the session store when the CLI offers one; otherwise
      `~/.copilot/session-state/<id>/events.jsonl`, `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`,
      `~/.claude/projects/<cwd-slug>/*.jsonl`. Grep large transcripts for tool errors and human
