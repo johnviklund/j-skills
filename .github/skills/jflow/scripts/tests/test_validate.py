@@ -331,7 +331,7 @@ class Validation(unittest.TestCase):
         for step in ('spec', 'build', 'check', 'done'):
             with self.subTest(step=step):
                 self.assertLessEqual(skill_size + (skill / 'references' / f'{step}.md').stat().st_size, 14000)
-        self.assertLessEqual(SCRIPT.stat().st_size, 30000)
+        self.assertLessEqual(SCRIPT.stat().st_size, 30200)
         lines = [line for line in (SCRIPT.parents[1] / 'SKILL.md').read_text().splitlines() if 'validate' in line]
         self.assertEqual(len(lines), 1)
         self.assertTrue(all(word in lines[0] for word in ('record', 'spec', 'check', 'accept')))

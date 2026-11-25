@@ -400,12 +400,13 @@ def next_step(repo, run, a):
         defs = [k for k in li if k[0] == "Defect" and not closed(last, k)]
         stuck = [f"Row {r}, {v}: {li[('Row', str(r))].split('|')[3].strip()}" for r, v in rows if v in ("BLOCKED", "UNREACHABLE")]
         name = f"check-{last}"
-        edge = [k for k in defs if re.match(r"- \d+\. \[edge\]\s", li[k])]
+        en = {k[1] for k in li if re.match(r"- \d+\. \[edge\]\s", li[k])}
+        edge = [k for k in defs if k[1] in en]
         prev = receipts[-2]["n"] if len(receipts) >= 2 else None
         carried2 = [k for k in defs if k not in edge and prev and csrc(last, k) and csrc(prev, k) and origin(last, k) == origin(prev, k)]
         if late and (defs or {v for _, v in rows} - {"PROVED"}):
             step, n, why = "check", next_n, "code changed after an open receipt"
-        elif any(v == "BROKEN" for _, v in rows) or [k for k in defs if k not in edge and k not in carried2]:
+        elif any(v == "BROKEN" and not ({*re.findall(r"defect (\d+)", li["Row", str(r)])} or {0}) <= en for r, v in rows) or [k for k in defs if k not in edge and k not in carried2]:
             step, n, why = "fix", last, f"{name} has BROKEN rows or open defects"
         elif carried2:
             blocker = f"{name}: defect {', '.join(k[1] for k in carried2)} carried unchanged across two checks"

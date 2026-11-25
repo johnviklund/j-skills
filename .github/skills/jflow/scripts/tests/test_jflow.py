@@ -258,6 +258,23 @@ class RunRecord(unittest.TestCase):
         self.state("PROVED", "- 1. [edge]\tapp.py: x -> crash -> ok", code=True)
         self.assertIn("**B. Fix them**: I fix them and raise the check limit.", self.next()["blocker"])
 
+    def test_next_sends_rows_broken_only_by_edge_defects_to_the_human(self):
+        edge, use = "- 1. [edge] app.py: x -> crash -> ok", "\n- 2. [use] app.py: y -> crash -> ok"
+        for cited, defects, expected in [("defect 1", edge, "human"), ("defect 1, defect 2", edge + use, "fix"),
+                                         ("`cmd` -> fails", edge, "fix")]:
+            self.state("BROKEN", defects, code=True)
+            path = self.run_dir / "receipts/check-1.md"
+            path.write_text(path.read_text().replace("| 1 | BROKEN | `cmd` -> ok |", f"| 1 | BROKEN | {cited} |"))
+            self.commit("receipt")
+            self.assertEqual(self.next()["step"], expected, cited)
+        self.state("BROKEN", edge, code=True)
+        path.write_text(path.read_text().replace("| 1 | BROKEN | `cmd` -> ok |", "| 1 | BROKEN | defect 1 |"))
+        self.commit("receipt")
+        with (self.run_dir / "spec.md").open("a") as f:  # accepting the defect clears the row it broke
+            f.write(f'\n## Accepted\n- Defect 1 · odd input · "accept" · 2026-11-25 · {self.git("rev-parse", "HEAD~2")}\n')
+        self.commit("accept")
+        self.assertEqual(self.next()["step"], "done")
+
     def test_next_asks_about_unproved_rows_before_edge_defects(self):
         self.state("BLOCKED", "- 1. [edge] app.py: x -> crash -> ok", code=True)
         n = self.next()

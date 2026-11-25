@@ -55,8 +55,8 @@ through the code and say it is traced. A defect that breaks a row's claim also m
 
 Tag each defect by how its input arrives. `[use]`: normal work on this repo makes it. `[edge]`: a
 caller could send it, but normal work does not, such as a CRLF receipt or a non-UTF-8 filename.
-Report every defect either way. When every open defect is `[edge]` and no row is BROKEN, `next`
-asks the human to accept them or send them to fix.
+Report every defect either way. When every open defect is `[edge]`, and BROKEN rows cite only those, `next`
+asks the human to accept or fix them.
 
 Leave out style, structure, a missing test or surviving mutant on its own, duplication, and risks
 that need a future change to matter. No defects is a valid result.
