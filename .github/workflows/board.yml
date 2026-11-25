@@ -1,0 +1,59 @@
+name: board
+# Puts every issue and PR on the hq Kanban project and sets its Status column from labels and PR
+# state: Backlog, Ready, In Progress, Review, Escalated, Done. The mapping is `hq board`, which has
+# tests; this file only wires events to it.
+# Setup: repo variable HQ_BOARD = OWNER/NUMBER of the project; without it the job skips. Optional
+# HQ_GATE_LABEL and HQ_GATE_COLUMN override hq.yml and the defaults needs-human and Escalated. A
+# repo without hq.yml whose gate workflow uses a label other than needs-human must set
+# HQ_GATE_LABEL to that label, or its gated cards miss Escalated.
+# Optional HQ_ENGINE_REPO = owner/repo of the hq engine when it isn't OWNER/hq. A repo that doesn't
+# contain the CLI checks the engine out with GITHUB_TOKEN, which can't read another private repo:
+# when the engine is private, set the HQ_READ_TOKEN secret to a token with read access to it.
+# Each human saves a "My Queue" view in the project, filtered by `assignee:@me`; GitHub's API
+# can't create views, so this is a one-time step in the project's UI.
+# Needs the PROJECT_TOKEN secret: a classic token with `project` and `repo` scopes. GITHUB_TOKEN
+# can't write to a project owned by a user account. Without the secret the job skips.
+on:
+  issues:
+    types: [opened, reopened, closed, labeled, unlabeled, assigned, unassigned]
+  # _target so the token can read PRs from forks. No PR code is checked out.
+  pull_request_target:
+    types: [opened, reopened, closed, labeled, unlabeled, ready_for_review, converted_to_draft]
+permissions:
+  contents: read
+concurrency:
+  group: board-${{ github.event.issue.number || github.event.pull_request.number }}
+jobs:
+  sync:
+    # Skip before fetching anything: without a board there is nothing to sync.
+    if: vars.HQ_BOARD != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: cli
+      # Business repos don't contain the CLI; fetch it from the hq engine repo.
+      - name: Fetch the hq CLI
+        if: hashFiles('cli/hq.py') == ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.HQ_ENGINE_REPO || format('{0}/hq', github.repository_owner) }}
+          path: .hq
+          sparse-checkout: cli
+          token: ${{ secrets.HQ_READ_TOKEN || github.token }}
+      - name: Sync to the board
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          BOARD: ${{ vars.HQ_BOARD }}
+          GATE_LABEL: ${{ vars.HQ_GATE_LABEL }}
+          GATE_COLUMN: ${{ vars.HQ_GATE_COLUMN }}
+          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          if [ -z "$BOARD" ]; then echo "HQ_BOARD isn't set; skipping"; exit 0; fi
+          if [ -z "$GH_TOKEN" ]; then echo "PROJECT_TOKEN isn't set; skipping"; exit 0; fi
+          pip install --quiet pyyaml
+          HQ=cli/hq.py; [ -f "$HQ" ] || HQ=.hq/cli/hq.py
+          gate=()
+          if [ -n "$GATE_LABEL" ]; then gate+=(--gate-label "$GATE_LABEL"); fi
+          if [ -n "$GATE_COLUMN" ]; then gate+=(--gate-column "$GATE_COLUMN"); fi
+          python3 "$HQ" board --project "$BOARD" --repo "$GITHUB_REPOSITORY" --number "$NUMBER" "${gate[@]}"
