@@ -36,8 +36,8 @@ the code and test lines added, then run `jflow.py next <slug> --ask` and print i
 
 `jflow.py next` sends you here once a check has left only WAITING rows and, with a `Gate:`, the
 human has added `Yes: gate` to `notes.md`. Run the steps from the gate on, each **Ask first** item
-with the human's yes. Add `Live done: <date>` and what happened to
-`notes.md`, and record the step as `live`. Done when every step has run and that line is committed.
+with the human's yes. Add `Live done: <date>` and, for each `live` row, the redacted output,
+transcript or human confirmation its Pass signal needs to `notes.md`, and record the step as `live`. Done when every step has run and that line is committed.
 Run `jflow.py next <slug> --ask` and print its output.
 
 ## Fix
