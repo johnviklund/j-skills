@@ -67,7 +67,7 @@ def seats(repo, explicit):
                 while pend:
                     s = pend.pop()
                     bad(not isinstance(s, dict) or set(s) != {"model", "vendor", "effort", "fallback"}, "each seat needs model, vendor, effort and fallback")
-                    bad(any(not isinstance(s[k], str) or not s[k].strip() for k in ("model", "vendor", "effort")), "seat model, vendor and effort must be nonempty strings")
+                    bad(any(not (isinstance(s[k], str) and s[k].strip()) for k in ("model", "vendor", "effort")), "seat model, vendor and effort must be nonempty strings")
                     if s["fallback"] is not None:
                         pend.append(s["fallback"])
             cfg.setdefault("seats", {}).update(entries)
@@ -99,7 +99,7 @@ def born(repo, path):
 
 def section(text, heading):
     m = re.search(rf"^## {heading}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
-    return [l for l in (m.group(1).splitlines() if m else [])
+    return [l for l in (m[1].splitlines() if m else [])
             if l.startswith("- ") and not re.match(r"- (none\.?|<none\b[^>]*>)\s*$", l, re.I)]
 
 
@@ -119,7 +119,7 @@ def receipt_fields(path):
     for v in re.findall(r"^\|\s*\d+\s*\|\s*([A-Z]+)\s*\|", text, re.M):
         rows[v] = rows.get(v, 0) + 1
     sha = re.search(r"^# check-\d+ @ ([0-9a-f]{7,40})\b", text, re.M)
-    return {"n": int(re.sub(r"\D", "", path.stem)), "sha": sha.group(1) if sha else None, "rows": rows,
+    return {"n": int(re.sub(r"\D", "", path.stem)), "sha": sha and sha[1], "rows": rows,
             "defects": len([d for d in section(text, "Defects") if "carried from" not in d.lower()]),
             "maybes": len(section(text, "Maybes"))}
 
@@ -259,7 +259,7 @@ def summary(repo, run):
     dones = git(repo, "log", "--format=%H", "-G", "^Status: done", "--", sp).splitlines()
     end = dones[-1] + "^" if dones else "HEAD"
     ls = dict.fromkeys(("net_code", "tests", "docs", "other"), 0)
-    for l in git(repo, "diff", "--numstat", f"{base.group(1)}..{end}", "--", ".", ":(exclude).jflow").splitlines():
+    for l in git(repo, "diff", "--numstat", f"{base[1]}..{end}", "--", ".", ":(exclude).jflow").splitlines():
         add, dele, p = l.split("\t", 2)
         if add != "-":
             ls["tests" if TEST_PATH.search(p) else "net_code" if CODE_EXT.search(p) else "docs" if DOC_EXT.search(p) else "other"] += int(add) - int(dele)
@@ -275,10 +275,10 @@ def summary(repo, run):
             + len(checks) + sum(r["step"] in BUILDER_STEPS and r.get("session") == "fresh" for r in steps))
     return {"sessions": sess if steps else None, "checks": len(checks),
             "fix_rounds": max(fixes, sum(r["step"] == "fix" for r in steps)),
-            "rows": len(re.findall(r"^\|\s*\d+\s*\|", proof.group(1), re.M)) if proof else 0,
+            "rows": len(re.findall(r"^\|\s*\d+\s*\|", proof[1], re.M)) if proof else 0,
             "accepted": len(section(spec, "Accepted")), "defects": sum(c["defects"] for c in checks),
             "first_check_clean": (checks[0]["defects"] == 0 and set(checks[0]["rows"]) <= {"PROVED", "WAITING", "ACCEPTED"}) if checks else None,
-            **ls, "hours_spec_to_end": hours}
+            **ls, "hours_spec_to_end": hours, **({"escaped": e} if (e := sum(r.get("step") == "escaped" for r in recs)) else {})}
 
 
 def line(s):
@@ -292,9 +292,9 @@ def next_step(repo, run, a):
     slug = run.name
     spec = (run / "spec.md").read_text("utf-8") if (run / "spec.md").exists() else ""
     st = re.search(r"^Status:\s*(\w+)", spec, re.M)
-    status = st.group(1) if st else None
+    status = st and st[1]
     base = re.search(r"^Base:\s*(\S+)", spec, re.M)
-    base_sha = base.group(1) if base else None
+    base_sha = base and base[1]
     rel = run.relative_to(repo).as_posix()
     spec_rel, notes_rel = f"{rel}/spec.md", f"{rel}/notes.md"
     notes = git(repo, "show", f"HEAD:{notes_rel}", check=False).stdout
@@ -324,7 +324,7 @@ def next_step(repo, run, a):
 
     def constraint(name):
         v = re.search(rf"^- {name}:[ \t]*(.*?)\.?[ \t]*$", spec, re.M)
-        v = v.group(1) if v else ""
+        v = v[1] if v else ""
         return "" if v.lower() in ("", "none", "nothing") else v
 
     pn, nl = git(repo, "show", f"{spec_c}^:{notes_rel}", check=False) if spec_c else None, notes.splitlines()
@@ -336,7 +336,7 @@ def next_step(repo, run, a):
         return re.search(rf"^Yes: {pt}\b", rnotes, re.M)
 
     shas = [base_sha] + [r["sha"] for r in receipts]
-    counted = sum(1 for x, y in zip(shas, shas[1:]) if changed(repo, x, y) is not False)
+    counted = sum(changed(repo, x, y) is not False for x, y in zip(shas, shas[1:]))
     al = re.findall(r"^Checks allowed:\s*(\d+)", rnotes, re.M)
     allowed = int(al[-1]) if al else 3
 
@@ -371,14 +371,14 @@ def next_step(repo, run, a):
         def items(k):
             if k not in cache:
                 t = paths[k].read_text("utf-8") if k in paths else ""
-                d = {("Row", m.group(1)): m.group(0) for m in re.finditer(r"^\|\s*(\d+)\s*\|.*$", t, re.M)}
+                d = {("Row", m[1]): m[0] for m in re.finditer(r"^\|\s*(\d+)\s*\|.*$", t, re.M)}
                 d.update({("Defect", (re.findall(r"\d+", x) or ["?"])[0]): x for x in section(t, "Defects")})
                 cache[k] = d
             return cache[k]
 
         def csrc(k, key):
             m = re.search(r"carried from check-(\d+)", items(k).get(key, ""), re.I)
-            j = int(m.group(1)) if m else 0
+            j = int(m[1]) if m else 0
             return j if 0 < j < k and key in items(j) else None
 
         def origin(k, key):
@@ -468,9 +468,7 @@ def next_step(repo, run, a):
         blocker, step = "\n".join(lines + ["", "Reply A or B."]), "human"
     meta = FLOW["steps"].get(step, {})
     seat = seat_for(repo, step, a) if meta else None
-    cmd = {"spec": f"jflow spec {slug}", "build": f"jflow build {slug}", "check": f"jflow check {slug}",
-           "fix": fix % n, "live": f"Run the live steps of jflow build {slug}, then print the card.",
-           "done": f"jflow done {slug}"}.get(step)
+    cmd = {"fix": fix % n, "live": f"Run the live steps of jflow build {slug}, then print the card."}.get(step, seat and f"jflow {step} {slug}")
     return {"schema_version": 1, "slug": slug, "step": step, "n": n, "role": "human" if blocker else meta.get("role"),
             "model": {k: seat[k] for k in ("model", "vendor", "effort")} if seat else None,
             "command": cmd, "session": session or meta.get("session"), "blocker": blocker, "why": why, **({"wait_point": wp} if wp else {})}
@@ -494,8 +492,9 @@ def main(argv=None):
     for p in (rec, summ, val, nxt):
         p.add_argument("slug")
     sys.path[:0] = [str(SKILL / "scripts")]
-    import jflow_gh
+    import jflow_gh, jflow_escaped
     jflow_gh.add_args(sub, rec, summ, val)
+    jflow_escaped.add_args(sub)
     for p in (summ, nxt):
         p.add_argument("--json", action="store_true")
     nxt.add_argument("--ask", action="store_true")
@@ -511,6 +510,8 @@ def main(argv=None):
     for p in (rec, summ, seat, nxt, val):
         p.add_argument("--repo", default=".")
     a = ap.parse_args(argv)
+    if a.cmd == "escaped":
+        return jflow_escaped.run(a, record_value, SLUG)
     repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))
     if a.cmd == "seat":
         if a.step not in STEPS:
@@ -545,7 +546,7 @@ def main(argv=None):
     if a.step == "check":
         entry.update(receipt_fields(receipts_of(run)[-1]))
     if a.step == "fix":
-        entry["n"] = 1 + sum(1 for r in read_records(run) if r.get("step") == "fix")
+        entry["n"] = 1 + sum(r.get("step") == "fix" for r in read_records(run))
     if a.step == "done":
         entry["summary"] = summary(repo, run)
     kept = [r for r in read_records(run) if not (a.step == "check" and r.get("step") == "check" and r.get("n") == entry["n"])]

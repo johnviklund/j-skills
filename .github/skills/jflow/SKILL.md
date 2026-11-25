@@ -42,7 +42,7 @@ Its check card uses `--builder-vendor V`.
 **Locked rules.** Seats print fixed `rules`; config may repeat them as true.
 `public_paid_needs_human` gates public/paid actions on the human; `checker_read_only`
 forbids product edits by checkers; `no_secrets` rejects key-like
-config or record `--model`/`--effort` values without echoing them.
+config and arguments without echoing them.
 
 A receipt's own commit moves `HEAD`, so "changed" always means code: `.jflow/` files do not count.
 
@@ -69,7 +69,9 @@ every row then runs again.
 
 **Accepted.** When the human accepts a missed bar, unproved row or defect explicitly,
 the builder adds a line under `## Accepted` at the end of `spec.md` in its own
-commit `jflow accept <slug>`; no row reruns and the bar stays as written.
+commit `jflow accept <slug>`; no row reruns and the bar stays as written. Accepted defects stay
+there; `jflow.py escaped <slug> "<line>" [--ref R]` appends a bug found after done to
+`run.jsonl`; commit it.
 
 ```markdown
 ## Accepted
@@ -112,15 +114,7 @@ End each step, after its commit, by running `jflow.py next <slug>` (`--ask` in t
 session) and printing its output as it stands, last in the message. It is the only next action:
 add no options, questions or prompts of your own. A question asked mid-step ends the message
 instead. A step ends at its card: never run the step it names, `done` included. Text to paste sits
-alone in its own code block. The card has this shape:
-
-````markdown
-Next: open a fresh session on <model · effort> and send:
-
-```text
-<exact message to send>
-```
-````
+alone in its own code block.
 
 In Codex, run check with `-c sandbox_workspace_write.network_access=true`: on Codex 0.166 a local
 test client hangs in the default sandbox.
