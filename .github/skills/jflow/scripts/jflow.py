@@ -509,9 +509,9 @@ def main(argv=None):
         p.add_argument("--builder-vendor")
     for p in (rec, summ, seat, nxt, val):
         p.add_argument("--repo", default=".")
+    if (r := jflow_escaped.run(argv, secret, SLUG)) is not None:
+        return r
     a = ap.parse_args(argv)
-    if a.cmd == "escaped":
-        return jflow_escaped.run(a, record_value, SLUG)
     repo = Path(git(a.repo, "rev-parse", "--show-toplevel"))
     if a.cmd == "seat":
         if a.step not in STEPS:

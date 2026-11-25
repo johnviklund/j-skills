@@ -82,6 +82,59 @@ class Escaped(unittest.TestCase):
         line = next(l for l in skill.split("\n\n") if "jflow.py escaped" in l)
         self.assertTrue(re.search(r"run\.jsonl", line) and "## Accepted" in line, line)
 
+    def test_commit_sha_ref_allowed_and_non_commit_hex_refused(self):
+        before = self.done_run()
+        head = self.git("rev-parse", "HEAD")
+        ok = self.escaped("demo", "commit ref bug", "--ref", head)
+        self.assertEqual(ok.returncode, 0, ok.stderr)
+        self.assertEqual(json.loads(ok.stdout)["ref"], head)
+        fake = "f" * 40
+        bad = self.escaped("demo", "fake hex", "--ref", fake)
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertIn("secret-like", bad.stderr)
+        self.assertNotIn(fake, bad.stderr)
+        self.assertEqual(len((self.run_dir / "run.jsonl").read_text().splitlines()), len(before.splitlines()) + 1)
+
+    def test_missing_final_newline_in_run_jsonl(self):
+        before = self.done_run()
+        log = self.run_dir / "run.jsonl"
+        log.write_text(before.rstrip("\n"), encoding="utf-8")
+        out = self.escaped("demo", "after manual edit")
+        self.assertEqual(out.returncode, 0, out.stderr)
+        after = json.loads(self.jflow("summary", "demo", "--json"))
+        self.assertEqual(after["escaped"], 1)
+
+    def test_misspelled_and_repeated_ref_refused_without_echo(self):
+        before = self.done_run()
+        for args, expected in (
+            (["demo", "x", "--reff", SECRET], "secret-like"),
+            (["demo", "x", "--ref", SECRET, "--ref", "#12"], "secret-like"),
+            (["demo", "x", "--ref", "#11", "--ref", "#12"], "only once"),
+        ):
+            with self.subTest(args=args):
+                out = self.escaped(*args)
+                self.assertNotEqual(out.returncode, 0)
+                self.assertIn(expected, out.stderr)
+                self.assertNotIn(SECRET, out.stderr)
+                self.assertEqual((self.run_dir / "run.jsonl").read_text(), before)
+
+    def test_repo_path_with_newline(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo\nwith-newline"
+            repo.mkdir()
+            for cmd in (["init", "-q"], ["config", "user.name", "t"], ["config", "user.email", "t@t"]):
+                subprocess.run(["git", "-C", str(repo), *cmd], check=True)
+            (repo / ".jflow/demo").mkdir(parents=True)
+            (repo / ".jflow/demo/spec.md").write_text("# demo\nStatus: done\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"], check=True)
+            out = subprocess.run([sys.executable, str(SCRIPT), "escaped", "demo", "nl path", "--repo", str(repo)],
+                                 capture_output=True, text=True)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            self.assertEqual(json.loads(out.stdout)["text"], "nl path")
+
 
 if __name__ == "__main__":
     unittest.main()
