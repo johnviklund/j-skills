@@ -1,16 +1,15 @@
 # Roadmap
-Updated: 2026-11-24
+Updated: 2026-11-25
 
 This repo holds the `j-skills` skills. Undecided intake lives in [TODO.md](TODO.md), what shipped
 lives in [WORKLOG.md](WORKLOG.md) and git, and done items and earlier goals sit in
 [ROADMAP_ARCHIVE.md](ROADMAP_ARCHIVE.md). The jflow trial ended on 2026-11-16: jflow stays, and
-workflow goes once what other skills still need from it has moved. Start every item with
+workflow was deleted on 2026-11-25 (delete-workflow). Start every item with
 `jflow spec <slug>`; a `plain` item is small enough for spec, build and check in one session.
 Budgets count sessions or changed lines.
 
 ## Next up
-1. delete-workflow · two skills for one job cost every session that reads them; it waits for nothing
-2. escaped-defects · the first conductor run opens a bug window that should land in its run folder
+1. escaped-defects · the first conductor run opens a bug window that should land in its run folder
 
 ## Features
 
@@ -30,26 +29,6 @@ Budgets count sessions or changed lines.
 - **Open for spec:** is the recording a required Proof row for UI changes, and from when?
 
 ## Tooling
-
-### delete-workflow · delete workflow and the scripts only it uses
-
-- **Status:** open
-- **Problem:** Two skills do one job. workflow is 786 KB, its runs took 3 to 10 sessions and up to 7
-  review cycles, and j-skills took 232 sessions in two weeks, mostly building rules for workflow.
-  Checked on 16 Nov, six things still need it: the git hooks, `SKILL-IMPACT.md`, the `ROUTING.md`
-  readers, the reviewer exam, `workflow todo` and understand's run reader.
-- **Impact:** about 786 KB of skill text goes, and every session sees one skill for a change, not two.
-- **Why now:** the verdict on 2026-11-16 keeps jflow, and until workflow goes each skill change has
-  to keep both in step.
-- **Solved when:** workflow and the scripts only it uses are gone, all other suites pass, `git push`
-  still scans for secrets in every repo with the hooks, and no surviving skill points at workflow.
-- **Out of scope:** carrying over multi-ticket plans, mutation testing, worktrees, unattended mode or
-  the brainstorm, improve, park and realign commands.
-- **Budget:** the deletion, plus about 100 changed lines to move what other skills need
-- **Run:** plain · j-skills
-- **After:** none
-- **Open for spec:** where do the hooks and `SKILL-IMPACT.md` live next: jflow, checkup or the repo
-  root? Do the `ROUTING.md` readers switch to jflow's `config.json`, or does `ROUTING.md` go?
 
 ## Measurement
 

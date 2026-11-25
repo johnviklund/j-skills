@@ -4,6 +4,26 @@ Completed steps, moved from `ROADMAP.md` at wrap.
 
 ## Done
 
+### delete-workflow · delete workflow and the scripts only it uses
+
+- **Status:** done 2026-11-25 af6b684
+- **Problem:** Two skills do one job. workflow is 786 KB, its runs took 3 to 10 sessions and up to 7
+  review cycles, and j-skills took 232 sessions in two weeks, mostly building rules for workflow.
+  Checked on 16 Nov, six things still need it: the git hooks, `SKILL-IMPACT.md`, the `ROUTING.md`
+  readers, the reviewer exam, `workflow todo` and understand's run reader.
+- **Impact:** about 786 KB of skill text goes, and every session sees one skill for a change, not two.
+- **Why now:** the verdict on 2026-11-16 keeps jflow, and until workflow goes each skill change has
+  to keep both in step.
+- **Solved when:** workflow and the scripts only it uses are gone, all other suites pass, `git push`
+  still scans for secrets in every repo with the hooks, and no surviving skill points at workflow.
+- **Out of scope:** carrying over multi-ticket plans, mutation testing, worktrees, unattended mode or
+  the brainstorm, improve, park and realign commands.
+- **Budget:** the deletion, plus about 100 changed lines to move what other skills need
+- **Run:** plain · j-skills
+- **After:** none
+- **Open for spec:** where do the hooks and `SKILL-IMPACT.md` live next: jflow, checkup or the repo
+  root? Do the `ROUTING.md` readers switch to jflow's `config.json`, or does `ROUTING.md` go?
+
 ### headless-done-wait-point · conductor pauses cleanly for done-step doc and TODO approvals
 
 - **Status:** done 2026-11-24 7c8e242
