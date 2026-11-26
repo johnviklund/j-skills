@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #13 jflow-size-headroom · room under jflow's size caps for the next changes · claude-opus-5-5
+- `jflow.py` drops from 30,179 to 26,895 of its 30,200 bytes: the seat, config and secret code moved unchanged into `scripts/jflow_seats.py`. `SKILL.md` plus `references/check.md` drops from 13,999 to 12,971 of 14,000 bytes by cutting repeated prose, with every rule kept. Three `TODO.md` items were waiting for this room.
+- Commits: 48c1506
+- jflow: 3 sessions · 0 fix rounds · 5 rows · 0 accepted · check clean · net code +8 · tests +0 · docs -14
+
 ## 2026-11-26 · #14 jflow-build-fast-lint · builders run the fast static checks AGENTS.md lists and never silence them · claude-opus-5-5
 - `references/build.md` now tells builders to run the lint and typecheck commands `AGENTS.md` lists before each `build` and `fix` commit, and to leave slow suites to `jflow done`. They may not silence a rule, weaken its severity or launder a type with an unsafe cast unless the exception has both an inline justification and a note in `notes.md`. Before this, lint errors first showed up at done, after check had passed.
 - Commits: 760afc1
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - `validate` checks specs, newest receipts and Accepted lines; `record` refuses malformed output before changing the run log.
 - Commits: 17afb7a 4d109e8 df19d36
 - jflow: 5 sessions · 2 fix rounds · 10 rows · 0 accepted · check 2 defects · net code +106 · tests +236 · docs +4
-
-## 2026-11-09 · wait-points · `jflow.py next` stops at the approach, the live gate and before done · Claude Opus 5.5
-- `next` now stops for the human at an approach posted for an Ask first item, at the live `Gate:`, and before done when there are Human checks or Maybes, until `notes.md` has `Yes: approach`, `Yes: gate` or `Yes: done`; a conductor reading only the JSON can no longer run past them. Also stops `section` dropping a real line that starts with "None".
-- Commits: f329eaa 4121af0 2f8aaa8
-- jflow: 4 sessions · 1 fix rounds · 9 rows · 0 accepted · check 1 defects · net code +27 · tests +27 · docs +9
