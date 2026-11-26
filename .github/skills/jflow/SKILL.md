@@ -18,14 +18,11 @@ message. A question carries one decision, lettered options and a ➡️ recommen
 
 ## Steps and seats
 
-| Command | Reference |
-|---|---|
-| `jflow spec <slug>` | [references/spec.md](references/spec.md) |
-| `jflow build <slug>` | [references/build.md](references/build.md) |
-| `jflow check <slug>` | [references/check.md](references/check.md) |
-| `jflow done <slug>` | [references/done.md](references/done.md) |
+`jflow spec|build|check|done <slug>` each has a reference: [spec](references/spec.md),
+[build](references/build.md), [check](references/check.md), [done](references/done.md).
 
-Run `python3 <skill>/scripts/jflow.py seat <step>` and copy its assignment into each card.
+Run `python3 <skill>/scripts/jflow.py seat <step>`, where `<skill>` is this skill's folder, and
+copy its assignment into each card.
 [flow.json](flow.json) lists steps; [config.json](config.json) holds defaults.
 Use only named fallbacks; null means stop.
 
@@ -55,7 +52,7 @@ Tracked in git, except in [issue and pull request mode](references/github.md): e
 
 ```text
 .jflow/<slug>/
-  spec.md             spec and Proof table (read-only after spec)
+  spec.md             spec and Proof table
   notes.md            builder judgement calls and open notes
   drive.py            checker driver, reused across checks, deleted at done
   receipts/check-N.md one per check, from 1
@@ -87,14 +84,13 @@ the human.
 
 `python3 <skill>/scripts/jflow.py next <slug>` reads the run folder and git and prints the closing
 card (or bare `jflow <slug>`). `--json` prints `step`, `n`, `role`, `model`, `command`, `session`,
-`blocker` and `why`. A human stop has `role: "human"` and a `blocker` (question, lettered options,
-recommended first). Pass `--builder-vendor V` as for `seat`.
+`blocker` and `why`. A human stop has `role: "human"` and a `blocker`. Pass `--builder-vendor V` as for `seat`.
 
-**Checks are capped, because a loop that has not converged needs a person.** A change gets three
-checks; one that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
+**Check cap.** A loop that has not converged needs a person, so a change gets three checks; one
+that only reruns BLOCKED or WAITING rows does not count. At the cap, stop and give the
 human what is open. A `Checks allowed: N` line in `notes.md` raises the cap; the last such line counts.
 
-**Wait points.** `next` also stops for the human at four points, each cleared by a line in
+**Wait points.** `next` also stops at four points, each cleared by a line in
 `notes.md`: `Yes: approach` for an **Ask first** approach, `Yes: gate` before the `Gate:`,
 `Yes: done` before done when there are Human checks or Maybes, and `Yes: edits` for the
 `## Proposed edits` an unattended done left. `--json` names it in `wait_point`, which other stops
@@ -102,7 +98,7 @@ omit. PR mode keeps only the first two. The session the human answered commits
 `Yes: <point> · "<the human's words>" · <date>`. A line that starts with `Yes: <point>` clears
 only that point. A mid-run `jflow spec` resets the check cap and voids earlier `## Proposed edits` and `Yes:` lines.
 
-**Decisions happen in the builder session, never elsewhere.** Another session's card for a stop
+**Decisions happen in the builder session.** Another session's card for a stop
 sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the
 question, ending "Reply A or B." On the reply it writes the line the option stands for (a `Yes:`
 line, `Checks allowed: <used + 1>` or `## Accepted` lines), commits, does what the option says,
@@ -110,8 +106,8 @@ then prints the next card. The human never edits run files.
 
 ## The closing card
 
-End each step, after its commit, by running `jflow.py next <slug>` (`--ask` in the builder
-session) and printing its output as it stands, last in the message. It is the only next action:
+End each step, after committing its files and `run.jsonl`, by running `jflow.py next <slug>`
+(`--ask` in the builder session) and printing its output as it stands, last in the message. It is the only next action:
 add no options, questions or prompts of your own. A question asked mid-step ends the message
 instead. A step ends at its card: never run the step it names, `done` included. Text to paste sits
 alone in its own code block.
@@ -120,14 +116,11 @@ In Codex, run check with `-c sandbox_workspace_write.network_access=true`: on Co
 test client hangs in the default sandbox.
 
 `record` validates spec, check and accept steps; fix problems first.
-Before the commit, record the step:
-`python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, where
-`<skill>` is this skill's folder and the model is yours, never `unknown` (`jflow.py seat <step>`
-prints it). Use the step from `flow.json`.
-Record a check again if its receipt changes.
+Before the commit, record the step from `flow.json`:
+`python3 <skill>/scripts/jflow.py record <slug> <step> --model <model id> --effort <effort>`, with
+your own model, never `unknown` (`jflow.py seat <step>` prints it). Record a check again if its
+receipt changes. Leave pushing to `jflow done`.
 
-Commit each step's files, `run.jsonl` included, before the card. Leave pushing to `jflow done`.
-
-Every step runs in any CLI, as a plain message in a session the human starts. Where the builder
+Every step runs in any CLI, in a session the human starts. Where the builder
 session cannot be resumed, a new session on the builder's model takes over the branch and run
 folder, says so in `notes.md`, and records its steps with `--session fresh`.
