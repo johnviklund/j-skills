@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #7 retro-memory-github-mode · `retro` and `memory.remember` read GitHub-mode runs through `jflow.py show` · claude-opus-5-5
+- The new read-only `jflow.py show <#N|issue URL|slug>` prints a GitHub-mode run's trusted comments under the `.jflow/` file names. It also works on a merged run whose commits were pruned, and on a run with a spec and no PR. `retro #N` reads a run through it. `memory.remember` uses `#N` as Evidence and posts its routing summary with `jflow.py note`, which also no longer needs old commits.
+- Commits: 6f5998b 34d32d6 64d9e8d
+- jflow: 4 sessions · 1 fix rounds · 6 rows · 0 accepted · check 2 defects · net code +27 · tests +59 · docs +13
+
 ## 2026-11-25 · escaped-defects · `jflow.py escaped` records post-done bugs in `run.jsonl` · claude-opus-5-5 / gemini-4-neon
 - `jflow.py escaped <slug> "<one line>" [--ref R]` appends a `"step": "escaped"` line to `.jflow/<slug>/run.jsonl`, `summary --json` counts non-zero escaped bugs without changing session or fix counts, and accepted defects stay in `## Accepted`. One check-5 `[edge]` URL qualifier defect is accepted and logged in `TODO.md`.
 - Commits: 5d516ca 1fd7a03 edcc27d 99423d8 cb5e063
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - Done step 6 removes the checker's one-off driver with `git rm`; a reusable verb becomes one `TODO.md` line for `verify.maintain`, and a receipt's driver reruns from the receipt's own commit.
 - Commits: 61860aa 04beb5f 1ddb4aa 651c81f c193232
 - jflow: 4 sessions · 1 fix rounds · 8 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +10
-
-## 2026-11-08 · receipt-evidence-cap · jflow caps receipt evidence at 240 characters · GPT-6.1 Sol
-- Evidence keeps the command and decisive output line within 240 characters; defect references avoid repetition.
-- Commits: 2cd2359 3ad0bd2 458473c 03e783e a2e921d
-- jflow: 4 sessions · 1 fix rounds · 6 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +6
