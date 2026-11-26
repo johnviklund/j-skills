@@ -73,14 +73,19 @@ receipt with `record check --file`.
 
 Follow [done.md](done.md) with three changes. In step 4, leave the spec comment as it is:
 `record done` marks the run done. In step 6, delete `drive.py` from `.git/jflow/<issue>/`. In
-step 8, push the branch, then mark the pull request ready with `gh pr ready <number>`. Never merge it: the repo's
-own review does that. The step ends when the pull request is ready for review.
+step 8, push the branch, update the pull request body (`gh pr edit <number> --body-file F`) with a
+short plain-English review summary (**What changed**, **What was proved**, **What to review or
+test**, ending with `Closes #<issue>`) so a human can decide whether to merge without reading the
+machine comments, then mark the pull request ready with `gh pr ready <number>`. Never merge it: the
+repo's own review does that. The step ends when the pull request is ready for review.
 
 ## Public repos
 
-`public_paid_needs_human` covers every comment, issue, push and pull request on a public repo.
-Before each one, show the human what will be posted and ask. On their yes, pass `--confirmed`.
-Without it, `record` and `note` refuse to post to a public repo.
+By default, normal branch pushes, draft PRs and `jflow` comments on a public repo run without an
+extra confirmation prompt (merging the PR remains the human review gate). An instance or repo that
+wants per-write confirmation on public repos can opt in with `"confirm_public_writes": true` in its
+config or `git config jflow.confirmPublicWrites true`; when enabled, ask the human before each
+GitHub write and pass `--confirmed`.
 
 ## When gh fails
 

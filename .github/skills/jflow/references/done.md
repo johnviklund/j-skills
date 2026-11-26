@@ -65,6 +65,10 @@ on the default branch yet. Then, when `ROADMAP.md` has a `## Next up` item, run 
 
 Step 2, unattended: post `## Proposed edits` with `jflow.py note <slug> --file F` instead of
 committing `notes.md`. Step 4: leave the spec comment as it is; `record done` marks the run done. Step 6: delete
-`drive.py` from `.git/jflow/<issue>/`. Step 8: push the branch, then `gh pr ready <number>`; never
-merge. On a public repo, ask before the push and the post, then pass `--confirmed`. Done when the
-pull request is ready for review.
+`drive.py` from `.git/jflow/<issue>/`. Step 8: push the branch, update the pull request description
+(`gh pr edit <number> --body-file F`) with a short plain-English review summary for a human —
+**What changed** (2–3 sentences, no jargon), **What was proved** (proof counts and any accepted
+unproved rows), and **What to review or test** (clear steps or screenshots if needed, any caveats,
+or "Nothing left to test — ready to merge"), ending with `Closes #<issue>` — then run
+`gh pr ready <number>`. Never merge. If the repo opts into `confirm_public_writes`, ask before
+public GitHub writes and pass `--confirmed`. Done when the pull request is ready for review.

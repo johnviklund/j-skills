@@ -542,6 +542,20 @@ class GitHubMode(unittest.TestCase):
                 self.assertIn(says, out.stderr)
                 self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
 
+    def test_public_repo_writes_allowed_by_default_and_gated_when_configured(self):
+        s = self.load()
+        s["private"] = False
+        self.save(s)
+        spec_file = self.file("spec.md", self.spec())
+        # Default: allowed on public repo without --confirmed
+        self.record("spec", "--file", spec_file)
+        # Opt-in via git config: refused without --confirmed, allowed with --confirmed
+        subprocess.run(["git", "-C", str(self.repo), "config", "jflow.confirmPublicWrites", "true"], check=True)
+        out = self.run_jflow("record", "#42", "spec", "--model", "m", "--effort", "high", "--file", spec_file)
+        self.assertNotEqual(out.returncode, 0)
+        self.assertIn("--confirmed", out.stderr)
+        self.record("spec", "--file", spec_file, "--confirmed")
+
 
 if __name__ == "__main__":
     unittest.main()
