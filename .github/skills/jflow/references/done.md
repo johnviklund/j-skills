@@ -63,12 +63,24 @@ on the default branch yet. Then, when `ROADMAP.md` has a `## Next up` item, run 
 
 ## Issue and pull request mode
 
-Step 2, unattended: post `## Proposed edits` with `jflow.py note <slug> --file F` instead of
-committing `notes.md`. Step 4: leave the spec comment as it is; `record done` marks the run done. Step 6: delete
-`drive.py` from `.git/jflow/<issue>/`. Step 8: push the branch, update the pull request description
-(`gh pr edit <number> --body-file F`) with a short plain-English review summary for a human —
-**What changed** (2–3 sentences, no jargon), **What was proved** (proof counts and any accepted
-unproved rows), and **What to review or test** (clear steps or screenshots if needed, any caveats,
-or "Nothing left to test — ready to merge"), ending with `Closes #<issue>` — then run
-`gh pr ready <number>`. Never merge. If the repo opts into `confirm_public_writes`, ask before
-public GitHub writes and pass `--confirmed`. Done when the pull request is ready for review.
+The pull request is the review gate, so done waits for no one: `next` sends a run here without
+stopping for `[edge]`-only defects, Human checks, Maybes or proposed edits.
+
+- Step 1: unfixed `[edge]` defects may stay open. Each one becomes a caveat in the pull request
+  description; it needs no `## Accepted` line.
+- Step 2: ask nothing and wait for no one. Make each `PRODUCT.md`, `DESIGN.md` or `TODO.md` edit
+  directly in the pull request diff and commit it, so the reviewer sees it there. Human checks and
+  Maybes go under **What you need to do**.
+- Step 4: leave the spec comment as it is; `record done` marks the run done.
+- Step 6: delete `drive.py` from `.git/jflow/<issue>/`.
+- Step 8: push the branch. Invoke the `plain` skill, then write the pull request description with
+  these three headings and update it with `gh pr edit <number> --body-file F`:
+  - **What changed**: two or three sentences.
+  - **What was proved**: the proof count and any row accepted unproved.
+  - **What you need to do**: each Human check, Maybe and `[edge]` caveat as a step only a person
+    can do, or `Nothing for you to test.` when there is none.
+
+  End it with `Closes #<issue>`, then run `gh pr ready <number>`. Never merge. If the repo opts
+  into `confirm_public_writes`, ask before public GitHub writes and pass `--confirmed`.
+
+Done when the pull request is ready for review.

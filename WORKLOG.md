@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #10 pr-mode-autopilot · issue and pull request mode stops only for real blockers · claude-opus-5-5
+- In pull request mode, `jflow next` goes to done instead of stopping for `[edge]`-only defects, Human checks, Maybes or proposed edits, because the pull request is the review gate. Every stop now shows a Checker view and a Builder view line above its options (`scripts/jflow_views.py`). `done.md` and `github.md` say doc edits go in the PR diff, `[edge]` defects become caveats, and the PR body uses `plain` under What changed, What was proved and What you need to do.
+- Commits: 7479e05 c6b5fcc
+- jflow: 4 sessions · 1 fix rounds · 8 rows · 0 accepted · check 1 defects · net code +32 · tests +44 · docs +14
+
 ## 2026-11-26 · #6 roadmap-github-mode · `roadmap` manages GitHub issues and the `next` label, and `roadmap tidy` scans a wiki · claude-opus-5-5
 - In jflow's GitHub mode, `roadmap.py next` and `check` read open issues through `gh`: `next` marks Next, the jflow labels mark in flight, the rest is Backlog. `check` caps Next at five and flags loose bodies. The new `roadmap.py wiki` lists changed wiki pages no open issue names, for `roadmap tidy` to propose at most three updates after the human's yes.
 - Commits: 5b1a7d2 9a644b7 278ef23
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - `next <slug>` reads the run folder and git and prints the closing card, or with `--json` the step, seat, role, session and any blocker for the human, so a driver needs no prose table; it applies the check cap and `Checks allowed: N`, and an acceptance closes only the item and check it names. Also fixes `summary` ending a run at Base when its spec quotes `Status: done`.
 - Commits: ecac1d8 38b1e04 f6fb039 046bb7e 7acdd9b
 - jflow: 7 sessions · 4 fix rounds · 11 rows · 0 accepted · check 5 defects · net code +111 · tests +95 · docs -5
-
-## 2026-11-08 · jflow-config · JSON seats and flow metadata for jflow · GPT-6.1 Sol
-- Seat lookup merges defaults, repo and explicit config, applies the vendor default and prints locked rules. Config and record model/effort values reject key-like data.
-- Commits: e08114c f376c4b 1a8708a 832708f 1f0389c
-- jflow: 7 sessions · 4 fix rounds · 10 rows · 0 accepted · check 4 defects · net code +83 · tests +101 · docs +11

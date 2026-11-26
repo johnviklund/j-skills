@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(SKILL / "scripts")]
+from jflow_views import views
 FLOW = json.loads((SKILL / "flow.json").read_text("utf-8"))
 STEPS = tuple(FLOW["steps"])
 RULES = dict.fromkeys(("public_paid_needs_human", "checker_read_only", "no_secrets"), True)
@@ -288,7 +290,7 @@ def line(s):
             f" · {chk} · net code {s['net_code']:+d} · tests {s['tests']:+d} · docs {s['docs']:+d}")
 
 
-def next_step(repo, run, a):
+def next_step(repo, run, a, pr=0):
     slug = run.name
     spec = (run / "spec.md").read_text("utf-8") if (run / "spec.md").exists() else ""
     st = re.search(r"^Status:\s*(\w+)", spec, re.M)
@@ -402,6 +404,7 @@ def next_step(repo, run, a):
         name = f"check-{last}"
         en = {k[1] for k in li if re.match(r"- \d+\. \[edge\]\s", li[k])}
         edge = [k for k in defs if k[1] in en]
+        add = "I add them" + " and the [edge] defects" * bool(edge) + " under ## Accepted."
         prev = receipts[-2]["n"] if len(receipts) >= 2 else None
         carried2 = [k for k in defs if k not in edge and prev and csrc(last, k) and csrc(prev, k) and origin(last, k) == origin(prev, k)]
         if late and (defs or {v for _, v in rows} - {"PROVED"}):
@@ -410,7 +413,7 @@ def next_step(repo, run, a):
             step, n, why = "fix", last, f"{name} has BROKEN rows or open defects"
         elif carried2:
             blocker = f"{name}: defect {', '.join(k[1] for k in carried2)} carried unchanged across two checks"
-            options = [("Accept", "I add them" + " and the [edge] defects" * bool(edge) + " under ## Accepted."),
+            options = [("Accept", add),
                        ("Override and fix", "I fix them" + " and raise the check limit" * (counted >= allowed) + ".")]
             why = f"{name} has defects carried unchanged across two checks"
         elif stuck:
@@ -418,9 +421,9 @@ def next_step(repo, run, a):
             options = [("Supply what is missing", "give me what the rows above lack" + (
                 "; for UNREACHABLE, delete the code or say what reaches it" * ("UNREACHABLE" in str(stuck)))
                 + "; I hand you a fresh check."),
-                ("Accept them unproved", "I add them" + " and the [edge] defects" * bool(edge) + " under ## Accepted.")]
+                ("Accept them unproved", add)]
             why = f"{name} has rows no fix can reach"
-        elif edge:
+        elif edge and not pr:
             blocker = f"{name}: every open defect is [edge]: defect " + ", ".join(k[1] for k in edge)
             options = [("Accept them", "I add them under ## Accepted."),
                        ("Fix them", "I fix them" + " and raise the check limit" * (counted >= allowed) + ".")]
@@ -440,12 +443,12 @@ def next_step(repo, run, a):
                 ("Human checks", section(spec, "Human checks")), ("Maybes", section(text, "Maybes"))) for l in ls]
             k = max([j for j, l in enumerate(nl) if l == "## Proposed edits"] or [len(nl)])
             bs = [j for j in range(k + 1, len(nl)) if nl[j][:2] == "- " and not any(l[:3] == "## " for l in nl[k + 1:j])]
-            if waits and not yes("done"):
+            if waits and not (pr or yes("done")):
                 blocker, details = "answer these before done", waits
                 options = [("They hold", "do each one first; I record your yes and run done."),
                            ("One fails", "say what failed; I fix it.")]
                 why, wp = f"{name} has every row proved and waits on the human", "done"
-            elif bs and {k, *bs} & {*new} and not any(nl[j][:10] == "Yes: edits" for j in new if j > k):
+            elif not pr and bs and {k, *bs} & {*new} and not any(nl[j][:10] == "Yes: edits" for j in new if j > k):
                 blocker, details = "approve the proposed edits", [nl[j][2:] for j in bs]
                 options = [("Make them", "I record your yes; done makes them."),
                            ("Change them", "say what to change; I rewrite them.")]
@@ -464,6 +467,7 @@ def next_step(repo, run, a):
         why, step, n = f"check cap reached before {step}", None, None
     if blocker:
         lines = [f"⏸️ {blocker[0].upper()}{blocker[1:]}."] + ([""] + [f"- {d}" for d in details] if details else [])
+        lines += views(rpaths, nl, rel)
         for i, (label, say) in enumerate(options):
             lines += ["", ("**➡️ " if i == 0 else "**") + f"{'AB'[i]}. {label}**" + " (recommended)" * (i == 0) + ": " + say]
         blocker, step = "\n".join(lines + ["", "Reply A or B."]), "human"
@@ -492,7 +496,6 @@ def main(argv=None):
     rec, summ, val, seat, nxt = map(sub.add_parser, ("record", "summary", "validate", "seat", "next"))
     for p in (rec, summ, val, nxt):
         p.add_argument("slug")
-    sys.path[:0] = [str(SKILL / "scripts")]
     import jflow_gh, jflow_escaped
     jflow_gh.add_args(sub, rec, summ, val)
     jflow_escaped.add_args(sub)
@@ -524,7 +527,7 @@ def main(argv=None):
     if a.cmd in ("note", "show"):
         return getattr(hub, a.cmd)(a) or 0
     if a.cmd == "next":
-        n = next_step(repo, run, a)
+        n = next_step(repo, run, a, hub)
         hub and hub.tidy(n)
         print(json.dumps(n) if a.json else n["blocker"] if a.ask and n["blocker"] else card(n))
         return 0

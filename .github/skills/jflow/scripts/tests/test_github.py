@@ -110,7 +110,7 @@ A fixture run.
 RECEIPT = """# check-{n} @ {sha} · GPT-6.1 Sol · high
 | # | Verdict | Evidence |
 |---|---|---|
-| 1 | {v1} | `cmd` -> ok |
+| 1 | {v1} | {e1} |
 | 2 | {v2} | `cmd` -> ok |
 
 ## Defects
@@ -121,8 +121,8 @@ RECEIPT = """# check-{n} @ {sha} · GPT-6.1 Sol · high
 """
 
 
-def receipt(n, sha, v1="PROVED", v2="PROVED", defects="- none", maybes="- <none>"):
-    return RECEIPT.format(n=n, sha=sha, v1=v1, v2=v2, defects=defects, maybes=maybes)
+def receipt(n, sha, v1="PROVED", v2="PROVED", defects="- none", maybes="- <none>", e1="`cmd` -> ok"):
+    return RECEIPT.format(n=n, sha=sha, v1=v1, v2=v2, defects=defects, maybes=maybes, e1=e1)
 
 
 class GitHubMode(unittest.TestCase):
@@ -304,8 +304,25 @@ class GitHubMode(unittest.TestCase):
                   ("receipt", dict(defects="- 1. [edge] odd. Evidence: `x` -> 1")),
                   ("ask", "every open defect is [edge]")],
     }
+    # Stops only in .jflow/ mode: in issue and pull request mode the pull request is the review gate.
+    PR_GATED = ("done", "edits", "edits-changed", "edge", "early")
+    EDGE, USE = "- 1. [edge] odd. Evidence: `x` -> 1", "- 2. [use] off by one. Evidence: `x` -> 2"
+    PR_STORIES = {
+        "edge": [("spec", {}), ("pr",), ("code",), ("receipt", dict(v1="BROKEN", e1="defect 1", defects=EDGE)),
+                 ("step", "done")],
+        "done": [("spec", dict(human="- try it on a phone")), ("pr",), ("code",),
+                 ("receipt", dict(maybes="- slow on a cold cache")), ("step", "done")],
+        "edits": [("spec", {}), ("pr",), ("code",), ("receipt", {}),
+                  ("notes", "## Proposed edits\n- PRODUCT.md: mark the outcome reached"), ("step", "done")],
+        "approach": STORIES["approach"][:5],
+        "gate": STORIES["gate"][:5],
+        "blocked": [("spec", {}), ("pr",), ("code",), ("receipt", dict(v1="BLOCKED")), ("ask", "could not prove")],
+        "cap": [("spec", {}), ("pr",)] + [("code",), ("receipt", dict(v1="BROKEN", e1="defect 2", defects=USE))] * 3
+               + [("ask", "3 checks used of 3")],
+        "use-and-edge": [("spec", {}), ("pr",), ("code",), ("receipt", dict(defects=EDGE + "\n" + USE)), ("step", "fix")],
+    }
 
-    def play(self, story, github):
+    def play(self, story, github, stories=STORIES):
         """Play a story; return next's decision at each ask or step point."""
         repo = self.repo if github else self.make_repo(self.tmp / f"plain-{story}")
         base, seen, receipts, check_sha = self.head(repo), [], 0, None
@@ -318,7 +335,7 @@ class GitHubMode(unittest.TestCase):
             self.git(repo, "add", ".jflow")
             self.git(repo, "commit", "-qm", name)
 
-        for event, *arg in self.STORIES[story]:
+        for event, *arg in stories[story]:
             if event == "spec":
                 text = SPEC.format(base=base, **dict(dict(ask="none", gate="none", human="- none"), **arg[0]))
                 self.post(42, "spec", text, sha=base) if github else write("spec.md", text)
@@ -345,8 +362,9 @@ class GitHubMode(unittest.TestCase):
                 n = self.next("#42") if github else json.loads(self.ok("next", "demo", "--json", repo=repo))
                 if event == "ask":
                     self.assertIn(arg[0], (n["blocker"] or "").lower(), (story, github))
+                    self.assertEqual(n["role"], "human", (story, github))
                 else:
-                    self.assertEqual(n["step"], arg[0], (story, github, n))
+                    self.assertEqual((n["step"], n["blocker"], n.get("wait_point")), (arg[0], None, None), (story, github, n))
                 seen.append((n["step"], n["n"], n["role"], bool(n["blocker"]), n["session"], n.get("wait_point")))
         return seen
 
@@ -354,8 +372,31 @@ class GitHubMode(unittest.TestCase):
         for story in self.STORIES:
             with self.subTest(story=story):
                 self.setUp()
-                self.assertEqual(self.play(story, github=True), self.play(story, github=False))
+                plain = self.play(story, github=False)
+                if story not in self.PR_GATED:
+                    self.assertEqual(self.play(story, github=True), plain)
+                    self.assert_no_jflow()
+
+    # pr-mode-autopilot rows 1 to 4 and 8: only real blockers stop a pull request run.
+    def test_pull_request_mode_stops_only_for_real_blockers(self):
+        for story in self.PR_STORIES:
+            with self.subTest(story=story):
+                self.setUp()
+                seen = self.play(story, github=True, stories=self.PR_STORIES)
+                if story in ("approach", "gate"):
+                    self.assertEqual(seen[-1][-1], story)
                 self.assert_no_jflow()
+
+    # pr-mode-autopilot row 5
+    def test_escalation_shows_the_checker_and_builder_views(self):
+        self.play("cap", github=True, stories=self.PR_STORIES)
+        self.post(7, "notes", "the off by one comes from the old parser\n")
+        blocker = self.next()["blocker"]
+        options = blocker.index("**➡️ A.")
+        self.assertIn("Checker view (the check-3 receipt comment on PR #7): 2. [use] off by one", blocker[:options])
+        self.assertIn("Builder view (the jflow notes on PR #7): the off by one comes from the old parser", blocker[:options])
+        self.assertIn("**B.", blocker)
+        self.assertTrue(blocker.endswith("Reply A or B."))
 
     def test_marked_comment_counts_only_from_the_gh_user_or_write_access(self):
         self.post(42, "spec", self.spec(ask="the marker format"))
