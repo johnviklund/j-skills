@@ -102,8 +102,8 @@ class Hub:
     def of(cls, a, real, slug):
         """The run's Hub in GitHub mode; None in .jflow/ mode. Refuses a bad slug in both."""
         m = re.fullmatch(r"#(\d+)", a.slug) or URL.fullmatch(a.slug)
-        if not m and not slug.match(a.slug):
-            raise SystemExit(f"bad slug: {a.slug}")
+        if not m and not slug.fullmatch(a.slug):
+            raise SystemExit(f"bad slug: {a.slug!r}")  # repr: a newline in it stays on one line
         if not m and not github_mode(a, real):
             if a.cmd in ("note", "show"):
                 raise SystemExit(f"{a.cmd} works only in issue and pull request mode")
@@ -136,7 +136,13 @@ class Hub:
                     attrs = dict(x.split("=", 1) for x in mark[2].split())
                     events.append((c["created_at"], c["id"], mark[1], attrs, body[mark.end():], body))
         events.sort(key=lambda e: e[:2])
-        if a.cmd == "show":  # read-only: no lock, branch or replay, so a merged run with pruned commits reads too
+        nopr = (f"no linked pull request: open a draft PR from branch jflow/{self.issue or '<issue>'}"
+                f" with Closes #{self.issue or '<issue>'} in its body")
+        # show and note need only the comments: no lock, branch or replay, so a merged run whose
+        # commits were pruned still reads, and memory.remember can still post its routing note.
+        if a.cmd in ("show", "note"):
+            if a.cmd == "note" and not self.pr:
+                raise SystemExit(nopr)
             self.events, self.repo, self.run = events, None, None
             return
         specs = [e for e in events if e[2] == "spec"]
@@ -151,9 +157,8 @@ class Hub:
         if stray:
             raise SystemExit(f"issue and pull request mode keeps no .jflow/ files on the branch: remove {stray[0]}")
         coded = base and git(real, "diff", "--name-only", f"{base}..HEAD", "--", ".", ":(exclude).jflow")
-        if not self.pr and (coded or a.cmd == "note" or a.cmd == "record" and step not in ("spec", "accept")):
-            raise SystemExit(f"no linked pull request: open a draft PR from branch jflow/{self.issue or '<issue>'}"
-                             f" with Closes #{self.issue or '<issue>'} in its body")
+        if not self.pr and (coded or a.cmd == "record" and step not in ("spec", "accept")):
+            raise SystemExit(nopr)
         self.text = None
         if a.cmd in ("validate", "record") and a.file:
             if step not in POSTS:
