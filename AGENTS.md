@@ -15,8 +15,7 @@ private names, so read a receipt before committing it.
 
 The skills are Markdown plus standard-library Python 3: there is no build or lint step. Three
 unittest suites cover the scripts. Run them from the repo root as the baseline and before
-reporting any step done, except `jflow check`, which runs only its Proof rows while `jflow done`
-runs the full suites. Paste the result:
+reporting any step done, except `jflow check` and `conductor`; `jflow check` runs only its Proof rows, `conductor` makes no edits, and `jflow done` runs the full suites. Paste the result:
 
 ```sh
 python3 -m unittest discover -s .github/skills/checkup/scripts/tests && python3 -m unittest discover -s .github/skills/jflow/scripts/tests && python3 -m unittest discover -s .github/skills/roadmap/scripts/tests

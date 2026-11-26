@@ -89,7 +89,7 @@ something. The count is what makes promotion mechanical — so it must be honest
   its notes and receipts in PR `jflow:notes` and `jflow:receipt` comments, read with the read-only
   `jflow.py show #N`, and `#N` is its `Evidence` entry. Never edit those comments: post one new
   `jflow:notes` summary of the routed lines, each with its `[routed → ...]` mark, with
-  `jflow.py note #N --file F`, passing `--confirmed` on a public repo after the human's yes. A
+  `jflow.py note #N --file F`, passing `--confirmed` after the human's yes only when `confirm_public_writes` is enabled. A
   line a later note marks is skipped. Details in [runs.md](references/runs.md).
 - **A promotion is applied once.** Before promoting at `Occurrences: 3`, check the page for
   `Promoted to:` and `SKILL-IMPACT.md` for a row on the same page: an existing `proposed` or
