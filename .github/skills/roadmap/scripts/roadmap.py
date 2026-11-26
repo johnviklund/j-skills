@@ -24,7 +24,7 @@ issue bodies and a `next` label on an in-flight issue as `stale:`. It never writ
 
 `wiki` lists Markdown pages in the wiki folder (`--wiki` or `git config roadmap.wikiPath`) changed
 since `--since`, `git config roadmap.wikiLastScan` or seven days ago, leaving out pages that an open
-issue or its comments already name. With no wiki folder set it prints nothing.
+issue or its comments already name by its path inside the wiki. With no wiki folder set it prints nothing.
 
 Python 3.9 or later, standard library only.
 """
@@ -35,6 +35,7 @@ import os
 import re
 import subprocess
 import sys
+import urllib.parse
 
 GROUPS = ("Features", "Bugs", "Design", "Architecture", "Tooling", "Measurement")
 REQUIRED = ("Status", "Problem", "Impact", "Solved when", "Budget", "Run")
@@ -321,6 +322,13 @@ def github_check(issues, product):
     return 1 if errors else 0
 
 
+def wiki_refs(text):
+    """Every path a text could name a page by: link targets, `code` spans and words, URL-decoded."""
+    raw = re.findall(r"\]\(<?([^)>]+?)>?\)", text) + re.findall(r"`([^`]+)`", text)
+    raw += [w.lstrip("([<\"'*").rstrip(")]>\"'.,;:!?*") for w in text.split()]
+    return {urllib.parse.unquote(r).split("#")[0].strip().removeprefix("./") for r in raw}
+
+
 def wiki_scan(path, since):
     path = path or git_config("roadmap.wikiPath")
     if not path:
@@ -344,9 +352,13 @@ def wiki_scan(path, since):
     texts = []
     for issue in open_issues("number,body,comments"):
         texts += [issue.get("body") or ""] + [c.get("body") or "" for c in issue.get("comments", [])]
-    text = "\n".join(texts)
+    refs = set()
+    for text in texts:
+        refs.update(wiki_refs(text))
+    base = os.path.basename(os.path.abspath(path))
     for page in sorted(pages):
-        if os.path.basename(page) not in text:
+        rel = page.replace(os.sep, "/")
+        if rel not in refs and not any(r == f"{base}/{rel}" or r.endswith(f"/{base}/{rel}") for r in refs):
             print(page)
     return 0
 
