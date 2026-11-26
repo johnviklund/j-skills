@@ -324,9 +324,12 @@ def github_check(issues, product):
 
 def wiki_refs(text):
     """Every path a text could name a page by: link targets, `code` spans and words, URL-decoded."""
-    raw = re.findall(r"\]\(<?([^)>]+?)>?\)", text) + re.findall(r"`([^`]+)`", text)
+    # A link target is "<any text>" or runs to the first space, where a "title" may follow.
+    raw = [a or b for a, b in re.findall(r"\]\(\s*(?:<([^>]+)>|([^)\s]+))", text)]
+    raw += re.findall(r"`([^`]+)`", text)
     raw += [w.lstrip("([<\"'*").rstrip(")]>\"'.,;:!?*") for w in text.split()]
-    return {urllib.parse.unquote(r).split("#")[0].strip().removeprefix("./") for r in raw}
+    # A URL's ?query and #anchor are not part of the page's path.
+    return {re.split(r"[?#]", urllib.parse.unquote(r))[0].strip().removeprefix("./") for r in raw}
 
 
 def wiki_scan(path, since):

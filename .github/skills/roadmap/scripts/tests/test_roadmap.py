@@ -352,10 +352,15 @@ class GitHubTest(unittest.TestCase):
 
     def test_wiki_reference_names_the_page_path(self):
         # check-1 defects 1 and 2: a same-named page in another folder, and a percent-encoded link.
+        # check-2 defects 1 and 2: a link with a title, and a URL with a query string.
         wiki = os.path.join(self.dir, "wiki")
-        for name in ("alpha/plan.md", "beta/plan.md", "plan.md", "release plan.md"):
+        for name in ("alpha/plan.md", "beta/plan.md", "plan.md", "release plan.md", "titled.md", "query.md"):
             os.makedirs(os.path.dirname(os.path.join(wiki, name)), exist_ok=True)
             with open(os.path.join(wiki, name), "w") as f:
                 f.write("page\n")
-        self.issues([issue(3, comments=["See wiki/alpha/plan.md and [Evidence](wiki/release%20plan.md)."])])
+        self.issues([issue(3, comments=[
+            "See wiki/alpha/plan.md and [Evidence](wiki/release%20plan.md).",
+            '[Source](wiki/titled.md "Source page")',
+            "https://github.com/o/r/blob/main/wiki/query.md?plain=1",
+        ])])
         self.assertEqual(self.run_cmd("wiki", "--wiki", wiki), (0, ["beta/plan.md", "plan.md"]))
