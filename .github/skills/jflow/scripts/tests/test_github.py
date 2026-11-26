@@ -497,6 +497,7 @@ class GitHubMode(unittest.TestCase):
     # Row 6
     def test_missing_gh_auth_or_pr_fails_on_one_line_without_writes(self):
         self.record("spec", "--file", self.file("spec.md", self.spec()))
+        self.git(self.repo, "checkout", "-qb", "jflow/42")
         a = self.code()
         r1 = self.file("r1.md", receipt(1, a))
         commands = (("next", "#42"), ("record", "#42", "check", "--model", "m", "--effort", "high", "--file", r1))
@@ -516,6 +517,23 @@ class GitHubMode(unittest.TestCase):
                     self.assertNotIn("Traceback", out.stderr)
                     self.assertEqual(json.loads(self.state.read_text())["comments"], json.loads(before)["comments"])
                     self.assert_no_jflow()
+
+    # jflow-wrong-branch-error: code past Base off jflow/<issue> is a wrong checkout, not a missing PR
+    def test_wrong_branch_or_detached_head_names_the_checkout_not_a_missing_pr(self):
+        self.record("spec", "--file", self.file("spec.md", self.spec()))
+        self.git(self.repo, "checkout", "-qb", "other-branch")
+        self.assertEqual(self.next()["step"], "build")
+        self.code()
+        tail = ", not jflow/42, and has commits past Base: check out Base or jflow/42 and rerun; build opens the draft PR"
+        for where, setup in (("on other-branch", ()), ("detached", ("checkout", "-q", "--detach", "HEAD"))):
+            with self.subTest(where=where):
+                if setup:
+                    self.git(self.repo, *setup)
+                before = self.state.read_text()
+                out = self.run_jflow("next", "#42")
+                self.assertNotEqual(out.returncode, 0)
+                self.assertEqual(out.stderr.strip(), f"HEAD is {where}{tail}")
+                self.assertEqual(self.state.read_text(), before)
 
     def test_record_spec_labels_issue_ready_for_agent(self):
         s = self.load()
