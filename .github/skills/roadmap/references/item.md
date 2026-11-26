@@ -45,3 +45,12 @@ Show the item in chat, exactly as it will be written, with its group, its place 
 priority, and a proposal for Next up: its place, with why it goes before the item below it, or
 that it waits. Wait for an explicit yes. Then write it, and finish as `SKILL.md`
 says under *Changing the file*. Done when the item is committed and `check` prints no `error:` line.
+
+**In GitHub mode** the item becomes an issue. Ground on `next --github` and `check --github`, the
+open issues and the closed issues' titles instead of the roadmap and its archive. Play back the
+title, which is the slug and the outcome as in an item heading, and the body, which holds the
+fields without `Status`. Propose whether the issue goes into Next with the `next` label: Next holds
+at most five issues. After the human's explicit yes, write the body to a temporary file outside the
+repo and run `gh issue create --title "<slug>: <outcome>" --body-file F`, adding `--label next`
+only when the human agreed to it. Done when the issue exists and `check --github` prints no
+`error:` line; print its URL and `next --github`.

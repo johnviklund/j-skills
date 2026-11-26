@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #6 roadmap-github-mode · `roadmap` manages GitHub issues and the `next` label, and `roadmap tidy` scans a wiki · claude-opus-5-5
+- In jflow's GitHub mode, `roadmap.py next` and `check` read open issues through `gh`: `next` marks Next, the jflow labels mark in flight, the rest is Backlog. `check` caps Next at five and flags loose bodies. The new `roadmap.py wiki` lists changed wiki pages no open issue names, for `roadmap tidy` to propose at most three updates after the human's yes.
+- Commits: 5b1a7d2 9a644b7 278ef23
+- jflow: 5 sessions · 2 fix rounds · 6 rows · 1 accepted · check 5 defects · net code +148 · tests +141 · docs +73
+
 ## 2026-11-26 · #7 retro-memory-github-mode · `retro` and `memory.remember` read GitHub-mode runs through `jflow.py show` · claude-opus-5-5
 - The new read-only `jflow.py show <#N|issue URL|slug>` prints a GitHub-mode run's trusted comments under the `.jflow/` file names. It also works on a merged run whose commits were pruned, and on a run with a spec and no PR. `retro #N` reads a run through it. `memory.remember` uses `#N` as Evidence and posts its routing summary with `jflow.py note`, which also no longer needs old commits.
 - Commits: 6f5998b 34d32d6 64d9e8d
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - Seat lookup merges defaults, repo and explicit config, applies the vendor default and prints locked rules. Config and record model/effort values reject key-like data.
 - Commits: e08114c f376c4b 1a8708a 832708f 1f0389c
 - jflow: 7 sessions · 4 fix rounds · 10 rows · 0 accepted · check 4 defects · net code +83 · tests +101 · docs +11
-
-## 2026-11-08 · drive-py-at-done · jflow deletes a run's drive.py at done · Claude Opus 5.5
-- Done step 6 removes the checker's one-off driver with `git rm`; a reusable verb becomes one `TODO.md` line for `verify.maintain`, and a receipt's driver reruns from the receipt's own commit.
-- Commits: 61860aa 04beb5f 1ddb4aa 651c81f c193232
-- jflow: 4 sessions · 1 fix rounds · 8 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +10

@@ -230,6 +230,7 @@ Design, Architecture, Tooling and Measurement.
   wrong group or missing its why. It asks you before changing anything, then moves done items to
   the archive.
 - `roadmap` shows Next up and the findings of the format check.
+- In a repo set to jflow's GitHub mode (`git config jflow.mode github`), the roadmap is the repo's open issues: the `next` label marks Next, and `roadmap item` opens an issue after your yes. `roadmap tidy` can also scan a wiki folder set in `git config roadmap.wikiPath` and propose at most three updates, preferring a scope note on an existing issue.
 
 Each item names the `PRODUCT.md` outcome it moves on a `Serves:` line. The check flags an item that
 names no outcome, and an outcome that no open item moves.

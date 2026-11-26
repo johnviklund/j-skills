@@ -2,8 +2,9 @@
 """Mechanical checks for a roadmap file in the `roadmap` skill's format.
 
 Usage:
-    roadmap.py check FILE [--repo PATH ...] [--product PATH]
-    roadmap.py next FILE
+    roadmap.py check [FILE] [--repo PATH ...] [--product PATH] [--github]
+    roadmap.py next [FILE] [--github]
+    roadmap.py wiki [--wiki PATH] [--since YYYY-MM-DD]
 
 `check` prints one line per finding and exits 1 when any `error:` line was printed, 0 otherwise.
 `error:` lines are format problems a script reading the file would trip on. `stale:` lines are
@@ -13,14 +14,28 @@ freshness findings for `roadmap tidy` to raise with the human; they do not fail 
 every item's `Serves:` must name one of its headings, and each `###` outcome under its
 `## The desired state` section should have at least one open item.
 
-`next` prints the Next up list with each item's status.
+`next` prints the Next up list with each item's status. FILE defaults to ROADMAP.md.
+
+GitHub mode, on `--github`, or on `git config jflow.mode github` when no FILE is named, reads the
+open issues of the current repo through `gh` instead of a file. An issue labelled `next` is in Next, one labelled
+ready-for-agent, in-progress or needs-human is in flight, every other open issue is in Backlog.
+`next` lists Next and Backlog; `check` fails when Next holds more than five issues and reports loose
+issue bodies and a `next` label on an in-flight issue as `stale:`. It never writes.
+
+`wiki` lists Markdown pages in the wiki folder (`--wiki` or `git config roadmap.wikiPath`) changed
+since `--since`, `git config roadmap.wikiLastScan` or seven days ago, leaving out pages that an open
+issue or its comments already name by its path inside the wiki. With no wiki folder set it prints nothing.
 
 Python 3.9 or later, standard library only.
 """
 import argparse
+import datetime
+import json
 import os
 import re
+import subprocess
 import sys
+import urllib.parse
 
 GROUPS = ("Features", "Bugs", "Design", "Architecture", "Tooling", "Measurement")
 REQUIRED = ("Status", "Problem", "Impact", "Solved when", "Budget", "Run")
@@ -232,6 +247,125 @@ def check_repos(rm, repos):
                 rm.stale.append(f"line {item['line']} {slug}: its jflow run in {name} has started, the item says 'open'")
 
 
+IN_FLIGHT = ("ready-for-agent", "in-progress", "needs-human")
+ISSUE_FIELDS = ("Problem", "Solved when")
+
+
+def git_config(key):
+    r = subprocess.run(["git", "config", "--local", "--get", key], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def gh_json(args):
+    """Parsed JSON from a read-only gh call; exits with one line naming the cause when gh fails."""
+    try:
+        r = subprocess.run(["gh", *args], capture_output=True, text=True)
+    except FileNotFoundError:
+        sys.exit("error: gh is not installed or not on PATH")
+    if r.returncode != 0:
+        first = next((l.strip() for l in r.stderr.splitlines() if l.strip()), f"exit {r.returncode}")
+        sys.exit(f"error: gh failed: {first}")
+    return json.loads(r.stdout)
+
+
+def open_issues(fields="number,title,labels,body"):
+    return gh_json(["issue", "list", "--state", "open", "--limit", "1000", "--json", fields])
+
+
+def board(issues):
+    """(Next, In flight, Backlog) lists of issues, by label, lowest number first."""
+    nxt, flight, backlog = [], [], []
+    for issue in sorted(issues, key=lambda i: i["number"]):
+        labels = {l["name"] for l in issue.get("labels", [])}
+        if labels & set(IN_FLIGHT):
+            flight.append(issue)
+        elif "next" in labels:
+            nxt.append(issue)
+        else:
+            backlog.append(issue)
+    return nxt, flight, backlog
+
+
+def has_field(body, field):
+    # "Problem:", "- **Problem:** x" and a "## Problem" heading all count.
+    return re.search(rf"(?im)^[\s#>*-]*\**{re.escape(field)}\**\s*(:|$)", body or "") is not None
+
+
+def github_next(issues):
+    nxt, _, backlog = board(issues)
+    for title, group in (("Next", nxt), ("Backlog", backlog)):
+        print(f"{title}:")
+        if not group:
+            print("  none")
+        for issue in group:
+            print(f"  #{issue['number']} · {issue['title']}")
+    return 0
+
+
+def github_check(issues, product):
+    nxt, flight, backlog = board(issues)
+    errors, stale = [], []
+    if len(nxt) > NEXT_MAX:
+        errors.append(f"Next holds {len(nxt)} issues labelled 'next'; at most {NEXT_MAX}")
+    for issue in flight:
+        if "next" in {l["name"] for l in issue.get("labels", [])}:
+            stale.append(f"#{issue['number']}: in flight but still labelled 'next'; remove the label")
+    fields = ISSUE_FIELDS + (("Serves",) if os.path.exists(product) else ())
+    for issue in nxt + backlog:
+        missing = [f for f in fields if not has_field(issue.get("body"), f)]
+        if missing:
+            stale.append(f"#{issue['number']}: body has no {', '.join(repr(f + ':') for f in missing)}")
+    for line in errors:
+        print(f"error: {line}")
+    for line in stale:
+        print(f"stale: {line}")
+    return 1 if errors else 0
+
+
+def wiki_refs(text):
+    """Every path a text could name a page by: link targets, `code` spans and words, URL-decoded."""
+    # A link target is "<any text>" or runs to the first space, where a "title" may follow.
+    raw = [a or b for a, b in re.findall(r"\]\(\s*(?:<([^>]+)>|([^)\s]+))", text)]
+    raw += re.findall(r"`([^`]+)`", text)
+    raw += [w.lstrip("([<\"'*").rstrip(")]>\"'.,;:!?*") for w in text.split()]
+    # A URL's ?query and #anchor are not part of the page's path.
+    return {re.split(r"[?#]", urllib.parse.unquote(r))[0].strip().removeprefix("./") for r in raw}
+
+
+def wiki_scan(path, since):
+    path = path or git_config("roadmap.wikiPath")
+    if not path:
+        return 0
+    if not os.path.isdir(path):
+        sys.exit(f"error: wiki folder {path} does not exist")
+    since = since or git_config("roadmap.wikiLastScan")
+    try:
+        start = (datetime.datetime.strptime(since, "%Y-%m-%d") if since
+                 else datetime.datetime.now() - datetime.timedelta(days=7)).timestamp()
+    except ValueError:
+        sys.exit(f"error: since date '{since}' does not read YYYY-MM-DD")
+    pages = []
+    for root, _, files in os.walk(path):
+        for name in files:
+            full = os.path.join(root, name)
+            if name.endswith(".md") and os.path.getmtime(full) >= start:
+                pages.append(os.path.relpath(full, path))
+    if not pages:
+        return 0
+    texts = []
+    for issue in open_issues("number,body,comments"):
+        texts += [issue.get("body") or ""] + [c.get("body") or "" for c in issue.get("comments", [])]
+    refs = set()
+    for text in texts:
+        refs.update(wiki_refs(text))
+    base = os.path.basename(os.path.abspath(path))
+    for page in sorted(pages):
+        rel = page.replace(os.sep, "/")
+        if rel not in refs and not any(r == f"{base}/{rel}" or r.endswith(f"/{base}/{rel}") for r in refs):
+            print(page)
+    return 0
+
+
 def load(path):
     try:
         with open(path, encoding="utf-8") as f:
@@ -244,13 +378,27 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Check a roadmap file.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check")
-    c.add_argument("file")
+    c.add_argument("file", nargs="?")
     c.add_argument("--repo", action="append", default=[])
     c.add_argument("--product")
+    c.add_argument("--github", action="store_true")
     nx = sub.add_parser("next")
-    nx.add_argument("file")
+    nx.add_argument("file", nargs="?")
+    nx.add_argument("--github", action="store_true")
+    w = sub.add_parser("wiki")
+    w.add_argument("--wiki")
+    w.add_argument("--since")
     args = ap.parse_args(argv)
 
+    if args.cmd == "wiki":
+        return wiki_scan(args.wiki, args.since)
+    # A FILE named on the command line always means file mode, unless --github overrides it.
+    if args.github or (args.file is None and git_config("jflow.mode") == "github"):
+        if args.cmd == "next":
+            return github_next(open_issues())
+        return github_check(open_issues(), args.product or "PRODUCT.md")
+
+    args.file = args.file or "ROADMAP.md"
     rm = parse(load(args.file))
     if args.cmd == "next":
         if not rm.next:

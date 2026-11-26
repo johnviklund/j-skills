@@ -1,7 +1,10 @@
 import contextlib
+import datetime
 import io
 import os
+import json
 import re
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -223,3 +226,141 @@ class ProductTest(Run):
         self.write("# X\n## The desired state\n### Speed\n", other)
         self.write(roadmap_text(["1. a · why"], {"Features": [item("a", serves="Speed")]}))
         self.assertEqual(self.run_cmd("check", self.path, "--product", other), (0, []))
+
+
+FAKE_GH = """\
+#!/usr/bin/env python3
+import os, sys
+with open(os.environ["FAKE_GH_LOG"], "a") as f:
+    f.write(" ".join(sys.argv[1:]) + "\\n")
+if os.environ.get("FAKE_GH_FAIL"):
+    sys.stderr.write(os.environ["FAKE_GH_FAIL"] + "\\nrun gh auth login\\n")
+    sys.exit(4)
+sys.stdout.write(open(os.environ["FAKE_GH_JSON"]).read())
+"""
+
+
+def issue(number, labels=(), body="- **Problem:** p\n- **Solved when:** s\n- **Serves:** x\n", comments=()):
+    return {"number": number, "title": f"issue {number}", "labels": [{"name": l} for l in labels],
+            "body": body, "comments": [{"body": c} for c in comments]}
+
+
+class GitHubTest(unittest.TestCase):
+    """GitHub mode and the wiki scan, against a fake gh on PATH in a temp git repo."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.dir = tmp.name
+        self.repo = os.path.join(self.dir, "repo")
+        subprocess.run(["git", "init", "-q", self.repo], check=True)
+        bin_dir = os.path.join(self.dir, "bin")
+        os.mkdir(bin_dir)
+        with open(os.path.join(bin_dir, "gh"), "w") as f:
+            f.write(FAKE_GH)
+        os.chmod(os.path.join(bin_dir, "gh"), 0o755)
+        self.log = os.path.join(self.dir, "gh.log")
+        self.fixture = os.path.join(self.dir, "issues.json")
+        env = {"PATH": bin_dir + os.pathsep + os.environ["PATH"], "FAKE_GH_LOG": self.log,
+               "FAKE_GH_JSON": self.fixture, "FAKE_GH_FAIL": ""}
+        old = {k: os.environ.get(k) for k in env}
+        os.environ.update(env)
+        self.addCleanup(lambda: [os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+                                 for k, v in old.items()])
+        cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, cwd)
+
+    def issues(self, items):
+        with open(self.fixture, "w") as f:
+            json.dump(items, f)
+
+    def git_config(self, key, value):
+        subprocess.run(["git", "config", key, value], check=True)
+
+    def run_cmd(self, *args):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = roadmap.main(list(args))
+        return code, out.getvalue().splitlines()
+
+    def gh_calls(self):
+        with open(self.log) as f:
+            return f.read().splitlines()
+
+    def test_board_next_and_check(self):
+        with open("PRODUCT.md", "w") as f:
+            f.write("# App\n")
+        self.issues([issue(n, ["next"]) for n in range(1, 7)]
+                    + [issue(7, ["next", "in-progress"]), issue(8, body="Just an idea."),
+                       issue(9, ["needs-human"])])
+        self.git_config("jflow.mode", "github")
+        code, lines = self.run_cmd("next")
+        self.assertEqual(code, 0)
+        self.assertEqual(lines, ["Next:"] + [f"  #{n} · issue {n}" for n in range(1, 7)]
+                         + ["Backlog:", "  #8 · issue 8"])
+        code, lines = self.run_cmd("check")
+        self.assertEqual(code, 1)
+        self.assertEqual(lines, [
+            "error: Next holds 6 issues labelled 'next'; at most 5",
+            "stale: #7: in flight but still labelled 'next'; remove the label",
+            "stale: #8: body has no 'Problem:', 'Solved when:', 'Serves:'",
+        ])
+        self.assertTrue(all(c.startswith("issue list --state open") for c in self.gh_calls()))
+        # A FILE named on the command line stays in file mode.
+        with self.assertRaises(SystemExit) as cm:
+            self.run_cmd("check", "ROADMAP.md")
+        self.assertIn("cannot read ROADMAP.md", str(cm.exception.code))
+
+    def test_gh_missing_or_unauthenticated_fails_in_one_line(self):
+        empty = os.path.join(self.dir, "empty")
+        os.mkdir(empty)
+        for env, cause in (({"PATH": empty}, "error: gh is not installed or not on PATH"),
+                           ({"FAKE_GH_FAIL": "To get started with GitHub CLI, please run: gh auth login"},
+                            "error: gh failed: To get started with GitHub CLI, please run: gh auth login")):
+            with self.subTest(cause=cause):
+                saved = {k: os.environ[k] for k in env}
+                os.environ.update(env)
+                try:
+                    with self.assertRaises(SystemExit) as cm:
+                        self.run_cmd("next", "--github")
+                finally:
+                    os.environ.update(saved)
+                self.assertEqual(cm.exception.code, cause)
+        self.assertEqual(os.listdir(self.repo), [".git"])
+
+    def test_wiki_scan(self):
+        self.assertEqual(self.run_cmd("wiki"), (0, []))  # no wiki folder set: silent, no gh call
+        self.assertFalse(os.path.exists(self.log))
+        wiki = os.path.join(self.dir, "wiki")
+        os.makedirs(os.path.join(wiki, "topic"))
+        for name, days_old in (("old.md", 30), ("topic/linked.md", 1), ("topic/fresh.md", 1), ("notes.txt", 1)):
+            path = os.path.join(wiki, name)
+            with open(path, "w") as f:
+                f.write("page\n")
+            t = (datetime.datetime.now() - datetime.timedelta(days=days_old)).timestamp()
+            os.utime(path, (t, t))
+        self.issues([issue(3, comments=["See wiki/topic/linked.md for the evidence."])])
+        self.assertEqual(self.run_cmd("wiki", "--wiki", wiki), (0, ["topic/fresh.md"]))
+        self.git_config("roadmap.wikiPath", wiki)
+        old = (datetime.date.today() - datetime.timedelta(days=60)).isoformat()
+        self.assertEqual(self.run_cmd("wiki", "--since", old), (0, ["old.md", "topic/fresh.md"]))
+        self.git_config("roadmap.wikiLastScan", old)
+        self.assertEqual(self.run_cmd("wiki"), (0, ["old.md", "topic/fresh.md"]))
+        self.git_config("roadmap.wikiLastScan", datetime.date.today().isoformat())
+        self.assertEqual(self.run_cmd("wiki"), (0, []))
+
+    def test_wiki_reference_names_the_page_path(self):
+        # check-1 defects 1 and 2: a same-named page in another folder, and a percent-encoded link.
+        # check-2 defects 1 and 2: a link with a title, and a URL with a query string.
+        wiki = os.path.join(self.dir, "wiki")
+        for name in ("alpha/plan.md", "beta/plan.md", "plan.md", "release plan.md", "titled.md", "query.md"):
+            os.makedirs(os.path.dirname(os.path.join(wiki, name)), exist_ok=True)
+            with open(os.path.join(wiki, name), "w") as f:
+                f.write("page\n")
+        self.issues([issue(3, comments=[
+            "See wiki/alpha/plan.md and [Evidence](wiki/release%20plan.md).",
+            '[Source](wiki/titled.md "Source page")',
+            "https://github.com/o/r/blob/main/wiki/query.md?plain=1",
+        ])])
+        self.assertEqual(self.run_cmd("wiki", "--wiki", wiki), (0, ["beta/plan.md", "plan.md"]))
