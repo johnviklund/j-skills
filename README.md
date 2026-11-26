@@ -246,7 +246,7 @@ Use it after a session that felt slow.
   transcripts on your machine. Nothing is written to a file.
 - It suggests fixes, ranked by how much time they would save.
 - Each fix you approve goes to the skill or file that owns it.
-- Run `retro` for the current session, `retro <slug>` for a jflow run, or `retro <session id>`.
+- Run `retro` for the current session, `retro <slug>` for a jflow run, `retro #N` or an issue URL for a run in issue and pull request mode, or `retro <session id>`.
 
 ### memory.remember
 

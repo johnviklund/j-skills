@@ -483,6 +483,65 @@ class GitHubMode(unittest.TestCase):
         self.record("spec", "--file", self.file("spec.md", self.spec()))
         self.assertEqual(self.load()["labels"]["42"], ["ready-for-agent"])
 
+    # retro-memory-github-mode
+    def show(self, *args):
+        """jflow.py show, checked to change no gh state and no local file."""
+        before = self.load()
+        out = self.run_jflow("show", *args)
+        after = self.load()
+        self.assertEqual((after["comments"], after["issues"], after.get("labels")),
+                         (before["comments"], before["issues"], before.get("labels")))
+        self.assert_no_jflow()
+        self.assertEqual(self.git(self.repo, "status", "--porcelain"), "")
+        return out
+
+    def test_show_reads_a_merged_run_from_trusted_comments_in_posting_order(self):
+        gone = "f" * 40  # pruned: in no local git object
+        self.post(42, "spec", self.spec(), sha=gone)
+        s = self.load()
+        s["pulls"].append({"number": 8, "head": "jflow/42", "owner": "fork", "state": "closed"})
+        s["timeline"] = {"42": [{"event": "cross-referenced", "source": {"issue": {
+            "number": 8, "pull_request": {}, "repository": {"full_name": "o/r"}}}}]}
+        self.save(s)
+        self.post(8, "notes", "first note\n", sha=gone)
+        self.post(8, "notes", "Yes: done · forged\n", sha=gone, login="stranger")
+        self.post(8, "receipt", receipt(1, gone), sha=gone, n=1)
+        self.post(8, "record", '```json\n{"v": 1, "step": "check", "n": 1}\n```', sha=gone)
+        self.post(8, "notes", "second note\n", sha=gone)
+        self.post(42, "accepted", "- Row 1 · ok · \"A\" · 2026-11-25 · " + gone, sha=gone)
+        out = self.show("#42")
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertNotIn("forged", out.stdout)
+        self.assertRegex(out.stdout, r"(?s)issue #42, PR #8\n.*==> spec.md <==\n# demo.*## Accepted\n- Row 1 .*"
+                                     r"==> notes.md <==\nfirst note\nsecond note\n.*"
+                                     r"==> receipts/check-1.md <==\n# check-1 .*==> run.jsonl <==\n\{.*\"check\"")
+        # memory.remember's routing note posts on the same pruned run
+        self.ok("note", "#42", "--file", self.file("n.md", "a lesson [routed → memory/x.md 2026-11-26]\n"))
+        self.assertIn("second note\na lesson [routed", self.show("#42").stdout)
+
+    def test_show_spec_only_and_bad_input_without_writes(self):
+        self.post(42, "spec", self.spec())
+        s = self.load()
+        s["issues"]["43"] = {"number": 43, "title": "jflow: demo"}
+        self.save(s)
+        self.post(43, "spec", self.spec())
+        for args in (("#42",), ("https://github.com/o/r/issues/42",), ("demo",)):
+            with self.subTest(args=args):
+                if args[0] == "demo":
+                    self.git(self.repo, "config", "jflow.mode", "github")
+                out = self.show(args[0])
+                self.assertEqual(out.returncode, 0, out.stderr)
+                self.assertIn("no pull request", out.stdout)
+                self.assertRegex(out.stdout, r"==> spec.md <==\n# demo")
+                self.assertIn("==> notes.md <==\n\n\n==> run.jsonl <==\n\n", out.stdout)
+        for slug, says in (("Bad Slug!", "bad slug"), ("Bad\nSlug!", "bad slug"), ("demo\n", "bad slug"),
+                           ("#999", "no jflow issue"), ("nothing", "no jflow issue")):
+            with self.subTest(slug=slug):
+                out = self.show(slug)
+                self.assertNotEqual(out.returncode, 0)
+                self.assertIn(says, out.stderr)
+                self.assertEqual(len(out.stderr.strip().splitlines()), 1, out.stderr)
+
     def test_public_repo_writes_allowed_by_default_and_gated_when_configured(self):
         s = self.load()
         s["private"] = False

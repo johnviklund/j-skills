@@ -521,8 +521,8 @@ def main(argv=None):
         return 0
     hub = jflow_gh.Hub.of(a, repo, SLUG)
     repo, run = (hub.repo, hub.run) if hub else (repo, repo / ".jflow" / a.slug)
-    if a.cmd == "note":
-        return hub.note(a.file) or 0
+    if a.cmd in ("note", "show"):
+        return getattr(hub, a.cmd)(a) or 0
     if a.cmd == "next":
         n = next_step(repo, run, a)
         hub and hub.tidy(n)
