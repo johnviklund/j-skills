@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #13 jflow-size-headroom · room under jflow's size caps for the next changes · claude-opus-5-5
+- `jflow.py` drops from 30,179 to 26,895 of its 30,200 bytes: the seat, config and secret code moved unchanged into `scripts/jflow_seats.py`. `SKILL.md` plus `references/check.md` drops from 13,999 to 12,971 of 14,000 bytes by cutting repeated prose, with every rule kept. Three `TODO.md` items were waiting for this room.
+- Commits: 48c1506
+- jflow: 3 sessions · 0 fix rounds · 5 rows · 0 accepted · check clean · net code +8 · tests +0 · docs -14
+
 ## 2026-11-26 · #11 jflow-wrong-branch-error · GitHub mode names a wrong checkout instead of asking for a draft PR · claude-opus-5-5
 - With no linked pull request and code past `Base`, `jflow_gh.py` now says `HEAD is on <branch>` (or `HEAD is detached`), `not jflow/<issue>`, and tells the user to check out `Base` or `jflow/<issue>`. Before this, it asked for a draft PR, which led agents to open blank pull requests from the wrong branch.
 - Commits: 08c436f
@@ -79,8 +84,3 @@ oldest when appending would exceed that.
 - `validate` checks specs, newest receipts and Accepted lines; `record` refuses malformed output before changing the run log.
 - Commits: 17afb7a 4d109e8 df19d36
 - jflow: 5 sessions · 2 fix rounds · 10 rows · 0 accepted · check 2 defects · net code +106 · tests +236 · docs +4
-
-## 2026-11-09 · wait-points · `jflow.py next` stops at the approach, the live gate and before done · Claude Opus 5.5
-- `next` now stops for the human at an approach posted for an Ask first item, at the live `Gate:`, and before done when there are Human checks or Maybes, until `notes.md` has `Yes: approach`, `Yes: gate` or `Yes: done`; a conductor reading only the JSON can no longer run past them. Also stops `section` dropping a real line that starts with "None".
-- Commits: f329eaa 4121af0 2f8aaa8
-- jflow: 4 sessions · 1 fix rounds · 9 rows · 0 accepted · check 1 defects · net code +27 · tests +27 · docs +9
