@@ -21,6 +21,12 @@ tell the human: only `jflow spec` changes it.
 Write `notes.md` as you decide: a few lines on each judgement call a reader would question, and on
 anything you leave open.
 
+Before each commit, run the fast static checks `AGENTS.md` lists, such as lint and typecheck, and
+fix what they report. When `AGENTS.md` lists none, skip this step. Slow or full suites wait for
+`jflow done`. Never silence a rule, weaken its severity or launder a type with an unsafe cast to make
+a check pass. Any rule you still disable or weaken needs both an inline justification and a note
+in `notes.md`.
+
 Run each Proof row you can yourself, and the tests near the change. Then read your whole diff once
 more as someone who wants it shorter, and delete what no goal or row needs: a branch for a state
 nothing creates, a helper with one caller, a test that fails only when another one does. Measured
@@ -43,9 +49,9 @@ Run `jflow.py next <slug> --ask` and print its output.
 ## Fix
 
 A receipt comes back with BROKEN rows or defects. Fix the cause, in one design when several
-items share it, and rerun the row or the failing input. Reporting a wrong finding is part of the
-job: when the input does not fail, answer with the command and its output and leave the code as it
-is. Record the step as `fix`, commit, then run `jflow.py next <slug> --ask` and print its output.
+items share it. Then rerun the row or the failing input, and run the fast static checks as in
+Build. Reporting a wrong finding is part of the job: when the input does not fail, answer with the
+command and its output and leave the code as it is. Record the step as `fix`, commit, then run `jflow.py next <slug> --ask` and print its output.
 
 ## Issue and pull request mode
 
