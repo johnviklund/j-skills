@@ -9,6 +9,7 @@ Archived items: see TODO_ARCHIVE.md (grep it).
 - GitHub-mode `memory.remember` on a spec-only run with no linked PR has nowhere to post its routing note, because `jflow.py note` needs the PR (jflow #7)
 - Unpushed commits on Human checks stop — `jflow.py next` adds an `Unpushed: N commits ahead of <upstream>` detail line when `@{u}..HEAD` has commits (hq-py39 retro)
 - `skill-trials.py` reads `jflow:` lines only from `WORKLOG.md`; a repo with no worklog keeps its line in `notes.md` with no date, so its runs never count toward a trial. Fix: date it from the run's `done` record in `run.jsonl` (delete-workflow)
+- Guardrail: test — `test_validate.test_next_and_summary_match_base_on_five_runs` fails in a clone with `git config jflow.mode github`: its `next` and `summary` subprocesses read the five `.jflow/` runs in GitHub mode. Run them with the clone's `jflow.mode` ignored · must fail at `d3b164f` with `jflow.mode github` set (#11)
 - Guardrail: test — resolve the git object directory with `git rev-parse --git-common-dir` instead of `ROOT / '.git/objects'` in `.github/skills/jflow/scripts/tests/test_validate.py` (`test_historical_specs_and_all_sixteen_receipts`) · must fail in a `git worktree` at `5396a4c` (escaped-defects retro)
 
 ## Review deferrals
