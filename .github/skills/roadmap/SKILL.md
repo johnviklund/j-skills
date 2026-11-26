@@ -5,7 +5,8 @@ description: >
   them. Keeps a repo's roadmap readable and fresh: "roadmap item IDEA" grills the why and writes
   one problem-first item, "roadmap tidy" finds stale, overlapping and conflicting items and asks
   before changing anything, bare "roadmap" shows Next up. Items sit in fixed groups under a short
-  ordered Next up list, in a format that jflow spec reads. Run only on one of those explicit
+  ordered Next up list, in a format that jflow spec reads; in GitHub mode the roadmap is the repo's
+  open issues and the `next` label. Run only on one of those explicit
   messages; never on general questions about roadmaps, plans or ideas.
 ---
 
@@ -32,6 +33,35 @@ worded so "yes" accepts it. Ask in numbered rounds and wait for the answers.
 | `roadmap tidy [FILE]` | Reviews the whole roadmap and proposes changes: [references/tidy.md](references/tidy.md) |
 
 `FILE` defaults to `ROADMAP.md` at the repo root. Read the command's reference before editing.
+
+## GitHub mode
+
+A repo that runs jflow in issue and pull request mode keeps its roadmap on GitHub instead of in
+`ROADMAP.md`. The skill is in GitHub mode when `git config jflow.mode` is `github` and no `FILE` is
+named, or when the message says `--github`. Pass `--github` to the script in that case. Each open
+issue is an item, and its labels place it:
+
+| Column | Label | Holds |
+|---|---|---|
+| Next | `next` | At most five issues, the ones to start soonest |
+| In flight | `ready-for-agent`, `in-progress` or `needs-human` | Issues jflow has picked up |
+| Backlog | any other | Every other open issue |
+
+The repo's `.github/workflows/board.yml` moves each card to its Kanban column from these labels, so
+the skill changes labels and never touches the project board. An issue body holds the item's
+fields as in *The file*, without `Status`: the issue's state and labels are its status. `check`
+reports a body without `Problem:` or `Solved when:`, and without `Serves:` when a `PRODUCT.md`
+exists. It also reports a `next` label left on an in-flight issue. Bare `roadmap` shows Next and
+Backlog and those findings.
+
+In GitHub mode `roadmap tidy` can also scan a wiki folder, set by the repo-local
+`git config roadmap.wikiPath`, for pages changed since `git config roadmap.wikiLastScan`. It
+reads them against `PRODUCT.md` and the open issues and proposes at most three updates, preferring a
+scope note on an existing issue over a new Backlog issue. It moves `wikiLastScan` only after the
+human has answered. [references/tidy.md](references/tidy.md) has the steps.
+
+Opening an issue, commenting and changing a label are public writes. Each waits for the human's
+explicit yes, like any change to the roadmap file.
 
 ## The file
 
@@ -122,15 +152,18 @@ The same item text works as a ticket body: the heading becomes the title.
 ## The script
 
 ```sh
-python3 <skill>/scripts/roadmap.py check FILE [--repo PATH ...] [--product PATH]
-python3 <skill>/scripts/roadmap.py next FILE
+python3 <skill>/scripts/roadmap.py check [FILE] [--repo PATH ...] [--product PATH] [--github]
+python3 <skill>/scripts/roadmap.py next [FILE] [--github]
+python3 <skill>/scripts/roadmap.py wiki [--wiki PATH] [--since YYYY-MM-DD]
 ```
 
 `<skill>` is this skill's absolute folder; Python 3.9 or later, standard library only. `check`
 prints `error:` lines for format problems and exits 1, and `stale:` lines for freshness findings,
 which leave the exit at 0. Pass `--repo PATH` for each local repo that an item's `Run` names, so the
 script can see its jflow runs. `--product PATH` names the north star when it is not `PRODUCT.md`
-beside the roadmap.
+beside the roadmap. With `--github` both commands read open issues through `gh` and write nothing;
+a missing or logged-out `gh` stops them with one `error:` line. `wiki` lists the wiki pages that
+`roadmap tidy` should read: see [references/tidy.md](references/tidy.md).
 
 ## Changing the file
 
