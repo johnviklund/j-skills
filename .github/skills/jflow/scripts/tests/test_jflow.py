@@ -387,6 +387,8 @@ class RunRecord(unittest.TestCase):
             self.assertEqual(((n := self.next())["step"], n["session"]), expected, (lines, receipt, text))
             if named:
                 self.assertIn(named, n["blocker"])
+                # pr-mode-autopilot goal 3, check-1 defect 1: a stop after a receipt quotes the checker.
+                self.assertEqual("Checker view (.jflow/demo/receipts/" in n["blocker"], bool(receipt), n["blocker"])
                 self.assertEqual((n["role"], n["model"], n["command"]), ("human", None, None))
                 # Any session's card sends the human to the builder session with one message, no options.
                 card = self.jflow("next", "demo")
