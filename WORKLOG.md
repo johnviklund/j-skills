@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #11 jflow-wrong-branch-error · GitHub mode names a wrong checkout instead of asking for a draft PR · claude-opus-5-5
+- With no linked pull request and code past `Base`, `jflow_gh.py` now says `HEAD is on <branch>` (or `HEAD is detached`), `not jflow/<issue>`, and tells the user to check out `Base` or `jflow/<issue>`. Before this, it asked for a draft PR, which led agents to open blank pull requests from the wrong branch.
+- Commits: 08c436f
+- jflow: 3 sessions · 0 fix rounds · 6 rows · 0 accepted · check clean · net code +6 · tests +18 · docs +0
+
 ## 2026-11-26 · #14 jflow-build-fast-lint · builders run the fast static checks AGENTS.md lists and never silence them · claude-opus-5-5
 - `references/build.md` now tells builders to run the lint and typecheck commands `AGENTS.md` lists before each `build` and `fix` commit, and to leave slow suites to `jflow done`. They may not silence a rule, weaken its severity or launder a type with an unsafe cast unless the exception has both an inline justification and a note in `notes.md`. Before this, lint errors first showed up at done, after check had passed.
 - Commits: 760afc1
