@@ -79,9 +79,11 @@ repo's own review does that. The step ends when the pull request is ready for re
 
 ## Public repos
 
-`public_paid_needs_human` covers every comment, issue, push and pull request on a public repo.
-Before each one, show the human what will be posted and ask. On their yes, pass `--confirmed`.
-Without it, `record` and `note` refuse to post to a public repo.
+By default, normal branch pushes, draft PRs and `jflow` comments on a public repo run without an
+extra confirmation prompt (merging the PR remains the human review gate). An instance or repo that
+wants per-write confirmation on public repos can opt in with `"confirm_public_writes": true` in its
+config or `git config jflow.confirmPublicWrites true`; when enabled, ask the human before each
+GitHub write and pass `--confirmed`.
 
 ## When gh fails
 

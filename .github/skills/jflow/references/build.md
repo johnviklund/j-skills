@@ -54,5 +54,5 @@ push it, and open a draft pull request with `Closes #<issue>` in its body (`gh p
 Write each note, `## Approach`, `Yes:`, `Checks allowed:` or `Live done:` line to a temporary file
 outside the repo and post it with `jflow.py note <slug> --file F`. Accepted lines go through
 `record <slug> accept --file F`; other records post themselves. Receipts are on the pull request
-(`gh pr view <number> --comments`). Later pushes wait for done. On a public repo, every push, post
-and pull request needs the human's yes first; then pass `--confirmed`.
+(`gh pr view <number> --comments`). Later pushes wait for done. If the repo opts into
+`confirm_public_writes`, ask the human before each public GitHub write and pass `--confirmed`.

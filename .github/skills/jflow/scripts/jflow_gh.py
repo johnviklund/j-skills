@@ -82,6 +82,22 @@ def github_mode(a, repo):
     return chosen == "github"
 
 
+def confirm_public_writes(a, repo):
+    """True only when config or git config opts into asking before public-repo GitHub writes."""
+    def flag(path):
+        try:
+            return bool(json.loads(Path(path).read_text("utf-8")).get("confirm_public_writes"))
+        except (OSError, ValueError, AttributeError):
+            return False
+
+    external = getattr(a, "config", None) or os.environ.get("JFLOW_CONFIG")
+    if (external and flag(external)) or flag(repo / ".jflow/config.json"):
+        return True
+    val = subprocess.run(["git", "-C", str(repo), "config", "--get", "jflow.confirmPublicWrites"],
+                         capture_output=True, text=True).stdout.strip().lower()
+    return val in ("1", "true", "yes")
+
+
 def add_args(sub, rec, summ, val):
     """GitHub mode's note command and options."""
     note = sub.add_parser("note", help="GitHub mode: post a builder note to the pull request")
@@ -118,7 +134,7 @@ class Hub:
         info = self.api("repos/" + (m[1] if m and m.re is URL else "{owner}/{repo}"))
         self.nwo, public = info.get("full_name"), info.get("private") is False
         step = getattr(a, "step", None)
-        if a.cmd in ("record", "note") and public and not a.confirmed:
+        if a.cmd in ("record", "note") and public and confirm_public_writes(a, real) and not a.confirmed:
             raise SystemExit(f"{self.nwo} is public: ask the human before this GitHub write, then pass --confirmed")
         self.issue = int(m[2] if m.re is URL else m[1]) if m else self.find(a.slug)
         self.slug = f"#{self.issue}" if m else a.slug

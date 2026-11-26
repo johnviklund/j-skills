@@ -70,5 +70,5 @@ committing `notes.md`. Step 4: leave the spec comment as it is; `record done` ma
 **What changed** (2–3 sentences, no jargon), **What was proved** (proof counts and any accepted
 unproved rows), and **What to review or test** (clear steps or screenshots if needed, any caveats,
 or "Nothing left to test — ready to merge"), ending with `Closes #<issue>` — then run
-`gh pr ready <number>`. Never merge. On a public repo, ask before the push and the post, then pass
-`--confirmed`. Done when the pull request is ready for review.
+`gh pr ready <number>`. Never merge. If the repo opts into `confirm_public_writes`, ask before
+public GitHub writes and pass `--confirmed`. Done when the pull request is ready for review.
