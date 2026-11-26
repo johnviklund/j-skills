@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-26 · #14 jflow-build-fast-lint · builders run the fast static checks AGENTS.md lists and never silence them · claude-opus-5-5
+- `references/build.md` now tells builders to run the lint and typecheck commands `AGENTS.md` lists before each `build` and `fix` commit, and to leave slow suites to `jflow done`. They may not silence a rule, weaken its severity or launder a type with an unsafe cast unless the exception has both an inline justification and a note in `notes.md`. Before this, lint errors first showed up at done, after check had passed.
+- Commits: 760afc1
+- jflow: 3 sessions · 0 fix rounds · 6 rows · 0 accepted · check clean · net code +0 · tests +0 · docs +6
+
 ## 2026-11-26 · #10 pr-mode-autopilot · issue and pull request mode stops only for real blockers · claude-opus-5-5
 - In pull request mode, `jflow next` goes to done instead of stopping for `[edge]`-only defects, Human checks, Maybes or proposed edits, because the pull request is the review gate. Every stop now shows a Checker view and a Builder view line above its options (`scripts/jflow_views.py`). `done.md` and `github.md` say doc edits go in the PR diff, `[edge]` defects become caveats, and the PR body uses `plain` under What changed, What was proved and What you need to do.
 - Commits: 7479e05 c6b5fcc
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - `next` now stops for the human at an approach posted for an Ask first item, at the live `Gate:`, and before done when there are Human checks or Maybes, until `notes.md` has `Yes: approach`, `Yes: gate` or `Yes: done`; a conductor reading only the JSON can no longer run past them. Also stops `section` dropping a real line that starts with "None".
 - Commits: f329eaa 4121af0 2f8aaa8
 - jflow: 4 sessions · 1 fix rounds · 9 rows · 0 accepted · check 1 defects · net code +27 · tests +27 · docs +9
-
-## 2026-11-09 · jflow-next · `jflow.py next` decides a run's next step · Claude Opus 5.5
-- `next <slug>` reads the run folder and git and prints the closing card, or with `--json` the step, seat, role, session and any blocker for the human, so a driver needs no prose table; it applies the check cap and `Checks allowed: N`, and an acceptance closes only the item and check it names. Also fixes `summary` ending a run at Base when its spec quotes `Status: done`.
-- Commits: ecac1d8 38b1e04 f6fb039 046bb7e 7acdd9b
-- jflow: 7 sessions · 4 fix rounds · 11 rows · 0 accepted · check 5 defects · net code +111 · tests +95 · docs -5
