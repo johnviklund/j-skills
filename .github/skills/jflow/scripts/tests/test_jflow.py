@@ -295,7 +295,8 @@ class RunRecord(unittest.TestCase):
         self.assertIn("3 checks used of 3", self.next()["blocker"])
         ask = self.jflow("next", "demo", "--ask").splitlines()
         self.assertIn("went from 1 to 1", ask[0])
-        self.assertEqual(ask[2], "**➡️ A. Stop here** (recommended): I accept what is open and move on.", ask)
+        self.assertEqual(ask[ask.index("Checker view (.jflow/demo/receipts/check-4.md): 1 | BROKEN | `cmd` -> ok") + 2],
+                         "**➡️ A. Stop here** (recommended): I accept what is open and move on.", ask)
         self.assertIn("**B. One more check**: I raise the limit and fix; if that check finds a new problem, stop.", ask)
         self.assertEqual(ask[-1], "Reply A or B.")
         (self.run_dir / "receipts/check-3.md").write_text(

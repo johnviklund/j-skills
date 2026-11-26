@@ -71,13 +71,15 @@ receipt with `record check --file`.
 
 ## Done
 
-Follow [done.md](done.md) with three changes. In step 4, leave the spec comment as it is:
-`record done` marks the run done. In step 6, delete `drive.py` from `.git/jflow/<issue>/`. In
-step 8, push the branch, update the pull request body (`gh pr edit <number> --body-file F`) with a
-short plain-English review summary (**What changed**, **What was proved**, **What to review or
-test**, ending with `Closes #<issue>`) so a human can decide whether to merge without reading the
-machine comments, then mark the pull request ready with `gh pr ready <number>`. Never merge it: the
-repo's own review does that. The step ends when the pull request is ready for review.
+Follow [done.md](done.md) and its last section. `next` sends a run to done without stopping for
+`[edge]`-only defects, Human checks, Maybes or proposed edits: the pull request is the review gate.
+Doc and `TODO.md` edits go straight into the pull request diff, and unfixed `[edge]` defects become
+caveats. Leave the spec comment as it is: `record done` marks the run done. Delete `drive.py` from
+`.git/jflow/<issue>/`. Push the branch and write the pull request description with the `plain`
+skill under **What changed**, **What was proved** and **What you need to do**. The last one says
+`Nothing for you to test.` when no step needs a person. End it with `Closes #<issue>`, then run
+`gh pr ready <number>`. Never merge it: the repo's own review does that. The step ends when the
+pull request is ready for review.
 
 ## Public repos
 

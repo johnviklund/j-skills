@@ -98,9 +98,9 @@ human what is open. A `Checks allowed: N` line in `notes.md` raises the cap; the
 `notes.md`: `Yes: approach` for an **Ask first** approach, `Yes: gate` before the `Gate:`,
 `Yes: done` before done when there are Human checks or Maybes, and `Yes: edits` for the
 `## Proposed edits` an unattended done left. `--json` names it in `wait_point`, which other stops
-omit. The session the human answered commits `Yes: <point> · "<the human's words>" · <date>`. A
-line that starts with `Yes: <point>` clears only that point. A mid-run `jflow spec` resets the
-check cap and voids earlier `## Proposed edits` and `Yes:` lines.
+omit. PR mode keeps only the first two. The session the human answered commits
+`Yes: <point> · "<the human's words>" · <date>`. A line that starts with `Yes: <point>` clears
+only that point. A mid-run `jflow spec` resets the check cap and voids earlier `## Proposed edits` and `Yes:` lines.
 
 **Decisions happen in the builder session, never elsewhere.** Another session's card for a stop
 sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the
