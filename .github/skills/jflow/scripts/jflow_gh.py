@@ -174,6 +174,12 @@ class Hub:
             raise SystemExit(f"issue and pull request mode keeps no .jflow/ files on the branch: remove {stray[0]}")
         coded = base and git(real, "diff", "--name-only", f"{base}..HEAD", "--", ".", ":(exclude).jflow")
         if not self.pr and (coded or a.cmd == "record" and step not in ("spec", "accept")):
+            # Code past Base on another branch is a wrong checkout, not a missing pull request.
+            want = f"jflow/{self.issue or '<issue>'}"
+            on = git(real, "branch", "--show-current")
+            if coded and on != want:
+                raise SystemExit(f"HEAD is {f'on {on}' if on else 'detached'}, not {want}, and has commits"
+                                 f" past Base: check out Base or {want} and rerun; build opens the draft PR")
             raise SystemExit(nopr)
         self.text = None
         if a.cmd in ("validate", "record") and a.file:
