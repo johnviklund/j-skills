@@ -131,8 +131,8 @@ or `retro <issue URL>` (a run in jflow's issue and pull request mode) · `retro 
 |---|---|---|
 | Lesson, judgement-call review rule, memory-page pointer | `memory.remember` | Hand it the approved items. A repeat bumps the page's occurrences. |
 | Line added, moved or removed in repo `AGENTS.md` / `README.md` | `memory.remember` | Same routing; it owns canonical-doc edits. |
-| Guardrail (new or rewired check) | `jflow` | A `TODO.md` line `Guardrail: <rung> — <the check> · must fail on <sha>` — a check is code and ships through a jflow run. A matching memory page gets `Enforced by: pending — <that line>` via `memory.remember`. |
-| Overbuild still in the code | `jflow` | A `TODO.md` line `Simplify: <what to delete or inline> · <evidence>` — behaviour unchanged, tests unchanged. |
+| Guardrail (new or rewired check) | `jflow` | If the target repo uses GitHub mode (or has `.github/workflows/board.yml`), file an open GitHub issue (Backlog) with the rung, check, and `<sha>` it must fail on; otherwise add a `TODO.md` line `Guardrail: <rung> — <the check> · must fail on <sha>`. A matching memory page gets `Enforced by: pending — <issue URL or line>` via `memory.remember`. |
+| Overbuild still in the code | `jflow` | Same rule: file a GitHub issue (Backlog) on GitHub-mode/board repos, or a `TODO.md` line `Simplify: <what to delete or inline> · <evidence>` in file mode — behaviour unchanged, tests unchanged. |
 | Checker missed a P0/P1 | `evals` | Show the human the miss and its sha; with their yes, add it to the exam set as a `missed` case. |
 | Skill change | `memory.remember` | Applied in its own commit, logged in `SKILL-IMPACT.md`, trialed. On a machine with no push-able `j-skills` clone it comes back as a skill-edit prompt for the human (`memory.remember` *Scope*); the receipt carries the prompt. |
 | Trial evidence | `memory.remember` | Append the run and its for/against line to the trialing `SKILL-IMPACT.md` row. |
