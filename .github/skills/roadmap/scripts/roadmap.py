@@ -305,23 +305,28 @@ def field_value(body, field):
         if m and m.group(1) is not None:
             return m.group(1).strip()
         if m and line.lstrip().startswith("#"):
-            return next((l.strip() for l in lines[i + 1:] if l.strip()), "")
+            value = next((l.strip() for l in lines[i + 1:] if l.strip()), "")
+            return "" if value.startswith("#") else value
     return None
 
 
-def order(issue):
-    value = field_value(issue.get("body"), "Order")
-    m = re.match(r"\d+\b", value or "")
-    return int(m.group()) if m else None
+def order(issue, top=NEXT_MAX):
+    """The card's place in Next, a whole number from 1 to top, or None."""
+    words = (field_value(issue.get("body"), "Order") or "").split()
+    if words and re.fullmatch(r"\d+", words[0]) and 1 <= int(words[0]) <= top:
+        return int(words[0])
+    return None
 
 
 def next_order(nxt):
     """Next issues in the order to start them: by Order, then issue number; unordered ones last."""
-    return sorted(nxt, key=lambda i: (order(i) is None, order(i) or 0, i["number"]))
+    # An overfull Next already fails check, so its extra cards may count past NEXT_MAX.
+    top = max(NEXT_MAX, len(nxt))
+    return sorted(nxt, key=lambda i: (order(i, top) is None, order(i, top) or 0, i["number"]))
 
 
 def next_findings(nxt):
-    stale, seen = [], {}
+    stale, seen, top = [], {}, max(NEXT_MAX, len(nxt))
     ordered = next_order(nxt)
     position = {i["number"]: n for n, i in enumerate(ordered)}
     for issue in ordered:
@@ -329,16 +334,16 @@ def next_findings(nxt):
         missing = []
         for f in NEXT_FIELDS:
             alts = f if isinstance(f, tuple) else (f,)
-            if not any(has_field(body, a) for a in alts):
+            if not any(field_value(body, a) for a in alts):  # an empty field counts as missing
                 missing.append(" or ".join(repr(a + ":") for a in alts))
         if missing:
             stale.append(f"#{num}: in Next but body has no {', '.join(missing)}")
         conf = field_value(body, "Confidence")
         if conf and not CONFIDENCE_RE.match(conf):
             stale.append(f"#{num}: Confidence '{conf}' is not High, Medium or Low")
-        rank = order(issue)
-        if rank is None and has_field(body, "Order"):
-            stale.append(f"#{num}: Order '{field_value(body, 'Order') or ''}' is not a number")
+        rank = order(issue, top)
+        if rank is None and field_value(body, "Order"):
+            stale.append(f"#{num}: Order '{field_value(body, 'Order')}' is not a whole number from 1 to {top}")
         elif rank in seen:
             stale.append(f"#{num}: Order {rank} is also #{seen[rank]}'s; give each Next issue its own")
         elif rank is not None:

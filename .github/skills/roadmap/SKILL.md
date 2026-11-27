@@ -78,8 +78,9 @@ A card that argues against `PRODUCT.md` writes `Challenges:` in place of `Moves:
 `Serves:`, because it is the case for a `bootstrap update`, not a step toward the current outcomes.
 
 `check` reports a Next card that lacks `Helps`, `Moves` or `Challenges`, `Grounded in`,
-`Confidence` or a numbered `Order`. It also reports a `Confidence` other than `High`, `Medium` or
-`Low`, two Next cards with the same `Order`, and a card whose `After` issue Next starts later.
+`Confidence` or `Order`; an empty field counts as missing. It also reports an `Order` that is not
+a whole number from 1 to 5, a `Confidence` other than `High`, `Medium` or `Low`, two Next cards
+with the same `Order`, and a card whose `After` issue Next starts later.
 `next` lists Next by `Order`, then by issue number.
 
 In GitHub mode `roadmap tidy` can also scan a wiki folder, set by the repo-local

@@ -344,7 +344,14 @@ class GitHubTest(unittest.TestCase):
                   "stale: #10: After #20, but Next starts #20 later; raise its Order",
                   "stale: #20: Order 1 is also #10's; give each Next issue its own"])),
             ("Backlog may stay rough", [issue(1, body=bare)], False, (0, [])),
-        ]
+            ("empty fields count as missing",
+             [issue(1, ["next"], body=bare + "- **Helps:**\n- **Moves:** \n- **Grounded in:**\n"
+                    "- **Confidence:**\n- **Order:** 1\n")], False,
+             (0, ["stale: #1: in Next but body has no 'Helps:', 'Moves:' or 'Challenges:', "
+                  "'Grounded in:', 'Confidence:'"])),
+        ] + [(f"Order {bad}", [issue(1, ["next"], body=card(bad))], False,
+              (0, [f"stale: #1: Order '{bad}' is not a whole number from 1 to 5"]))
+             for bad in ("0", "6", "1.5", "1/2")]
         for name, items, product, want in cases:
             with self.subTest(name):
                 self.assertEqual(check(items, product), want)
