@@ -432,9 +432,10 @@ def main(argv=None):
     rec, summ, val, seat, nxt = map(sub.add_parser, ("record", "summary", "validate", "seat", "next"))
     for p in (rec, summ, val, nxt):
         p.add_argument("slug")
-    import jflow_gh, jflow_escaped
+    import jflow_gh, jflow_escaped, jflow_checklist
     jflow_gh.add_args(sub, rec, summ, val)
     jflow_escaped.add_args(sub)
+    jflow_checklist.add_args(sub)
     for p in (summ, nxt):
         p.add_argument("--json", action="store_true")
     nxt.add_argument("--ask", action="store_true")
@@ -458,10 +459,16 @@ def main(argv=None):
             raise SystemExit("unknown flow step")
         print(json.dumps(seat_for(repo, a.step, a)))
         return 0
+    if a.cmd == "checklist" and not a.slug:
+        return jflow_checklist.run(repo, a.base)
     hub = jflow_gh.Hub.of(a, repo, SLUG)
     repo, run = (hub.repo, hub.run) if hub else (repo, repo / ".jflow" / a.slug)
     if a.cmd in ("note", "show"):
         return getattr(hub, a.cmd)(a) or 0
+    if a.cmd == "checklist":
+        if not (run / "spec.md").is_file():
+            raise SystemExit(f"no {run / 'spec.md'}")
+        return jflow_checklist.run(hub.real if hub else repo, a.base, (run / "spec.md").read_text("utf-8"))
     if a.cmd == "next":
         n = next_step(repo, run, a, hub)
         hub and hub.tidy(n)
