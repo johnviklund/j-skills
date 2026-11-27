@@ -23,7 +23,9 @@ its ideas (or old `Options`), yours and "do nothing", with limits such as a cuto
 
 Paths, functions, libraries and test layout belong to the builder unless they are a real
 constraint. Ask about a how only when it is costly to undo: a schema, a public contract, a data
-migration, a new dependency, deleted data. Those go in **Ask first**.
+migration, a new dependency, deleted data. Those go in **Ask first**. When a change scans or parses
+code or text, state its fidelity limit in `Non-goals`, such as line-level diff matching rather than
+a full language parser.
 
 Stop when you can predict the human's next three answers. If several rounds pass and you still
 cannot, say what is missing. A very long grill means the scope is too big: propose a split.
