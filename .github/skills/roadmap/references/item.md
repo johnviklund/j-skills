@@ -28,18 +28,27 @@ Ask only what the evidence left open, in one round where you can:
   you, and use the unit the open items beside it use, so the two can be compared.
 - Why now: what does waiting cost? When it costs nothing, recommend that the item waits.
 - What would someone observe once it is solved?
+- For a Next card: who it helps, what it rests on, and how sure that makes you.
 
 Do not choose the fix. Write the human's idea, and any other worth weighing, as questions in
 `Open for spec`; jflow spec weighs them, with "do nothing", once the problem is settled.
 
 An idea that moves no outcome in `PRODUCT.md`, or works against one of its principles or
-non-goals, becomes the first question: drop it, or change the north star on purpose. A change to
+non-goals, becomes the first question: drop it, or change the north star on purpose. When it
+brings counter-evidence, such as data or a source that says `PRODUCT.md` is wrong, keep that
+evidence: in GitHub mode the card writes `Challenges:` in place of `Moves:` and carries the
+`challenges` label, and its next step is `bootstrap update`, not a drop. A change to
 `PRODUCT.md` is the human's call and goes through the `bootstrap` skill's update step. An open item
 that solves the same problem, or contradicts this one, becomes a question: merge, keep both with a
 boundary, or replace. Stop when every required field holds a fact or a human answer.
 An idea that needs several jflow runs becomes several items: propose the split.
 
 ## 4. Play back and write
+
+**Keep the card readable.** A human scans the card in under a minute, so write it in plain English
+under the `plain` skill's Rules. Each field is one short bullet of one or two sentences, in the
+order `SKILL.md` gives, with the confidence fields grouped together after `Serves`. Detail that
+needs more room goes in a linked note or comment, never a wall of text in the card.
 
 Show the item in chat, exactly as it will be written, with its group, its place in that group by
 priority, and a proposal for Next up: its place, with why it goes before the item below it, or
@@ -50,7 +59,8 @@ says under *Changing the file*. Done when the item is committed and `check` prin
 open issues and the closed issues' titles instead of the roadmap and its archive. Play back the
 title, which is the slug and the outcome as in an item heading, and the body, which holds the
 fields without `Status`. Propose whether the issue goes into Next with the `next` label: Next holds
-at most five issues. After the human's explicit yes, write the body to a temporary file outside the
+at most five issues. A Next card also holds the confidence fields from `SKILL.md`, with an `Order`
+that keeps every `After` issue earlier. After the human's explicit yes, write the body to a temporary file outside the
 repo and run `gh issue create --title "<slug>: <outcome>" --body-file F`, adding `--label next`
 only when the human agreed to it. Done when the issue exists and `check --github` prints no
 `error:` line; print its URL and `next --github`.

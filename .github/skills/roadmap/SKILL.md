@@ -54,6 +54,34 @@ reports a body without `Problem:` or `Solved when:`, and without `Serves:` when 
 exists. It also reports a `next` label left on an in-flight issue. Bare `roadmap` shows Next and
 Backlog and those findings.
 
+**Confidence fields.** `jflow spec` starts from the card, so a card in Next also says who it helps,
+what it rests on and how sure it is. Backlog cards may leave these out. Group them after `Serves`,
+one short line each:
+
+```markdown
+- **Helps:** <who gets the help: a person, a team, or the system itself>
+- **Moves:** <the outcome or number it moves, and by how much>
+- **Grounded in:** <the sources, strongest first>
+- **Confidence:** <High | Medium | Low> · <the one reason>
+- **Order:** <1 to 5, the place in Next to start it>
+- **After:** <#issues it waits for | none>
+```
+
+`Grounded in` ranks its sources in three tiers. Own data comes first: a count, a log, a
+measurement from this repo or its users. A primary source comes second: a frontier lab or the
+tool's author, writing about their own model or tool. A secondary source comes third: a post, a
+video or a summary of someone else's work. `Confidence` is `High` with own data behind it,
+`Medium` with a primary source, and `Low` otherwise.
+
+A card that argues against `PRODUCT.md` writes `Challenges:` in place of `Moves:`: what in
+`PRODUCT.md` it questions, and the counter-evidence. It carries the `challenges` label and needs no
+`Serves:`, because it is the case for a `bootstrap update`, not a step toward the current outcomes.
+
+`check` reports a Next card that lacks `Helps`, `Moves` or `Challenges`, `Grounded in`,
+`Confidence` or a numbered `Order`. It also reports a `Confidence` other than `High`, `Medium` or
+`Low`, two Next cards with the same `Order`, and a card whose `After` issue Next starts later.
+`next` lists Next by `Order`, then by issue number.
+
 In GitHub mode `roadmap tidy` can also scan a wiki folder, set by the repo-local
 `git config roadmap.wikiPath`, for pages changed since `git config roadmap.wikiLastScan`. It
 reads them against `PRODUCT.md` and the open issues and proposes at most three updates, preferring a

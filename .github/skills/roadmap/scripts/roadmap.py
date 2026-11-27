@@ -19,8 +19,10 @@ every item's `Serves:` must name one of its headings, and each `###` outcome und
 GitHub mode, on `--github`, or on `git config jflow.mode github` when no FILE is named, reads the
 open issues of the current repo through `gh` instead of a file. An issue labelled `next` is in Next, one labelled
 ready-for-agent, in-progress or needs-human is in flight, every other open issue is in Backlog.
-`next` lists Next and Backlog; `check` fails when Next holds more than five issues and reports loose
-issue bodies and a `next` label on an in-flight issue as `stale:`. It never writes.
+`next` lists Next in `Order:` order, then Backlog; `check` fails when Next holds more than five
+issues and reports loose issue bodies, a Next issue without its confidence fields or a valid,
+unique `Order:`, an `After:` that Next starts later, and a `next` label on an in-flight issue as
+`stale:`. It never writes.
 
 `wiki` lists Markdown pages in the wiki folder (`--wiki` or `git config roadmap.wikiPath`) changed
 since `--since`, `git config roadmap.wikiLastScan` or seven days ago, leaving out pages that an open
@@ -249,6 +251,10 @@ def check_repos(rm, repos):
 
 IN_FLIGHT = ("ready-for-agent", "in-progress", "needs-human")
 ISSUE_FIELDS = ("Problem", "Solved when")
+# A Next issue is about to steer a jflow spec, so it also says who it helps, what it moves or
+# challenges, what it rests on and how sure it is. Backlog issues may stay rough.
+NEXT_FIELDS = ("Helps", ("Moves", "Challenges"), "Grounded in", "Confidence", "Order")
+CONFIDENCE_RE = re.compile(r"(?i)^(high|medium|low)\b")
 
 
 def git_config(key):
@@ -291,8 +297,61 @@ def has_field(body, field):
     return re.search(rf"(?im)^[\s#>*-]*\**{re.escape(field)}\**\s*(:|$)", body or "") is not None
 
 
+def field_value(body, field):
+    """The text after 'Field:' on its line, or the next non-blank line under a '## Field' heading."""
+    lines = (body or "").splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(rf"(?i)^[\s#>*-]*\**{re.escape(field)}\**\s*(?::\**\s*(.*)|$)", line)
+        if m and m.group(1) is not None:
+            return m.group(1).strip()
+        if m and line.lstrip().startswith("#"):
+            return next((l.strip() for l in lines[i + 1:] if l.strip()), "")
+    return None
+
+
+def order(issue):
+    value = field_value(issue.get("body"), "Order")
+    m = re.match(r"\d+\b", value or "")
+    return int(m.group()) if m else None
+
+
+def next_order(nxt):
+    """Next issues in the order to start them: by Order, then issue number; unordered ones last."""
+    return sorted(nxt, key=lambda i: (order(i) is None, order(i) or 0, i["number"]))
+
+
+def next_findings(nxt):
+    stale, seen = [], {}
+    ordered = next_order(nxt)
+    position = {i["number"]: n for n, i in enumerate(ordered)}
+    for issue in ordered:
+        body, num = issue.get("body"), issue["number"]
+        missing = []
+        for f in NEXT_FIELDS:
+            alts = f if isinstance(f, tuple) else (f,)
+            if not any(has_field(body, a) for a in alts):
+                missing.append(" or ".join(repr(a + ":") for a in alts))
+        if missing:
+            stale.append(f"#{num}: in Next but body has no {', '.join(missing)}")
+        conf = field_value(body, "Confidence")
+        if conf and not CONFIDENCE_RE.match(conf):
+            stale.append(f"#{num}: Confidence '{conf}' is not High, Medium or Low")
+        rank = order(issue)
+        if rank is None and has_field(body, "Order"):
+            stale.append(f"#{num}: Order '{field_value(body, 'Order') or ''}' is not a number")
+        elif rank in seen:
+            stale.append(f"#{num}: Order {rank} is also #{seen[rank]}'s; give each Next issue its own")
+        elif rank is not None:
+            seen[rank] = num
+        for dep in re.findall(r"#(\d+)", field_value(body, "After") or ""):
+            if int(dep) in position and position[int(dep)] > position[num]:
+                stale.append(f"#{num}: After #{dep}, but Next starts #{dep} later; raise its Order")
+    return stale
+
+
 def github_next(issues):
     nxt, _, backlog = board(issues)
+    nxt = next_order(nxt)
     for title, group in (("Next", nxt), ("Backlog", backlog)):
         print(f"{title}:")
         if not group:
@@ -310,11 +369,16 @@ def github_check(issues, product):
     for issue in flight:
         if "next" in {l["name"] for l in issue.get("labels", [])}:
             stale.append(f"#{issue['number']}: in flight but still labelled 'next'; remove the label")
-    fields = ISSUE_FIELDS + (("Serves",) if os.path.exists(product) else ())
+    has_product = os.path.exists(product)
     for issue in nxt + backlog:
+        # A card that challenges PRODUCT.md is evidence for `bootstrap update`, so it serves no outcome.
+        challenges = ("challenges" in {l["name"] for l in issue.get("labels", [])}
+                      and has_field(issue.get("body"), "Challenges"))
+        fields = ISSUE_FIELDS + (("Serves",) if has_product and not challenges else ())
         missing = [f for f in fields if not has_field(issue.get("body"), f)]
         if missing:
             stale.append(f"#{issue['number']}: body has no {', '.join(repr(f + ':') for f in missing)}")
+    stale += next_findings(nxt)
     for line in errors:
         print(f"error: {line}")
     for line in stale:

@@ -32,6 +32,11 @@ words. File paths, commands, field names, technology choices and implementation 
 under `## The desired state`, because roadmap items name these headings and the `roadmap` check
 matches them.
 
+An optional `Weighs more:` line under `## Who it is for` says whether human help or system help
+counts for more when a change trades one for the other. A roadmap card's `Helps:` field names
+which one it gives, and `jflow spec` reads this line to settle the trade-off. Ask the human; leave
+the line out when they have no answer.
+
 Everything the human reads follows the Rules of the `plain` skill: invoke it once before the first
 message. A question carries one decision, lettered options and a ➡️ recommended option first.
 
@@ -94,6 +99,8 @@ a decision reversed. `roadmap item` sends an idea here when it moves no outcome.
 ## Who it is for
 
 - **<User>:** <what they do today, what gets in their way, what they need>
+
+Weighs more: <human help | system help>, when the two trade off. <One reason.>
 
 ## The desired state
 
