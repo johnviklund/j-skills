@@ -33,10 +33,11 @@ or `retro <issue URL>` (a run in jflow's issue and pull request mode) · `retro 
    file, a human correction, a deviation, a patch cycle, an overturned finding, a ticket or file
    later cut.
    - **Run record:** a jflow run's `run.jsonl`, one JSON line per step, is the first source and
-     the only one for numbers. Its `done` line carries a `summary`: sessions, checks, fix rounds,
-     defects, accepted misses and `hours_spec_to_end`. Count `escaped` lines, which come after
-     done, and read each seat's model from the `model` of its step lines. An unfinished run has
-     no summary: count its `check` and `fix` lines and sum `defects`. When `hq` is on `PATH`, also
+     the only one for numbers. A `done` line after the last `spec` line carries a `summary`:
+     sessions, checks, fix rounds, defects, accepted misses and `hours_spec_to_end`. Count
+     `escaped` lines, which come after done, and read each seat's model from the `model` of its
+     step lines. A run with no such `done` line is open, whether unfinished or specced again after
+     done: ignore any older summary, count its `check` and `fix` lines and sum `defects`. When `hq` is on `PATH`, also
      run `hq scores` and compare the run with others; without `hq`, skip it, since it is optional.
    - **Run slug:** `.jflow/<slug>/` — `run.jsonl` as above, `spec.md` (Proof rows), `notes.md` (judgement calls, what
      was left open), `receipts/check-*.md` (each BROKEN row or defect cost a fix round; BLOCKED rows
