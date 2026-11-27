@@ -110,6 +110,24 @@ class Checklist(unittest.TestCase):
         self.assertIn("Docs links", r.stdout)
         self.assertIn("1 of 4", r.stdout)
 
+    def test_fix_1_glob_character_class_matches(self):
+        base = self.commit("items", {"RELIABILITY.md": "- [ ] C sources\n  Paths: src/*.[ch]\n  Check: c\n  Incident: #1\n"})
+        self.commit("change", {"src/store.c": "int x;\n"})
+        self.assertIn("1 of 1", self.checklist("--base", base).stdout)
+
+    def test_fix_2_changed_lines_that_look_like_headers_still_match(self):
+        self.commit("old", {"counter.cpp": "-- remaining;\n"})
+        base = self.commit("items", {"RELIABILITY.md":
+                                     "- [ ] Counter\n  Paths: counter.cpp\n  Match: remaining\n  Check: c\n  Incident: #1\n"})
+        self.commit("change", {"counter.cpp": "++ remaining;\n"})
+        self.assertIn("1 of 1", self.checklist("--base", base).stdout)
+
+    def test_fix_3_plus_bullet_item_is_validated(self):
+        (self.repo / "RELIABILITY.md").write_text("+ [ ] Missing check\n  Paths: *.py\n  Incident: #1\n")
+        r = self.checklist("--base", self.base)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("Missing check", r.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

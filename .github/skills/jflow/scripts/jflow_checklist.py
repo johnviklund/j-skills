@@ -8,16 +8,17 @@ An item is a Markdown checklist line with indented fields:
       Check: every retry loop has a max attempt count and a backoff
       Incident: https://github.com/org/repo/issues/12
 
-Paths are globs (* stays inside one folder, ** crosses folders, a glob without / matches the
-file name anywhere). Match is a Python regex searched in each added or removed line. With both,
-one changed file must match Paths and have a changed line that matches Match.
+Paths are globs (* stays inside one folder, ** crosses folders, [ch] is a class, a glob without /
+matches the file name anywhere). Match is a Python regex searched in each added or removed line.
+With both, one changed file must match Paths and have a changed line that matches Match. Items
+start with -, * or +.
 Standard library, Python 3.9+.
 """
 import re
 import subprocess
 from pathlib import Path
 
-ITEM = re.compile(r"^[-*] \[[ xX]\] (.+)$")
+ITEM = re.compile(r"^[-*+] \[[ xX]\] (.+)$")
 FIELD = re.compile(r"^\s+(Paths|Match|Check|Incident):\s*(.*)$")
 LINK = re.compile(r"https?://\S+|(?:[\w.-]+/[\w.-]+)?#\d+")
 
@@ -32,8 +33,12 @@ def add_args(sub):
 
 def glob_re(glob):
     out = "" if "/" in glob.strip("/") else "(?:.*/)?"
-    for part in re.split(r"(\*\*/?|\*|\?)", glob.strip("/")):
-        out += {"**/": "(?:.*/)?", "**": ".*", "*": "[^/]*", "?": "[^/]"}.get(part, re.escape(part))
+    for part in re.split(r"(\*\*/?|\*|\?|\[!?\]?[^]]*\])", glob.strip("/")):
+        if part[:1] == "[" and len(part) > 2:  # a class, as git reads one: [ch], [a-z], [!0-9], [^0-9]
+            neg = part[1] in "!^"
+            out += ("[^/" if neg else "[") + part[1 + neg:-1].replace("\\", "\\\\").replace("[", "\\[") + "]"
+        else:
+            out += {"**/": "(?:.*/)?", "**": ".*", "*": "[^/]*", "?": "[^/]"}.get(part, re.escape(part))
     return re.compile(out + r"\Z")
 
 
@@ -74,7 +79,8 @@ def git(repo, *args):
 
 def changed_lines(repo, base, path):
     out = git(repo, "diff", "--no-ext-diff", "--no-color", "--no-renames", "-U0", f"{base}..HEAD", "--", path)
-    return [ln[1:] for ln in out.splitlines() if ln[:1] in "+-" and not ln.startswith(("+++ ", "--- "))]
+    hunks = out.split("\n@@", 1)[1:]  # file headers such as "--- a/x" come before the first hunk
+    return [ln[1:] for ln in "".join(hunks).splitlines() if ln[:1] in "+-"]
 
 
 def run(repo, base, spec=None):
