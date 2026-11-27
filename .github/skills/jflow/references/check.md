@@ -45,6 +45,9 @@ around it. Go for what no row varies: shapes the rows did not try, what runs ups
 begins, and what the output leaves a reader believing after filtering or defaulting. On a later
 check, attack only what changed since the last one.
 
+Run `python3 <skill>/scripts/jflow.py checklist <slug>`. It prints the repo's `RELIABILITY.md`
+items that this diff triggers. Do each item's check; a failed one is a defect like any other.
+
 Report a defect only with a concrete failing input, one the service, a user or a caller can send,
 and name how it arrives.
 Run it in a scratch copy when you can, so the output is the evidence; otherwise trace it through

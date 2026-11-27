@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-28 · #24 diff-triggered-reliability-checklist · jflow.py checklist prints the RELIABILITY.md items a run's diff triggers · claude-opus-5-5
+- New `jflow.py checklist <slug>` or `--base <sha>` reads an optional `RELIABILITY.md`, matches each item's `Paths:` globs and `Match:` regex against `Base..HEAD`, and prints only the items that fire. A bad item fails and names its line. `references/check.md` has the checker run it during Attack, so past-incident rules no longer need room in the size-capped prompt. The code is in `scripts/jflow_checklist.py`.
+- Commits: 31a0c1b 88b0195
+- jflow: 4 sessions · 1 fix rounds · 7 rows · 0 accepted · check 4 defects · net code +128 · tests +133 · docs +3
+
 ## 2026-11-27 · #4 retro-reads-scores · retro and memory.compact read each run's run.jsonl and optional hq scores · claude-opus-5-5
 - `retro` treats `run.jsonl` as its first source and opens a run's report with a `Run:` line of measured sessions, checks, fix rounds, defects, accepted, escaped, hours and seat models; a bare session with no `run.jsonl` omits the line. `memory.compact` picks the 10 newest done runs by their `done` line and reads `escaped` lines as signals; a `done` line counts only after the run's last `spec` line. Both read GitHub-mode runs through `jflow.py show` and run `hq scores` only when `hq` is on `PATH`.
 - Commits: 691f55b dd332e9
@@ -74,13 +79,3 @@ oldest when appending would exceed that.
 - In check-scope, 6 of 10 defects used inputs normal work never makes and cost two fix rounds; `next` now offers to accept them, and `validate` refuses unknown or repeated tags and defect numbers.
 - Commits: c86ae51 88c6157 f2ae69e
 - jflow: 5 sessions · 2 fix rounds · 7 rows · 0 accepted · check 5 defects · net code -14 · tests +21 · docs +5
-
-## 2026-11-18 · check-scope · check proves and reports; validate refuses reruns without input and receipts over 3 KB · claude-opus-5-5
-- Check writes no unblock plans or cap requests, Maybes hold only suspected defects with a named input, and spec rules cover graded and keep rows; check cost the most time and 3.4 Maybes a check.
-- Commits: edf6deb 75643a3 a6b37fe f833813 b9d49c8 a2656fa
-- jflow: 9 sessions · 5 fix rounds · 8 rows · 2 accepted · check 10 defects · net code +48 · tests +83 · docs +13
-
-## 2026-11-17 · jflow-size-room · jflow caps each step's reading and the script separately · gpt-6.1-sol
-- The size guard allows 14,000 bytes for SKILL.md plus one step reference and 30,000 bytes for jflow.py, with the reason beside the limits.
-- Commits: 0abe6bd d6c2ab1 b2169fd 18fdf49 026b1a0
-- jflow: 4 sessions · 1 fix rounds · 5 rows · 0 accepted · check clean · net code +0 · tests +6 · docs +4
