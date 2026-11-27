@@ -245,6 +245,12 @@ def issue(number, labels=(), body="- **Problem:** p\n- **Solved when:** s\n- **S
             "body": body, "comments": [{"body": c} for c in comments]}
 
 
+def card(order, extra=""):
+    """A Next issue body with every field a Next card needs."""
+    return ("- **Problem:** p\n- **Solved when:** s\n- **Serves:** x\n- **Helps:** h\n- **Moves:** m\n"
+            f"- **Grounded in:** g\n- **Confidence:** High\n- **Order:** {order}\n{extra}")
+
+
 class GitHubTest(unittest.TestCase):
     """GitHub mode and the wiki scan, against a fake gh on PATH in a temp git repo."""
 
@@ -291,7 +297,7 @@ class GitHubTest(unittest.TestCase):
     def test_board_next_and_check(self):
         with open("PRODUCT.md", "w") as f:
             f.write("# App\n")
-        self.issues([issue(n, ["next"]) for n in range(1, 7)]
+        self.issues([issue(n, ["next"], body=card(n)) for n in range(1, 7)]
                     + [issue(7, ["next", "in-progress"]), issue(8, body="Just an idea."),
                        issue(9, ["needs-human"])])
         self.git_config("jflow.mode", "github")
@@ -311,6 +317,49 @@ class GitHubTest(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             self.run_cmd("check", "ROADMAP.md")
         self.assertIn("cannot read ROADMAP.md", str(cm.exception.code))
+
+    def test_next_card_fields_order_and_challenges(self):
+        def check(items, product=False):
+            if product:
+                with open("PRODUCT.md", "w") as f:
+                    f.write("# App\n")
+            elif os.path.exists("PRODUCT.md"):
+                os.remove("PRODUCT.md")
+            self.issues(items)
+            return self.run_cmd("check", "--github")
+
+        bare = "- **Problem:** p\n- **Solved when:** s\n"
+        cases = [
+            ("Next card without its confidence fields",
+             [issue(1, ["next"], body=bare + "- **Order:** 1\n")], False,
+             (0, ["stale: #1: in Next but body has no 'Helps:', 'Moves:' or 'Challenges:', "
+                  "'Grounded in:', 'Confidence:'"])),
+            ("challenges card needs neither Moves nor Serves",
+             [issue(1, ["next", "challenges"], body=bare + "- **Helps:** h\n- **Challenges:** c\n"
+                    "- **Grounded in:** g\n- **Confidence:** High\n- **Order:** 1\n")], True, (0, [])),
+            ("bad Confidence, duplicate Order, After inversion",
+             [issue(10, ["next"], body=card(1).replace("High", "80%") + "- **After:** #20\n"),
+              issue(20, ["next"], body=card(1).replace("High", "Medium") + "- **After:** none\n")], False,
+             (0, ["stale: #10: Confidence '80%' is not High, Medium or Low",
+                  "stale: #10: After #20, but Next starts #20 later; raise its Order",
+                  "stale: #20: Order 1 is also #10's; give each Next issue its own"])),
+            ("Backlog may stay rough", [issue(1, body=bare)], False, (0, [])),
+            ("empty fields count as missing",
+             [issue(1, ["next"], body=bare + "- **Helps:**\n- **Moves:** \n- **Grounded in:**\n"
+                    "- **Confidence:**\n- **Order:** 1\n")], False,
+             (0, ["stale: #1: in Next but body has no 'Helps:', 'Moves:' or 'Challenges:', "
+                  "'Grounded in:', 'Confidence:'"])),
+        ] + [(f"Order {bad}", [issue(1, ["next"], body=card(bad))], False,
+              (0, [f"stale: #1: Order '{bad}' is not a whole number from 1 to 5"]))
+             for bad in ("0", "6", "1.5", "1/2")]
+        for name, items, product, want in cases:
+            with self.subTest(name):
+                self.assertEqual(check(items, product), want)
+
+        self.issues([issue(10, ["next"], body=card(2)), issue(20, ["next"], body=card(1)),
+                     issue(5, ["next"], body=card("?")), issue(30, body=bare)])
+        self.assertEqual(self.run_cmd("next", "--github")[1],
+                         ["Next:", "  #20 · issue 20", "  #10 · issue 10", "  #5 · issue 5", "Backlog:", "  #30 · issue 30"])
 
     def test_gh_missing_or_unauthenticated_fails_in_one_line(self):
         empty = os.path.join(self.dir, "empty")

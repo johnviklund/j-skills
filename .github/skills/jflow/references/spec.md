@@ -15,7 +15,10 @@ Ask in rounds: every question whose prerequisites are settled, numbered, each wi
 recommended answer worded so "yes" accepts it. Then wait. Ask the why first: who has the problem,
 what they see, the evidence, why now. Then what good looks like, what must stay, what is out of
 scope, and which `PRODUCT.md` outcome it serves. A roadmap item's fields answer their own
-questions: never reopen them; start from its `Open for spec`. Once the why is settled, pick the fix:
+questions: never reopen them. Open instead on the card's weakest field: a missing one, `Confidence:
+Low`, or a `Grounded in` with only secondary sources. Then go on to its `Open for spec`. When
+`PRODUCT.md` has a line on whether human help or system help weighs more, read it and let it
+settle trade-offs between the two. Once the why is settled, pick the fix:
 its ideas (or old `Options`), yours and "do nothing", with limits such as a cutoff.
 
 Paths, functions, libraries and test layout belong to the builder unless they are a real

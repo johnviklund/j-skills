@@ -32,6 +32,12 @@ Runs in the builder session after the last check.
 
    With no `WORKLOG.md`, add the `jflow:` line to `notes.md`, where `retro` and `memory.compact`
    read it.
+
+   Add one `Impact check` line to `notes.md`: did the change move what the card's `Moves` or
+   `Impact` named? Write one of:
+   - `Impact check: observed · <the number>`
+   - `Impact check: not yet measurable · <how and when to check>`
+   - `Impact check: missed · <what happened>`
 5. Keep the repo's lists true, for each of `TODO.md` and `ROADMAP.md` that exists. Search it for the
    slug and for what shipped, and read only the matches and their headings.
    - A `ROADMAP.md` with `## Next up` follows the `roadmap` skill's done-item rules and `check`.
@@ -71,12 +77,13 @@ stopping for `[edge]`-only defects, Human checks, Maybes or proposed edits.
 - Step 2: ask nothing and wait for no one. Make each `PRODUCT.md`, `DESIGN.md` or `TODO.md` edit
   directly in the pull request diff and commit it, so the reviewer sees it there. Human checks and
   Maybes go under **What you need to do**.
-- Step 4: leave the spec comment as it is; `record done` marks the run done.
+- Step 4: leave the spec comment as it is; `record done` marks the run done. Post the `Impact
+  check` line with `jflow.py note`, and repeat it in the pull request description.
 - Step 6: delete `drive.py` from `.git/jflow/<issue>/`.
 - Step 8: push the branch. Invoke the `plain` skill, then write the pull request description with
   these three headings and update it with `gh pr edit <number> --body-file F`:
   - **What changed**: two or three sentences.
-  - **What was proved**: the proof count and any row accepted unproved.
+  - **What was proved**: the proof count, any row accepted unproved, and the `Impact check` line.
   - **What you need to do**: each Human check, Maybe and `[edge]` caveat as a step only a person
     can do, or `Nothing for you to test.` when there is none.
 
