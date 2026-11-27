@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-27 · #4 retro-reads-scores · retro and memory.compact read each run's run.jsonl and optional hq scores · claude-opus-5-5
+- `retro` treats `run.jsonl` as its first source and opens a run's report with a `Run:` line of measured sessions, checks, fix rounds, defects, accepted, escaped, hours and seat models; a bare session with no `run.jsonl` omits the line. `memory.compact` picks the 10 newest done runs by their `done` line and reads `escaped` lines as signals; a `done` line counts only after the run's last `spec` line. Both read GitHub-mode runs through `jflow.py show` and run `hq scores` only when `hq` is on `PATH`.
+- Commits: 691f55b dd332e9
+- jflow: 4 sessions · 1 fix rounds · 7 rows · 0 accepted · check 1 defects · net code +0 · tests +0 · docs +20
+
 ## 2026-11-27 · #20 issue-card-confidence · Next cards state who they help, their sources and confidence, and Next prints in start order · claude-opus-5-5
 - `roadmap check --github` now reports a Next card without `Helps`, `Moves` or `Challenges`, `Grounded in`, `Confidence` or an `Order` from 1 to 5, plus bad `Confidence` values, duplicate `Order`s and `After` inversions. All of these are `stale:` findings. A `challenges` card needs no `Serves:`, and `next --github` sorts Next by `Order`. The roadmap docs define the fields and a three-tier source rank. `jflow spec` opens on the weakest field, `jflow done` writes an `Impact check` line, and `bootstrap` has an optional `Weighs more:` line.
 - Commits: 9aa7474 017afe9
@@ -79,8 +84,3 @@ oldest when appending would exceed that.
 - The size guard allows 14,000 bytes for SKILL.md plus one step reference and 30,000 bytes for jflow.py, with the reason beside the limits.
 - Commits: 0abe6bd d6c2ab1 b2169fd 18fdf49 026b1a0
 - jflow: 4 sessions · 1 fix rounds · 5 rows · 0 accepted · check clean · net code +0 · tests +6 · docs +4
-
-## 2026-11-12 · spec-why · jflow spec starts from the why and names the PRODUCT.md outcome it serves · Claude Opus 5.5
-- spec reads PRODUCT.md, DESIGN.md and the roadmap item, asks the why first and never reopens what the item settled, and makes its Solved when Proof row 1; specs carry `Serves:`, which `validate` checks against PRODUCT.md's `###` outcomes; done reports row 1 and asks before editing PRODUCT.md or DESIGN.md. Workflow's brainstorm was the only step that asked why.
-- Commits: 1361409 e9539bd 9b436c4 6171cae
-- jflow: 6 sessions · 3 fix rounds · 5 rows · 0 accepted · check 7 defects · net code +8 · tests +34 · docs +1
