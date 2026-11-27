@@ -46,9 +46,16 @@ Read all of these before starting analysis:
 - **`MEMORY_ARCHIVE.md`** — cold-storage input when present. Search it for duplicates, superseded
   context, and a suitable destination section for archive-only material. Do not treat the whole
   archive as active context.
-- **Run records** (read-only context): `.jflow/*/` folders whose `spec.md` has `Status: done`.
-  From the 10 most recent, read every line of `notes.md` and the Defects and Maybes in
-  `receipts/check-*.md` for content that contradicts or confirms a page, and check that page
+- **Run records** (read-only context): `.jflow/*/` folders whose `run.jsonl` has a `done` line.
+  Take the 10 most recent by that line's `at` timestamp. For each, read `run.jsonl`, every line
+  of `notes.md` and the Defects and Maybes in `receipts/check-*.md` for content that contradicts
+  or confirms a page. In `run.jsonl`, an `escaped` line is a bug found after done: one that a
+  page's `Fix` should have stopped marks the page contradicted, and the same cause in two runs is
+  an unpaged repeat. A high defect count in the `done` summary points to receipts worth reading
+  closely. GitHub-mode runs keep no folder: read them with
+  `python3 <jflow skill>/scripts/jflow.py show <#N>`, `run.jsonl` included. When `hq` is on
+  `PATH`, `hq scores` gives the same numbers across runs; it is optional, so skip it without
+  `hq`. Check that page
   `Evidence` entries resolve to a run slug or a sha in `git log`. Compare runs with each other so
   a lesson missing from memory can be found.
 - **CE artifact directories** where the repo uses that convention (read-only context):

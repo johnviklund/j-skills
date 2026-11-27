@@ -32,14 +32,21 @@ or `retro <issue URL>` (a run in jflow's issue and pull request mode) · `retro 
    a retried or failed command, a search that took several tries, a re-read, an edit to the wrong
    file, a human correction, a deviation, a patch cycle, an overturned finding, a ticket or file
    later cut.
-   - **Run slug:** `.jflow/<slug>/` — `spec.md` (Proof rows), `notes.md` (judgement calls, what
+   - **Run record:** a jflow run's `run.jsonl`, one JSON line per step, is the first source and
+     the only one for numbers. Its `done` line carries a `summary`: sessions, checks, fix rounds,
+     defects, accepted misses and `hours_spec_to_end`. Count `escaped` lines, which come after
+     done, and read each seat's model from the `model` of its step lines. An unfinished run has
+     no summary: count its `check` and `fix` lines and sum `defects`. When `hq` is on `PATH`, also
+     run `hq scores` and compare the run with others; without `hq`, skip it, since it is optional.
+   - **Run slug:** `.jflow/<slug>/` — `run.jsonl` as above, `spec.md` (Proof rows), `notes.md` (judgement calls, what
      was left open), `receipts/check-*.md` (each BROKEN row or defect cost a fix round; BLOCKED rows
      and Maybes show what a check could not reach); the slug's `WORKLOG.md` entry or the `jflow:`
      line in `notes.md`; then the transcripts for the run's dates and cwd.
    - **GitHub-mode run:** `#N`, an issue URL, or a slug in a clone with `git config jflow.mode
      github` keeps no `.jflow/` folder: its spec, notes, receipts and records are issue and pull
      request comments. Read them with `python3 <jflow skill>/scripts/jflow.py show <#N|URL|slug>`,
-     which prints them read-only under the same file names, then read them as for a run slug.
+     which prints them read-only under the same file names, `run.jsonl` included, then read them
+     as for a run slug.
    - **Transcripts:** the session store when the CLI offers one; otherwise
      `~/.copilot/session-state/<id>/events.jsonl`, `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`,
      `~/.claude/projects/<cwd-slug>/*.jsonl`. Grep large transcripts for tool errors and human
@@ -76,9 +83,13 @@ or `retro <issue URL>` (a run in jflow's issue and pull request mode) · `retro 
    Keep the top three by cost × recurrence. Zero is a valid result: report "no fix worth making".
 
 5. **Present** the kept fixes as decisions, one numbered item each, then the
-   rest, and stop for the answer. Exact layout:
+   rest, and stop for the answer. A jflow run's report opens with one line of numbers from
+   `run.jsonl`, never estimated. A bare session with no `run.jsonl` has no run record: omit the
+   line rather than guess. Exact layout:
 
    ```
+   Run: <n> sessions · <n> checks · <n> fix rounds · <n> defects · <n> accepted · <n> escaped · <h> hours · build <model>, check <model>   (omit when there is no run.jsonl)
+
    **1. <the problem in one line>** <Category>.
    Cost: <number> · Seen: <count and where> · Evidence: <pointer>
    - ➡️ a) <the change> → <destination> (<±N words>). <why it wins>
