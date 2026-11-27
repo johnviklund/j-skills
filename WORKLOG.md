@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-27 · #20 issue-card-confidence · Next cards state who they help, their sources and confidence, and Next prints in start order · claude-opus-5-5
+- `roadmap check --github` now reports a Next card without `Helps`, `Moves` or `Challenges`, `Grounded in`, `Confidence` or an `Order` from 1 to 5, plus bad `Confidence` values, duplicate `Order`s and `After` inversions. All of these are `stale:` findings. A `challenges` card needs no `Serves:`, and `next --github` sorts Next by `Order`. The roadmap docs define the fields and a three-tier source rank. `jflow spec` opens on the weakest field, `jflow done` writes an `Impact check` line, and `bootstrap` has an optional `Weighs more:` line.
+- Commits: 9aa7474 017afe9
+- jflow: 4 sessions · 1 fix rounds · 9 rows · 0 accepted · check 3 defects · net code +69 · tests +49 · docs +56
+
 ## 2026-11-26 · #13 jflow-size-headroom · room under jflow's size caps for the next changes · claude-opus-5-5
 - `jflow.py` drops from 30,179 to 26,895 of its 30,200 bytes: the seat, config and secret code moved unchanged into `scripts/jflow_seats.py`. `SKILL.md` plus `references/check.md` drops from 13,999 to 12,971 of 14,000 bytes by cutting repeated prose, with every rule kept. Three `TODO.md` items were waiting for this room.
 - Commits: 48c1506
@@ -79,8 +84,3 @@ oldest when appending would exceed that.
 - spec reads PRODUCT.md, DESIGN.md and the roadmap item, asks the why first and never reopens what the item settled, and makes its Solved when Proof row 1; specs carry `Serves:`, which `validate` checks against PRODUCT.md's `###` outcomes; done reports row 1 and asks before editing PRODUCT.md or DESIGN.md. Workflow's brainstorm was the only step that asked why.
 - Commits: 1361409 e9539bd 9b436c4 6171cae
 - jflow: 6 sessions · 3 fix rounds · 5 rows · 0 accepted · check 7 defects · net code +8 · tests +34 · docs +1
-
-## 2026-11-10 · jflow-validate · jflow rejects malformed run artifacts · GPT-6.1 Sol
-- `validate` checks specs, newest receipts and Accepted lines; `record` refuses malformed output before changing the run log.
-- Commits: 17afb7a 4d109e8 df19d36
-- jflow: 5 sessions · 2 fix rounds · 10 rows · 0 accepted · check 2 defects · net code +106 · tests +236 · docs +4
