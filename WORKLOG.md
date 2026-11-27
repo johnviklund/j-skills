@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-28 · #24 diff-triggered-reliability-checklist · jflow.py checklist prints the RELIABILITY.md items a run's diff triggers · claude-opus-5-5
+- New `jflow.py checklist <slug>` or `--base <sha>` reads an optional `RELIABILITY.md`, matches each item's `Paths:` globs and `Match:` regex against `Base..HEAD`, and prints only the items that fire. A bad item fails and names its line. `references/check.md` has the checker run it during Attack, so past-incident rules no longer need room in the size-capped prompt. The code is in `scripts/jflow_checklist.py`.
+- Commits: 31a0c1b 88b0195
+- jflow: 4 sessions · 1 fix rounds · 7 rows · 0 accepted · check 4 defects · net code +128 · tests +133 · docs +3
+
 ## 2026-11-27 · #4 retro-reads-scores · retro and memory.compact read each run's run.jsonl and optional hq scores · claude-opus-5-5
 - `retro` treats `run.jsonl` as its first source and opens a run's report with a `Run:` line of measured sessions, checks, fix rounds, defects, accepted, escaped, hours and seat models; a bare session with no `run.jsonl` omits the line. `memory.compact` picks the 10 newest done runs by their `done` line and reads `escaped` lines as signals; a `done` line counts only after the run's last `spec` line. Both read GitHub-mode runs through `jflow.py show` and run `hq scores` only when `hq` is on `PATH`.
 - Commits: 691f55b dd332e9
