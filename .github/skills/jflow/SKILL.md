@@ -100,9 +100,10 @@ only that point. A mid-run `jflow spec` resets the check cap and voids earlier `
 
 **Decisions happen in the builder session.** Another session's card for a stop
 sends the human there with `jflow <slug>`. The builder session prints `next <slug> --ask`: the
-question, ending "Reply A or B." On the reply it writes the line the option stands for (a `Yes:`
+question, ending "Reply A or B." or "Reply A, B or C." On the reply it writes the line the option stands for (a `Yes:`
 line, `Checks allowed: <used + 1>` or `## Accepted` lines), commits, does what the option says,
-then prints the next card. The human never edits run files.
+then prints the next card. `Step back` at the check cap writes no line: stop fixing and agree a
+new plan with the human, or run `jflow spec` again. The human never edits run files.
 
 ## The closing card
 

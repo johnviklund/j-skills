@@ -53,6 +53,13 @@ and name how it arrives.
 Run it in a scratch copy when you can, so the output is the evidence; otherwise trace it through
 the code and say so. A defect that breaks a row's claim also makes that row BROKEN.
 
+When one pattern repeats, report it once as a class: one concrete failing input, plus where else
+the same pattern appears, so the builder fixes every instance in one pass.
+
+Once your findings are drafted, read `notes.md` and, in issue mode, the pull request comments.
+Drop a defect from an earlier receipt that was fixed, or that the builder answered with evidence,
+unless the new diff broke it again or the answer is wrong.
+
 Tag each defect by how its input arrives. `[use]`: normal work on this repo makes it. `[edge]`: a
 caller could send it, but normal work does not, such as a CRLF receipt, a non-UTF-8 or git-quoted
 non-ASCII filename, custom git diff config, or a rare grammar corner of a heuristic matcher.

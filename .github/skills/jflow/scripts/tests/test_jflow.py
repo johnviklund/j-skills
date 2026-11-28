@@ -298,11 +298,15 @@ class RunRecord(unittest.TestCase):
         self.assertEqual(ask[ask.index("Checker view (.jflow/demo/receipts/check-4.md): 1 | BROKEN | `cmd` -> ok") + 2],
                          "**➡️ A. Stop here** (recommended): I accept what is open and move on.", ask)
         self.assertIn("**B. One more check**: I raise the limit and fix; if that check finds a new problem, stop.", ask)
-        self.assertEqual(ask[-1], "Reply A or B.")
+        step_back = "**C. Step back**: I stop fixing and we reconsider the approach: agree a new plan, or run jflow spec again."
+        self.assertEqual(ask[-3:], [step_back, "", "Reply A, B or C."])
         (self.run_dir / "receipts/check-3.md").write_text(
             (self.run_dir / "receipts/check-3.md").read_text().replace("- none", "- 1. app.py: x -> crash -> ok"))
         self.commit("closing")
-        self.assertIn("➡️ A. One more check", self.next()["blocker"])
+        ask = self.jflow("next", "demo", "--ask")
+        for line in ("**➡️ A. One more check** (recommended):", "**B. Stop here**:", step_back):
+            self.assertIn(line, ask)
+        self.assertTrue(ask.endswith("\n\nReply A, B or C."), ask)
         (self.run_dir / "notes.md").write_text("Checks allowed: 2\n")
         self.commit("allow")
         self.assertIn("3 checks used of 2", self.next()["blocker"])
