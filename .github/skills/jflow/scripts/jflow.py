@@ -400,13 +400,14 @@ def next_step(repo, run, a, pr=0):
                     + "; if that check finds a new problem, stop."), ("Stop here", "I accept what is open and move on.")]
         if len(open_) < 2 or open_[1] >= open_[0]:
             options.reverse()
+        options.append(("Step back", "I stop fixing and we reconsider the approach: agree a new plan, or run jflow spec again."))
         why, step, n = f"check cap reached before {step}", None, None
     if blocker:
         lines = [f"⏸️ {blocker[0].upper()}{blocker[1:]}."] + ([""] + [f"- {d}" for d in details] if details else [])
         lines += views(rpaths, nl, rel)
         for i, (label, say) in enumerate(options):
-            lines += ["", ("**➡️ " if i == 0 else "**") + f"{'AB'[i]}. {label}**" + " (recommended)" * (i == 0) + ": " + say]
-        blocker, step = "\n".join(lines + ["", "Reply A or B."]), "human"
+            lines += ["", ("**➡️ " if i == 0 else "**") + f"{chr(65 + i)}. {label}**" + " (recommended)" * (i == 0) + ": " + say]
+        blocker, step = "\n".join(lines + ["", f"Reply {', '.join(chr(65 + i) for i in range(len(options) - 1))} or {chr(64 + len(options))}."]), "human"
     meta = FLOW["steps"].get(step, {})
     seat = seat_for(repo, step, a) if meta else None
     cmd = {"fix": fix % n, "live": f"Run the live steps of jflow build {slug}, then print the card."}.get(step, seat and f"jflow {step} {slug}")

@@ -396,7 +396,7 @@ class GitHubMode(unittest.TestCase):
         self.assertIn("Checker view (the check-3 receipt comment on PR #7): 2. [use] off by one", blocker[:options])
         self.assertIn("Builder view (the jflow notes on PR #7): the off by one comes from the old parser", blocker[:options])
         self.assertIn("**B.", blocker)
-        self.assertTrue(blocker.endswith("Reply A or B."))
+        self.assertTrue(blocker.endswith("Reply A, B or C."))
 
     def test_marked_comment_counts_only_from_the_gh_user_or_write_access(self):
         self.post(42, "spec", self.spec(ask="the marker format"))
