@@ -5,6 +5,11 @@ Not a source of truth and not an archive — canonical docs and the git history 
 that; entries only point at commits. Cap: keep roughly the 15 most recent entries; delete the
 oldest when appending would exceed that.
 
+## 2026-11-28 · #23 jflow-check-convergence · check cap offers Step back; checker reports bug classes once and drops answered defects · claude-opus-5-5
+- The check-cap stop in `jflow.py` now lists `C. Step back`, which means pause fixing and agree a new plan or rerun `jflow spec`, and ends `Reply A, B or C.`; option letters now work for any count. `references/check.md` has the checker report a repeating pattern once as a class and drop earlier defects that were fixed or answered. This cuts review rounds that re-flag the same code.
+- Commits: da925ec
+- jflow: 3 sessions · 0 fix rounds · 6 rows · 0 accepted · check clean · net code +1 · tests +4 · docs +8
+
 ## 2026-11-28 · #24 diff-triggered-reliability-checklist · jflow.py checklist prints the RELIABILITY.md items a run's diff triggers · claude-opus-5-5
 - New `jflow.py checklist <slug>` or `--base <sha>` reads an optional `RELIABILITY.md`, matches each item's `Paths:` globs and `Match:` regex against `Base..HEAD`, and prints only the items that fire. A bad item fails and names its line. `references/check.md` has the checker run it during Attack, so past-incident rules no longer need room in the size-capped prompt. The code is in `scripts/jflow_checklist.py`.
 - Commits: 31a0c1b 88b0195
@@ -74,8 +79,3 @@ oldest when appending would exceed that.
 - `test_next_properties.py` builds 50 seeded random run folders in real git repos, one of 8 stories per seed, and checks the step or human stop `next` picks against an oracle built from the generated run; every reintroduced past `next` bug fails it, and `jflow.py` is unchanged.
 - Commits: 0d8ab1c 43ee16a b782169
 - jflow: 5 sessions · 2 fix rounds · 7 rows · 1 accepted · check 9 defects · net code +0 · tests +184 · docs +0
-
-## 2026-11-18 · check-reach · checkers tag defects [use] or [edge]; edge-only receipts stop for the human, not a fix round · claude-opus-5-5
-- In check-scope, 6 of 10 defects used inputs normal work never makes and cost two fix rounds; `next` now offers to accept them, and `validate` refuses unknown or repeated tags and defect numbers.
-- Commits: c86ae51 88c6157 f2ae69e
-- jflow: 5 sessions · 2 fix rounds · 7 rows · 0 accepted · check 5 defects · net code -14 · tests +21 · docs +5
